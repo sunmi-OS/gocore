@@ -7,9 +7,10 @@ import (
 	"github.com/jinzhu/gorm"
 	_ "github.com/jinzhu/gorm/dialects/mysql"
 	"github.com/sunmi-OS/gocore/viper"
+	"sync"
 )
 
-var Gorm map[string]*gorm.DB
+var Gorm sync.Map
 
 func init() {
 	Gorm = make(map[string]*gorm.DB)
@@ -40,8 +41,6 @@ func NewDB(dbname string) {
 	dbType := viper.C.GetString(dbname + ".dbType")
 
 	connectString := dbUser + ":" + dbPasswd + "@tcp(" + dbHost + ":" + dbPort + ")/" + dbName + "?charset=utf8"
-	//开启sql调试模式
-	//GDB.LogMode(true)
 
 	for orm, err = gorm.Open(dbType, connectString); err != nil; {
 		fmt.Println("数据库连接异常! 5秒重试")
@@ -53,18 +52,19 @@ func NewDB(dbname string) {
 	orm.DB().SetMaxIdleConns(viper.C.GetInt(dbname + ".idleconns_max"))
 	//最大打开连接数
 	orm.DB().SetMaxIdleConns(viper.C.GetInt(dbname + ".openconns_max"))
-	Gorm[dbname] = orm
-	//defer Gorm[dbname].Close()
+	Gorm.LoadOrStore(dbname, orm)
 }
 
 // 通过名称获取Gorm实例
 func GetORMByName(dbname string) *gorm.DB {
 
-	return Gorm[dbname]
+	v, _ := Gorm.Load(dbname)
+	return v.(*gorm.DB)
 }
 
 // 获取默认的Gorm实例
 func GetORM() *gorm.DB {
 
-	return Gorm["dbDefault"]
+	v, _ := Gorm.Load("dbDefault")
+	return v.(*gorm.DB)
 }
