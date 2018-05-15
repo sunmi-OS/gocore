@@ -7,9 +7,10 @@
 package viper
 
 import (
-	"github.com/spf13/viper"
 	"path"
-	"BITU-service/core/base"
+
+	"github.com/spf13/viper"
+	"github.com/sunmi-OS/gocore/utils"
 )
 
 var C *viper.Viper
@@ -22,7 +23,7 @@ func NewConfig(filePath string, fileName string) {
 	C.SetConfigName(fileName)
 	//filePath支持相对路径和绝对路径 etc:"/a/b" "b" "./b"
 	if (filePath[:1] != "/") {
-		C.AddConfigPath(path.Join(base.GetPath(), filePath))
+		C.AddConfigPath(path.Join(utils.GetPath(), filePath))
 	} else {
 		C.AddConfigPath(filePath)
 	}
