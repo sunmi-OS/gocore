@@ -2,8 +2,9 @@ package redis
 
 import (
 	"gopkg.in/redis.v5"
-	"BITU-service/core/viper"
-	"BITU-service/core/base"
+
+	"github.com/sunmi-OS/gocore/viper"
+	"github.com/sunmi-OS/gocore/utils"
 )
 
 var RedisList map[string]*redis.Client
@@ -20,7 +21,7 @@ func GetRedisOptions(db string) {
 	encryption := viper.C.GetInt("redisServer.encryption")
 	dbIndex := viper.C.GetInt("redisDB." + db)
 	if encryption == 1 {
-		auth = base.GetMD5(auth)
+		auth = utils.GetMD5(auth)
 	}
 	options := redis.Options{Addr: host + post, Password: auth, DB: dbIndex,}
 	client := redis.NewClient(&options)

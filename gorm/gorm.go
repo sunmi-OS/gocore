@@ -2,10 +2,11 @@ package gorm
 
 import (
 	"fmt"
-	"github.com/jinzhu/gorm"
-	"BITU-service/core/viper"
-	_ "github.com/jinzhu/gorm/dialects/mysql"
 	"time"
+
+	"github.com/jinzhu/gorm"
+	_ "github.com/jinzhu/gorm/dialects/mysql"
+	"github.com/sunmi-OS/gocore/viper"
 )
 
 var Gorm map[string]*gorm.DB
