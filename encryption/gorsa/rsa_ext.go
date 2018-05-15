@@ -1,13 +1,13 @@
 package gorsa
 
 import (
+	"io"
 	"bytes"
+	"errors"
 	"crypto/rand"
 	"crypto/rsa"
 	"crypto/x509"
 	"encoding/pem"
-	"errors"
-	"io"
 	"io/ioutil"
 	"math/big"
 )

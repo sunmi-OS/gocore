@@ -1,0 +1,18 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project version="4">
+  <component name="GOROOT" path="$USER_HOME$/soft/go" />
+  <component name="GoLibraries">
+    <option name="urls">
+      <list>
+        <option value="file://$USER_HOME$/goTest/src" />
+      </list>
+    </option>
+  </component>
+  <component name="PropertiesComponent">
+    <property name="configurable.Global.GOPATH.is.expanded" value="true" />
+    <property name="configurable.Project.GOPATH.is.expanded" value="true" />
+    <property name="nodejs_interpreter_path.stuck_in_default_project" value="undefined stuck path" />
+    <property name="nodejs_npm_path_reset_for_default_project" value="true" />
+    <property name="settings.editor.selected.configurable" value="project.propVCSSupport.Mappings" />
+  </component>
+</project>
