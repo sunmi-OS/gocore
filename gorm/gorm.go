@@ -3,11 +3,11 @@ package gorm
 import (
 	"fmt"
 	"time"
+	"sync"
 
 	"github.com/jinzhu/gorm"
-	_ "github.com/jinzhu/gorm/dialects/mysql"
 	"github.com/sunmi-OS/gocore/viper"
-	"sync"
+	_ "github.com/jinzhu/gorm/dialects/mysql"
 )
 
 var Gorm sync.Map
