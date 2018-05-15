@@ -15,7 +15,6 @@ func GetRedisOptions(db string) {
 	host := viper.C.GetString("redisServer.host")
 	post := viper.C.GetString("redisServer.port")
 	auth := viper.C.GetString("redisServer.auth")
-	//prefix := viper.C.GetString("redisServer.prefix")
 	encryption := viper.C.GetInt("redisServer.encryption")
 	dbIndex := viper.C.GetInt("redisDB." + db)
 	if encryption == 1 {
@@ -29,7 +28,6 @@ func GetRedisOptions(db string) {
 }
 
 func GetRedisDB(db string) *redis.Client {
-
 	if v, ok := RedisList.Load(db); ok {
 		return v.(*redis.Client)
 	}

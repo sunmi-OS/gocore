@@ -18,7 +18,6 @@ func init() {
 	var err error
 	LogS = logrus.New()
 	LogS.Formatter = new(logrus.JSONFormatter)
-	//log.Formatter = new(logrus.TextFormatter) // default
 	LogS.Level = logrus.DebugLevel
 
 	if !utils.IsDirExists(utils.GetPath() + "/Runtime") {
