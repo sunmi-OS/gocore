@@ -32,24 +32,24 @@
 package httplib
 
 import (
+	"io"
+	"os"
+	"log"
+	"net"
+	"sync"
+	"time"
 	"bytes"
 	"compress/gzip"
 	"crypto/tls"
 	"encoding/json"
 	"encoding/xml"
-	"io"
 	"io/ioutil"
-	"log"
 	"mime/multipart"
-	"net"
 	"net/http"
 	"net/http/cookiejar"
 	"net/http/httputil"
 	"net/url"
-	"os"
 	"strings"
-	"sync"
-	"time"
 )
 
 var defaultSetting = BeegoHTTPSettings{

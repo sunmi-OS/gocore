@@ -1,8 +1,8 @@
 package utils
 
 import (
-	"time"
 	"os"
+	"time"
 	"crypto/md5"
 	"encoding/hex"
 )
