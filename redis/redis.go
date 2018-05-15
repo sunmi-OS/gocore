@@ -1,17 +1,15 @@
 package redis
 
 import (
+	"sync"
+
 	"gopkg.in/redis.v5"
 
 	"github.com/sunmi-OS/gocore/viper"
 	"github.com/sunmi-OS/gocore/utils"
 )
 
-var RedisList map[string]*redis.Client
-
-func init() {
-	RedisList = make(map[string]*redis.Client, 10)
-}
+var RedisList sync.Map
 
 func GetRedisOptions(db string) {
 	host := viper.C.GetString("redisServer.host")
@@ -26,13 +24,14 @@ func GetRedisOptions(db string) {
 	options := redis.Options{Addr: host + post, Password: auth, DB: dbIndex,}
 	client := redis.NewClient(&options)
 	client.Ping().Result()
-	RedisList[db] = client
+
+	RedisList.Store(db, client)
 }
 
 func GetRedisDB(db string) *redis.Client {
-	if _, ok := RedisList[db]; ok {
-		//存在
-		return RedisList[db]
+
+	if v, ok := RedisList.Load(db); ok {
+		return v.(*redis.Client)
 	}
 	return nil
 }
