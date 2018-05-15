@@ -1,9 +1,9 @@
 package utils
 
 import (
-	"path/filepath"
 	"os"
 	"strings"
+	"path/filepath"
 )
 
 // 当前项目根目录
