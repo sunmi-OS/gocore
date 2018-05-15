@@ -12,9 +12,6 @@ import (
 
 var Gorm sync.Map
 
-func init() {
-	Gorm = make(map[string]*gorm.DB)
-}
 
 // 初始化Gorm
 func NewDB(dbname string) {
