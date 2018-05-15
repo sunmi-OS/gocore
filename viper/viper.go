@@ -1,9 +1,3 @@
-//	PhalGo-Config
-//	使用spf13大神的viper配置文件获取工具作为phalgo的配置文件工具
-//	喵了个咪 <wenzhenxi@vip.qq.com> 2016/5/11
-//  依赖情况:
-//          "github.com/spf13/viper"
-
 package viper
 
 import (
