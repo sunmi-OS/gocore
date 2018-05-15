@@ -12,7 +12,7 @@ func linkService() {
 	mail = gomail.NewDialer(viper.C.GetString("email.host"), viper.C.GetInt("email.port"), viper.C.GetString("email.username"), viper.C.GetString("email.password"))
 }
 
-func SendEmail(email, fromMail, formNmae, subject, text string, code string) error {
+func SendEmail(email, fromMail, formNmae, subject, text string) error {
 	if mail == nil {
 		linkService()
 	}
