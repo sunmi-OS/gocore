@@ -1,11 +1,12 @@
 package log
 
 import (
-	"github.com/Sirupsen/logrus"
 	"os"
 	"time"
 	"fmt"
-	"BITU-service/core/base"
+	
+	"github.com/Sirupsen/logrus"
+	"github.com/sunmi-OS/gocore/utils"
 )
 
 var LogS *logrus.Logger
@@ -20,15 +21,15 @@ func init() {
 	//log.Formatter = new(logrus.TextFormatter) // default
 	LogS.Level = logrus.DebugLevel
 
-	if !base.IsDirExists(base.GetPath() + "/Runtime") {
-		if mkdirerr := base.MkdirFile(base.GetPath() + "/Runtime"); mkdirerr != nil {
+	if !utils.IsDirExists(utils.GetPath() + "/Runtime") {
+		if mkdirerr := utils.MkdirFile(utils.GetPath() + "/Runtime"); mkdirerr != nil {
 			fmt.Println(mkdirerr)
 		}
 	}
 
-	logfile, err = os.OpenFile(base.GetPath() + "/Runtime/" + time.Now().Format("2006-01-02") + ".log", os.O_RDWR | os.O_APPEND, 0666)
+	logfile, err = os.OpenFile(utils.GetPath()+"/Runtime/"+time.Now().Format("2006-01-02")+".log", os.O_RDWR|os.O_APPEND, 0666)
 	if err != nil {
-		logfile, err = os.Create(base.GetPath() + "/Runtime/" + time.Now().Format("2006-01-02") + ".log")
+		logfile, err = os.Create(utils.GetPath() + "/Runtime/" + time.Now().Format("2006-01-02") + ".log")
 		if err != nil {
 			fmt.Println(err)
 		}
@@ -44,7 +45,7 @@ func updateLogFile() {
 	day2 := time.Now().Format("02")
 	if day2 != day {
 		logfile.Close()
-		logfile, err = os.Create(base.GetPath() + "/Runtime/" + time.Now().Format("2006-01-02") + ".log")
+		logfile, err = os.Create(utils.GetPath() + "/Runtime/" + time.Now().Format("2006-01-02") + ".log")
 		if err != nil {
 			fmt.Println(err)
 		}
