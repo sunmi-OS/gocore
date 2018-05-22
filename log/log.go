@@ -1,9 +1,9 @@
 package log
 
 import (
+	"fmt"
 	"os"
 	"time"
-	"fmt"
 
 	"github.com/sunmi-OS/gocore/utils"
 	"go.uber.org/zap"
