@@ -2,7 +2,7 @@ package viper
 
 import (
 	"path"
-
+	"strings"
 	"github.com/spf13/viper"
 	"github.com/sunmi-OS/gocore/utils"
 )
@@ -29,8 +29,14 @@ func NewConfig(filePath string, fileName string) {
 
 }
 
-func Get()  {
-	
+// 转大写 . 转 _ 获取环境变量判断是否存在(存在直接返回,不存在使用viper配置)
+// 使用获取配置需要Docker来获取环境变量的场景
+func GetEnvConfig(key string) string {
+
+	env := os.Getenv(strings.Replace(strings.ToUpper(key), ".", "_", -1))
+	if env != "" {
+		return env
+	}
+
+	return C.GetString(key)
 }
-
-
