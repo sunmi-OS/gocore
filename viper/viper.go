@@ -29,4 +29,8 @@ func NewConfig(filePath string, fileName string) {
 
 }
 
+func Get()  {
+	
+}
+
 
