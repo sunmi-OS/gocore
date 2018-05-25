@@ -15,6 +15,7 @@ CLI库(K8S,ETCD等使用)  :  [github.com/spf13/cobra](github.com/spf13/cobra)
 
 
 ## 系统组件
+
 DNS库  :  [github.com/miekg/dns](github.com/miekg/dns)
 
 docker(已使用)  :  [github.com/moby/moby ](github.com/moby/moby )
@@ -81,6 +82,7 @@ UUID库(已使用)  :  [github.com/satori/go.uuid](github.com/satori/go.uuid)
 
 
 ## 数据文件处理
+
 文件嵌入到编译文件  :  [github.com/rakyll/statik ](github.com/rakyll/statik )
 
 文件嵌入到编译文件(html,css,js)  :  [github.com/GeertJohan/go.rice](github.com/GeertJohan/go.rice)
@@ -89,6 +91,7 @@ UUID库(已使用)  :  [github.com/satori/go.uuid](github.com/satori/go.uuid)
 
 
 ## 第三方软件使用
+
 邮件发送(已使用)  :  [github.com/go-gomail/gomail](github.com/go-gomail/gomail)
 
 数据库操作(已使用)  :  [github.com/jinzhu/gorm](github.com/jinzhu/gorm)
@@ -100,6 +103,9 @@ redis操作库(已使用)  :  [gopkg.in/redis.v5](gopkg.in/redis.v5)
 rabbitmq使用框架(已使用)  :  [github.com/streadway/amqp](github.com/streadway/amqp)
 
 levelDB处理  :  [https://github.com/syndtr/goleveldb ](https://github.com/syndtr/goleveldb )
+
+bolt嵌入式数据库  :  [github.com/boltdb/bolt](github.com/boltdb/bolt)
+
 
 
 ### 解析库
