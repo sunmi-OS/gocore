@@ -1,9 +1,11 @@
 # gocore
 SUNMI go开发封装核心库 
 
-
 ## 终端开发
-CLI库(已使用)  :  [github.com/urfave/cli](github.com/urfave/cli)
+
+CLI库(ETH等使用)  :  [github.com/urfave/cli](github.com/urfave/cli)
+
+CLI库(K8S,ETCD等使用)  :  [github.com/spf13/cobra](github.com/spf13/cobra)
 
 终端仪表盘  :  [github.com/gizak/termui](github.com/gizak/termui)
 
@@ -56,6 +58,8 @@ K/V数据库  :  [github.com/coreos/etcd ](github.com/coreos/etcd )
 桌面UI库(基于HTML)  :  [github.com/murlokswarm/app](github.com/murlokswarm/app)
 
 LOG库(已使用)  :  [github.com/Sirupsen/logrus ](github.com/Sirupsen/logrus )
+
+zap - LOG库(集成gocore)  :  [github.com/uber-go/zap](github.com/uber-go/zap)
 
 图像处理库  :  [github.com/anthonynsimon/bild ](github.com/anthonynsimon/bild )
 
