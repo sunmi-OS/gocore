@@ -11,6 +11,7 @@ import (
 )
 
 var Logger *zap.Logger
+var Sugar *zap.SugaredLogger
 var logfile *os.File
 var isDebug bool
 var cfg zap.Config
@@ -33,22 +34,20 @@ func InitLogger(serviceaName string, debug bool) {
 			fmt.Println(err)
 		}
 	}
-	cfg = zap.Config{
-		Encoding:         "json",
-		OutputPaths:      []string{filename},
-		ErrorOutputPaths: []string{filename},
-		Level:            zap.NewAtomicLevel(),
-		EncoderConfig:    zap.NewProductionEncoderConfig(),
-		InitialFields:    map[string]interface{}{"service": serviceaName},
-	}
+
+	cfg = zap.NewProductionConfig()
+	cfg.OutputPaths = []string{filename, "stderr"}
+	cfg.ErrorOutputPaths = []string{filename, "stderr"}
 	cfg.EncoderConfig.EncodeTime = zapcore.ISO8601TimeEncoder
 
 	Logger, err = cfg.Build()
+
 	if err != nil {
 		fmt.Println(err)
 	}
-	Logger.Info("logger初始化成功")
 	isDebug = debug
+	Sugar = Logger.Sugar()
+
 	go updateLogFile()
 }
 
@@ -77,24 +76,7 @@ func updateLogFile() {
 				fmt.Println(err)
 				continue
 			}
+			Sugar = Logger.Sugar()
 		}
 	}
-}
-
-// 记录Debug信息
-func LogDebug(msg string, fields ...zap.Field) {
-	if isDebug == false {
-		return
-	}
-	Logger.Debug(msg, fields...)
-}
-
-// 记录Info信息
-func LogInfo(msg string, fields ...zap.Field) {
-	Logger.Info(msg, fields...)
-}
-
-// 记录Error信息
-func LogError(msg string, fields ...zapcore.Field) {
-	Logger.Error(msg, fields...)
 }
