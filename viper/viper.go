@@ -3,8 +3,11 @@ package viper
 import (
 	"path"
 	"strings"
+	"os"
+
 	"github.com/spf13/viper"
 	"github.com/sunmi-OS/gocore/utils"
+	"github.com/spf13/cast"
 )
 
 var C *viper.Viper
@@ -40,3 +43,35 @@ func GetEnvConfig(key string) string {
 
 	return C.GetString(key)
 }
+
+func GetEnvConfigInt(key string) int64 {
+
+	env := os.Getenv(strings.Replace(strings.ToUpper(key), ".", "_", -1))
+	if env != "" {
+		return cast.ToInt64(env)
+	}
+
+	return C.GetInt64(key)
+}
+
+func GetEnvConfigFloat(key string) float64 {
+
+	env := os.Getenv(strings.Replace(strings.ToUpper(key), ".", "_", -1))
+	if env != "" {
+		return cast.ToFloat64(env)
+	}
+
+	return C.GetFloat64(key)
+}
+
+func GetEnvConfigBool(key string) bool {
+
+	env := os.Getenv(strings.Replace(strings.ToUpper(key), ".", "_", -1))
+	if env != "" {
+		return cast.ToBool(env)
+	}
+
+	return C.GetBool(key)
+}
+
+
