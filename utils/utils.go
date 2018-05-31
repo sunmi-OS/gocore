@@ -5,6 +5,7 @@ import (
 	"time"
 	"crypto/md5"
 	"encoding/hex"
+	"fmt"
 )
 
 // 返回当前时间
@@ -19,7 +20,7 @@ func GetRunTime() string {
 	//获取系统环境变量
 	RUN_TIME := os.Getenv("RUN_TIME")
 	if RUN_TIME == "" {
-		panic("No RUN_TIME Can't start")
+		fmt.Println("No RUN_TIME Can't start")
 	}
 	return RUN_TIME
 }
