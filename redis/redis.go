@@ -31,5 +31,6 @@ func GetRedisDB(db string) *redis.Client {
 	if v, ok := RedisList.Load(db); ok {
 		return v.(*redis.Client)
 	}
+
 	return nil
 }
