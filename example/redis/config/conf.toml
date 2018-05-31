@@ -1,0 +1,27 @@
+[redisServer]
+host = "dev-redis-service"
+port = ":6379"
+auth = "devsunmiredis666"
+prefix = "tob_"
+encryption = 1
+
+
+[redisDB]
+developers_only = 1
+developers_login = 2
+phone_code = 3
+email_check = 4
+password_reset = 5
+email_update = 6
+repairper_phone = 7
+cache = 8
+push = 9
+push2 = 10
+logs = 11
+sunmi = 12
+oauth = 13
+xiaoma_queue = 14
+email_queue = 15
+requestback_queue = 16
+app_down = 17
+datacollect = 18
