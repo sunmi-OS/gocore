@@ -13,7 +13,6 @@ import (
 var Logger *zap.Logger
 var Sugar *zap.SugaredLogger
 var logfile *os.File
-var isDebug bool
 var cfg zap.Config
 
 // 初始化Log日志记录
@@ -35,17 +34,20 @@ func InitLogger(serviceaName string, debug bool) {
 		}
 	}
 
+	zap.NewExample()
+
 	cfg = zap.NewProductionConfig()
 	cfg.OutputPaths = []string{filename, "stderr"}
 	cfg.ErrorOutputPaths = []string{filename, "stderr"}
 	cfg.EncoderConfig.EncodeTime = zapcore.ISO8601TimeEncoder
-
+	if debug {
+		cfg.Level = zap.NewAtomicLevelAt(zap.DebugLevel)
+	}
 	Logger, err = cfg.Build()
 
 	if err != nil {
 		fmt.Println(err)
 	}
-	isDebug = debug
 	Sugar = Logger.Sugar()
 
 	go updateLogFile()

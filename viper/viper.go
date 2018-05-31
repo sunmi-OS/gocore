@@ -34,10 +34,11 @@ func NewConfig(filePath string, fileName string) {
 
 }
 
-// 转大写 . 转 _ 获取环境变量判断是否存在(存在直接返回,不存在使用viper配置)
-// 使用获取配置需要Docker来获取环境变量的场景
+
+// 获取配置文件优先获取环境变量(返回string类型)
 func GetEnvConfig(key string) string {
 
+	// 转大写 . 转 _ 获取环境变量判断是否存在(存在直接返回,不存在使用viper配置)
 	env := os.Getenv(strings.Replace(strings.ToUpper(key), ".", "_", -1))
 	if env != "" {
 		return env
@@ -46,6 +47,7 @@ func GetEnvConfig(key string) string {
 	return C.GetString(key)
 }
 
+// 获取配置文件优先获取环境变量(返回int类型)
 func GetEnvConfigInt(key string) int64 {
 
 	env := os.Getenv(strings.Replace(strings.ToUpper(key), ".", "_", -1))
@@ -56,6 +58,7 @@ func GetEnvConfigInt(key string) int64 {
 	return C.GetInt64(key)
 }
 
+// 获取配置文件优先获取环境变量(返回Float类型)
 func GetEnvConfigFloat(key string) float64 {
 
 	env := os.Getenv(strings.Replace(strings.ToUpper(key), ".", "_", -1))
@@ -66,6 +69,7 @@ func GetEnvConfigFloat(key string) float64 {
 	return C.GetFloat64(key)
 }
 
+// 获取配置文件优先获取环境变量(返回Bool类型)
 func GetEnvConfigBool(key string) bool {
 
 	env := os.Getenv(strings.Replace(strings.ToUpper(key), ".", "_", -1))
