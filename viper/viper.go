@@ -12,7 +12,9 @@ import (
 
 var C *viper.Viper
 
-//初始化配置文件
+// 初始化配置文件
+// filePath 配置文件路径
+// fileName 配置文件名称(不需要文件后缀)
 func NewConfig(filePath string, fileName string) {
 
 	C = viper.New()
