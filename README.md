@@ -156,4 +156,4 @@ go语言对Tensorflow的封装:[tfgo](github.com/galeone/tfgo )
 
 ## 容器沙箱
 docker 运行时沙箱:[gvisor](https://github.com/google/gvisor)
- Kubernetes的虚拟机管理附件:[KubeVirt](https://github.com/kubevirt/kubevirt)
+Kubernetes的虚拟机管理附件:[KubeVirt](https://github.com/kubevirt/kubevirt)
