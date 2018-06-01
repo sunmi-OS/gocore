@@ -2,8 +2,6 @@ package main
 
 import (
 	"fmt"
-	"time"
-
 	"github.com/robfig/cron"
 )
 
@@ -13,7 +11,10 @@ func main() {
 	c.AddFunc("0 * * * * *", func() { fmt.Println("Every minutes") })
 	c.AddFunc("@hourly", func() { fmt.Println("Every hour") })
 	c.AddFunc("@every 1h30m", func() { fmt.Println("Every hour thirty") })
-	c.Start()
 
-	time.Sleep(10 * time.Hour)
+	// 同步阻塞运行
+	c.Run()
+
+	// 异步运行
+	//c.Start()
 }
