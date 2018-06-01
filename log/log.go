@@ -8,6 +8,7 @@ import (
 	"github.com/sunmi-OS/gocore/utils"
 	"go.uber.org/zap"
 	"go.uber.org/zap/zapcore"
+	"github.com/sunmi-OS/gocore/viper"
 )
 
 var Logger *zap.Logger
@@ -16,7 +17,7 @@ var logfile *os.File
 var cfg zap.Config
 
 // 初始化Log日志记录
-func InitLogger(serviceaName string, debug bool) {
+func InitLogger(serviceaName string) {
 	var err error
 
 	if !utils.IsDirExists(utils.GetPath() + "/Runtime") {
@@ -33,14 +34,14 @@ func InitLogger(serviceaName string, debug bool) {
 			fmt.Println(err)
 		}
 	}
-
-	zap.NewExample()
-
+	
 	cfg = zap.NewProductionConfig()
 	cfg.OutputPaths = []string{filename, "stderr"}
 	cfg.ErrorOutputPaths = []string{filename, "stderr"}
 	cfg.EncoderConfig.EncodeTime = zapcore.ISO8601TimeEncoder
-	if debug {
+
+	viper.C.SetDefault("system.debug", "true")
+	if viper.GetEnvConfigBool("system.debug") {
 		cfg.Level = zap.NewAtomicLevelAt(zap.DebugLevel)
 	}
 	Logger, err = cfg.Build()
