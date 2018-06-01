@@ -81,6 +81,9 @@ viper配置文件读取库(已使用):[viper](https://github.com/spf13/viper)
 
 程序内部系统资源,可以对不同的资源做出不同的规则调整:[gopsutil](https://github.com/shirou/gopsutil)
 
+定时任务(已使用):[cron](https://github.com/robfig/cron)
+
+
 
 ## 数据文件处理
 
