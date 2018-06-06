@@ -12,7 +12,6 @@ func main() {
 	i64 = 60
 
 	toString(cast.ToString(i64))
-
 }
 
 func toString(s string) {

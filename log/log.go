@@ -34,7 +34,7 @@ func InitLogger(serviceaName string) {
 			fmt.Println(err)
 		}
 	}
-	
+
 	cfg = zap.NewProductionConfig()
 	cfg.OutputPaths = []string{filename, "stderr"}
 	cfg.ErrorOutputPaths = []string{filename, "stderr"}
