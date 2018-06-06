@@ -1,7 +1,7 @@
 package main
 
 import (
-	"gocore/utils"
+	"github.com/sunmi-OS/gocore/utils"
 	"fmt"
 )
 
