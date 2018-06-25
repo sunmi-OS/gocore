@@ -1,9 +1,9 @@
 [system]
 port = ":10001"
 OpenDES = false
-DESkey = "wywmxxkj"
+DESkey = "deskey12"
 DESiv = "12345678"
-MD5key = "Woyouxinxi666"
+MD5key = "SUNMIMD5"
 DESParam = "params"
 
 [dbDefault]
