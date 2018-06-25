@@ -5,7 +5,7 @@ SUNMI go开发封装核心库
 
 CLI库(ETH等使用):[CLI库(ETH等使用)](https://github.com/urfave/cli)
 
-CLI库(K8S,ETCD等使用):[CLI库(K8S,ETCD等使用)](https://github.com/spf13/cobra)
+cobra-CLI库(K8S,ETCD等使用):[CLI库(K8S,ETCD等使用)](https://github.com/spf13/cobra)
 
 终端仪表盘:[终端仪表盘](https://github.com/gizak/termui)
 
@@ -18,7 +18,7 @@ CLI库(K8S,ETCD等使用):[CLI库(K8S,ETCD等使用)](https://github.com/spf13/c
 
 DNS库:[DNS库](https://github.com/miekg/dns)
 
-docker(已使用):[docker](https://github.com/moby/moby)
+obra docker(已使用):[docker](https://github.com/moby/moby)
 
 kubernetes:[/home/keke/goTest/src/gocore/README.md](https://github.com/kubernetes/kubernetes)
 
