@@ -1,0 +1,6 @@
+[system]
+OpenDES = false
+DESkey = "deskey12"
+DESiv = "12345678"
+MD5key = "SUNMIMD5"
+DESParam = "params"

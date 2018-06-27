@@ -5,19 +5,28 @@
 //          "github.com/astaxie/beego/validation" 基于beego的拦截器(已经集成)
 //          "github.com/labstack/echo" 依赖于echo
 
-package phalgo
+package api
 
 import (
 	"strconv"
 	"github.com/labstack/echo"
-	"github.com/wenzhenxi/phalgo/validation"
-	"github.com/wenzhenxi/phalgo/errors"
 	"crypto/md5"
 	"encoding/hex"
 	"encoding/base64"
 	"regexp"
 	"fmt"
+	"errors"
 	"github.com/sunmi-OS/gocore/viper"
+	"github.com/sunmi-OS/gocore/api/validation"
+)
+
+var (
+	ErrNoParams = errors.New("No params")
+	ErrMD5      = errors.New("MD5 Check Error")
+
+	ErrCustom = func(str string) error {
+		return errors.New(str)
+	}
 )
 
 type Request struct {
@@ -59,19 +68,19 @@ func NewRequest(c echo.Context) *Request {
 }
 
 // 清理参数
-func (this *Request)Clean() {
+func (this *Request) Clean() {
 
 	this.params = new(param)
 	this.Jsonparam = new(Jsonparam)
 }
 
 // 返回报错信息
-func (this *Request)GetError() error {
+func (this *Request) GetError() error {
 
 	if this.valid.HasErrors() {
 		for _, v := range this.valid.Errors {
 
-			return errors.ErrCustom(v.Message + v.Key)
+			return ErrCustom(v.Message + v.Key)
 		}
 	}
 
@@ -79,7 +88,7 @@ func (this *Request)GetError() error {
 }
 
 // 进行签名验证以及DES加密验证
-func (this *Request)InitDES() error {
+func (this *Request) InitDES() error {
 
 	params := ""
 	this.Json = new(Js)
@@ -88,33 +97,33 @@ func (this *Request)InitDES() error {
 	//如果是开启了 DES加密 需要验证是否加密,然后需要验证签名,和加密内容
 	if viper.C.GetBool("system.OpenDES") == true {
 		if params == "" {
-			return errors.ErrNoParams
+			return ErrNoParams
 		}
 	}
 
 	if params != "" {
-		enableSignCheck := viper.C.GetBool("DES.EnableSignCheck")
+
 		sign := this.PostParam("sign").GetString()
 		timeStamp := this.PostParam("timeStamp").GetString()
 		randomNum := this.PostParam("randomNum").GetString()
 		isEncrypted := this.PostParam("isEncrypted").GetString()
-		if enableSignCheck {
-			if sign == "" || timeStamp == "" || randomNum == "" {
-				return errors.ErrMD5
-			}
 
-			keymd5 := md5.New()
-			keymd5.Write([]byte(viper.C.GetString("system.MD5key")))
-			md5key := hex.EncodeToString(keymd5.Sum(nil))
-
-			signmd5 := md5.New()
-			signmd5.Write([]byte(params + isEncrypted + timeStamp + randomNum + md5key))
-			sign2 := hex.EncodeToString(signmd5.Sum(nil))
-
-			if sign != sign2 {
-				return errors.ErrMD5
-			}
+		if sign == "" || timeStamp == "" || randomNum == "" {
+			return ErrMD5
 		}
+
+		keymd5 := md5.New()
+		keymd5.Write([]byte(viper.C.GetString("system.MD5key")))
+		md5key := hex.EncodeToString(keymd5.Sum(nil))
+
+		signmd5 := md5.New()
+		signmd5.Write([]byte(params + isEncrypted + timeStamp + randomNum + md5key))
+		sign2 := hex.EncodeToString(signmd5.Sum(nil))
+
+		if sign != sign2 {
+			return ErrMD5
+		}
+
 		//如果是加密的params那么进行解密操作
 		if isEncrypted == "1" {
 
@@ -137,16 +146,15 @@ func (this *Request)InitDES() error {
 }
 
 // 使用Json参数传入Json字符
-func (this *Request)SetJson(json string) {
+func (this *Request) SetJson(json string) {
 
 	this.Json = Json(json)
 }
 
-
 //--------------------------------------------------------获取参数-------------------------------------
 
 // 获取Json参数
-func (this *Request)DESParam(keys ...string) *Request {
+func (this *Request) DESParam(keys ...string) *Request {
 	var key string
 	var str string
 	this.Clean()
@@ -175,7 +183,7 @@ func (this *Request)DESParam(keys ...string) *Request {
 }
 
 // 获取Json参数
-func (this *Request)JsonParam(keys ...string) *Request {
+func (this *Request) JsonParam(keys ...string) *Request {
 
 	var key string
 	this.Clean()
@@ -193,7 +201,7 @@ func (this *Request)JsonParam(keys ...string) *Request {
 }
 
 // 获取Get参数
-func (this *Request)GetParam(key string) *Request {
+func (this *Request) GetParam(key string) *Request {
 
 	this.Clean()
 	str := this.Context.QueryParam(key)
@@ -205,7 +213,7 @@ func (this *Request)GetParam(key string) *Request {
 }
 
 // 获取post参数
-func (this *Request)PostParam(key string) *Request {
+func (this *Request) PostParam(key string) *Request {
 
 	this.Clean()
 	str := this.Context.FormValue(key)
@@ -217,7 +225,7 @@ func (this *Request)PostParam(key string) *Request {
 }
 
 // 获取请求参数顺序get->post
-func (this *Request)Param(key string) *Request {
+func (this *Request) Param(key string) *Request {
 
 	var str string
 	this.Clean()
@@ -233,7 +241,7 @@ func (this *Request)Param(key string) *Request {
 	return this
 }
 
-func (this *Request)SetDefault(val string) *Request {
+func (this *Request) SetDefault(val string) *Request {
 	if this.jsonTag == true {
 		defJson := fmt.Sprintf(`{"index":"%s"}`, val)
 		this.Jsonparam.val = *Json(defJson).Get("index")
@@ -248,31 +256,30 @@ func (this *Request)SetDefault(val string) *Request {
 //----------------------------------------------------过滤验证------------------------------------
 
 // GET,POST或JSON参数是否必须
-func (this *Request)Require(b bool) *Request {
+func (this *Request) Require(b bool) *Request {
 
 	this.valid.Required(this.getParamVal(), this.getParamKey()).Message("缺少必要参数,参数名称:")
 	return this
 }
 
 // 设置参数最大值
-func (this *Request)Max(i int) *Request {
+func (this *Request) Max(i int) *Request {
 
 	this.params.max = i
 	return this
 }
 
 //设置参数最小值
-func (this *Request)Min(i int) *Request {
+func (this *Request) Min(i int) *Request {
 
 	this.params.min = i
 	return this
 }
 
-
 //--------------------------------------------GET,POST获取参数------------------------------------
 
 // 获取并且验证参数 string类型 适用于GET或POST参数
-func (this *Request)GetString() string {
+func (this *Request) GetString() string {
 
 	var str string
 
@@ -290,9 +297,9 @@ func (this *Request)GetString() string {
 }
 
 // 获取并且验证参数 int类型 适用于GET或POST参数
-func (this *Request)GetInt() int {
+func (this *Request) GetInt() int {
 	var (
-		i int
+		i   int
 		err error
 	)
 
@@ -318,10 +325,10 @@ func (this *Request)GetInt() int {
 }
 
 // 获取并且验证参数 float64类型 适用于GET或POST参数
-func (this *Request)GetFloat() float64 {
+func (this *Request) GetFloat() float64 {
 
 	var (
-		i float64
+		i   float64
 		err error
 	)
 
@@ -347,98 +354,98 @@ func (this *Request)GetFloat() float64 {
 }
 
 // 邮政编码
-func (this *Request)ZipCode() *Request {
+func (this *Request) ZipCode() *Request {
 
 	this.valid.ZipCode(this.getParamVal(), this.getParamKey()).Message("参数异常!邮政编码验证失败,参数名称:")
 	return this
 }
 
 // 手机号或固定电话号
-func (this *Request)Phone() *Request {
+func (this *Request) Phone() *Request {
 
 	this.valid.Phone(this.getParamVal(), this.getParamKey()).Message("参数异常!手机号或固定电话号验证失败,参数名称:")
 	return this
 }
 
 // 固定电话号
-func (this *Request)Tel() *Request {
+func (this *Request) Tel() *Request {
 
 	this.valid.Tel(this.getParamVal(), this.getParamKey()).Message("参数异常!固定电话号验证失败,参数名称:")
 	return this
 }
 
 // 手机号
-func (this *Request)Mobile() *Request {
+func (this *Request) Mobile() *Request {
 
 	this.valid.Mobile(this.getParamVal(), this.getParamKey()).Message("参数异常!手机号验证失败,参数名称:")
 	return this
 }
 
 // base64编码
-func (this *Request)Base64() *Request {
+func (this *Request) Base64() *Request {
 
 	this.valid.Base64(this.getParamVal(), this.getParamKey()).Message("参数异常!base64编码验证失败,参数名称:")
 	return this
 }
 
 // IP格式，目前只支持IPv4格式验证
-func (this *Request)IP() *Request {
+func (this *Request) IP() *Request {
 
 	this.valid.IP(this.getParamVal(), this.getParamKey()).Message("参数异常!IP格式验证失败,参数名称:")
 	return this
 }
 
 // 邮箱格式
-func (this *Request)Email() *Request {
+func (this *Request) Email() *Request {
 
 	this.valid.Email(this.getParamVal(), this.getParamKey()).Message("参数异常!邮箱格式验证失败,参数名称:")
 	return this
 }
 
 // 正则匹配,其他类型都将被转成字符串再匹配(fmt.Sprintf(“%v”, obj).Match)
-func (this *Request)Match(match string) *Request {
+func (this *Request) Match(match string) *Request {
 
 	this.valid.Match(this.getParamVal(), regexp.MustCompile(match), this.getParamKey()).Message("参数异常!正则验证失败,参数名称:")
 	return this
 }
 
 // 反正则匹配,其他类型都将被转成字符串再匹配(fmt.Sprintf(“%v”, obj).Match)
-func (this *Request)NoMatch(match string) *Request {
+func (this *Request) NoMatch(match string) *Request {
 
 	this.valid.NoMatch(this.getParamVal(), regexp.MustCompile(match), this.getParamKey()).Message("参数异常!邮箱格式验证失败,参数名称:")
 	return this
 }
 
 // 数字
-func (this *Request)Numeric() *Request {
+func (this *Request) Numeric() *Request {
 
 	this.valid.Numeric(this.getParamVal(), this.getParamKey()).Message("参数异常!数字格式验证失败,参数名称:")
 	return this
 }
 
 // alpha字符
-func (this *Request)Alpha() *Request {
+func (this *Request) Alpha() *Request {
 
 	this.valid.Alpha(this.getParamVal(), this.getParamKey()).Message("参数异常!alpha格式验证失败,参数名称:")
 	return this
 }
 
 // alpha字符或数字
-func (this *Request)AlphaNumeric() *Request {
+func (this *Request) AlphaNumeric() *Request {
 
 	this.valid.AlphaNumeric(this.getParamVal(), this.getParamKey()).Message("参数异常!AlphaNumeric格式验证失败,参数名称:")
 	return this
 }
 
 // alpha字符或数字或横杠-_
-func (this *Request)AlphaDash() *Request {
+func (this *Request) AlphaDash() *Request {
 
 	this.valid.AlphaDash(this.getParamVal(), this.getParamKey()).Message("参数异常!AlphaDash格式验证失败,参数名称:")
 	return this
 }
 
 // 返回解析参数的Val
-func (this *Request)getParamVal() string {
+func (this *Request) getParamVal() string {
 
 	if this.jsonTag {
 		return this.Jsonparam.val.Tostring()
@@ -448,7 +455,7 @@ func (this *Request)getParamVal() string {
 }
 
 // 反回解析参数的Key
-func (this *Request)getParamKey() string {
+func (this *Request) getParamKey() string {
 	if this.jsonTag {
 		return this.Jsonparam.key
 	} else {
@@ -456,9 +463,8 @@ func (this *Request)getParamKey() string {
 	}
 }
 
-
 // 获取并且验证参数 Json类型 适用于Json参数
-func (this *Request)GetJson() Js {
+func (this *Request) GetJson() Js {
 
 	return this.Jsonparam.val
 }

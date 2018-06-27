@@ -4,7 +4,7 @@
 //  依赖情况:
 //          "github.com/labstack/echo" 必须基于echo路由
 
-package phalgo
+package api
 
 import (
 	"github.com/labstack/echo"
