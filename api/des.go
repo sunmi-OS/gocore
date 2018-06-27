@@ -3,7 +3,7 @@
 //	喵了个咪 <wenzhenxi@vip.qq.com> 2016/5/11
 //  依赖情况:无依赖
 
-package phalgo
+package api
 
 
 import (

@@ -4,7 +4,7 @@
 //  依赖情况: 无依赖
 //  附上gojson地址:github.com/widuu/gojson
 
-package phalgo
+package api
 
 import (
 	"encoding/json"
