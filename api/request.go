@@ -169,11 +169,7 @@ func (this *Request) DESParam(keys ...string) *Request {
 			json = json.Get(v)
 			key = key + v
 		}
-
-		fmt.Println(keys)
-		fmt.Println(json.String())
-
-
+		
 		this.Jsonparam.val = json
 		this.Jsonparam.key = key
 		this.jsonTag = true
