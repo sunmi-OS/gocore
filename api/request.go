@@ -162,12 +162,17 @@ func (this *Request) DESParam(keys ...string) *Request {
 	var key string
 	var str string
 	this.Clean()
+
 	if (this.Encryption) {
 		json := this.Json
 		for _, v := range keys {
-			json.Get(v)
+			json = json.Get(v)
 			key = key + v
 		}
+
+		fmt.Println(keys)
+		fmt.Println(json.String())
+
 
 		this.Jsonparam.val = json
 		this.Jsonparam.key = key
