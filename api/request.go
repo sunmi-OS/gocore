@@ -8,18 +8,19 @@
 package api
 
 import (
+	"fmt"
+	"regexp"
+	"errors"
 	"strconv"
-	"github.com/labstack/echo"
 	"crypto/md5"
 	"encoding/hex"
 	"encoding/base64"
-	"regexp"
-	"fmt"
-	"errors"
+
+	"github.com/labstack/echo"
+	"github.com/tidwall/gjson"
 	"github.com/sunmi-OS/gocore/viper"
 	"github.com/sunmi-OS/gocore/encryption/des"
 	"github.com/sunmi-OS/gocore/api/validation"
-	"github.com/tidwall/gjson"
 )
 
 var (
@@ -157,54 +158,6 @@ func (this *Request) SetJson(json string) {
 
 //--------------------------------------------------------获取参数-------------------------------------
 
-// 获取Json参数
-func (this *Request) DESParam(keys ...string) *Request {
-	var key string
-	var str string
-	this.Clean()
-
-	if (this.Encryption) {
-		json := this.Json
-		for _, v := range keys {
-			json = json.Get(v)
-			key = key + v
-		}
-		
-		this.Jsonparam.val = json
-		this.Jsonparam.key = key
-		this.jsonTag = true
-	} else {
-		str = this.Context.QueryParam(keys[0])
-
-		if str == "" {
-			str = this.Context.FormValue(keys[0])
-		}
-		this.params.val = str
-		this.params.key = keys[0]
-		this.jsonTag = false
-	}
-
-	return this
-}
-
-// 获取Json参数
-func (this *Request) JsonParam(keys ...string) *Request {
-
-	var key string
-	this.Clean()
-	json := this.Json
-	for _, v := range keys {
-		json.Get(v)
-		key = key + v
-	}
-
-	this.Jsonparam.val = json
-	this.Jsonparam.key = key
-	this.jsonTag = true
-
-	return this
-}
-
 // 获取Get参数
 func (this *Request) GetParam(key string) *Request {
 
@@ -234,14 +187,22 @@ func (this *Request) Param(key string) *Request {
 
 	var str string
 	this.Clean()
-	str = this.Context.QueryParam(key)
 
-	if str == "" {
-		str = this.Context.FormValue(key)
+	if (this.Encryption) {
+
+		this.Jsonparam.val = this.Json.Get(key)
+		this.Jsonparam.key = key
+		this.jsonTag = true
+	} else {
+		str = this.Context.QueryParam(key)
+
+		if str == "" {
+			str = this.Context.FormValue(key)
+		}
+		this.params.val = str
+		this.params.key = key
+		this.jsonTag = false
 	}
-
-	this.params.val = str
-	this.params.key = key
 
 	return this
 }
@@ -250,8 +211,6 @@ func (this *Request) SetDefault(val string) *Request {
 	if this.jsonTag == true {
 		defJson := fmt.Sprintf(`{"index":"%s"}`, val)
 		this.Jsonparam.val = gjson.Parse(defJson).Get("index")
-		/*		fmt.Println(defJson)
-				fmt.Println(this.Jsonparam.val.Tostring())*/
 	} else {
 		this.params.val = val
 	}

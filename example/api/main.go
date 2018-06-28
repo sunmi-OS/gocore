@@ -34,7 +34,7 @@ func (a *EchoApi) echoStart(c *cli.Context) error {
 			return response.RetError(err, -1)
 		}
 
-		msg := request.DESParam("x1").GetString()
+		msg := request.Param(`x1.x\.2`).GetString()
 
 		return response.RetSuccess(msg)
 	})
