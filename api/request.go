@@ -17,7 +17,9 @@ import (
 	"fmt"
 	"errors"
 	"github.com/sunmi-OS/gocore/viper"
+	"github.com/sunmi-OS/gocore/encryption/des"
 	"github.com/sunmi-OS/gocore/api/validation"
+	"github.com/tidwall/gjson"
 )
 
 var (
@@ -34,16 +36,15 @@ type Request struct {
 	params     *param
 	Jsonparam  *Jsonparam
 	valid      validation.Validation
-	Json       *Js
+	Json       gjson.Result
 	Encryption bool
-	Des        Des
 	jsonTag    bool
 	Debug      bool
 }
 
 type Jsonparam struct {
 	key string
-	val Js
+	val gjson.Result
 }
 
 type param struct {
@@ -91,7 +92,6 @@ func (this *Request) GetError() error {
 func (this *Request) InitDES() error {
 
 	params := ""
-	this.Json = new(Js)
 	params = this.PostParam(viper.C.GetString("system.DESParam")).GetString()
 
 	//如果是开启了 DES加密 需要验证是否加密,然后需要验证签名,和加密内容
@@ -103,52 +103,56 @@ func (this *Request) InitDES() error {
 
 	if params != "" {
 
-		sign := this.PostParam("sign").GetString()
-		timeStamp := this.PostParam("timeStamp").GetString()
-		randomNum := this.PostParam("randomNum").GetString()
-		isEncrypted := this.PostParam("isEncrypted").GetString()
+		if viper.C.GetBool("system.OpenSign") {
 
-		if sign == "" || timeStamp == "" || randomNum == "" {
-			return ErrMD5
-		}
+			sign := this.PostParam("sign").GetString()
+			timeStamp := this.PostParam("timeStamp").GetString()
+			randomNum := this.PostParam("randomNum").GetString()
+			isEncrypted := this.PostParam("isEncrypted").GetString()
 
-		keymd5 := md5.New()
-		keymd5.Write([]byte(viper.C.GetString("system.MD5key")))
-		md5key := hex.EncodeToString(keymd5.Sum(nil))
-
-		signmd5 := md5.New()
-		signmd5.Write([]byte(params + isEncrypted + timeStamp + randomNum + md5key))
-		sign2 := hex.EncodeToString(signmd5.Sum(nil))
-
-		if sign != sign2 {
-			return ErrMD5
-		}
-
-		//如果是加密的params那么进行解密操作
-		if isEncrypted == "1" {
-
-			base64params, err := base64.StdEncoding.DecodeString(params)
-			if err != nil {
-				return err
+			if sign == "" || timeStamp == "" || randomNum == "" {
+				return ErrMD5
 			}
 
-			origData, err := this.Des.DesDecrypt(base64params, viper.C.GetString("system.DESkey"), viper.C.GetString("system.DESiv"))
+			keymd5 := md5.New()
+			keymd5.Write([]byte(viper.C.GetString("system.MD5key")))
+			md5key := hex.EncodeToString(keymd5.Sum(nil))
 
-			if err != nil {
-				return err
+			signmd5 := md5.New()
+			signmd5.Write([]byte(params + isEncrypted + timeStamp + randomNum + md5key))
+			sign2 := hex.EncodeToString(signmd5.Sum(nil))
+
+			if sign != sign2 {
+				return ErrMD5
 			}
-			params = string(origData)
+
+			//如果是加密的params那么进行解密操作
+			if isEncrypted == "1" {
+
+				base64params, err := base64.StdEncoding.DecodeString(params)
+				if err != nil {
+					return err
+				}
+
+				origData, err := des.DesDecrypt(string(base64params), viper.C.GetString("system.DESkey"), viper.C.GetString("system.DESiv"))
+
+				if err != nil {
+					return err
+				}
+				params = string(origData)
+			}
 		}
-		this.Json = Json(params)
+
+		this.Json = gjson.Parse(params)
 		this.Encryption = true
 	}
-	return nil;
+	return nil
 }
 
 // 使用Json参数传入Json字符
 func (this *Request) SetJson(json string) {
 
-	this.Json = Json(json)
+	this.Json = gjson.Parse(json)
 }
 
 //--------------------------------------------------------获取参数-------------------------------------
@@ -159,7 +163,7 @@ func (this *Request) DESParam(keys ...string) *Request {
 	var str string
 	this.Clean()
 	if (this.Encryption) {
-		json := *this.Json
+		json := this.Json
 		for _, v := range keys {
 			json.Get(v)
 			key = key + v
@@ -187,7 +191,7 @@ func (this *Request) JsonParam(keys ...string) *Request {
 
 	var key string
 	this.Clean()
-	json := *this.Json
+	json := this.Json
 	for _, v := range keys {
 		json.Get(v)
 		key = key + v
@@ -244,7 +248,7 @@ func (this *Request) Param(key string) *Request {
 func (this *Request) SetDefault(val string) *Request {
 	if this.jsonTag == true {
 		defJson := fmt.Sprintf(`{"index":"%s"}`, val)
-		this.Jsonparam.val = *Json(defJson).Get("index")
+		this.Jsonparam.val = gjson.Parse(defJson).Get("index")
 		/*		fmt.Println(defJson)
 				fmt.Println(this.Jsonparam.val.Tostring())*/
 	} else {
@@ -448,7 +452,7 @@ func (this *Request) AlphaDash() *Request {
 func (this *Request) getParamVal() string {
 
 	if this.jsonTag {
-		return this.Jsonparam.val.Tostring()
+		return this.Jsonparam.val.String()
 	} else {
 		return this.params.val
 	}
@@ -464,7 +468,7 @@ func (this *Request) getParamKey() string {
 }
 
 // 获取并且验证参数 Json类型 适用于Json参数
-func (this *Request) GetJson() Js {
+func (this *Request) GetJson() gjson.Result {
 
 	return this.Jsonparam.val
 }
