@@ -1,8 +1,6 @@
 package main
 
 import (
-	"net/http"
-
 	"github.com/labstack/echo"
 	"github.com/labstack/echo/middleware"
 	"sort"
@@ -10,7 +8,6 @@ import (
 	"github.com/urfave/cli"
 	"github.com/sunmi-OS/gocore/api"
 	"github.com/sunmi-OS/gocore/viper"
-	"fmt"
 )
 
 type EchoApi struct {
@@ -29,17 +26,17 @@ func (a *EchoApi) echoStart(c *cli.Context) error {
 	// Route => handler
 	e.POST("/", func(c echo.Context) error {
 
-		fmt.Println("1")
-
 		request := api.NewRequest(c)
-		resphone := api.NewResponse(c)
+		response := api.NewResponse(c)
 
 		err := request.InitDES()
 		if err != nil {
-			return resphone.RetError(err, -1)
+			return response.RetError(err, -1)
 		}
 
-		return c.String(http.StatusOK, "Hello, World!\n")
+		msg := request.DESParam("msg").GetString()
+
+		return response.RetSuccess(msg)
 	})
 
 	// Start server
