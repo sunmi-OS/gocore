@@ -23,7 +23,7 @@ func main() {
 		os.Exit(0)
 	}
 
-	talbeName := []byte("sunmi6")
+	talbeName := "sunmi6"
 	rowkey := []byte("10009")
 
 	cvarr := []*hbase.TColumnValue{
