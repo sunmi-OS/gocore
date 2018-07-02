@@ -144,7 +144,7 @@ func (this *Request) InitDES() error {
 			}
 		}
 
-		this.Json = gjson.Parse(params)
+
 		this.Encryption = true
 	}
 	return nil
@@ -183,7 +183,7 @@ func (this *Request) PostParam(key string) *Request {
 }
 
 // 获取请求参数顺序get->post
-func (this *Request) Param(key string) *Request {
+func (this *Request)                                                                                                                                                                                            Param(key string) *Request {
 
 	var str string
 	this.Clean()

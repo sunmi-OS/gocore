@@ -9,6 +9,7 @@ import (
 	"github.com/sunmi-OS/gocore/viper"
 	"github.com/spf13/cast"
 	"strings"
+	"github.com/sunmi-OS/gocore/utils"
 )
 
 var onceHbaseClient sync.Once
@@ -64,7 +65,7 @@ func LinkHbase() (*THBaseServiceClient, error) {
 
 // --------------------------------具体函数实现------------------------------------
 
-func (h RpcHbaseClient) Get(table []byte, tget *TGet) (r *TResult_, err error) {
+func (h RpcHbaseClient) Get(table string, tget *TGet) (r *TResult_, err error) {
 
 	var client *THBaseServiceClient
 
@@ -74,7 +75,9 @@ func (h RpcHbaseClient) Get(table []byte, tget *TGet) (r *TResult_, err error) {
 	}
 	client = obj.(*THBaseServiceClient)
 
-	r, err = client.Get(table, tget)
+	tget.Row = h.convKey(tget.Row)
+
+	r, err = client.Get([]byte(table), tget)
 	if err != nil {
 		if strings.Contains(err.Error(), "broken pipe") || strings.Contains(err.Error(), "Connection not open") {
 			// thrift服务破碎需要重连
@@ -82,7 +85,7 @@ func (h RpcHbaseClient) Get(table []byte, tget *TGet) (r *TResult_, err error) {
 			if err != nil {
 				return
 			}
-			r, err = client.Get(table, tget)
+			r, err = client.Get([]byte(table), tget)
 		} else {
 			return
 		}
@@ -92,7 +95,7 @@ func (h RpcHbaseClient) Get(table []byte, tget *TGet) (r *TResult_, err error) {
 	return
 }
 
-func (h RpcHbaseClient) Exists(table []byte, tget *TGet) (r bool, err error) {
+func (h RpcHbaseClient) Exists(table string, tget *TGet) (r bool, err error) {
 
 	var client *THBaseServiceClient
 
@@ -102,7 +105,9 @@ func (h RpcHbaseClient) Exists(table []byte, tget *TGet) (r bool, err error) {
 	}
 	client = obj.(*THBaseServiceClient)
 
-	r, err = client.Exists(table, tget)
+	tget.Row = h.convKey(tget.Row)
+
+	r, err = client.Exists([]byte(table), tget)
 	if err != nil {
 		if strings.Contains(err.Error(), "broken pipe") || strings.Contains(err.Error(), "Connection not open") {
 			// thrift服务破碎需要重连
@@ -110,7 +115,7 @@ func (h RpcHbaseClient) Exists(table []byte, tget *TGet) (r bool, err error) {
 			if err != nil {
 				return
 			}
-			r, err = client.Exists(table, tget)
+			r, err = client.Exists([]byte(table), tget)
 		} else {
 			return
 		}
@@ -120,7 +125,7 @@ func (h RpcHbaseClient) Exists(table []byte, tget *TGet) (r bool, err error) {
 	return
 }
 
-func (h RpcHbaseClient) Put(table []byte, tput *TPut) (err error) {
+func (h RpcHbaseClient) Put(table string, tput *TPut) (err error) {
 
 	var client *THBaseServiceClient
 
@@ -130,7 +135,9 @@ func (h RpcHbaseClient) Put(table []byte, tput *TPut) (err error) {
 	}
 	client = obj.(*THBaseServiceClient)
 
-	err = client.Put(table, tput)
+	tput.Row = h.convKey(tput.Row)
+
+	err = client.Put([]byte(table), tput)
 	if err != nil {
 		if strings.Contains(err.Error(), "broken pipe") || strings.Contains(err.Error(), "Connection not open") {
 			// thrift服务破碎需要重连
@@ -138,7 +145,7 @@ func (h RpcHbaseClient) Put(table []byte, tput *TPut) (err error) {
 			if err != nil {
 				return
 			}
-			err = client.Put(table, tput)
+			err = client.Put([]byte(table), tput)
 		} else {
 			return
 		}
@@ -148,10 +155,7 @@ func (h RpcHbaseClient) Put(table []byte, tput *TPut) (err error) {
 	return
 }
 
-
-
-
-func (h RpcHbaseClient) Delete(table []byte, tdelete *TDelete) (err error) {
+func (h RpcHbaseClient) Delete(table string, tdelete *TDelete) (err error) {
 
 	var client *THBaseServiceClient
 
@@ -161,7 +165,9 @@ func (h RpcHbaseClient) Delete(table []byte, tdelete *TDelete) (err error) {
 	}
 	client = obj.(*THBaseServiceClient)
 
-	err = client.DeleteSingle(table, tdelete)
+	tdelete.Row = h.convKey(tdelete.Row)
+
+	err = client.DeleteSingle([]byte(table), tdelete)
 	if err != nil {
 		if strings.Contains(err.Error(), "broken pipe") || strings.Contains(err.Error(), "Connection not open") {
 			// thrift服务破碎需要重连
@@ -169,7 +175,7 @@ func (h RpcHbaseClient) Delete(table []byte, tdelete *TDelete) (err error) {
 			if err != nil {
 				return
 			}
-			err = client.DeleteSingle(table, tdelete)
+			err = client.DeleteSingle([]byte(table), tdelete)
 		} else {
 			return
 		}
@@ -179,3 +185,6 @@ func (h RpcHbaseClient) Delete(table []byte, tdelete *TDelete) (err error) {
 	return
 }
 
+func (h RpcHbaseClient) convKey(rewKey []byte) []byte {
+	return []byte(utils.GetMD5(string(rewKey)))
+}
