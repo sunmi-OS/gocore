@@ -49,7 +49,7 @@ func NewDB(dbname string) {
 	//连接池的空闲数大小
 	orm.DB().SetMaxIdleConns(viper.C.GetInt(dbname + ".idleconns_max"))
 	//最大打开连接数
-	orm.DB().SetMaxIdleConns(viper.C.GetInt(dbname + ".openconns_max"))
+	orm.DB().SetMaxOpenConns(viper.C.GetInt(dbname + ".openconns_max"))
 	Gorm.LoadOrStore(dbname, orm)
 }
 
