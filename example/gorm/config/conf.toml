@@ -1,0 +1,9 @@
+[dbDefault]
+dbHost = "192.168.1.101"     #数据库连接地址
+dbName = "test"         #数据库名称
+dbUser = "root"         #数据库用户名
+dbPasswd = ""       #数据库密码
+dbPort = "3306"          #数据库端口号
+openconns_max = 200     #最大连接数
+idleconns_max = 1      #最大空闲连接
+dbType = "mysql"         #数据库类型
