@@ -41,7 +41,7 @@ func NewDB(dbname string) {
 	connectString := dbUser + ":" + dbPasswd + "@tcp(" + dbHost + ":" + dbPort + ")/" + dbName + "?charset=utf8&parseTime=true"
 
 	for orm, err = gorm.Open(dbType, connectString); err != nil; {
-		fmt.Println("数据库连接异常! 5秒重试")
+		fmt.Println("Database connection exception! 5 seconds to retry")
 		time.Sleep(5 * time.Second)
 		orm, err = gorm.Open(dbType, connectString)
 	}
