@@ -38,7 +38,7 @@ func NewDB(dbname string) {
 	dbPort := viper.C.GetString(dbname + ".dbPort")
 	dbType := viper.C.GetString(dbname + ".dbType")
 
-	connectString := dbUser + ":" + dbPasswd + "@tcp(" + dbHost + ":" + dbPort + ")/" + dbName + "?charset=utf8"
+	connectString := dbUser + ":" + dbPasswd + "@tcp(" + dbHost + ":" + dbPort + ")/" + dbName + "?charset=utf8&parseTime=true"
 
 	for orm, err = gorm.Open(dbType, connectString); err != nil; {
 		fmt.Println("数据库连接异常! 5秒重试")
