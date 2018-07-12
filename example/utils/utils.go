@@ -8,7 +8,7 @@ import (
 
 func main() {
 
-	d := utils.GetData()
+	d := utils.GetDate()
 	fmt.Println("GetData", d)
 
 	m := utils.GetRunTime()
