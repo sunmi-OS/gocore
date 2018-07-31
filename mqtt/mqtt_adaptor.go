@@ -11,6 +11,9 @@ import (
 	"github.com/hashicorp/go-multierror"
 )
 
+// @TODO 1. EMQ死亡断开连接,从连接上之后订阅事件没有更上
+// @TODO 2. 本地订阅和共享订阅的$方式无法使用
+
 // Message is a message received from the broker.
 type Message paho.Message
 
