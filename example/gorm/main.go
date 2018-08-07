@@ -7,8 +7,8 @@ import (
 )
 
 type Machine struct {
-	mId int64  `gorm:"column:mId"`
-	msn string `gorm:"column:msn"`
+	MId int64  `gorm:"column:mId"`
+	Msn string `gorm:"column:msn"`
 }
 
 func (m Machine) TableName() string {
