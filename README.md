@@ -110,7 +110,7 @@ levelDB处理:[goleveldb ](https://github.com/syndtr/goleveldb )
 
 bolt嵌入式数据库:[bolt](https://github.com/boltdb/bolt)
 
-influxdb时许数据库:[influxdb](https://github.com/influxdata/influxdb)
+influxdb时序数据库:[influxdb](https://github.com/influxdata/influxdb)
 
 
 
