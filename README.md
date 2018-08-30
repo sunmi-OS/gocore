@@ -112,7 +112,7 @@ bolt嵌入式数据库:[bolt](https://github.com/boltdb/bolt)
 
 influxdb时序数据库:[influxdb](https://github.com/influxdata/influxdb)
 
-
+oracle链接库:[goracle](https://github.com/go-goracle/goracle)
 
 ### 解析库
 JSON解析库(已使用):[gjson](https://github.com/tidwall/gjson)
