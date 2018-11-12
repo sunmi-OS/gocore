@@ -143,6 +143,7 @@ IOT库 支持各种协议:[gobot](https://github.com/hybridgroup/gobot)
 
 socket.io协议Go实现(已使用):[go-socket.io](https://github.com/googollee/go-socket.io)
 
+金融8583报文生成和解析库:[iso8583](https://github.com/ideazxy/iso8583)
 
 ## 深度学习
 Go语言实现机器学习框架:[golearn](https://github.com/sjwhitworth/golearn )
