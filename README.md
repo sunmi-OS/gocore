@@ -55,6 +55,12 @@ etcd K/V数据库:[github.com/coreos/etcd](https://github.com/coreos/etcd)
 
 go-kit微服务套件:[go-kit](https://github.com/go-kit/kit)
 
+Istio服务网格:[Istio](https://github.com/istio/istio)
+
+Naftis小米开源Istio管理工具[Naftis](https://github.com/XiaoMi/naftis)
+
+go-kit微服务套件:[go-kit](https://github.com/go-kit/kit)
+
 桌面UI套件(基于CGO):[CGO](https://github.com/andlabs/ui)
 
 桌面UI库(基于HTML):[app](https://github.com/murlokswarm/app)
