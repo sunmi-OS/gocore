@@ -36,7 +36,7 @@ func InitLogger(serviceaName string) {
 	}
 
 	cfg = zap.NewProductionConfig()
-	cfg.OutputPaths = []string{filename, "stderr"}
+	cfg.OutputPaths = []string{filename, "stdout"}
 	cfg.ErrorOutputPaths = []string{filename, "stderr"}
 	cfg.EncoderConfig.EncodeTime = zapcore.ISO8601TimeEncoder
 
