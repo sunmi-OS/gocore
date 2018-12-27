@@ -148,6 +148,7 @@ func (a *Adaptor) On(event string, qos byte, f func(msg Message)) bool {
 	return true
 }
 
+
 func (a *Adaptor) createClientOptions() *paho.ClientOptions {
 	opts := paho.NewClientOptions()
 	opts.AddBroker(a.Host)
