@@ -7,7 +7,7 @@ import (
 
 	"github.com/spf13/cast"
 	"github.com/spf13/viper"
-	"github.com/sunmi-os/gocore/utils"
+	"github.com/sunmi-OS/gocore/utils"
 )
 
 var C *viper.Viper
