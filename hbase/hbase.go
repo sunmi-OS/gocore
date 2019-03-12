@@ -4,12 +4,12 @@ import (
 	"net"
 	"sync"
 
-	"github.com/jolestar/go-commons-pool"
 	"git.apache.org/thrift.git/lib/go/thrift"
-	"github.com/sunmi-OS/gocore/viper"
+	"github.com/jolestar/go-commons-pool"
 	"github.com/spf13/cast"
-	"strings"
 	"github.com/sunmi-OS/gocore/utils"
+	"github.com/sunmi-OS/gocore/viper"
+	"strings"
 )
 
 var onceHbaseClient sync.Once

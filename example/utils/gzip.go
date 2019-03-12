@@ -1,11 +1,11 @@
 package main
 
 import (
-	"github.com/sunmi-OS/gocore/utils"
 	"fmt"
+	"github.com/sunmi-OS/gocore/utils"
 )
 
-func main(){
+func main() {
 	fmt.Println(utils.GzipEncode("dsxdjdhskfjkdsfhsdjlaal"))
 	var m = utils.GzipEncode("dsxdjdhskfjkdsfhsdjlaal")
 	fmt.Println(utils.GzipDecode(m))

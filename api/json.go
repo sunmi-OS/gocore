@@ -1,6 +1,5 @@
 package api
 
-
 import (
 	"encoding/json"
 	"errors"
@@ -10,7 +9,6 @@ import (
 type Js struct {
 	Data interface{}
 }
-
 
 //Initialize the json configruation
 func Json(data string) *Js {
@@ -23,8 +21,6 @@ func Json(data string) *Js {
 	j.Data = f
 	return j
 }
-
-
 
 //According to the key of the returned data information,return js.data
 func (j *Js) Get(key string) *Js {
@@ -146,11 +142,11 @@ func (j *Js) Getpath(args ...string) *Js {
 
 //----------------------------------------新增-------------------------------------
 
-func (j *Js)ToData() interface{} {
+func (j *Js) ToData() interface{} {
 	return j.Data
 }
 
-func (j *Js)ToSlice() []interface{} {
+func (j *Js) ToSlice() []interface{} {
 	if m, ok := (j.Data).([]interface{}); ok {
 		return m
 	}
@@ -171,7 +167,7 @@ func (j *Js) ToFloat() float64 {
 	}
 	if m, ok := j.Data.(string); ok {
 		if m, ok := strconv.ParseFloat(m, 64); ok != nil {
-			return m;
+			return m
 		}
 	}
 	return 0

@@ -6,9 +6,9 @@ import (
 	"time"
 
 	"github.com/sunmi-OS/gocore/utils"
+	"github.com/sunmi-OS/gocore/viper"
 	"go.uber.org/zap"
 	"go.uber.org/zap/zapcore"
-	"github.com/sunmi-OS/gocore/viper"
 )
 
 var Logger *zap.Logger

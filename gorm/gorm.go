@@ -2,17 +2,16 @@ package gorm
 
 import (
 	"fmt"
-	"time"
 	"sync"
+	"time"
 
 	"github.com/jinzhu/gorm"
-	"github.com/sunmi-OS/gocore/viper"
 	_ "github.com/jinzhu/gorm/dialects/mysql"
 	_ "github.com/jinzhu/gorm/dialects/postgres"
+	"github.com/sunmi-OS/gocore/viper"
 )
 
 var Gorm sync.Map
-
 
 // 初始化Gorm
 func NewDB(dbname string) {

@@ -2,8 +2,8 @@ package sqlite
 
 import (
 	"fmt"
-	"time"
 	"sync"
+	"time"
 
 	"github.com/jinzhu/gorm"
 	_ "github.com/jinzhu/gorm/dialects/sqlite"

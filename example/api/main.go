@@ -3,11 +3,11 @@ package main
 import (
 	"github.com/labstack/echo"
 	"github.com/labstack/echo/middleware"
-	"sort"
-	"os"
-	"github.com/urfave/cli"
 	"github.com/sunmi-OS/gocore/api"
 	"github.com/sunmi-OS/gocore/viper"
+	"github.com/urfave/cli"
+	"os"
+	"sort"
 )
 
 type EchoApi struct {

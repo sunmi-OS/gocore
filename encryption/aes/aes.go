@@ -5,8 +5,8 @@ import (
 	"crypto/aes"
 	"crypto/cipher"
 	"encoding/base64"
-	"strings"
 	"errors"
+	"strings"
 )
 
 func getKey(key string) []byte {
@@ -26,7 +26,6 @@ func getKey(key string) []byte {
 	//取前16个字节
 	return arrKey[:16]
 }
-
 
 func Base64UrlSafeEncode(source []byte) string {
 	// Base64 Url Safe is the same as Base64 but does not contain '/' and '+' (replaced by '_' and '-') and trailing '=' are removed.

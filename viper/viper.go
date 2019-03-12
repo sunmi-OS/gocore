@@ -21,21 +21,20 @@ func NewConfig(filePath string, fileName string) {
 
 	C.SetConfigName(fileName)
 	//filePath支持相对路径和绝对路径 etc:"/a/b" "b" "./b"
-	if (filePath[:1] != "/") {
+	if filePath[:1] != "/" {
 		C.AddConfigPath(path.Join(utils.GetPath(), filePath))
 	} else {
 		C.AddConfigPath(filePath)
 	}
 
 	C.WatchConfig()
-	
+
 	// 找到并读取配置文件并且 处理错误读取配置文件
 	if err := C.ReadInConfig(); err != nil {
 		panic(err)
 	}
 
 }
-
 
 // 获取配置文件优先获取环境变量(返回string类型)
 func GetEnvConfig(key string) string {
@@ -81,5 +80,3 @@ func GetEnvConfigBool(key string) bool {
 
 	return C.GetBool(key)
 }
-
-

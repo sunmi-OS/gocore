@@ -1,8 +1,8 @@
 package main
 
 import (
-	"github.com/jolestar/go-commons-pool"
 	"fmt"
+	"github.com/jolestar/go-commons-pool"
 	"time"
 )
 
