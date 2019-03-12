@@ -1,8 +1,8 @@
 package main
 
 import (
-	"log"
 	"errors"
+	"log"
 
 	"github.com/sunmi-OS/gocore/encryption/gorsa"
 )

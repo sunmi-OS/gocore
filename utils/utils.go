@@ -1,11 +1,11 @@
 package utils
 
 import (
-	"os"
-	"time"
 	"crypto/md5"
 	"encoding/hex"
 	"fmt"
+	"os"
+	"time"
 )
 
 // 返回当前时间

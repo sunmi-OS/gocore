@@ -8,19 +8,19 @@
 package api
 
 import (
+	"crypto/md5"
+	"encoding/base64"
+	"encoding/hex"
+	"errors"
 	"fmt"
 	"regexp"
-	"errors"
 	"strconv"
-	"crypto/md5"
-	"encoding/hex"
-	"encoding/base64"
 
 	"github.com/labstack/echo"
-	"github.com/tidwall/gjson"
-	"github.com/sunmi-OS/gocore/viper"
-	"github.com/sunmi-OS/gocore/encryption/des"
 	"github.com/sunmi-OS/gocore/api/validation"
+	"github.com/sunmi-OS/gocore/encryption/des"
+	"github.com/sunmi-OS/gocore/viper"
+	"github.com/tidwall/gjson"
 )
 
 var (
@@ -144,7 +144,6 @@ func (this *Request) InitDES() error {
 			}
 		}
 
-
 		this.Encryption = true
 	}
 	return nil
@@ -183,12 +182,12 @@ func (this *Request) PostParam(key string) *Request {
 }
 
 // 获取请求参数顺序get->post
-func (this *Request)                                                                                                                                                                                            Param(key string) *Request {
+func (this *Request) Param(key string) *Request {
 
 	var str string
 	this.Clean()
 
-	if (this.Encryption) {
+	if this.Encryption {
 
 		this.Jsonparam.val = this.Json.Get(key)
 		this.Jsonparam.key = key

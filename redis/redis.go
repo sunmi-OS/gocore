@@ -5,8 +5,8 @@ import (
 
 	"gopkg.in/redis.v5"
 
-	"github.com/sunmi-OS/gocore/viper"
 	"github.com/sunmi-OS/gocore/utils"
+	"github.com/sunmi-OS/gocore/viper"
 )
 
 var RedisList sync.Map

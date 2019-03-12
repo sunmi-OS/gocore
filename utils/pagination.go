@@ -18,7 +18,6 @@ type Pagination struct {
 	TotalPages    int        `json:"total_pages" `
 }
 
-
 func (p *Pagination) Paginate(page interface{}) *gorm.DB {
 	switch pageVal := page.(type) {
 	case string:

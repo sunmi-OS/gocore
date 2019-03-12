@@ -53,7 +53,6 @@ func MkdirFile(path string) error {
 	return nil
 }
 
-
 // DisableCache will disable caching of the home directory. Caching is enabled
 // by default.
 var DisableCache bool
