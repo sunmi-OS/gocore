@@ -21,6 +21,7 @@ import (
 	"github.com/sunmi-OS/gocore/encryption/des"
 	"github.com/sunmi-OS/gocore/viper"
 	"github.com/tidwall/gjson"
+	"io/ioutil"
 )
 
 var (
@@ -33,14 +34,14 @@ var (
 )
 
 type Request struct {
-	Context    echo.Context
-	params     *param
-	Jsonparam  *Jsonparam
-	valid      validation.Validation
-	Json       gjson.Result
-	Encryption bool
-	jsonTag    bool
-	Debug      bool
+	Context     echo.Context
+	params      *param
+	Jsonparam   *Jsonparam
+	valid       validation.Validation
+	Json        gjson.Result
+	IsJsonParam bool
+	jsonTag     bool
+	Debug       bool
 }
 
 type Jsonparam struct {
@@ -144,7 +145,7 @@ func (this *Request) InitDES() error {
 			}
 		}
 
-		this.Encryption = true
+		this.IsJsonParam = true
 	}
 	return nil
 }
@@ -153,6 +154,19 @@ func (this *Request) InitDES() error {
 func (this *Request) SetJson(json string) {
 
 	this.Json = gjson.Parse(json)
+}
+
+// 初始化restful-raw参数
+func (this *Request) InitRawJson() error {
+
+	body, err := ioutil.ReadAll(this.Context.Request().Body)
+	if err != nil {
+		return err
+	}
+
+	this.Json = gjson.Parse(string(body))
+	this.IsJsonParam = true
+	return nil
 }
 
 //--------------------------------------------------------获取参数-------------------------------------
@@ -187,7 +201,7 @@ func (this *Request) Param(key string) *Request {
 	var str string
 	this.Clean()
 
-	if this.Encryption {
+	if this.IsJsonParam {
 
 		this.Jsonparam.val = this.Json.Get(key)
 		this.Jsonparam.key = key
