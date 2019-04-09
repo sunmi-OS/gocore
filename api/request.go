@@ -16,12 +16,13 @@ import (
 	"regexp"
 	"strconv"
 
+	"io/ioutil"
+
 	"github.com/labstack/echo"
 	"github.com/sunmi-OS/gocore/api/validation"
 	"github.com/sunmi-OS/gocore/encryption/des"
 	"github.com/sunmi-OS/gocore/viper"
 	"github.com/tidwall/gjson"
-	"io/ioutil"
 )
 
 var (
@@ -145,6 +146,7 @@ func (this *Request) InitDES() error {
 			}
 		}
 
+		this.Json = gjson.Parse(params)
 		this.IsJsonParam = true
 	}
 	return nil
