@@ -108,6 +108,8 @@ viper配置文件读取库(已使用):[viper](https://github.com/spf13/viper)
 
 数据库操作:[github.com/go-xorm/xorm ](https://github.com/go-xorm/xorm )
 
+solr索引引擎库:[https://github.com/rtt/Go-Solr](https://github.com/rtt/Go-Solr)
+
 redis操作库(已使用):[redis](https://gopkg.in/redis.v5)
 
 rabbitmq使用框架(已使用):[amqp](https://github.com/streadway/amqp)
