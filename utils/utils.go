@@ -61,9 +61,7 @@ func GetMd52(file io.Reader) (io.Reader, string, error) {
 	return &b, hex.EncodeToString(md5hash.Sum(nil)), nil
 }
 
-func DeleteFile(filePath string) error {
-	return os.RemoveAll(filePath)
-}
+
 
 //解压
 func DeCompress2(zipFile, dest string) error {
@@ -118,22 +116,7 @@ func subString(str string, start, end int) string {
 	return string(rs[start:end])
 }
 
-//创建文件夹
-func mkDir(path string) error {
-	_, err := os.Stat(path)
-	if err != nil {
-		if os.IsNotExist(err) {
-			//文件夹不存在，创建
-			err = os.MkdirAll(path, os.ModePerm)
-			if err != nil {
-				return err
-			}
-		} else {
-			return err
-		}
-	}
-	return nil
-}
+
 
 func UploadFile(file *multipart.FileHeader, path string) (string, error) {
 	if reflect.ValueOf(file).IsNil() || !reflect.ValueOf(file).IsValid() {
@@ -144,7 +127,7 @@ func UploadFile(file *multipart.FileHeader, path string) (string, error) {
 	if err != nil {
 		return "", err
 	}
-	err = mkDir(path)
+	err = MkDir(path)
 	if err != nil {
 		return "", err
 	}

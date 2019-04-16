@@ -194,3 +194,25 @@ func dirWindows() (string, error) {
 
 	return home, nil
 }
+
+
+func DeleteFile(filePath string) error {
+	return os.RemoveAll(filePath)
+}
+
+//创建文件夹,支持x/a/a  多层级
+func MkDir(path string) error {
+	_, err := os.Stat(path)
+	if err != nil {
+		if os.IsNotExist(err) {
+			//文件夹不存在，创建
+			err = os.MkdirAll(path, os.ModePerm)
+			if err != nil {
+				return err
+			}
+		} else {
+			return err
+		}
+	}
+	return nil
+}
