@@ -68,7 +68,7 @@ go-kit微服务套件:[go-kit](https://github.com/go-kit/kit)
 
 桌面UI库(基于HTML):[app](https://github.com/murlokswarm/app)
 
-Log库(已使用):[logrus](https://github.com/Sirupsen/logrus)
+logrus库:[logrus](https://github.com/Sirupsen/logrus)
 
 zap日志库(集成gocore):[zap](https://github.com/uber-go/zap)
 
