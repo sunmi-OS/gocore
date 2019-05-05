@@ -154,6 +154,8 @@ socket.io协议Go实现(已使用):[go-socket.io](https://github.com/googollee/g
 
 金融8583报文生成和解析库:[iso8583](https://github.com/ideazxy/iso8583)
 
+go语言graphql协议库:[https://github.com/99designs/gqlgen](https://github.com/99designs/gqlgen)
+
 ## 深度学习
 Go语言实现机器学习框架:[golearn](https://github.com/sjwhitworth/golearn )
 
