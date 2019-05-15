@@ -134,6 +134,8 @@ golang解密php序列化库:[gphp_session_decoder](https://github.com/yvasiyarov
 
 高性能json库:[json-iterator](https://github.com/json-iterator/go)
 
+easyjson : [https://github.com/mailru/easyjson](https://github.com/mailru/easyjson)
+
 google-protobuf库:[protobuf ](https://github.com/golang/protobuf )
 
 
