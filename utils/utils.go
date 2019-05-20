@@ -64,7 +64,7 @@ func GetMd52(file io.Reader) (io.Reader, string, error) {
 
 
 //解压
-func DeCompress2(zipFile, dest string) error {
+func DeCompress(zipFile, dest string) error {
 	reader, err := zip.OpenReader(zipFile)
 	if err != nil {
 		return err
@@ -116,8 +116,6 @@ func subString(str string, start, end int) string {
 	return string(rs[start:end])
 }
 
-
-
 func UploadFile(file *multipart.FileHeader, path string) (string, error) {
 	if reflect.ValueOf(file).IsNil() || !reflect.ValueOf(file).IsValid() {
 		return "", errors.New("invalid memory address or nil pointer dereference")
@@ -148,4 +146,24 @@ func UploadFile(file *multipart.FileHeader, path string) (string, error) {
 		return "", err
 	}
 	return filename, nil
+}
+
+func GetFileSize(filePath string) (int64, error) {
+	fileInfo, err := os.Stat(filePath)
+	if err != nil {
+		return 0, err
+	}
+	//文件大小
+	fsize := fileInfo.Size()
+	return fsize, nil
+}
+/**
+ * 判断文件是否存在  存在返回 true 不存在返回false
+ */
+func CheckFileIsExist(filename string) bool {
+	var exist = true
+	if _, err := os.Stat(filename); os.IsNotExist(err) {
+		exist = false
+	}
+	return exist
 }
