@@ -32,6 +32,8 @@ var (
 	ErrCustom = func(str string) error {
 		return errors.New(str)
 	}
+
+	RequestBody = "requestBody"
 )
 
 type Request struct {
@@ -145,7 +147,7 @@ func (this *Request) InitDES() error {
 				params = string(origData)
 			}
 		}
-
+		this.Context.Set(RequestBody, string(params))
 		this.Json = gjson.Parse(params)
 		this.IsJsonParam = true
 	}
@@ -166,6 +168,7 @@ func (this *Request) InitRawJson() error {
 		return err
 	}
 
+	this.Context.Set(RequestBody, string(body))
 	this.Json = gjson.Parse(string(body))
 	this.IsJsonParam = true
 	return nil
