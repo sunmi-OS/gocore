@@ -26,6 +26,15 @@ func NewProducer()  {
 
 	producer = kafka.NewWriter(config)
 }
+
+//produce message
+func ProduceWithKey(key []byte, value []byte) error {
+	return producer.WriteMessages(context.Background(), kafka.Message{
+		Key:   key,
+		Value: value,
+	})
+}
+
 //produce message
 func Produce(msg []byte) error {
 	return producer.WriteMessages(context.Background(), kafka.Message{
@@ -44,7 +53,7 @@ func CloseProducer() error {
 
 
 var consumer *kafka.Reader
-var everyPartitionLastMessage sync.Map
+var EveryPartitionLastMessage sync.Map
 
 
 //construct the consumer
@@ -62,7 +71,7 @@ func NewConsumer()  {
 func Consume() (kafka.Message,error) {
 	lastMessage, err := consumer.FetchMessage(context.Background())
 	if err == nil {
-		everyPartitionLastMessage.Store(lastMessage.Partition, lastMessage)
+		EveryPartitionLastMessage.Store(lastMessage.Partition, lastMessage)
 	}
 	return lastMessage,err
 }
@@ -71,14 +80,14 @@ func Consume() (kafka.Message,error) {
 func CommitOffsetForAllPartition(onCommit func(message kafka.Message) ) error {
 	var err error
 	background := context.Background()
-	everyPartitionLastMessage.Range(func(key interface{}, value interface{}) bool {
+	EveryPartitionLastMessage.Range(func(key interface{}, value interface{}) bool {
 		if err == nil {
 			message := value.(kafka.Message)
 			err = consumer.CommitMessages(background, message) 
 			if err != nil {
 				return false // stop iteration
 			}
-			everyPartitionLastMessage.Delete(key)
+			EveryPartitionLastMessage.Delete(key)
 			if onCommit != nil {
 				onCommit(message)
 			}
