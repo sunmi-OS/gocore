@@ -26,7 +26,7 @@ func NewDB(dbname string) {
 		"dbUser":          "root",
 		"dbPasswd":        "",
 		"dbPort":          3306,
-		"dbIdleconns_max": 0,
+		"dbIdleconns_max": 20,
 		"dbOpenconns_max": 20,
 		"dbType":          "mysql",
 	})
