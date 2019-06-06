@@ -8,14 +8,26 @@ import (
 	"sync"
 )
 
-var producer *kafka.Writer
+
+
+type Producer struct {
+	producer *kafka.Writer
+}
+
+var ProducerMap map[string]*Producer = make(map[string]*Producer)
+
+func Init(topic string) *Producer {
+	producer := new(Producer)
+	producer.newProducer(topic)
+	return producer
+}
 
 
 //construct the producer
-func NewProducer()  {
+func (p *Producer) newProducer(topic string)  {
 	config := kafka.WriterConfig{
 		Brokers:      viper.C.GetStringSlice("kafkaClient.brokers"),
-		Topic:        viper.C.GetString("kafkaClient.topicName"),
+		Topic:        topic,
 		RequiredAcks: viper.C.GetInt("kafkaClient.acks"),
 		Async:        viper.C.GetBool("kafkaClient.async"),
 	}
@@ -24,28 +36,28 @@ func NewProducer()  {
 		config.CompressionCodec =snappy.NewCompressionCodec() // snappy
 	}
 
-	producer = kafka.NewWriter(config)
+	p.producer = kafka.NewWriter(config)
 }
 
 //produce message
-func ProduceWithKey(key []byte, value []byte) error {
-	return producer.WriteMessages(context.Background(), kafka.Message{
+func (p *Producer) ProduceWithKey(key []byte, value []byte) error {
+	return p.producer.WriteMessages(context.Background(), kafka.Message{
 		Key:   key,
 		Value: value,
 	})
 }
 
 //produce message
-func Produce(msg []byte) error {
-	return producer.WriteMessages(context.Background(), kafka.Message{
+func (p *Producer) Produce(msg []byte) error {
+	return p.producer.WriteMessages(context.Background(), kafka.Message{
 		Value: msg,
 	})
 }
 
 //close the producer
-func CloseProducer() error {
-	if producer!=nil {
-		return producer.Close()
+func (p *Producer) CloseProducer() error {
+	if p.producer!=nil {
+		return p.producer.Close()
 	} else {
 		return nil
 	}
