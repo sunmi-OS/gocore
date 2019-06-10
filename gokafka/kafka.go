@@ -44,7 +44,7 @@ func (p *Producer) newProducer(topic string)  {
 		Topic:        topic,
 		RequiredAcks: viper.C.GetInt("kafkaClient.acks"),
 		Async:        viper.C.GetBool("kafkaClient.async"),
-		BatchTimeout: time.Millisecond * time.Duration(viper.C.GetInt("batchTimeout")),
+		BatchTimeout: time.Millisecond * time.Duration(viper.C.GetInt("kafkaClient.batchTimeout")),
 	}
 
 	if viper.C.GetBool("kafkaClient.compression") == true {
