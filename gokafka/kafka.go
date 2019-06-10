@@ -14,14 +14,18 @@ type Producer struct {
 	producer *kafka.Writer
 }
 
-var ProducerMap map[string]*Producer = make(map[string]*Producer)
+var producerMap map[string]*Producer = make(map[string]*Producer)
+
+func LoadProducerByTopic(topic string) *Producer {
+	return producerMap[topic]
+}
 
 func Init(topic string) *Producer {
 	producer := new(Producer)
 	producer.newProducer(topic)
+	producerMap[topic]= producer
 	return producer
 }
-
 
 //construct the producer
 func (p *Producer) newProducer(topic string)  {
