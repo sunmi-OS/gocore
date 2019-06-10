@@ -14,16 +14,25 @@ type Producer struct {
 	producer *kafka.Writer
 }
 
-var producerMap map[string]*Producer = make(map[string]*Producer)
+var producerMap sync.Map
 
 func LoadProducerByTopic(topic string) *Producer {
-	return producerMap[topic]
+	value, _ := producerMap.Load(topic)
+	if value == nil {
+		return nil
+	} else {
+		return value.(*Producer)
+	}
 }
 
 func Init(topic string) *Producer {
+	_, found := producerMap.Load(topic)
+	if found {
+		return nil //can not remap
+	}
 	producer := new(Producer)
 	producer.newProducer(topic)
-	producerMap[topic]= producer
+	producerMap.Store(topic, producer)
 	return producer
 }
 
