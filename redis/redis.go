@@ -20,7 +20,7 @@ func GetRedisOptions(db string) {
 	if encryption == 1 {
 		auth = utils.GetMD5(auth)
 	}
-	options := redis.Options{Addr: host + post, Password: auth, DB: dbIndex}
+	options := redis.Options{Addr: host + ":" + post, Password: auth, DB: dbIndex}
 	client := redis.NewClient(&options)
 	client.Ping().Result()
 
