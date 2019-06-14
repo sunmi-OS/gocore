@@ -107,6 +107,8 @@ viper配置文件读取库(已使用):[viper](https://github.com/spf13/viper)
 
 数据库操作(已使用):[github.com/jinzhu/gorm](https://github.com/jinzhu/gorm)
 
+mongodb官方库:[https://github.com/mongodb/mongo-go-driver](https://github.com/mongodb/mongo-go-driver)
+
 数据库操作:[github.com/go-xorm/xorm ](https://github.com/go-xorm/xorm )
 
 solr索引引擎库:[https://github.com/rtt/Go-Solr](https://github.com/rtt/Go-Solr)
