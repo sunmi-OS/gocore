@@ -97,7 +97,7 @@ func (this *Request) GetError() error {
 func (this *Request) InitDES() error {
 	// debug_key 跳过签名验证以及DES加密验证
 	debugKey := viper.C.GetString("system.debugKey")
-	if this.Param("debug_key").GetString() == debugKey {
+	if debugKey != "" && this.Param("debug_key").GetString() == debugKey {
 		return this.initWithoutDES()
 	}
 	params := ""
