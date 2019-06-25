@@ -95,7 +95,11 @@ func (this *Request) GetError() error {
 
 // 进行签名验证以及DES加密验证
 func (this *Request) InitDES() error {
-
+	// debug_key 跳过签名验证以及DES加密验证
+	debugKey := viper.C.GetString("system.debugKey")
+	if this.Param("debug_key").GetString() == debugKey {
+		return this.initWithoutDES()
+	}
 	params := ""
 	params = this.PostParam(viper.C.GetString("system.DESParam")).GetString()
 
@@ -147,6 +151,18 @@ func (this *Request) InitDES() error {
 				params = string(origData)
 			}
 		}
+		this.Context.Set(RequestBody, string(params))
+		this.Json = gjson.Parse(params)
+		this.IsJsonParam = true
+	}
+	return nil
+}
+
+// 跳过签名和加密
+func (this *Request) initWithoutDES() error {
+	params := ""
+	params = this.PostParam(viper.C.GetString("system.DESParam")).GetString()
+	if params != "" {
 		this.Context.Set(RequestBody, string(params))
 		this.Json = gjson.Parse(params)
 		this.IsJsonParam = true
