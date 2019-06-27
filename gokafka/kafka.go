@@ -39,15 +39,39 @@ func Init(topic string) *Producer {
 
 //construct the producer
 func (p *Producer) newProducer(topic string)  {
+
+
+	viper.C.SetDefault(topic,map[string]interface{}{
+		"acks":          -1,
+		"async":          false,
+		"compression":   true,
+		"batchTimeout": 1000,
+	})
+
+	acks := viper.C.GetInt(topic + ".acks")
+	async := viper.C.GetBool(topic + ".async")
+	compression := viper.C.GetBool(topic + ".compression")
+	batchTimeout := viper.C.GetInt(topic + ".batchTimeout")
+	brokers := viper.C.GetStringSlice("kafkaClient.brokers")
+
+	fmt.Printf("kafka producer config----->\n")
+	fmt.Printf("topic: `%v`\n",topic)
+	fmt.Printf("acks: `%v`\n",acks)
+	fmt.Printf("async: `%v`\n",async)
+	fmt.Printf("compression: `%v`\n",compression)
+	fmt.Printf("batchTimeout: `%v`\n",batchTimeout)
+	fmt.Printf("brokers: `%v`\n",brokers)
+	fmt.Printf("kafka producer config<-----\n")
+
 	config := kafka.WriterConfig{
-		Brokers:      viper.C.GetStringSlice("kafkaClient.brokers"),
+		Brokers:      brokers,
 		Topic:        topic,
-		RequiredAcks: viper.C.GetInt("kafkaClient.acks"),
-		Async:        viper.C.GetBool("kafkaClient.async"),
-		BatchTimeout: time.Millisecond * time.Duration(viper.C.GetInt("kafkaClient.batchTimeout")),
+		RequiredAcks: acks,
+		Async:        async,
+		BatchTimeout: time.Millisecond * time.Duration(batchTimeout),
 	}
 
-	if viper.C.GetBool("kafkaClient.compression") == true {
+	if compression  {
 		config.CompressionCodec =snappy.NewCompressionCodec() // snappy
 	}
 
