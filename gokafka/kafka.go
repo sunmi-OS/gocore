@@ -2,6 +2,7 @@ package gokafka
 
 import (
 	"context"
+	"fmt"
 	"github.com/segmentio/kafka-go"
 	"github.com/segmentio/kafka-go/snappy"
 	"github.com/sunmi-OS/gocore/viper"
@@ -76,6 +77,10 @@ func (p *Producer) newProducer(topic string)  {
 	}
 
 	p.producer = kafka.NewWriter(config)
+}
+
+func (p *Producer) ProduceMsgs(msgs[]kafka.Message) error {
+	return p.producer.WriteMessages(context.Background(), msgs...)
 }
 
 //produce message
