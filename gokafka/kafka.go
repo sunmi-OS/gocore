@@ -46,7 +46,7 @@ func (p *Producer) newProducer(topic string)  {
 		"acks":          -1,
 		"async":          false,
 		"compression":   true,
-		"batchTimeout": 1000,
+		"batchTimeout": 1,      //当你使用了 sync 方式写kafka，那么你需要将该值设置为1，因为不需要在进行无意义的等待时间
 	})
 
 	acks := viper.C.GetInt(topic + ".acks")
