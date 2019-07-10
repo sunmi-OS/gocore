@@ -11,11 +11,11 @@ import (
 var RedisList sync.Map
 
 func GetRedisOptions(db string) {
-	host := viper.C.GetString("redisServer.host")
-	port := viper.C.GetString("redisServer.port")
-	auth := viper.C.GetString("redisServer.auth")
-	encryption := viper.C.GetInt("redisServer.encryption")
-	dbIndex := viper.C.GetInt("redisDB." + db)
+	host := viper.GetEnvConfig("redisServer.host")
+	port := viper.GetEnvConfig("redisServer.port")
+	auth := viper.GetEnvConfig("redisServer.auth")
+	encryption := viper.GetEnvConfigInt("redisServer.encryption")
+	dbIndex := viper.GetEnvConfigCastInt("redisDB." + db)
 	if encryption == 1 {
 		auth = utils.GetMD5(auth)
 	}
