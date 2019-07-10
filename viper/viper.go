@@ -80,3 +80,14 @@ func GetEnvConfigBool(key string) bool {
 
 	return C.GetBool(key)
 }
+
+func GetEnvConfigStringSlice(key string)[]string {
+
+	env := os.Getenv(strings.Replace(strings.ToUpper(key), ".", "_", -1))
+	if env != "" {
+		return strings.Split(env[1:len(env)-1], ",")
+	}
+
+	return C.GetStringSlice(key)
+}
+
