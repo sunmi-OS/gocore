@@ -91,3 +91,6 @@ func GetEnvConfigStringSlice(key string)[]string {
 	return C.GetStringSlice(key)
 }
 
+func GetEnvConfigCastInt(key string) int {
+	return int(GetEnvConfigInt(key))
+}
