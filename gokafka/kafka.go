@@ -118,8 +118,8 @@ func NewConsumer()  {
 		Brokers:   viper.GetEnvConfigStringSlice("kafkaClient.brokers"),
 		GroupID:  viper.GetEnvConfig("kafkaClient.consumerGroupId"),
 		Topic:     viper.GetEnvConfig("kafkaClient.topicName"),
-		MinBytes:   viper.GetEnvConfigInt("kafkaClient.consumerMinBytes"),
-		MaxBytes:  viper.GetEnvConfigInt("kafkaClient.consumerMaxBytes"),
+		MinBytes:   int(viper.GetEnvConfigInt("kafkaClient.consumerMinBytes")),
+		MaxBytes: int(viper.GetEnvConfigInt("kafkaClient.consumerMaxBytes")),
 	})
 }
 
