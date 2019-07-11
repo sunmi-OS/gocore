@@ -7,6 +7,7 @@ import (
 	"github.com/sunmi-OS/gocore/viper"
 	"sync"
 	"time"
+	"fmt"
 )
 
 
@@ -48,20 +49,20 @@ func (p *Producer) newProducer(topic string)  {
 		"batchTimeout": 1000,
 	})
 
-	acks := viper.C.GetInt(topic + ".acks")
-	async := viper.C.GetBool(topic + ".async")
-	compression := viper.C.GetBool(topic + ".compression")
-	batchTimeout := viper.C.GetInt(topic + ".batchTimeout")
-	brokers := viper.C.GetStringSlice("kafkaClient.brokers")
+	acks := int(viper.GetEnvConfigInt(topic + ".acks"))
+	async := viper.GetEnvConfigBool(topic + ".async")
+	compression := viper.GetEnvConfigBool(topic + ".compression")
+	batchTimeout := viper.GetEnvConfigInt(topic + ".batchTimeout")
+	brokers := viper.GetEnvConfigStringSlice("kafkaClient.brokers")
 
-	fmt.Printf("kafka producer config----->\n")
+
 	fmt.Printf("topic: `%v`\n",topic)
 	fmt.Printf("acks: `%v`\n",acks)
 	fmt.Printf("async: `%v`\n",async)
 	fmt.Printf("compression: `%v`\n",compression)
 	fmt.Printf("batchTimeout: `%v`\n",batchTimeout)
 	fmt.Printf("brokers: `%v`\n",brokers)
-	fmt.Printf("kafka producer config<-----\n")
+
 
 	config := kafka.WriterConfig{
 		Brokers:      brokers,
@@ -76,6 +77,10 @@ func (p *Producer) newProducer(topic string)  {
 	}
 
 	p.producer = kafka.NewWriter(config)
+}
+
+func (p *Producer) ProduceMsgs(msgs[]kafka.Message) error {
+	return p.producer.WriteMessages(context.Background(), msgs...)
 }
 
 //produce message
@@ -110,11 +115,11 @@ var EveryPartitionLastMessage sync.Map
 //construct the consumer
 func NewConsumer()  {
 	consumer = kafka.NewReader(kafka.ReaderConfig{
-		Brokers:   viper.C.GetStringSlice("kafkaClient.brokers"),
-		GroupID:  viper.C.GetString("kafkaClient.consumerGroupId"),
-		Topic:     viper.C.GetString("kafkaClient.topicName"),
-		MinBytes:   viper.C.GetInt("kafkaClient.consumerMinBytes"),
-		MaxBytes:  viper.C.GetInt("kafkaClient.consumerMaxBytes"),
+		Brokers:   viper.GetEnvConfigStringSlice("kafkaClient.brokers"),
+		GroupID:  viper.GetEnvConfig("kafkaClient.consumerGroupId"),
+		Topic:     viper.GetEnvConfig("kafkaClient.topicName"),
+		MinBytes:   int(viper.GetEnvConfigInt("kafkaClient.consumerMinBytes")),
+		MaxBytes: int(viper.GetEnvConfigInt("kafkaClient.consumerMaxBytes")),
 	})
 }
 
@@ -134,7 +139,7 @@ func CommitOffsetForAllPartition(onCommit func(message kafka.Message) ) error {
 	EveryPartitionLastMessage.Range(func(key interface{}, value interface{}) bool {
 		if err == nil {
 			message := value.(kafka.Message)
-			err = consumer.CommitMessages(background, message) 
+			err = consumer.CommitMessages(background, message)
 			if err != nil {
 				return false // stop iteration
 			}
