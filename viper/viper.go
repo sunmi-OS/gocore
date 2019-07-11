@@ -14,25 +14,15 @@ import (
 type Viper struct {
 	C *viper.Viper
 }
+
 var multipleViper sync.Map
+var C *viper.Viper
 
-func LoadViperByFilename(filename string) *Viper {
-	value, _ := multipleViper.Load(filename)
-	if value == nil {
-		return nil
-	} else {
-		return value.(*Viper)
-	}
-}
-
-func BuildVipers(filePath string, fileName ...string)  {
-	for _, v := range fileName {
-		_, found := multipleViper.Load(v)
-		if !found { //can not remap
-			A := newConfig(filePath, v)
-			multipleViper.Store(v, A)
-		}
-	}
+// 初始化配置文件
+// filePath 配置文件路径
+// fileName 配置文件名称(不需要文件后缀)
+func NewConfig(filePath string, fileName string) {
+	C=newConfig(filePath, fileName).C
 }
 
 func newConfig(filePath string, fileName string) *Viper {
@@ -56,8 +46,24 @@ func newConfig(filePath string, fileName string) *Viper {
 	return &Viper{X}
 }
 
+func BuildVipers(filePath string, fileName ...string)  {
+	for _, v := range fileName {
+		_, found := multipleViper.Load(v)
+		if !found { //can not remap
+			A := newConfig(filePath, v)
+			multipleViper.Store(v, A)
+		}
+	}
+}
 
-
+func LoadViperByFilename(filename string) *Viper {
+	value, _ := multipleViper.Load(filename)
+	if value == nil {
+		return nil
+	} else {
+		return value.(*Viper)
+	}
+}
 
 // 获取配置文件优先获取环境变量(返回string类型)
 func (V *Viper)GetEnvConfig(key string) string {
@@ -116,21 +122,6 @@ func (V *Viper)GetEnvConfigStringSlice(key string)[]string {
 
 func (V *Viper)GetEnvConfigCastInt(key string) int {
 	return int(V.GetEnvConfigInt(key))
-}
-
-
-
-
-
-
-
-var C *viper.Viper
-
-// 初始化配置文件
-// filePath 配置文件路径
-// fileName 配置文件名称(不需要文件后缀)
-func NewConfig(filePath string, fileName string) {
-	C=newConfig(filePath, fileName).C
 }
 
 // 获取配置文件优先获取环境变量(返回string类型)
