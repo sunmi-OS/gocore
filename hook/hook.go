@@ -33,7 +33,7 @@ func AddShutdownHook(runnables ...func() int)  {
 
 func (h *Hook) listenShutdownSignal() {
 	c := make(chan os.Signal)
-	signal.Notify(c, syscall.SIGHUP, syscall.SIGINT, syscall.SIGTERM, syscall.SIGQUIT)
+	signal.Notify(c, syscall.SIGHUP, syscall.SIGINT, syscall.SIGTERM, syscall.SIGQUIT, syscall.SIGKILL)
 	select {
 	case sig := <-c:
 		replicasTask := h.taskReplicas()
