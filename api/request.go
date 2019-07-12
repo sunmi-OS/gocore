@@ -139,10 +139,10 @@ func (this *Request) InitDES() error {
 			//如果是加密的params那么进行解密操作
 			if isEncrypted == "1" {
 				// webapi 情况下需要对params decode
-				var err error
-				params, err = url.PathUnescape(params)
-				if err != nil {
-					return err
+				// decode 失败，可能未 encode，直接使用原 params 解密
+				decodeParams, err := url.PathUnescape(params)
+				if err == nil {
+					params = decodeParams
 				}
 				base64params, err := base64.StdEncoding.DecodeString(params)
 				if err != nil {
