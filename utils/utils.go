@@ -39,18 +39,21 @@ func GetMD5(plainText string) string {
 	return hex.EncodeToString(h.Sum(nil))
 }
 
-//计算文件的md5
+//计算文件的md5，适用于本地文件计算
 func GetMd5(path string) (string, error) {
 	f, err := os.Open(path)
 	if err != nil {
 		return "", err
 	}
 	defer f.Close()
-	_, str, err := GetMd52(f)
-	return str, err
+	md5hash := md5.New()
+	if _, err := io.Copy(md5hash, f); err != nil {
+		return "", err
+	}
+	return hex.EncodeToString(md5hash.Sum(nil)), nil
 }
 
-//从流中直接读取数据计算md5 并返回流的副本
+//从流中直接读取数据计算md5 并返回流的副本，不能用于计算大文件流否则内存占用很大
 //@return io.Reader @params file的副本
 func GetMd52(file io.Reader) (io.Reader, string, error) {
 	var b bytes.Buffer
