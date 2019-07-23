@@ -21,7 +21,7 @@ var producerMap sync.Map
 func LoadProducerByTopic(topic string) *Producer {
 	value, _ := producerMap.Load(topic)
 	if value == nil {
-		return nil
+		return Init(topic)
 	} else {
 		return value.(*Producer)
 	}
