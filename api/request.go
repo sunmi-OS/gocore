@@ -228,10 +228,9 @@ func (this *Request) GetRoot() *Request {
 				this.params.val = values.Encode()
 			}
 		}
-		this.params.key = "root"
 		this.jsonTag = false
 	}
-	this.params.key = ""
+	this.params.key = "root"
 
 	return this
 }
