@@ -11,6 +11,7 @@ import (
 	"crypto/md5"
 	"encoding/base64"
 	"encoding/hex"
+	"encoding/json"
 	"errors"
 	"fmt"
 	"net/url"
@@ -54,10 +55,11 @@ type Jsonparam struct {
 }
 
 type param struct {
-	key string
-	val string
-	min int
-	max int
+	key       string
+	val       string
+	min       int
+	max       int
+	needValid bool
 }
 
 // 初始化request
@@ -210,6 +212,29 @@ func (this *Request) GetParam(key string) *Request {
 	return this
 }
 
+func (this *Request) GetRoot() *Request {
+	this.Clean()
+
+	if this.IsJsonParam {
+		this.Jsonparam.val = this.Json
+		this.jsonTag = true
+	} else {
+		query := this.Context.QueryString()
+		if query != "" {
+			this.params.val = query
+		} else {
+			values, e := this.Context.FormParams()
+			if e == nil {
+				this.params.val = values.Encode()
+			}
+		}
+		this.jsonTag = false
+	}
+	this.params.key = "root"
+
+	return this
+}
+
 // 获取post参数
 func (this *Request) PostParam(key string) *Request {
 
@@ -266,6 +291,12 @@ func (this *Request) Require(b bool) *Request {
 	return this
 }
 
+// 仅配合GetJsonObject使用
+func (this *Request) NeedValid(b bool) *Request {
+	this.params.needValid = b
+	return this
+}
+
 // 设置参数最大值
 func (this *Request) Max(i int) *Request {
 
@@ -298,6 +329,46 @@ func (this *Request) GetString() string {
 	}
 
 	return str
+}
+
+// 获取并且验证参数 入参为json对应的结构体 适用于GET或POST参数
+/*  示例
+ 	request := api.NewRequest(c)
+ 	err := request.InitDES()
+ 	if err != nil {
+ 		//deal error
+ 	}
+ 	jsonObject := struct {
+		Id     int
+		Name   string `valid:"Required;"` // Name 不能为空
+		Age    int    `valid:"Range(1, 140)"` // 1 <= Age <= 140，超出此范围即为不合法
+		Email  string `valid:"Email; MaxSize(100)"` // Email 字段需要符合邮箱格式，并且最大长度不能大于 100 个字符
+		Mobile string `valid:"Mobile"` // Mobile 必须为正确的手机号
+		IP     string `valid:"IP"` // IP 必须为一个正确的 IPv4 地址
+ 	}{}
+	//获取params字段内数据就符合json的结构体
+ 	root := request.GetRoot().NeedValid(true).GetJsonObject(&jsonObject)
+	//获取params内key字段符合json的结构体
+ 	key := request.Param("key").NeedValid(true).GetJsonObject(&jsonObject)
+ 	err = request.GetError()
+ 	if err != nil {
+ 		//deal error
+ 	}
+*/
+func (this *Request) GetJsonObject(jsonInterface interface{}) interface{} {
+
+	str := this.getParamVal()
+	//解析json
+	err := json.Unmarshal([]byte(str), jsonInterface)
+	if err != nil {
+		this.valid.SetError("jsonInterface Unmarshal Error", err.Error())
+	}
+	//如果json解析无误参数验证
+	if !this.valid.HasErrors() && this.params.needValid {
+		_, _ = this.valid.Valid(jsonInterface)
+	}
+
+	return jsonInterface
 }
 
 // 获取并且验证参数 int类型 适用于GET或POST参数
