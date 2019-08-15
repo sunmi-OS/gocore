@@ -1,6 +1,12 @@
 package brain
 
-import "fmt"
+import (
+	"fmt"
+	"github.com/json-iterator/go"
+	"io/ioutil"
+	"os"
+	"path/filepath"
+)
 
 var VERSION = "v0.0.1"
 
@@ -39,4 +45,88 @@ func (brain *BayesBrain)Show() {
 	fmt.Println(brain.CategoriesFrequency)
 	fmt.Println(brain.FeaturesFrequencyInEachCategory)
 	fmt.Println("~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~")
+}
+
+func (brain *BayesBrain) Save(filename string) error {
+	if filename[len(filename):] != "/" {
+		filename += "/"
+	}
+	parentPath := filename + VERSION
+	err := save(brain.CategoriesFrequency, parentPath+"/cf.json")
+	if err != nil {
+		return err
+	}
+	err = save(brain.FeaturesFrequency, parentPath+"/ff.json")
+	if err != nil {
+		return err
+	}
+	err = save(brain.FeaturesFrequencyInEachCategory, parentPath+"/ffiec.json")
+	if err != nil {
+		return err
+	}
+	return nil
+}
+
+func save(obj interface{}, filename string) error {
+	jsonBytes, err := jsoniter.ConfigCompatibleWithStandardLibrary.Marshal(obj)
+	if err != nil {
+		return err
+	}
+
+	path := filepath.Dir(filename)
+
+	if _, err := os.Stat(path); os.IsNotExist(err) {
+		err := os.MkdirAll(path, os.ModePerm)
+		if err != nil {
+			return err
+		}
+	}
+	return ioutil.WriteFile(filename, jsonBytes, 0600)
+}
+
+
+
+func (brain *BayesBrain) Load(filename string) error {
+	if filename[len(filename):] != "/" {
+		filename += "/"
+	}
+	parentPath := filename + VERSION
+	jsonBytes, err := load(parentPath + "/cf.json")
+	if err != nil {
+		return err
+	}
+	err = jsoniter.ConfigCompatibleWithStandardLibrary.Unmarshal(jsonBytes, &brain.CategoriesFrequency)
+	if err != nil {
+		return err
+	}
+
+	jsonBytes, err = load(parentPath + "/ff.json")
+	if err != nil {
+		return err
+	}
+	err = jsoniter.ConfigCompatibleWithStandardLibrary.Unmarshal(jsonBytes, &brain.FeaturesFrequency)
+	if err != nil {
+		return err
+	}
+
+
+	jsonBytes, err = load(parentPath + "/ffiec.json")
+	if err != nil {
+		return err
+	}
+	err = jsoniter.ConfigCompatibleWithStandardLibrary.Unmarshal(jsonBytes, &brain.FeaturesFrequencyInEachCategory)
+	if err != nil {
+		return err
+	}
+
+	return nil
+}
+
+func load(filename string) ([]byte, error) {
+	content, err := ioutil.ReadFile(filename)
+	if err != nil {
+		return nil, err
+	}
+	return content, nil
+
 }
