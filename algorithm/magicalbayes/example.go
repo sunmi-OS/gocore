@@ -2,8 +2,8 @@ package main
 
 import (
 	"fmt"
-	"gocore/algorithm/magicalbayes/brain"
-	"gocore/algorithm/magicalbayes/classifier"
+	"github.com/sunmi-OS/gocore/algorithm/magicalbayes/brain"
+	"github.com/sunmi-OS/gocore/algorithm/magicalbayes/classifier"
 )
 
 func main()  {
