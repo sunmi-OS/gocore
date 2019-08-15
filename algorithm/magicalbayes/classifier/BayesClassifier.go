@@ -1,6 +1,6 @@
 package classifier
 
-import "gocore/algorithm/magicalbayes/brain"
+import "github.com/sunmi-OS/gocore/algorithm/magicalbayes/brain"
 
 var VERSION = "1.0.0"
 var λ = 1 //平滑因子
