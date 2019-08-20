@@ -9,6 +9,10 @@ kubernetes:[/home/keke/goTest/src/gocore/README.md](https://github.com/kubernete
 
 Kubernetes安装工具Kops：[https://github.com/kubernetes/kops](https://github.com/kubernetes/kops)
 
+vmware开源kubernetes工具：[https://github.com/vmware/octant](https://github.com/vmware/octant)
+
+kuberners命令终端控制工具：[https://github.com/astefanutti/kubebox](https://github.com/astefanutti/kubebox)
+
 Istio服务网格:[Istio](https://github.com/istio/istio)
 
 Naftis小米开源Istio管理工具[Naftis](https://github.com/XiaoMi/naftis)
