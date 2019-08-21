@@ -9,15 +9,18 @@ kubernetes:[/home/keke/goTest/src/gocore/README.md](https://github.com/kubernete
 
 Kubernetes安装工具Kops：[https://github.com/kubernetes/kops](https://github.com/kubernetes/kops)
 
-vmware开源kubernetes工具：[https://github.com/vmware/octant](https://github.com/vmware/octant)
+vmware开源kubernetes关联关系工具：[https://github.com/vmware/octant](https://github.com/vmware/octant)
 
 kuberners命令终端控制工具：[https://github.com/astefanutti/kubebox](https://github.com/astefanutti/kubebox)
+
+奇虎360团队开源Kubernetes完整流程管理套件：[https://github.com/Qihoo360/wayne](https://github.com/Qihoo360/wayne)
 
 Istio服务网格:[Istio](https://github.com/istio/istio)
 
 Naftis小米开源Istio管理工具[Naftis](https://github.com/XiaoMi/naftis)
 
 go-kit微服务套件:[go-kit](https://github.com/go-kit/kit)
+
 
 
 ## 终端开发
