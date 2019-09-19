@@ -3,7 +3,7 @@ package rabbitmq
 import (
 	"fmt"
 	"time"
-
+	"net/url"
 	"github.com/streadway/amqp"
 	"github.com/sunmi-OS/gocore/viper"
 )
@@ -15,8 +15,8 @@ func connRbbitmq() error {
 	host := viper.C.GetString("rabbitmq.host")
 	port := viper.C.GetString("rabbitmq.port")
 	vhost := viper.C.GetString("rabbitmq.vhost")
-	user := viper.C.GetString("rabbitmq.user")
-	password := viper.C.GetString("rabbitmq.password")
+	user := url.QueryEscape(viper.C.GetString("rabbitmq.user"))
+	password := url.QueryEscape(viper.C.GetString("rabbitmq.password"))
 
 	amqpcoinf := amqp.Config{
 		Vhost:     vhost,

@@ -49,6 +49,10 @@ func (this *Response) SetData(d interface{}) {
 	this.parameter.Data = d
 }
 
+func (this *Response) GetParameter() *RetParameter {
+	return this.parameter
+}
+
 // 返回自定自定义的消息格式
 func (this *Response) RetCustomize(code int, d interface{}, msg string) error {
 
