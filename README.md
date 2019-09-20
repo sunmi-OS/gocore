@@ -5,7 +5,7 @@ SUNMI go开发封装核心库
 
 ## 容器化微服务化
 
-kubernetes:[/home/keke/goTest/src/gocore/README.md](https://github.com/kubernetes/kubernetes)
+kubernetes:[https://github.com/kubernetes/kubernetes](https://github.com/kubernetes/kubernetes)
 
 Kubernetes安装工具Kops：[https://github.com/kubernetes/kops](https://github.com/kubernetes/kops)
 
@@ -20,7 +20,6 @@ Istio服务网格:[Istio](https://github.com/istio/istio)
 Naftis小米开源Istio管理工具[Naftis](https://github.com/XiaoMi/naftis)
 
 go-kit微服务套件:[go-kit](https://github.com/go-kit/kit)
-
 
 
 ## 终端开发
