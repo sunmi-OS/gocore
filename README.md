@@ -15,6 +15,10 @@ kuberners命令终端控制工具：[https://github.com/astefanutti/kubebox](htt
 
 奇虎360团队开源Kubernetes完整流程管理套件：[https://github.com/Qihoo360/wayne](https://github.com/Qihoo360/wayne)
 
+docker 运行时沙箱:[gvisor](https://github.com/google/gvisor)
+
+Kubernetes的虚拟机管理附件:[KubeVirt](https://github.com/kubevirt/kubevirt)
+
 Istio服务网格:[Istio](https://github.com/istio/istio)
 
 Naftis小米开源Istio管理工具[Naftis](https://github.com/XiaoMi/naftis)
@@ -178,15 +182,11 @@ GO机器学习图书馆,包含各种各样的算法:[gorgonia](https://github.co
 go语言对Tensorflow的封装:[tfgo](https://github.com/galeone/tfgo )
 
 
-## 依赖管理
+## Golang依赖管理(统一使用 go mod 不在使用第三方管理工具)
+
 官方包管理:[dep](https://github.com/golang/dep )
 
 包管理工具(本地打包到项目):[godep](https://github.com/tools/godep )
 
 包管理工具(类似Composer和pip):[glide](https://github.com/Masterminds/glide )
 
-## 容器沙箱
-
-docker 运行时沙箱:[gvisor](https://github.com/google/gvisor)
-
-Kubernetes的虚拟机管理附件:[KubeVirt](https://github.com/kubevirt/kubevirt)
