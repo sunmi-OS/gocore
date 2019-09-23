@@ -106,6 +106,7 @@ viper配置文件读取库(已使用):[viper](https://github.com/spf13/viper)
 
 定时任务(已使用):[cron](https://github.com/robfig/cron)
 
+文件打包进二进制文件：[https://github.com/gobuffalo/packr](https://github.com/gobuffalo/packr)
 
 
 ## 数据文件处理
@@ -142,6 +143,7 @@ influxdb时序数据库:[influxdb](https://github.com/influxdata/influxdb)
 oracle链接库:[goracle](https://github.com/go-goracle/goracle)
 
 ### 解析库
+
 JSON解析库(已使用):[gjson](https://github.com/tidwall/gjson)
 
 CSV处理库:[csvutil](https://github.com/jszwec/csvutil)
@@ -158,6 +160,7 @@ google-protobuf库:[protobuf ](https://github.com/golang/protobuf )
 
 
 ## 网络框架
+
 http网路框架(已使用):[echo](https://github.com/labstack/echo)
 
 http网路框架(已使用):[gin](https://github.com/gin-gonic/gin)
@@ -177,6 +180,7 @@ socket.io协议Go实现(已使用):[go-socket.io](https://github.com/googollee/g
 go语言graphql协议库:[https://github.com/99designs/gqlgen](https://github.com/99designs/gqlgen)
 
 ## 深度学习
+
 Go语言实现机器学习框架:[golearn](https://github.com/sjwhitworth/golearn )
 
 GO机器学习图书馆,包含各种各样的算法:[gorgonia](https://github.com/gorgonia/gorgonia)
