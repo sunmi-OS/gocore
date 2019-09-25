@@ -27,6 +27,9 @@ Naftis小米开源Istio管理工具[Naftis](https://github.com/XiaoMi/naftis)
 
 go-kit微服务套件:[go-kit](https://github.com/go-kit/kit)
 
+nacos 阿里巴巴开源服务发现+配置中心:[https://github.com/alibaba/nacos](https://github.com/alibaba/nacos)
+
+nacos go sdk: [https://github.com/nacos-group/nacos-sdk-go](https://github.com/nacos-group/nacos-sdk-go)
 
 ## 终端开发
 
