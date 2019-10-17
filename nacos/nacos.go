@@ -2,7 +2,6 @@ package nacos
 
 import (
 	"errors"
-	"fmt"
 	"io/ioutil"
 	"sync"
 
@@ -125,8 +124,6 @@ func GetConfig() (string, error) {
 	}
 
 	nacosHarder.callbackRun = true
-
-	fmt.Println(configs)
 
 	return configs, nil
 
