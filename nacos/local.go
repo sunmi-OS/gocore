@@ -9,25 +9,36 @@ import (
 
 type LocalNacos struct {
 	FilePath string
+	configs  string
 	config_client.IConfigClient
 }
 
-func NewLocalNacos(filepath string) config_client.IConfigClient {
+func NewLocalNacos(configs string) config_client.IConfigClient {
+	return &LocalNacos{configs: configs}
+}
+
+func NewLocalNacosFile(filepath string) config_client.IConfigClient {
 	return &LocalNacos{FilePath: filepath}
 }
 
 // 获取配置
 func (l *LocalNacos) GetConfig(param vo.ConfigParam) (string, error) {
-	// 判断必要参数
-	if param.DataId != "" {
-		return "", errors.New("The configuration file is incomplete.")
+
+	str := l.configs
+	if l.FilePath != "" {
+		// 判断必要参数
+		if param.DataId != "" {
+			return "", errors.New("The configuration file is incomplete.")
+		}
+		// 读取文件内容
+		bytes, err := ioutil.ReadFile(l.FilePath)
+		if err != nil {
+			return "", err
+		}
+		str += string(bytes)
 	}
-	// 读取文件内容
-	bytes, err := ioutil.ReadFile(l.FilePath)
-	if err != nil {
-		return "", err
-	}
-	return string(bytes), nil
+	return str, nil
+
 }
 
 // 发布配置
