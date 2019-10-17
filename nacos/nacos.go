@@ -1,23 +1,24 @@
 package nacos
 
 import (
-	"sync"
 	"errors"
-    "io/ioutil"
-    
+	"fmt"
+	"io/ioutil"
+	"sync"
+
+	"github.com/nacos-group/nacos-sdk-go/clients"
+	"github.com/nacos-group/nacos-sdk-go/clients/config_client"
+	"github.com/nacos-group/nacos-sdk-go/common/constant"
+	"github.com/nacos-group/nacos-sdk-go/vo"
 	"github.com/spf13/cast"
 	"github.com/sunmi-OS/gocore/viper"
-	"github.com/nacos-group/nacos-sdk-go/vo"
-	"github.com/nacos-group/nacos-sdk-go/clients"
-	"github.com/nacos-group/nacos-sdk-go/common/constant"
-	"github.com/nacos-group/nacos-sdk-go/clients/config_client"
 )
 
 type nacos struct {
 	list              map[string]client
 	runtime           string
 	dataIdorGroupList []dataIdorGroup
-	viperBaseFile     string
+	viperBase         string
 	callbackList      map[string]func(namespace, group, dataId, data string)
 	callbackRun       bool
 	callbackFirst     sync.Map
@@ -40,8 +41,14 @@ var nacosHarder = &nacos{
 }
 
 // 注入本地文件配置
-func AddLocalConfig(runTime string, filePath string) {
+func AddLocalConfigFile(runTime string, filePath string) {
 	localNacos := NewLocalNacos(filePath)
+	nacosHarder.list[runTime] = client{cc: localNacos, localStrus: true}
+}
+
+// 注入本地文件配置
+func AddLocalConfig(runTime string, configs string) {
+	localNacos := NewLocalNacos(configs)
 	nacosHarder.list[runTime] = client{cc: localNacos, localStrus: true}
 }
 
@@ -119,6 +126,8 @@ func GetConfig() (string, error) {
 
 	nacosHarder.callbackRun = true
 
+	fmt.Println(configs)
+
 	return configs, nil
 
 }
@@ -176,7 +185,20 @@ func defaltClientConfig(ccConfig *constant.ClientConfig) {
 	}
 }
 
-func NacosToViper(basefiles ...string) {
+func NacosToViper() {
+
+	s, err := GetConfig()
+	if err != nil {
+		print(err)
+	}
+	viper.NewConfigToToml(s + nacosHarder.viperBase)
+}
+
+func SetviperBase(configs string) {
+	nacosHarder.viperBase = configs
+}
+
+func NacosToViperFile(basefiles ...string) {
 
 	if len(basefiles) > 0 {
 		for _, v := range basefiles {
@@ -184,7 +206,7 @@ func NacosToViper(basefiles ...string) {
 			if err != nil {
 				panic(err)
 			}
-			nacosHarder.viperBaseFile += "\r\n" + string(bs)
+			nacosHarder.viperBase += "\r\n" + string(bs)
 		}
 	}
 
@@ -192,7 +214,7 @@ func NacosToViper(basefiles ...string) {
 	if err != nil {
 		print(err)
 	}
-	viper.NewConfigToToml(s + nacosHarder.viperBaseFile)
+	viper.NewConfigToToml(s + nacosHarder.viperBase)
 }
 
 func updateNacosToViper() {
@@ -201,5 +223,5 @@ func updateNacosToViper() {
 	if err != nil {
 		print(err)
 	}
-	viper.NewConfigToToml(s + nacosHarder.viperBaseFile)
+	viper.NewConfigToToml(s + nacosHarder.viperBase)
 }
