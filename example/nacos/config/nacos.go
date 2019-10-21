@@ -9,27 +9,27 @@ import (
 var acmConfigs = map[string]constant.ClientConfig{
 	"dev": constant.ClientConfig{
 		Endpoint:    "acm.aliyun.com:8080",
-		NamespaceId: "xxx",
-		AccessKey:   "xxx",
-		SecretKey:   "xxx",
+		NamespaceId: "96559b31-4749-4510-8425-2209ebfd9155",
+		AccessKey:   "LTAI4Fvzja6U3zBHcUcecoNz",
+		SecretKey:   "aJdP1cRJYnSrV9KJKlbhTUZseLlWRb",
 	},
 	"test": constant.ClientConfig{
 		Endpoint:    "acm.aliyun.com:8080",
-		NamespaceId: "xxx",
-		AccessKey:   "xxx",
-		SecretKey:   "xxx",
+		NamespaceId: "96559b31-4749-4510-8425-2209ebfd9155",
+		AccessKey:   "LTAI4Fvzja6U3zBHcUcecoNz",
+		SecretKey:   "aJdP1cRJYnSrV9KJKlbhTUZseLlWRb",
 	},
 	"uat": constant.ClientConfig{
 		Endpoint:    "acm.aliyun.com:8080",
-		NamespaceId: "xxx",
-		AccessKey:   "xxx",
-		SecretKey:   "xxx",
+		NamespaceId: "96559b31-4749-4510-8425-2209ebfd9155",
+		AccessKey:   "LTAI4Fvzja6U3zBHcUcecoNz",
+		SecretKey:   "aJdP1cRJYnSrV9KJKlbhTUZseLlWRb",
 	},
 	"onl": constant.ClientConfig{
 		Endpoint:    "acm.aliyun.com:8080",
-		NamespaceId: "xxx",
-		AccessKey:   "xxx",
-		SecretKey:   "xxx",
+		NamespaceId: "96559b31-4749-4510-8425-2209ebfd9155",
+		AccessKey:   "LTAI4Fvzja6U3zBHcUcecoNz",
+		SecretKey:   "aJdP1cRJYnSrV9KJKlbhTUZseLlWRb",
 	},
 }
 
