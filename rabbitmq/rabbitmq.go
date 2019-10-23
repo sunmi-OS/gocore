@@ -2,10 +2,10 @@ package rabbitmq
 
 import (
 	"fmt"
-	"time"
-	"net/url"
 	"github.com/streadway/amqp"
 	"github.com/sunmi-OS/gocore/viper"
+	"net/url"
+	"time"
 )
 
 var ch *amqp.Channel
@@ -31,6 +31,23 @@ func connRbbitmq() error {
 
 	ch, err = conn.Channel()
 	return err
+}
+
+func UpdateRabbitmq() error {
+
+	r1 := ch
+	err := connRbbitmq()
+
+	if err != nil {
+		return err
+	} else {
+		err := r1.Close()
+		if err != nil {
+			return err
+		}
+	}
+
+	return nil
 }
 
 func Push(msg string, msgName string) error {
