@@ -33,6 +33,49 @@ func NewDB(dbname string) {
 	var orm *gorm.DB
 	var err error
 
+	for orm, err = openORM(dbname); err != nil; {
+		fmt.Println("Database connection exception! 5 seconds to retry")
+		time.Sleep(5 * time.Second)
+		orm, err = openORM(dbname)
+	}
+
+	Gorm.LoadOrStore(dbname, orm)
+}
+
+// 初始化Gorm
+func UpdateDB(dbname string) error {
+
+	v, _ := Gorm.Load(dbname)
+
+	orm, err := openORM(dbname)
+
+	Gorm.Delete(dbname)
+	Gorm.LoadOrStore(dbname, orm)
+
+	err = v.(*gorm.DB).Close()
+	if err != nil {
+		return err
+	}
+
+	return nil
+}
+
+// 通过名称获取Gorm实例
+func GetORMByName(dbname string) *gorm.DB {
+
+	v, _ := Gorm.Load(dbname)
+	return v.(*gorm.DB)
+}
+
+// 获取默认的Gorm实例
+func GetORM() *gorm.DB {
+
+	v, _ := Gorm.Load("dbDefault")
+	return v.(*gorm.DB)
+}
+
+func openORM(dbname string) (*gorm.DB, error) {
+
 	//默认配置
 	viper.C.SetDefault(dbname, map[string]interface{}{
 		"dbHost":          "127.0.0.1",
@@ -53,29 +96,16 @@ func NewDB(dbname string) {
 
 	connectString := dbUser + ":" + dbPasswd + "@tcp(" + dbHost + ":" + dbPort + ")/" + dbName + "?charset=utf8&parseTime=true&loc=Local"
 
-	for orm, err = gorm.Open(dbType, connectString); err != nil; {
-		fmt.Println("Database connection exception! 5 seconds to retry")
-		time.Sleep(5 * time.Second)
-		orm, err = gorm.Open(dbType, connectString)
+	orm, err := gorm.Open(dbType, connectString)
+
+	if err != nil {
+		return nil, err
 	}
 
 	//连接池的空闲数大小
 	orm.DB().SetMaxIdleConns(viper.C.GetInt(dbname + ".idleconns_max"))
 	//最大打开连接数
 	orm.DB().SetMaxOpenConns(viper.C.GetInt(dbname + ".openconns_max"))
-	Gorm.LoadOrStore(dbname, orm)
-}
 
-// 通过名称获取Gorm实例
-func GetORMByName(dbname string) *gorm.DB {
-
-	v, _ := Gorm.Load(dbname)
-	return v.(*gorm.DB)
-}
-
-// 获取默认的Gorm实例
-func GetORM() *gorm.DB {
-
-	v, _ := Gorm.Load("dbDefault")
-	return v.(*gorm.DB)
+	return orm, err
 }
