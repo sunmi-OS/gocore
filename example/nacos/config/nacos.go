@@ -37,7 +37,7 @@ func InitNacos(runtime string) {
 
 	nacos.SetRunTime(runtime)
 
-	nacos.SetviperBase(baseConfig)
+	nacos.ViperTomlHarder.SetviperBase(baseConfig)
 
 	switch runtime {
 	case "local":
