@@ -13,6 +13,7 @@ import (
 )
 
 var Gorm sync.Map
+var defaultName = "dbDefault"
 
 var (
 	// ErrRecordNotFound record not found error, happens when haven't find any matched data when looking up with a struct
@@ -40,6 +41,11 @@ func NewDB(dbname string) {
 	}
 
 	Gorm.LoadOrStore(dbname, orm)
+}
+
+// 设置获取db的默认值
+func SetDefaultName(dbname string) {
+	defaultName = dbname
 }
 
 // 初始化Gorm
@@ -70,7 +76,7 @@ func GetORMByName(dbname string) *gorm.DB {
 // 获取默认的Gorm实例
 func GetORM() *gorm.DB {
 
-	v, _ := Gorm.Load("dbDefault")
+	v, _ := Gorm.Load(defaultName)
 	return v.(*gorm.DB)
 }
 
@@ -103,9 +109,9 @@ func openORM(dbname string) (*gorm.DB, error) {
 	}
 
 	//连接池的空闲数大小
-	orm.DB().SetMaxIdleConns(viper.C.GetInt(dbname + ".idleconns_max"))
+	orm.DB().SetMaxIdleConns(viper.C.GetInt(dbname + ".dbIdleconns_max"))
 	//最大打开连接数
-	orm.DB().SetMaxOpenConns(viper.C.GetInt(dbname + ".openconns_max"))
+	orm.DB().SetMaxOpenConns(viper.C.GetInt(dbname + ".dbOpenconns_max"))
 
 	return orm, err
 }

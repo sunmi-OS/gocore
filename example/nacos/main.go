@@ -18,11 +18,13 @@ func main() {
 
 	config.InitNacos("dev")
 
-	nacos.SetDataIds("DEFAULT_GROUP", "adb")
-	nacos.SetDataIds("pay", "test")
+	nacos.ViperTomlHarder.SetDataIds("DEFAULT_GROUP", "adb")
+	nacos.ViperTomlHarder.SetDataIds("pay", "test")
 
+	str := nacos.GetConfig("pay", "test")
 
-	nacos.SetCallBackFunc("DEFAULT_GROUP", "adb", func(namespace, group, dataId, data string) {
+	fmt.Println(str)
+	nacos.ViperTomlHarder.SetCallBackFunc("DEFAULT_GROUP", "adb", func(namespace, group, dataId, data string) {
 
 		err := gorm.UpdateDB("remotemanageDB")
 		if err != nil {
@@ -30,9 +32,7 @@ func main() {
 		}
 	})
 
-	nacos.NacosToViper()
-
-
+	nacos.ViperTomlHarder.NacosToViper()
 
 	s := viper.C.GetString("remotemanageDB.dbHost")
 
