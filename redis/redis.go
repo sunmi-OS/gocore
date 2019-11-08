@@ -34,10 +34,11 @@ func UpdateRedis(db string) error {
 	RedisList.Delete(db)
 	RedisList.Store(db, client)
 
-	err := v.(*redis.Client).Close()
+	err = v.(*redis.Client).Close()
 	if err != nil {
 		return err
 	}
+	return nil
 
 }
 
