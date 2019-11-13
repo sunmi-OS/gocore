@@ -3,7 +3,7 @@ package log
 import (
 	"fmt"
 	"os"
-	"os/exec"
+	"path/filepath"
 	"time"
 
 	"github.com/sunmi-OS/gocore/utils"
@@ -59,7 +59,7 @@ func InitLogger(serviceaName string) {
 func updateLogFile() {
 	var err error
 	viper.C.SetDefault("system.saveDays", "7")
-	saveDays := viper.GetEnvConfig("system.saveDays")
+	saveDays := viper.GetEnvConfigFloat("system.saveDays")
 	logPath  := utils.GetPath() + "/Runtime/"
 	for {
 		now := time.Now()
@@ -71,11 +71,7 @@ func updateLogFile() {
 		case <-t.C:
 			//以下为定时执行的操作
 			logfile.Close()
-			go func() {		//删除创建时间在saveDays天前的文件
-				rmCmd := exec.Command("/bin/sh", "-c",
-					"find "+logPath+` -type f -mtime +`+saveDays+` -exec rm {} \;`)
-				rmCmd.Run()
-			}()
+			go deleteLog(logPath, saveDays) //删除修改时间在saveDays天前的文件
 			filename := logPath + time.Now().Format("2006-01-02") + ".log"
 			logfile, err = os.Create(logPath + time.Now().Format("2006-01-02") + ".log")
 			if err != nil {
@@ -92,3 +88,27 @@ func updateLogFile() {
 		}
 	}
 }
+
+func deleteLog(source string, saveDays float64) error{
+
+	return filepath.Walk(source, func(path string, info os.FileInfo, err error) error {
+		if err != nil {
+			fmt.Println(err)
+			return err
+		}
+		if info.IsDir() {
+			return nil
+		}
+		t := time.Now().Sub(info.ModTime()).Hours()
+		fmt.Println(path, t)
+		if t >= (saveDays - 1) * 24 {
+			e := os.Remove(path)
+			if e != nil {
+				fmt.Println(e)
+			}
+		}
+		return err
+	})
+}
+
+
