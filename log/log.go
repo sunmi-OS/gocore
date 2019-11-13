@@ -3,6 +3,7 @@ package log
 import (
 	"fmt"
 	"os"
+	"os/exec"
 	"time"
 
 	"github.com/sunmi-OS/gocore/utils"
@@ -57,6 +58,9 @@ func InitLogger(serviceaName string) {
 // 检测是否跨天了,把记录记录到新的文件目录中
 func updateLogFile() {
 	var err error
+	viper.C.SetDefault("system.saveDays", "7")
+	saveDays := viper.GetEnvConfig("system.saveDays")
+	logPath  := utils.GetPath() + "/Runtime/"
 	for {
 		now := time.Now()
 		// 计算下一个零点
@@ -67,8 +71,13 @@ func updateLogFile() {
 		case <-t.C:
 			//以下为定时执行的操作
 			logfile.Close()
-			filename := utils.GetPath() + "/Runtime/" + time.Now().Format("2006-01-02") + ".log"
-			logfile, err = os.Create(utils.GetPath() + "/Runtime/" + time.Now().Format("2006-01-02") + ".log")
+			go func() {		//删除创建时间在saveDays天前的文件
+				rmCmd := exec.Command("/bin/sh", "-c",
+					"find "+logPath+` -type f -mtime +`+saveDays+` -exec rm {} \;`)
+				rmCmd.Run()
+			}()
+			filename := logPath + time.Now().Format("2006-01-02") + ".log"
+			logfile, err = os.Create(logPath + time.Now().Format("2006-01-02") + ".log")
 			if err != nil {
 				fmt.Println(err)
 			}
