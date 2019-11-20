@@ -167,7 +167,7 @@ func (this *Request) InitDES() error {
 }
 
 // 跳过签名和加密
-func (this *Request) initWithoutDES() error {
+func (this *Request) InitWithoutDES() error {
 	params := ""
 	params = this.PostParam(viper.C.GetString("system.DESParam")).GetString()
 	if params != "" {
