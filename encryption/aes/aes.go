@@ -211,3 +211,38 @@ func (x *ecbDecrypter) CryptBlocks(dst, src []byte) {
 		dst = dst[x.blockSize:]
 	}
 }
+
+func EncryptUseCTRNoPadding(plainText, key, iv []byte) ([]byte, error) {
+	block, err := aes.NewCipher(key)
+	if err != nil {
+		return nil, err
+	}
+	// padding
+	fixedPlainText := NoPadding(plainText, block.BlockSize())
+	// mode
+	blockMode := cipher.NewCTR(block, iv)
+	cipherText := make([]byte, len(fixedPlainText))
+	//do final
+	blockMode.XORKeyStream(cipherText, fixedPlainText)
+	return cipherText, nil
+}
+
+func DecryptUseCTRNoPadding(cipherText, key, iv []byte) ([]byte, error) {
+	block, err := aes.NewCipher(key)
+	if err != nil {
+		return nil, err
+	}
+	// mode
+	blockMode := cipher.NewCTR(block, iv)
+	origData := make([]byte, len(cipherText))
+	blockMode.XORKeyStream(origData, cipherText)
+	return NoUnPadding(origData), nil
+}
+
+func NoPadding(cipherText []byte, blockSize int) []byte {
+	return cipherText
+}
+
+func NoUnPadding(origData []byte) []byte {
+	return origData
+}
