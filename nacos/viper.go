@@ -7,6 +7,7 @@ import (
 	"github.com/sunmi-OS/gocore/viper"
 	"io/ioutil"
 	"sync"
+	"time"
 )
 
 type ViperToml struct {
@@ -99,10 +100,19 @@ func (vt *ViperToml) SetCallBackFunc(group, dataId string, callbark func(namespa
 
 func (vt *ViperToml) NacosToViper() {
 
-	s, err := vt.GetConfig()
-	if err != nil {
-		print(err)
+	var err error
+	s := ""
+
+	for i := 0; i < 3; i++ {
+		s, err = vt.GetConfig()
+		if err != nil {
+			time.Sleep(5 * time.Second)
+		}
 	}
+	if err != nil {
+		panic(err)
+	}
+
 	viper.NewConfigToToml(s + vt.viperBase)
 }
 
