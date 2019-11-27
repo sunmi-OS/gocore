@@ -132,6 +132,14 @@ func Consume() (kafka.Message,error) {
 	return lastMessage,err
 }
 
+func ConsumeByCallback(consume func(kafka.Message, error) bool) {
+	lastMessage, err := consumer.FetchMessage(context.Background())
+	goon := consume(lastMessage, err)
+	if goon {
+		EveryPartitionLastMessage.Store(lastMessage.Partition, lastMessage)
+	}
+}
+
 // commit offset for all partitions
 func CommitOffsetForAllPartition(onCommit func(message kafka.Message) ) error {
 	var err error
