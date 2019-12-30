@@ -18,6 +18,7 @@ func test0()  {
 	bayesBrain.Learn("Chinese", "Chinese", "Chinese", "Shanghai")
 	bayesBrain.Learn("Chinese", "Chinese", "Macao")
 	bayesBrain.Learn("Not Chinese", "Tokyo", "Japan", "Chinese")
+	bayesBrain.ApplyTfIdf()
 	bayesBrain.Show()
 
 	//测试样本
