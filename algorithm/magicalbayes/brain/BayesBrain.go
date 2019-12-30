@@ -3,7 +3,6 @@ package brain
 import (
 	"encoding/json"
 	"fmt"
-	jsoniter "github.com/json-iterator/go"
 	"io/ioutil"
 	"math"
 	"os"
@@ -113,7 +112,7 @@ func (brain *BayesBrain) Show() {
 	fmt.Println(brain.CategoriesFrequency)
 	fmt.Println(brain.FeaturesFrequencyInEachCategory)
 	fmt.Println("tf-idf")
-	categoriesSummary, err := jsoniter.ConfigCompatibleWithStandardLibrary.Marshal(brain.CategoriesSummary)
+	categoriesSummary, err := json.Marshal(brain.CategoriesSummary)
 	if err != nil {
 		panic(err)
 	}
