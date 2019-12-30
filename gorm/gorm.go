@@ -93,12 +93,12 @@ func openORM(dbname string) (*gorm.DB, error) {
 		"dbOpenconns_max": 20,
 		"dbType":          "mysql",
 	})
-	dbHost := viper.C.GetString(dbname + ".dbHost")
-	dbName := viper.C.GetString(dbname + ".dbName")
-	dbUser := viper.C.GetString(dbname + ".dbUser")
-	dbPasswd := viper.C.GetString(dbname + ".dbPasswd")
-	dbPort := viper.C.GetString(dbname + ".dbPort")
-	dbType := viper.C.GetString(dbname + ".dbType")
+	dbHost := viper.GetEnvConfig(dbname + ".dbHost")
+	dbName := viper.GetEnvConfig(dbname + ".dbName")
+	dbUser := viper.GetEnvConfig(dbname + ".dbUser")
+	dbPasswd := viper.GetEnvConfig(dbname + ".dbPasswd")
+	dbPort := viper.GetEnvConfig(dbname + ".dbPort")
+	dbType := viper.GetEnvConfig(dbname + ".dbType")
 
 	connectString := dbUser + ":" + dbPasswd + "@tcp(" + dbHost + ":" + dbPort + ")/" + dbName + "?charset=utf8&parseTime=true&loc=Local"
 

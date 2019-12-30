@@ -12,11 +12,11 @@ var ch *amqp.Channel
 
 func connRbbitmq() error {
 
-	host := viper.C.GetString("rabbitmq.host")
-	port := viper.C.GetString("rabbitmq.port")
-	vhost := viper.C.GetString("rabbitmq.vhost")
-	user := url.QueryEscape(viper.C.GetString("rabbitmq.user"))
-	password := url.QueryEscape(viper.C.GetString("rabbitmq.password"))
+	host := viper.GetEnvConfig("rabbitmq.host")
+	port := viper.GetEnvConfig("rabbitmq.port")
+	vhost := viper.GetEnvConfig("rabbitmq.vhost")
+	user := url.QueryEscape(viper.GetEnvConfig("rabbitmq.user"))
+	password := url.QueryEscape(viper.GetEnvConfig("rabbitmq.password"))
 
 	amqpcoinf := amqp.Config{
 		Vhost:     vhost,
