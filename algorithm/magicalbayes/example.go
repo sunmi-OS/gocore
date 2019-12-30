@@ -18,6 +18,8 @@ func test0()  {
 	bayesBrain.Learn("Chinese", "Chinese", "Chinese", "Shanghai")
 	bayesBrain.Learn("Chinese", "Chinese", "Macao")
 	bayesBrain.Learn("Not Chinese", "Tokyo", "Japan", "Chinese")
+	//应用tf-idf算法对特征加权
+	bayesBrain.ApplyTfIdf()
 	bayesBrain.Show()
 
 	//测试样本
