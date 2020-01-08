@@ -8,19 +8,23 @@
 package api
 
 import (
-	"fmt"
-	"regexp"
-	"errors"
-	"strconv"
 	"crypto/md5"
-	"encoding/hex"
 	"encoding/base64"
+	"encoding/hex"
+	"encoding/json"
+	"errors"
+	"fmt"
+	"net/url"
+	"regexp"
+	"strconv"
+
+	"io/ioutil"
 
 	"github.com/labstack/echo"
-	"github.com/tidwall/gjson"
-	"github.com/sunmi-OS/gocore/viper"
-	"github.com/sunmi-OS/gocore/encryption/des"
 	"github.com/sunmi-OS/gocore/api/validation"
+	"github.com/sunmi-OS/gocore/encryption/des"
+	"github.com/sunmi-OS/gocore/viper"
+	"github.com/tidwall/gjson"
 )
 
 var (
@@ -30,17 +34,19 @@ var (
 	ErrCustom = func(str string) error {
 		return errors.New(str)
 	}
+
+	RequestBody = "requestBody"
 )
 
 type Request struct {
-	Context    echo.Context
-	params     *param
-	Jsonparam  *Jsonparam
-	valid      validation.Validation
-	Json       gjson.Result
-	Encryption bool
-	jsonTag    bool
-	Debug      bool
+	Context     echo.Context
+	params      *param
+	Jsonparam   *Jsonparam
+	valid       validation.Validation
+	Json        gjson.Result
+	IsJsonParam bool
+	jsonTag     bool
+	Debug       bool
 }
 
 type Jsonparam struct {
@@ -49,10 +55,11 @@ type Jsonparam struct {
 }
 
 type param struct {
-	key string
-	val string
-	min int
-	max int
+	key       string
+	val       string
+	min       int
+	max       int
+	needValid bool
 }
 
 // 初始化request
@@ -91,7 +98,11 @@ func (this *Request) GetError() error {
 
 // 进行签名验证以及DES加密验证
 func (this *Request) InitDES() error {
-
+	// debug_key 跳过签名验证以及DES加密验证
+	debugKey := viper.C.GetString("system.debugKey")
+	if debugKey != "" && this.Param("debug_key").GetString() == debugKey {
+		return this.InitWithoutDES()
+	}
 	params := ""
 	params = this.PostParam(viper.C.GetString("system.DESParam")).GetString()
 
@@ -129,7 +140,12 @@ func (this *Request) InitDES() error {
 
 			//如果是加密的params那么进行解密操作
 			if isEncrypted == "1" {
-
+				// webapi 情况下需要对params decode
+				// decode 失败，可能未 encode，直接使用原 params 解密
+				decodeParams, err := url.PathUnescape(params)
+				if err == nil {
+					params = decodeParams
+				}
 				base64params, err := base64.StdEncoding.DecodeString(params)
 				if err != nil {
 					return err
@@ -143,9 +159,21 @@ func (this *Request) InitDES() error {
 				params = string(origData)
 			}
 		}
+		this.Context.Set(RequestBody, string(params))
+		this.Json = gjson.Parse(params)
+		this.IsJsonParam = true
+	}
+	return nil
+}
 
-
-		this.Encryption = true
+// 跳过签名和加密
+func (this *Request) InitWithoutDES() error {
+	params := ""
+	params = this.PostParam(viper.C.GetString("system.DESParam")).GetString()
+	if params != "" {
+		this.Context.Set(RequestBody, string(params))
+		this.Json = gjson.Parse(params)
+		this.IsJsonParam = true
 	}
 	return nil
 }
@@ -154,6 +182,20 @@ func (this *Request) InitDES() error {
 func (this *Request) SetJson(json string) {
 
 	this.Json = gjson.Parse(json)
+}
+
+// 初始化restful-raw参数
+func (this *Request) InitRawJson() error {
+
+	body, err := ioutil.ReadAll(this.Context.Request().Body)
+	if err != nil {
+		return err
+	}
+
+	this.Context.Set(RequestBody, string(body))
+	this.Json = gjson.Parse(string(body))
+	this.IsJsonParam = true
+	return nil
 }
 
 //--------------------------------------------------------获取参数-------------------------------------
@@ -166,6 +208,29 @@ func (this *Request) GetParam(key string) *Request {
 	this.params.val = str
 	this.params.key = key
 	this.jsonTag = false
+
+	return this
+}
+
+func (this *Request) GetRoot() *Request {
+	this.Clean()
+
+	if this.IsJsonParam {
+		this.Jsonparam.val = this.Json
+		this.jsonTag = true
+	} else {
+		query := this.Context.QueryString()
+		if query != "" {
+			this.params.val = query
+		} else {
+			values, e := this.Context.FormParams()
+			if e == nil {
+				this.params.val = values.Encode()
+			}
+		}
+		this.jsonTag = false
+	}
+	this.params.key = "root"
 
 	return this
 }
@@ -183,12 +248,12 @@ func (this *Request) PostParam(key string) *Request {
 }
 
 // 获取请求参数顺序get->post
-func (this *Request)                                                                                                                                                                                            Param(key string) *Request {
+func (this *Request) Param(key string) *Request {
 
 	var str string
 	this.Clean()
 
-	if (this.Encryption) {
+	if this.IsJsonParam {
 
 		this.Jsonparam.val = this.Json.Get(key)
 		this.Jsonparam.key = key
@@ -226,6 +291,12 @@ func (this *Request) Require(b bool) *Request {
 	return this
 }
 
+// 仅配合GetJsonObject使用
+func (this *Request) NeedValid(b bool) *Request {
+	this.params.needValid = b
+	return this
+}
+
 // 设置参数最大值
 func (this *Request) Max(i int) *Request {
 
@@ -258,6 +329,46 @@ func (this *Request) GetString() string {
 	}
 
 	return str
+}
+
+// 获取并且验证参数 入参为json对应的结构体 适用于GET或POST参数
+/*  示例
+ 	request := api.NewRequest(c)
+ 	err := request.InitDES()
+ 	if err != nil {
+ 		//deal error
+ 	}
+ 	jsonObject := struct {
+		Id     int
+		Name   string `valid:"Required;"` // Name 不能为空
+		Age    int    `valid:"Range(1, 140)"` // 1 <= Age <= 140，超出此范围即为不合法
+		Email  string `valid:"Email; MaxSize(100)"` // Email 字段需要符合邮箱格式，并且最大长度不能大于 100 个字符
+		Mobile string `valid:"Mobile"` // Mobile 必须为正确的手机号
+		IP     string `valid:"IP"` // IP 必须为一个正确的 IPv4 地址
+ 	}{}
+	//获取params字段内数据就符合json的结构体
+ 	root := request.GetRoot().NeedValid(true).GetJsonObject(&jsonObject)
+	//获取params内key字段符合json的结构体
+ 	key := request.Param("key").NeedValid(true).GetJsonObject(&jsonObject)
+ 	err = request.GetError()
+ 	if err != nil {
+ 		//deal error
+ 	}
+*/
+func (this *Request) GetJsonObject(jsonInterface interface{}) interface{} {
+
+	str := this.getParamVal()
+	//解析json
+	err := json.Unmarshal([]byte(str), jsonInterface)
+	if err != nil {
+		this.valid.SetError("jsonInterface Unmarshal Error", err.Error())
+	}
+	//如果json解析无误参数验证
+	if !this.valid.HasErrors() && this.params.needValid {
+		_, _ = this.valid.Valid(jsonInterface)
+	}
+
+	return jsonInterface
 }
 
 // 获取并且验证参数 int类型 适用于GET或POST参数

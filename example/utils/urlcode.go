@@ -8,8 +8,6 @@ import (
 
 func main() {
 
-
-
 	var urls string
 	urls = "https://www.sunmi.com/"
 	e, err := utils.UrlEncode(urls)

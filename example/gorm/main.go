@@ -1,9 +1,9 @@
 package main
 
 import (
-	"github.com/sunmi-OS/gocore/viper"
-	"github.com/sunmi-OS/gocore/gorm"
 	"fmt"
+	"github.com/sunmi-OS/gocore/gorm"
+	"github.com/sunmi-OS/gocore/viper"
 )
 
 type Machine struct {
