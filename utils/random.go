@@ -1,8 +1,8 @@
 package utils
 
 import (
-	"time"
 	"math/rand"
+	"time"
 )
 
 // 随机数

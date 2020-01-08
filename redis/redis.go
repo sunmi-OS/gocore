@@ -1,30 +1,45 @@
 package redis
 
 import (
+
+	"strings"
 	"sync"
 
 	"gopkg.in/redis.v5"
-
-	"github.com/sunmi-OS/gocore/viper"
 	"github.com/sunmi-OS/gocore/utils"
+	"github.com/sunmi-OS/gocore/viper"
 )
 
 var RedisList sync.Map
 
 func GetRedisOptions(db string) {
-	host := viper.C.GetString("redisServer.host")
-	post := viper.C.GetString("redisServer.port")
-	auth := viper.C.GetString("redisServer.auth")
-	encryption := viper.C.GetInt("redisServer.encryption")
-	dbIndex := viper.C.GetInt("redisDB." + db)
-	if encryption == 1 {
-		auth = utils.GetMD5(auth)
+
+	client, err := openRedis(db)
+	if err != nil {
+		panic(err)
 	}
-	options := redis.Options{Addr: host + post, Password: auth, DB: dbIndex}
-	client := redis.NewClient(&options)
-	client.Ping().Result()
 
 	RedisList.Store(db, client)
+}
+
+func UpdateRedis(db string) error {
+
+	v, _ := RedisList.Load(db)
+
+	client, err := openRedis(db)
+	if err != nil {
+		return err
+	}
+
+	RedisList.Delete(db)
+	RedisList.Store(db, client)
+
+	err = v.(*redis.Client).Close()
+	if err != nil {
+		return err
+	}
+	return nil
+
 }
 
 func GetRedisDB(db string) *redis.Client {
@@ -33,4 +48,27 @@ func GetRedisDB(db string) *redis.Client {
 	}
 
 	return nil
+}
+
+func openRedis(db string) (*redis.Client, error) {
+	host := viper.GetEnvConfig("redisServer.host")
+	port := viper.GetEnvConfig("redisServer.port")
+	auth := viper.GetEnvConfig("redisServer.auth")
+	encryption := viper.GetEnvConfigInt("redisServer.encryption")
+	dbIndex := viper.GetEnvConfigCastInt("redisDB." + db)
+	if encryption == 1 {
+		auth = utils.GetMD5(auth)
+	}
+	addr := host + port
+	if !strings.Contains(addr, ":") {
+		addr = host + ":" + port
+	}
+	options := redis.Options{Addr: addr, Password: auth, DB: dbIndex}
+	client := redis.NewClient(&options)
+	_, err := client.Ping().Result()
+	if err != nil {
+		return nil, err
+	}
+
+	return client, nil
 }

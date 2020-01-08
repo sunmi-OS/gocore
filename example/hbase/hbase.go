@@ -2,11 +2,11 @@ package main
 
 import (
 	"fmt"
-	"github.com/sunmi-OS/gocore/viper"
-	"github.com/sunmi-OS/gocore/log"
 	"github.com/sunmi-OS/gocore/hbase"
-	"os"
+	"github.com/sunmi-OS/gocore/log"
+	"github.com/sunmi-OS/gocore/viper"
 	"go.uber.org/zap"
+	"os"
 )
 
 func main() {
@@ -65,5 +65,5 @@ func main() {
 			log.Sugar.Infow("数据不存在")
 		}
 	}
-	
+
 }
