@@ -147,5 +147,5 @@ func (vt *ViperToml) updateNacosToViper() {
 	if err != nil {
 		print(err)
 	}
-	viper.NewConfigToToml(s + vt.viperBase)
+	viper.MerageConfigToToml(s + vt.viperBase)
 }
