@@ -28,6 +28,14 @@ func NewConfigToToml(configs string) {
 	}
 }
 
+func MerageConfigToToml(configs string) {
+	C.SetConfigType("toml")
+	err := C.MergeConfig(bytes.NewBuffer([]byte(configs)))
+	if err != nil {
+		print(err)
+	}
+}
+
 // 初始化配置文件
 // filePath 配置文件路径
 // fileName 配置文件名称(不需要文件后缀)
