@@ -14,3 +14,4 @@
 .glide/
 go.mod
 go.sum
+.vscode/
