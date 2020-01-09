@@ -107,6 +107,8 @@ func (vt *ViperToml) NacosToViper() {
 		s, err = vt.GetConfig()
 		if err != nil {
 			time.Sleep(5 * time.Second)
+		} else {
+			break
 		}
 	}
 	if err != nil {
