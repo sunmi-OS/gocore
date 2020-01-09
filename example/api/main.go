@@ -3,17 +3,20 @@ package main
 import (
 	"github.com/labstack/echo"
 	"github.com/labstack/echo/middleware"
-	"sort"
-	"os"
-	"github.com/urfave/cli"
 	"github.com/sunmi-OS/gocore/api"
-	"github.com/sunmi-OS/gocore/viper"
+	"github.com/urfave/cli"
+	"os"
+	"sort"
 )
 
 type EchoApi struct {
 }
 
 var eApi EchoApi
+
+type Test struct {
+	Test string `json:"test"`
+}
 
 func (a *EchoApi) echoStart(c *cli.Context) error {
 	// Echo instance
@@ -29,12 +32,12 @@ func (a *EchoApi) echoStart(c *cli.Context) error {
 		request := api.NewRequest(c)
 		response := api.NewResponse(c)
 
-		err := request.InitDES()
+		err := request.InitRawJson()
 		if err != nil {
-			return response.RetError(err, -1)
+			return response.RetError(err, 400)
 		}
 
-		msg := request.Param(`x1.x\.2`).GetString()
+		msg := request.Param(`test`).GetString()
 
 		return response.RetSuccess(msg)
 	})
@@ -52,9 +55,7 @@ func main() {
 	app.Email = "wenzhenxi@sunmi.com"
 	app.Version = "1.0.0"
 	app.Usage = "IOT-seanbox"
-
-	// 初始化配置
-	viper.NewConfig("config", "conf")
+	app.Action = eApi.echoStart
 
 	// 指定对于的命令
 	app.Commands = []cli.Command{

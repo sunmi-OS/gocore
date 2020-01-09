@@ -7,4 +7,7 @@ import (
 func main() {
 
 	fmt.Println("gocore")
+
+	// use example
+	//hook.ShowExample()
 }

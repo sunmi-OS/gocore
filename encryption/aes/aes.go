@@ -4,10 +4,79 @@ import (
 	"bytes"
 	"crypto/aes"
 	"crypto/cipher"
+	"crypto/rand"
 	"encoding/base64"
-	"strings"
 	"errors"
+	"strings"
 )
+
+// Encrypt using random iv parameter and cbc mode
+// Never panic, only possible to return an error
+func EncryptUseCBCWithDefaultProtocol(plainText, key []byte) ([]byte, error) {
+	iv := make([]byte, 16)
+	//random iv param
+	_, err := rand.Read(iv)
+	if err != nil {
+		return nil, err
+	}
+	cipherText, err := EncryptUseCBC(plainText, key, iv)
+	if err != nil {
+		return nil, err
+	}
+
+	//Put the iv parameter in the head of the cipher text
+	result := append(iv, cipherText...)
+	return result, err
+}
+
+// Encrypt using cbc mode
+// When iv length does not equal block size, it will panic
+func EncryptUseCBC(plainText, key, iv []byte) ([]byte, error) {
+	blockKey, err := aes.NewCipher(key)
+	if err != nil {
+		return nil, err
+	}
+	blockSize := blockKey.BlockSize()
+	// do padding
+	fixedPlainText := PKCS5Padding(plainText, blockSize)
+	encryptTool := cipher.NewCBCEncrypter(blockKey, iv)
+	cipherText := make([]byte, len(fixedPlainText))
+	// do final
+	encryptTool.CryptBlocks(cipherText, fixedPlainText)
+	return cipherText, nil
+}
+
+// Decrypt using cbc mode
+// There are two kinds of panic that may occur:
+// 1. When iv length do not equal block size
+// 2. When key does not match the cipher text, and it always happens when do unpadding
+func DecryptUseCBC(cipherText, key []byte, iv []byte) ([]byte, error) {
+	blockKey, err := aes.NewCipher(key)
+	if err != nil {
+		return nil, err
+	}
+	blockSize := blockKey.BlockSize()
+	if len(cipherText) % blockSize != 0 {
+		return nil, errors.New("cipher text is not an integral multiple of the block size")
+	}
+	decryptTool := cipher.NewCBCDecrypter(blockKey, iv)
+	// CryptBlocks can work in-place if the two arguments are the same.
+	decryptTool.CryptBlocks(cipherText, cipherText)
+	return PKCS5UnPadding(cipherText), nil
+}
+
+// Decrypt using given iv parameter and cbc mode
+// When key does not match the cipher text, it will panic
+func DecryptUseCBCWithDefaultProtocol(cipherText, key []byte) ([]byte, error) {
+	if len(cipherText) < 16 {
+		return nil, errors.New("decrypt excepted iv parameter")
+	}
+	plainText, err := DecryptUseCBC(cipherText[16:], key, cipherText[:16])
+	if err != nil {
+		return nil, err
+	}
+	return plainText, nil
+}
 
 func getKey(key string) []byte {
 	keyLen := len(key)
@@ -26,7 +95,6 @@ func getKey(key string) []byte {
 	//取前16个字节
 	return arrKey[:16]
 }
-
 
 func Base64UrlSafeEncode(source []byte) string {
 	// Base64 Url Safe is the same as Base64 but does not contain '/' and '+' (replaced by '_' and '-') and trailing '=' are removed.
@@ -142,4 +210,39 @@ func (x *ecbDecrypter) CryptBlocks(dst, src []byte) {
 		src = src[x.blockSize:]
 		dst = dst[x.blockSize:]
 	}
+}
+
+func EncryptUseCTRNoPadding(plainText, key, iv []byte) ([]byte, error) {
+	block, err := aes.NewCipher(key)
+	if err != nil {
+		return nil, err
+	}
+	// padding
+	fixedPlainText := NoPadding(plainText, block.BlockSize())
+	// mode
+	blockMode := cipher.NewCTR(block, iv)
+	cipherText := make([]byte, len(fixedPlainText))
+	//do final
+	blockMode.XORKeyStream(cipherText, fixedPlainText)
+	return cipherText, nil
+}
+
+func DecryptUseCTRNoPadding(cipherText, key, iv []byte) ([]byte, error) {
+	block, err := aes.NewCipher(key)
+	if err != nil {
+		return nil, err
+	}
+	// mode
+	blockMode := cipher.NewCTR(block, iv)
+	origData := make([]byte, len(cipherText))
+	blockMode.XORKeyStream(origData, cipherText)
+	return NoUnPadding(origData), nil
+}
+
+func NoPadding(cipherText []byte, blockSize int) []byte {
+	return cipherText
+}
+
+func NoUnPadding(origData []byte) []byte {
+	return origData
 }
