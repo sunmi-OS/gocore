@@ -15,6 +15,11 @@ type PC struct {
 	shutdown chan int
 }
 
+//获取当前队列堆积数量
+func (pc *PC) BlockingQueueSize() int{
+	return len(pc.blockingQueue)
+}
+
 // 设置阻塞队列的容量，批次大小，批次超时时间
 // capacity     阻塞队列的容量，建议这个值设置为 batchSize 的 4 倍
 // batchSize    批次大小
