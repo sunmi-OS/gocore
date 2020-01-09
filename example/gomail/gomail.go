@@ -1,8 +1,8 @@
 package main
 
 import (
-	"github.com/sunmi-OS/gocore/viper"
 	"github.com/sunmi-OS/gocore/gomail"
+	"github.com/sunmi-OS/gocore/viper"
 )
 
 func main() {

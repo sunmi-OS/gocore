@@ -2,21 +2,21 @@ package rabbitmq
 
 import (
 	"fmt"
-	"time"
-
 	"github.com/streadway/amqp"
 	"github.com/sunmi-OS/gocore/viper"
+	"net/url"
+	"time"
 )
 
 var ch *amqp.Channel
 
 func connRbbitmq() error {
 
-	host := viper.C.GetString("rabbitmq.host")
-	port := viper.C.GetString("rabbitmq.port")
-	vhost := viper.C.GetString("rabbitmq.vhost")
-	user := viper.C.GetString("rabbitmq.user")
-	password := viper.C.GetString("rabbitmq.password")
+	host := viper.GetEnvConfig("rabbitmq.host")
+	port := viper.GetEnvConfig("rabbitmq.port")
+	vhost := viper.GetEnvConfig("rabbitmq.vhost")
+	user := url.QueryEscape(viper.GetEnvConfig("rabbitmq.user"))
+	password := url.QueryEscape(viper.GetEnvConfig("rabbitmq.password"))
 
 	amqpcoinf := amqp.Config{
 		Vhost:     vhost,
@@ -31,6 +31,23 @@ func connRbbitmq() error {
 
 	ch, err = conn.Channel()
 	return err
+}
+
+func UpdateRabbitmq() error {
+
+	r1 := ch
+	err := connRbbitmq()
+
+	if err != nil {
+		return err
+	} else {
+		err := r1.Close()
+		if err != nil {
+			return err
+		}
+	}
+
+	return nil
 }
 
 func Push(msg string, msgName string) error {
