@@ -5,14 +5,12 @@ import (
 	"github.com/nacos-group/nacos-sdk-go/vo"
 	"github.com/spf13/cast"
 	"github.com/sunmi-OS/gocore/viper"
-	"io/ioutil"
 	"sync"
 	"time"
 )
 
 type ViperToml struct {
 	dataIdorGroupList []dataIdorGroup
-	viperBase         string
 	callbackList      map[string]func(namespace, group, dataId, data string)
 	callbackRun       bool
 	callbackFirst     sync.Map
@@ -115,32 +113,13 @@ func (vt *ViperToml) NacosToViper() {
 		panic(err)
 	}
 
-	viper.NewConfigToToml(s + vt.viperBase)
+	viper.MerageConfigToToml(s)
 }
 
 //
 func (vt *ViperToml) SetviperBase(configs string) {
-	vt.viperBase = configs
-}
 
-//
-func (vt *ViperToml) NacosToViperFile(basefiles ...string) {
-
-	if len(basefiles) > 0 {
-		for _, v := range basefiles {
-			bs, err := ioutil.ReadFile(v)
-			if err != nil {
-				panic(err)
-			}
-			vt.viperBase += "\r\n" + string(bs)
-		}
-	}
-
-	s, err := vt.GetConfig()
-	if err != nil {
-		print(err)
-	}
-	viper.NewConfigToToml(s + vt.viperBase)
+	viper.MerageConfigToToml(configs)
 }
 
 func (vt *ViperToml) updateNacosToViper() {
@@ -149,5 +128,6 @@ func (vt *ViperToml) updateNacosToViper() {
 	if err != nil {
 		print(err)
 	}
-	viper.MerageConfigToToml(s + vt.viperBase)
+
+	viper.MerageConfigToToml(s)
 }

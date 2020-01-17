@@ -2,6 +2,8 @@ package viper
 
 import (
 	"bytes"
+	"github.com/BurntSushi/toml"
+	"log"
 	"os"
 	"path"
 	"strings"
@@ -22,6 +24,7 @@ var C = viper.New()
 func NewConfigToToml(configs string) {
 
 	C.SetConfigType("toml")
+	CheckToml(configs)
 	err := C.ReadConfig(bytes.NewBuffer([]byte(configs)))
 	if err != nil {
 		print(err)
@@ -29,10 +32,21 @@ func NewConfigToToml(configs string) {
 }
 
 func MerageConfigToToml(configs string) {
+
+	CheckToml(configs)
 	C.SetConfigType("toml")
+
 	err := C.MergeConfig(bytes.NewBuffer([]byte(configs)))
 	if err != nil {
 		print(err)
+	}
+}
+
+func CheckToml(configs string) {
+	var tmp interface{}
+	if _, err := toml.Decode(configs, &tmp); err != nil {
+		log.Fatalf("Error decoding TOML: %s", err)
+		return
 	}
 }
 

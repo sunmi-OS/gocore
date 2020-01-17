@@ -2,8 +2,9 @@ package config
 
 import (
 	"errors"
+
 	"github.com/nacos-group/nacos-sdk-go/common/constant"
-	"github.com/sunmi-OS/gocore/nacos"
+	"gocore/nacos"
 )
 
 var acmConfigs = map[string]constant.ClientConfig{

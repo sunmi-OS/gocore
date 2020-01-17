@@ -2,12 +2,13 @@ package main
 
 import (
 	"fmt"
-	"github.com/sunmi-OS/gocore/example/nacos/config"
-	"github.com/sunmi-OS/gocore/gorm"
-	"github.com/sunmi-OS/gocore/viper"
 	"time"
 
-	"github.com/sunmi-OS/gocore/nacos"
+
+	"gocore/example/nacos/config"
+	"github.com/sunmi-OS/gocore/gorm"
+	"github.com/sunmi-OS/gocore/viper"
+	"gocore/nacos"
 )
 
 type App struct {
@@ -16,14 +17,11 @@ type App struct {
 
 func main() {
 
-	config.InitNacos("dev")
+	config.InitNacos("local")
 
 	nacos.ViperTomlHarder.SetDataIds("DEFAULT_GROUP", "adb")
 	nacos.ViperTomlHarder.SetDataIds("pay", "test")
 
-	str := nacos.GetConfig("pay", "test")
-
-	fmt.Println(str)
 	nacos.ViperTomlHarder.SetCallBackFunc("DEFAULT_GROUP", "adb", func(namespace, group, dataId, data string) {
 
 		err := gorm.UpdateDB("remotemanageDB")
@@ -39,6 +37,10 @@ func main() {
 	fmt.Println(s)
 
 	s = viper.C.GetString("redisDB.remote_control")
+
+	fmt.Println(s)
+
+	s = viper.C.GetString("system.RpcGatewayServicePort")
 
 	fmt.Println(s)
 

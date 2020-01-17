@@ -38,7 +38,6 @@ func (l *LocalNacos) GetConfig(param vo.ConfigParam) (string, error) {
 		str += string(bytes)
 	}
 	return str, nil
-
 }
 
 // 发布配置
