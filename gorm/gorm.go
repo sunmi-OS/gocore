@@ -92,6 +92,7 @@ func openORM(dbname string) (*gorm.DB, error) {
 		"dbIdleconns_max": 20,
 		"dbOpenconns_max": 20,
 		"dbType":          "mysql",
+		"dbDebug":         false,
 	})
 	dbHost := viper.GetEnvConfig(dbname + ".dbHost")
 	dbName := viper.GetEnvConfig(dbname + ".dbName")
@@ -99,6 +100,7 @@ func openORM(dbname string) (*gorm.DB, error) {
 	dbPasswd := viper.GetEnvConfig(dbname + ".dbPasswd")
 	dbPort := viper.GetEnvConfig(dbname + ".dbPort")
 	dbType := viper.GetEnvConfig(dbname + ".dbType")
+	dbDebug := viper.GetEnvConfig(dbname + ".dbDebug")
 
 	connectString := dbUser + ":" + dbPasswd + "@tcp(" + dbHost + ":" + dbPort + ")/" + dbName + "?charset=utf8&parseTime=true&loc=Local"
 
@@ -112,6 +114,11 @@ func openORM(dbname string) (*gorm.DB, error) {
 	orm.DB().SetMaxIdleConns(viper.C.GetInt(dbname + ".dbIdleconns_max"))
 	//最大打开连接数
 	orm.DB().SetMaxOpenConns(viper.C.GetInt(dbname + ".dbOpenconns_max"))
+
+	if dbDebug {
+		// 开启Debug模式
+		orm = orm.Debug()
+	}
 
 	return orm, err
 }
