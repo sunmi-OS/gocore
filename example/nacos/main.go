@@ -4,7 +4,6 @@ import (
 	"fmt"
 	"time"
 
-
 	"gocore/example/nacos/config"
 	"github.com/sunmi-OS/gocore/gorm"
 	"github.com/sunmi-OS/gocore/viper"
@@ -31,30 +30,19 @@ func main() {
 	})
 
 	nacos.ViperTomlHarder.NacosToViper()
-
 	s := viper.C.GetString("remotemanageDB.dbHost")
-
 	fmt.Println(s)
-
 	s = viper.C.GetString("redisDB.remote_control")
-
 	fmt.Println(s)
-
 	s = viper.C.GetString("system.RpcGatewayServicePort")
-
 	fmt.Println(s)
-
 	gorm.NewDB("remotemanageDB")
 
 	i := 0
 	for {
-
 		orm1 := gorm.GetORMByName("remotemanageDB")
-
 		app := App{}
-
 		err := orm1.Raw("select description from app").Find(&app).Error
-
 		fmt.Println(app)
 		if err != nil {
 			fmt.Println(err.Error())
@@ -62,11 +50,8 @@ func main() {
 			fmt.Print("ping ok", i)
 			i++
 		}
-
 		time.Sleep(time.Second * 1)
-
 	}
-
 	time.Sleep(time.Second * 1000)
 
 }
