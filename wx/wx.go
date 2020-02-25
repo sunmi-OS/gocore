@@ -39,7 +39,7 @@ const (
 // @auth liuguoqiang 2020-02-25
 // @param
 // @return
-func (s Wx) NewWx(appId, secret, grantType string, redis *redis.Client) *Wx {
+func NewWx(appId, secret, grantType string, redis *redis.Client) *Wx {
 	return &Wx{
 		appId:     appId,
 		secret:    secret,
