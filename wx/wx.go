@@ -52,7 +52,7 @@ func NewWx(appId, secret, grantType string, redis *redis.Client) *Wx {
 // @auth liuguoqiang 2020-02-25
 // @param $isFresh 是否刷新access_token
 // @return
-func (s Wx) InitAuthToken(isFresh bool) (string, error) {
+func (s *Wx) InitAuthToken(isFresh bool) (string, error) {
 	//查询缓存
 	tokenKey := "wechat:applet:token:" + s.appId
 	accessToken := s.redis.Get(tokenKey).Val()
@@ -84,7 +84,7 @@ func (s Wx) InitAuthToken(isFresh bool) (string, error) {
 // @auth liuguoqiang 2020-02-25
 // @param
 // @return
-func (s Wx) GetUnLimitQRCode(param *GetUnLimitQRCodeRequest, isFresh bool) ([]byte, error) {
+func (s *Wx) GetUnLimitQRCode(param *GetUnLimitQRCodeRequest, isFresh bool) ([]byte, error) {
 	if s.accessToken == "" || isFresh {
 		_, err := s.InitAuthToken(isFresh)
 		if err != nil {
