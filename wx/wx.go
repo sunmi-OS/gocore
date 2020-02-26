@@ -4,6 +4,7 @@ import (
 	"encoding/json"
 	"errors"
 	"strconv"
+	"time"
 
 	"github.com/sunmi-OS/gocore/httplib"
 	"gopkg.in/redis.v5"
@@ -19,12 +20,11 @@ type (
 	}
 
 	GetUnLimitQRCodeRequest struct {
-		Scence    string
-		Page      string
-		AutoColor bool
-		IsHyaline bool
-		Width     int64
-		IsFresh   bool
+		Scene     string `json:"scene"`
+		Page      string `json:"page"`
+		AutoColor bool   `json:"auto_color"`
+		IsHyaline bool   `json:"is_hyaline"`
+		Width     int64  `json:"width"`
 	}
 )
 
@@ -71,7 +71,7 @@ func (s Wx) InitAuthToken(isFresh bool) (string, error) {
 	if accessToken, ok := data["access_token"]; !ok {
 		return "", errors.New(strconv.FormatFloat(data["errcode"].(float64), 'f', -1, 64) + ":" + data["errmsg"].(string))
 	} else {
-		err := s.redis.Set(tokenKey, accessToken, 7000).Err()
+		err := s.redis.Set(tokenKey, accessToken, 7000*time.Second).Err()
 		if err != nil {
 			return "", err
 		}
@@ -83,12 +83,18 @@ func (s Wx) InitAuthToken(isFresh bool) (string, error) {
 // @auth liuguoqiang 2020-02-25
 // @param
 // @return
-func (s Wx) GetUnLimitQRCode(param *GetUnLimitQRCodeRequest) ([]byte, error) {
-	accessToken, err := s.InitAuthToken(param.IsFresh)
+func (s Wx) GetUnLimitQRCode(param *GetUnLimitQRCodeRequest, isFresh bool) ([]byte, error) {
+	accessToken, err := s.InitAuthToken(isFresh)
+	if err != nil {
+		return nil, err
+	}
 	req := httplib.Post(CreateUqrcodeUrl + "?access_token=" + accessToken)
-	reqParam, err := json.Marshal(param)
 	data := make(map[string]interface{})
-	dataByte, err := req.Body(reqParam).Bytes()
+	req, err = req.JSONBody(param)
+	if err != nil {
+		return nil, err
+	}
+	dataByte, err := req.Bytes()
 	if err != nil {
 		return nil, err
 	}
@@ -96,8 +102,8 @@ func (s Wx) GetUnLimitQRCode(param *GetUnLimitQRCodeRequest) ([]byte, error) {
 	if err == nil {
 		if errcode, ok := data["errcode"]; ok {
 			if errcode.(float64) == 40001 {
-				param.IsFresh = true
-				dataByte, err = s.GetUnLimitQRCode(param)
+				isFresh = true
+				dataByte, err = s.GetUnLimitQRCode(param, isFresh)
 			} else {
 				return nil, errors.New(strconv.FormatFloat(data["errcode"].(float64), 'f', -1, 64) + ":" + data["errmsg"].(string))
 			}
