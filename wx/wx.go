@@ -69,7 +69,7 @@ func (s Wx) InitAuthToken(isFresh bool) (string, error) {
 		return "", err
 	}
 	if accessToken, ok := data["access_token"]; !ok {
-		return "", errors.New(strconv.FormatInt(data["errcode"].(int64), 10) + ":" + data["errmsg"].(string))
+		return "", errors.New(strconv.FormatFloat(data["errcode"].(float64), 'f', -1, 64) + ":" + data["errmsg"].(string))
 	} else {
 		err := s.redis.Set(tokenKey, accessToken, 7000).Err()
 		if err != nil {
@@ -95,11 +95,11 @@ func (s Wx) GetUnLimitQRCode(param *GetUnLimitQRCodeRequest) ([]byte, error) {
 	err = json.Unmarshal(dataByte, &data)
 	if err == nil {
 		if errcode, ok := data["errcode"]; ok {
-			if errcode.(int64) == 40001 {
+			if errcode.(float64) == 40001 {
 				param.IsFresh = true
 				dataByte, err = s.GetUnLimitQRCode(param)
 			} else {
-				return nil, errors.New(strconv.FormatInt(data["errcode"].(int64), 10) + ":" + data["errmsg"].(string))
+				return nil, errors.New(strconv.FormatFloat(data["errcode"].(float64), 'f', -1, 64) + ":" + data["errmsg"].(string))
 			}
 		}
 	}
