@@ -58,7 +58,7 @@ func (s Wx) InitAuthToken(isFresh bool) (string, error) {
 	accessToken := s.redis.Get(tokenKey).Val()
 	if accessToken != "" && !isFresh {
 		s.accessToken = accessToken
-		return accessToken, nil
+		return s.accessToken, nil
 	}
 
 	// 获取token
@@ -75,8 +75,8 @@ func (s Wx) InitAuthToken(isFresh bool) (string, error) {
 		if err != nil {
 			return "", err
 		}
-		s.accessToken = accessToken
-		return accessToken.(string), nil
+		s.accessToken = accessToken.(string)
+		return s.accessToken, nil
 	}
 }
 
