@@ -75,6 +75,7 @@ func (s Wx) InitAuthToken(isFresh bool) (string, error) {
 		if err != nil {
 			return "", err
 		}
+		s.accessToken = accessToken
 		return accessToken.(string), nil
 	}
 }
@@ -84,13 +85,15 @@ func (s Wx) InitAuthToken(isFresh bool) (string, error) {
 // @param
 // @return
 func (s Wx) GetUnLimitQRCode(param *GetUnLimitQRCodeRequest, isFresh bool) ([]byte, error) {
-	accessToken, err := s.InitAuthToken(isFresh)
-	if err != nil {
-		return nil, err
+	if s.accessToken == "" || isFresh {
+		_, err := s.InitAuthToken(isFresh)
+		if err != nil {
+			return nil, err
+		}
 	}
-	req := httplib.Post(CreateUqrcodeUrl + "?access_token=" + accessToken)
-	data := make(map[string]interface{})
-	req, err = req.JSONBody(param)
+
+	req := httplib.Post(CreateUqrcodeUrl + "?access_token=" + s.accessToken)
+	req, err := req.JSONBody(param)
 	if err != nil {
 		return nil, err
 	}
@@ -98,12 +101,15 @@ func (s Wx) GetUnLimitQRCode(param *GetUnLimitQRCodeRequest, isFresh bool) ([]by
 	if err != nil {
 		return nil, err
 	}
+	data := make(map[string]interface{})
 	err = json.Unmarshal(dataByte, &data)
 	if err == nil {
 		if errcode, ok := data["errcode"]; ok {
 			if errcode.(float64) == 40001 {
-				isFresh = true
-				dataByte, err = s.GetUnLimitQRCode(param, isFresh)
+				dataByte, err = s.GetUnLimitQRCode(param, true)
+				if err != nil {
+					return nil, err
+				}
 			} else {
 				return nil, errors.New(strconv.FormatFloat(data["errcode"].(float64), 'f', -1, 64) + ":" + data["errmsg"].(string))
 			}
