@@ -129,8 +129,8 @@ func (s *Wx) Request(params interface{}, url string, isFresh bool) ([]byte, erro
 	data := make(map[string]interface{})
 	err = json.Unmarshal(dataByte, &data)
 	if err == nil {
-		if errcode, ok := data["errcode"]; ok {
-			if errcode.(float64) == 40001 && !isFresh {
+		if _, ok := data["errcode"]; ok {
+			if !isFresh {
 				dataByte, err = s.Request(params, url, true)
 				if err != nil {
 					return nil, err
