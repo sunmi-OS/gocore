@@ -105,7 +105,7 @@ func (s *Wx) GetUnLimitQRCode(params *GetUnLimitQRCodeRequest, isFresh bool) ([]
 // @param $form_id 表单提交场景下，为 submit 事件带上的 formId；支付场景下，为本次支付的 prepay_id
 // @param $data type:object 模板内容，不填则下发空模板。具体格式请参考示例。
 // @param $emphasis_keyword 模板需要放大的关键词，不填则默认无放大
-func (s *Wx) Send(params *SendRequest, url string, isFresh bool) ([]byte, error) {
+func (s *Wx) Send(params *SendRequest, isFresh bool) ([]byte, error) {
 	return s.Request(params, TemplatedSendUrl, isFresh)
 }
 
