@@ -26,6 +26,14 @@ type (
 		IsHyaline bool   `json:"is_hyaline"`
 		Width     int64  `json:"width"`
 	}
+	SendRequest struct {
+		Openid          string `json:"touser"`
+		TemplateId      string `json:"template_id"`
+		Page            string `json:"page"`
+		FormId          string `json:"form_id"`
+		Data            string `json:"data"`
+		EmphasisKeyword string `json:"emphasis_keyword"`
+	}
 )
 
 const (
@@ -33,6 +41,7 @@ const (
 	AccessTokenUrl = "https://api.weixin.qq.com/cgi-bin/token"
 	//获取无限制小程序二维码
 	CreateUqrcodeUrl = "https://api.weixin.qq.com/wxa/getwxacodeunlimit"
+	TemplatedSendUrl = "https://api.weixin.qq.com/cgi-bin/message/wxopen/template/send"
 )
 
 // @desc 初始化
@@ -84,7 +93,23 @@ func (s *Wx) InitAuthToken(isFresh bool) (string, error) {
 // @auth liuguoqiang 2020-02-25
 // @param
 // @return
-func (s *Wx) GetUnLimitQRCode(param *GetUnLimitQRCodeRequest, isFresh bool) ([]byte, error) {
+func (s *Wx) GetUnLimitQRCode(params *GetUnLimitQRCodeRequest, isFresh bool) ([]byte, error) {
+	return s.Request(params, CreateUqrcodeUrl, isFresh)
+}
+
+// @desc 微信小程序模板消息推送
+// @auth liuguoqiang 2020-02-25
+// @param $openid 接收者（用户）的 openid
+// @param $template_id 所需下发的模板消息的id
+// @param $page 点击模板卡片后的跳转页面，仅限本小程序内的页面。支持带参数,（示例index?foo=bar）。该字段不填则模板无跳转。
+// @param $form_id 表单提交场景下，为 submit 事件带上的 formId；支付场景下，为本次支付的 prepay_id
+// @param $data type:object 模板内容，不填则下发空模板。具体格式请参考示例。
+// @param $emphasis_keyword 模板需要放大的关键词，不填则默认无放大
+func (s *Wx) Send(params *SendRequest, url string, isFresh bool) ([]byte, error) {
+	return s.Request(params, TemplatedSendUrl, isFresh)
+}
+
+func (s *Wx) Request(params interface{}, url string, isFresh bool) ([]byte, error) {
 	if s.accessToken == "" || isFresh {
 		_, err := s.InitAuthToken(isFresh)
 		if err != nil {
@@ -92,8 +117,8 @@ func (s *Wx) GetUnLimitQRCode(param *GetUnLimitQRCodeRequest, isFresh bool) ([]b
 		}
 	}
 
-	req := httplib.Post(CreateUqrcodeUrl + "?access_token=" + s.accessToken)
-	req, err := req.JSONBody(param)
+	req := httplib.Post(url + "?access_token=" + s.accessToken)
+	req, err := req.JSONBody(params)
 	if err != nil {
 		return nil, err
 	}
@@ -105,8 +130,8 @@ func (s *Wx) GetUnLimitQRCode(param *GetUnLimitQRCodeRequest, isFresh bool) ([]b
 	err = json.Unmarshal(dataByte, &data)
 	if err == nil {
 		if errcode, ok := data["errcode"]; ok {
-			if errcode.(float64) == 40001 {
-				dataByte, err = s.GetUnLimitQRCode(param, true)
+			if errcode.(float64) == 40001 && !isFresh {
+				dataByte, err = s.Request(params, url, true)
 				if err != nil {
 					return nil, err
 				}
