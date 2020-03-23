@@ -16,7 +16,7 @@ type (
 		secret      string
 		grantType   string
 		accessToken string
-		redis       *redis.Client
+		getRedis    func() *redis.Client
 	}
 
 	GetUnLimitQRCodeRequest struct {
@@ -48,13 +48,21 @@ const (
 // @auth liuguoqiang 2020-02-25
 // @param
 // @return
-func NewWx(appId, secret, grantType string, redis *redis.Client) *Wx {
+func NewWx(appId, secret, grantType string, getRedis func() *redis.Client) *Wx {
 	return &Wx{
 		appId:     appId,
 		secret:    secret,
 		grantType: grantType,
-		redis:     redis,
+		getRedis:  getRedis,
 	}
+}
+
+// @desc 获取redis
+// @auth liuguoqiang 2020-03-23
+// @param
+// @return
+func (s *Wx) GetRedis(params *GetUnLimitQRCodeRequest, isFresh bool) ([]byte, error) {
+	return s.Request(params, CreateUqrcodeUrl, isFresh)
 }
 
 // @desc 根据access_token值进行授权
@@ -64,7 +72,7 @@ func NewWx(appId, secret, grantType string, redis *redis.Client) *Wx {
 func (s *Wx) InitAuthToken(isFresh bool) (string, error) {
 	//查询缓存
 	tokenKey := "wechat:applet:token:" + s.appId
-	accessToken := s.redis.Get(tokenKey).Val()
+	accessToken := s.getRedis().Get(tokenKey).Val()
 	if accessToken != "" && !isFresh {
 		s.accessToken = accessToken
 		return s.accessToken, nil
@@ -80,7 +88,7 @@ func (s *Wx) InitAuthToken(isFresh bool) (string, error) {
 	if accessToken, ok := data["access_token"]; !ok {
 		return "", errors.New(strconv.FormatFloat(data["errcode"].(float64), 'f', -1, 64) + ":" + data["errmsg"].(string))
 	} else {
-		err := s.redis.Set(tokenKey, accessToken, 7000*time.Second).Err()
+		err := s.getRedis().Set(tokenKey, accessToken, 7000*time.Second).Err()
 		if err != nil {
 			return "", err
 		}
