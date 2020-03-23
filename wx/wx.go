@@ -57,14 +57,6 @@ func NewWx(appId, secret, grantType string, getRedis func() *redis.Client) *Wx {
 	}
 }
 
-// @desc 获取redis
-// @auth liuguoqiang 2020-03-23
-// @param
-// @return
-func (s *Wx) GetRedis(params *GetUnLimitQRCodeRequest, isFresh bool) ([]byte, error) {
-	return s.Request(params, CreateUqrcodeUrl, isFresh)
-}
-
 // @desc 根据access_token值进行授权
 // @auth liuguoqiang 2020-02-25
 // @param $isFresh 是否刷新access_token
