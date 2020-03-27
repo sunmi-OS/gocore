@@ -58,11 +58,9 @@ func openRedis(db string) (*redis.Client, error) {
 	port := viper.GetEnvConfig(redisName + ".port")
 	auth := viper.GetEnvConfig(redisName + ".auth")
 	encryption := viper.GetEnvConfigInt(redisName + ".encryption")
-
+	dbIndex := viper.GetEnvConfigCastInt(redisName + ".redisDB." + dbName)
 	if redisName == "redisServer" {
-		dbIndex := viper.GetEnvConfigCastInt("redisDB." + dbName)
-	} else {
-		dbIndex := viper.GetEnvConfigCastInt(redisName + ".redisDB." + dbName)
+		dbIndex = viper.GetEnvConfigCastInt("redisDB." + dbName)
 	}
 
 	if encryption == 1 {
