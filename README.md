@@ -13,7 +13,7 @@ vmware开源kubernetes关联关系工具：[https://github.com/vmware/octant](ht
 
 kuberners命令终端控制工具：[https://github.com/astefanutti/kubebox](https://github.com/astefanutti/kubebox)
 
-velero K8S迁移工具：[https://github.com/vmware-tanzu/velero](https://github.com/vmware-tanzu/velero)
+vmware 开源 velero K8S迁移工具：[https://github.com/vmware-tanzu/velero](https://github.com/vmware-tanzu/velero)
 
 奇虎360团队开源Kubernetes完整流程管理套件：[https://github.com/Qihoo360/wayne](https://github.com/Qihoo360/wayne)
 
