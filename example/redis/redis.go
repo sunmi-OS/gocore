@@ -3,8 +3,7 @@ package main
 import (
 	"fmt"
 
-	"gocore/redis"
-
+	"github.com/sunmi-OS/gocore/redis"
 	"github.com/sunmi-OS/gocore/viper"
 )
 
