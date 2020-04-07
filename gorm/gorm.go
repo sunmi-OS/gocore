@@ -100,7 +100,7 @@ func openORM(dbname string) (*gorm.DB, error) {
 	dbPasswd := viper.GetEnvConfig(dbname + ".dbPasswd")
 	dbPort := viper.GetEnvConfig(dbname + ".dbPort")
 	dbType := viper.GetEnvConfig(dbname + ".dbType")
-	dbDebug := viper.GetEnvConfig(dbname + ".dbDebug")
+	dbDebug := viper.GetEnvConfigBool(dbname + ".dbDebug")
 
 	connectString := dbUser + ":" + dbPasswd + "@tcp(" + dbHost + ":" + dbPort + ")/" + dbName + "?charset=utf8&parseTime=true&loc=Local"
 
