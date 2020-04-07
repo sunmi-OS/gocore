@@ -1,13 +1,13 @@
 package redis
 
 import (
-
 	"strings"
 	"sync"
 
-	"gopkg.in/redis.v5"
 	"github.com/sunmi-OS/gocore/utils"
 	"github.com/sunmi-OS/gocore/viper"
+
+	"gopkg.in/redis.v5"
 )
 
 var RedisList sync.Map
@@ -51,11 +51,18 @@ func GetRedisDB(db string) *redis.Client {
 }
 
 func openRedis(db string) (*redis.Client, error) {
-	host := viper.GetEnvConfig("redisServer.host")
-	port := viper.GetEnvConfig("redisServer.port")
-	auth := viper.GetEnvConfig("redisServer.auth")
-	encryption := viper.GetEnvConfigInt("redisServer.encryption")
-	dbIndex := viper.GetEnvConfigCastInt("redisDB." + db)
+
+	redisName, dbName := dbNameSplit(db)
+
+	host := viper.GetEnvConfig(redisName + ".host")
+	port := viper.GetEnvConfig(redisName + ".port")
+	auth := viper.GetEnvConfig(redisName + ".auth")
+	encryption := viper.GetEnvConfigInt(redisName + ".encryption")
+	dbIndex := viper.GetEnvConfigCastInt(redisName + ".redisDB." + dbName)
+	if redisName == "redisServer" {
+		dbIndex = viper.GetEnvConfigCastInt("redisDB." + dbName)
+	}
+
 	if encryption == 1 {
 		auth = utils.GetMD5(auth)
 	}
@@ -71,4 +78,16 @@ func openRedis(db string) (*redis.Client, error) {
 	}
 
 	return client, nil
+}
+
+func dbNameSplit(db string) (redisName, dbName string) {
+
+	kv := strings.Split(db, ".")
+	if len(kv) == 2 {
+		return kv[0], kv[1]
+	} else if len(kv) == 1 {
+		return "redisServer", kv[0]
+	} else {
+		panic("redis dbName Mismatch")
+	}
 }

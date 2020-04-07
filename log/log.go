@@ -60,7 +60,7 @@ func updateLogFile() {
 	var err error
 	viper.C.SetDefault("system.saveDays", "7")
 	saveDays := viper.GetEnvConfigFloat("system.saveDays")
-	logPath  := utils.GetPath() + "/Runtime/"
+	logPath := utils.GetPath() + "/Runtime/"
 	for {
 		now := time.Now()
 		// 计算下一个零点
@@ -77,8 +77,8 @@ func updateLogFile() {
 			if err != nil {
 				fmt.Println(err)
 			}
-			cfg.ErrorOutputPaths = []string{filename}
-			cfg.OutputPaths = []string{filename}
+			cfg.ErrorOutputPaths = []string{filename, "stderr"}
+			cfg.OutputPaths = []string{filename, "stdout"}
 			Logger, err = cfg.Build()
 			if err != nil {
 				fmt.Println(err)
@@ -89,7 +89,7 @@ func updateLogFile() {
 	}
 }
 
-func deleteLog(source string, saveDays float64) error{
+func deleteLog(source string, saveDays float64) error {
 
 	return filepath.Walk(source, func(path string, info os.FileInfo, err error) error {
 		if err != nil {
@@ -101,7 +101,7 @@ func deleteLog(source string, saveDays float64) error{
 		}
 		t := time.Now().Sub(info.ModTime()).Hours()
 		fmt.Println(path, t)
-		if t >= (saveDays - 1) * 24 {
+		if t >= (saveDays-1)*24 {
 			e := os.Remove(path)
 			if e != nil {
 				fmt.Println(e)
@@ -110,5 +110,3 @@ func deleteLog(source string, saveDays float64) error{
 		return err
 	})
 }
-
-
