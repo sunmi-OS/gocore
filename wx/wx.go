@@ -34,6 +34,10 @@ type (
 		Data            string `json:"data"`
 		EmphasisKeyword string `json:"emphasis_keyword"`
 	}
+	CheckLoginResponse struct {
+		OpenId     string `json:"openId"`
+		SessionKey string `json:"session_key"`
+	}
 )
 
 const (
@@ -41,6 +45,8 @@ const (
 	AccessTokenUrl = "https://api.weixin.qq.com/cgi-bin/token"
 	//获取无限制小程序二维码
 	CreateUqrcodeUrl = "https://api.weixin.qq.com/wxa/getwxacodeunlimit"
+	//授权$code 访问地址
+	CodeAccessUrl    = "https://api.weixin.qq.com/sns/jscode2session"
 	TemplatedSendUrl = "https://api.weixin.qq.com/cgi-bin/message/wxopen/template/send"
 )
 
@@ -141,4 +147,36 @@ func (s *Wx) Request(params interface{}, url string, isFresh bool) ([]byte, erro
 		}
 	}
 	return dataByte, nil
+}
+
+// @desc 根据微信code获取授权信息
+// @auth liuguoqiang 2020-04-08
+// @param
+// @return
+func (s *Wx) CheckLogin(code string) (*CheckLoginResponse, error) {
+	params := make(map[string]interface{})
+	params["appid"] = s.appId
+	params["secret"] = s.secret
+	params["js_code"] = code
+	params["grant_type"] = s.grantType
+	req := httplib.Post(CodeAccessUrl)
+	req, err := req.JSONBody(params)
+	if err != nil {
+		return nil, err
+	}
+	dataByte, err := req.Bytes()
+	if err != nil {
+		return nil, err
+	}
+	data := make(map[string]interface{})
+	err = json.Unmarshal(dataByte, &data)
+	if err == nil {
+		if _, ok := data["errcode"]; ok {
+			return nil, errors.New(strconv.FormatFloat(data["errcode"].(float64), 'f', -1, 64) + ":" + data["errmsg"].(string))
+		}
+	}
+	return &CheckLoginResponse{
+		OpenId:     data["openid"].(string),
+		SessionKey: data["session_key"].(string),
+	}, nil
 }
