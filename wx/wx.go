@@ -1,8 +1,14 @@
 package wx
 
 import (
+	"bytes"
+	"crypto/aes"
+	"crypto/cipher"
+	"encoding/base64"
 	"encoding/json"
 	"errors"
+	"fmt"
+	"gocore/log"
 	"strconv"
 	"time"
 
@@ -33,6 +39,11 @@ type (
 		FormId          string `json:"form_id"`
 		Data            string `json:"data"`
 		EmphasisKeyword string `json:"emphasis_keyword"`
+	}
+	DecryptDataRequest struct {
+		SessionKey string
+		Iv         string
+		Data       string
 	}
 	CheckLoginResponse struct {
 		OpenId     string `json:"openId"`
@@ -179,4 +190,78 @@ func (s *Wx) CheckLogin(code string) (*CheckLoginResponse, error) {
 		OpenId:     data["openid"].(string),
 		SessionKey: data["session_key"].(string),
 	}, nil
+}
+
+// @desc 检验数据的真实性，并且获取解密后的明文.
+// @auth liuguoqiang 2020-04-08
+// @param
+// @return
+func (s *Wx) DecryptData(req *DecryptDataRequest) (interface{}, error) {
+	if len(req.SessionKey) != 24 {
+		return nil, fmt.Errorf("错误的SessionKey")
+	}
+	if len(req.Iv) != 24 {
+		return nil, fmt.Errorf("错误的Iv")
+	}
+	aesKey, err := base64.StdEncoding.DecodeString(req.SessionKey)
+	if err != nil {
+		log.Sugar.Error(err)
+		return nil, err
+	}
+	iv, err := base64.StdEncoding.DecodeString(req.Iv)
+	if err != nil {
+		return nil, err
+	}
+	data, err := base64.StdEncoding.DecodeString(req.Data)
+	if err != nil {
+		return nil, err
+	}
+	resp := AesDecrypt(data, aesKey, iv)
+	return resp, nil
+}
+
+func AesEncrypt(origData []byte, k []byte, iv []byte) string {
+	// 分组秘钥
+	// NewCipher该函数限制了输入k的长度必须为16, 24或者32
+	block, _ := aes.NewCipher(k)
+	// 获取秘钥块的长度
+	blockSize := block.BlockSize()
+	// 补全码
+	origData = PKCS7Padding(origData, blockSize)
+	// 加密模式
+	blockMode := cipher.NewCBCEncrypter(block, iv)
+	// 创建数组
+	cryted := make([]byte, len(origData))
+	// 加密
+	blockMode.CryptBlocks(cryted, origData)
+	return base64.StdEncoding.EncodeToString(cryted)
+}
+
+func AesDecrypt(crytedByte []byte, key []byte, iv []byte) []byte {
+	// 分组秘钥
+	block, _ := aes.NewCipher(key)
+	// 加密模式
+	blockMode := cipher.NewCBCDecrypter(block, iv)
+	// 创建数组
+	orig := make([]byte, len(crytedByte))
+	// 解密
+	blockMode.CryptBlocks(orig, crytedByte)
+	// 去补全码
+	orig = PKCS7UnPadding(orig)
+	return orig
+}
+
+//补码
+//AES加密数据块分组长度必须为128bit(byte[16])，密钥长度可以是128bit(byte[16])、192bit(byte[24])、256bit(byte[32])中的任意一个。
+func PKCS7Padding(ciphertext []byte, blocksize int) []byte {
+	padding := blocksize - len(ciphertext)%blocksize
+	padtext := bytes.Repeat([]byte{byte(padding)}, padding)
+	return append(ciphertext, padtext...)
+}
+
+//去码
+func PKCS7UnPadding(origData []byte) []byte {
+	length := len(origData)
+	unpadding := int(origData[length-1])
+	return origData[:(length - unpadding)]
 }
