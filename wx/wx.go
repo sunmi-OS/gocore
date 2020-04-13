@@ -196,7 +196,7 @@ func (s *Wx) CheckLogin(code string) (*CheckLoginResponse, error) {
 // @auth liuguoqiang 2020-04-08
 // @param
 // @return
-func (s *Wx) DecryptData(req *DecryptDataRequest) (interface{}, error) {
+func DecryptData(req *DecryptDataRequest) (interface{}, error) {
 	if len(req.SessionKey) != 24 {
 		return nil, fmt.Errorf("错误的SessionKey")
 	}
