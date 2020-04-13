@@ -8,7 +8,6 @@ import (
 	"encoding/json"
 	"errors"
 	"fmt"
-	"gocore/log"
 	"strconv"
 	"time"
 
@@ -205,7 +204,6 @@ func DecryptData(req *DecryptDataRequest) (interface{}, error) {
 	}
 	aesKey, err := base64.StdEncoding.DecodeString(req.SessionKey)
 	if err != nil {
-		log.Sugar.Error(err)
 		return nil, err
 	}
 	iv, err := base64.StdEncoding.DecodeString(req.Iv)
