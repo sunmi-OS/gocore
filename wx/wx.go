@@ -163,7 +163,7 @@ func (s *Wx) Request(urlParam map[string]string, bodyParams interface{}, url str
 
 	req = req.Param("access_token", s.accessToken)
 	fmt.Printf("%#v\n", s.accessToken)
-	fmt.Printf("%#v\n", bodyParams)
+	fmt.Printf("%#v\n", url)
 	if urlParam != nil {
 		for key, value := range urlParam {
 			req = req.Param(key, value)
