@@ -162,6 +162,8 @@ func (s *Wx) Request(urlParam map[string]string, bodyParams interface{}, url str
 	}
 
 	req = req.Param("access_token", s.accessToken)
+	fmt.Printf("%#v\n", s.accessToken)
+	fmt.Printf("%#v\n", bodyParams)
 	if urlParam != nil {
 		for key, value := range urlParam {
 			req = req.Param(key, value)
@@ -172,6 +174,7 @@ func (s *Wx) Request(urlParam map[string]string, bodyParams interface{}, url str
 		return nil, err
 	}
 	dataByte, err := req.Bytes()
+	fmt.Printf("%#v\n", string(dataByte))
 	if err != nil {
 		return nil, err
 	}
