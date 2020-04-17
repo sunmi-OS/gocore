@@ -150,6 +150,7 @@ func (s *Wx) GetAuthUrl(params map[string]interface{}, isFresh bool) ([]byte, er
 // @param
 // @return
 func (s *Wx) Request(urlParam map[string]string, bodyParams interface{}, url string, isFresh bool, isPost bool) ([]byte, error) {
+	fmt.Printf("s.accessToken:%#v\n", s.accessToken)
 	if s.accessToken == "" || isFresh {
 		_, err := s.InitAuthToken(isFresh)
 		if err != nil {
