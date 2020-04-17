@@ -58,6 +58,10 @@ const (
 	//授权$code 访问地址
 	CodeAccessUrl    = "https://api.weixin.qq.com/sns/jscode2session"
 	TemplatedSendUrl = "https://api.weixin.qq.com/cgi-bin/message/wxopen/template/send"
+	//获取授权页ticket
+	GetticketUrl = "https://api.weixin.qq.com/cgi-bin/ticket/getticket"
+	//获取授权页链接
+	AuthUrl = "https://api.weixin.qq.com/card/invoice/getauthurl"
 )
 
 // @desc 初始化
@@ -110,31 +114,60 @@ func (s *Wx) InitAuthToken(isFresh bool) (string, error) {
 // @param
 // @return
 func (s *Wx) GetUnLimitQRCode(params *GetUnLimitQRCodeRequest, isFresh bool) ([]byte, error) {
-	return s.Request(params, CreateUqrcodeUrl, isFresh)
+	return s.Request(nil, params, CreateUqrcodeUrl, isFresh, true)
 }
 
-// @desc 微信小程序模板消息推送
-// @auth liuguoqiang 2020-02-25
-// @param $openid 接收者（用户）的 openid
-// @param $template_id 所需下发的模板消息的id
-// @param $page 点击模板卡片后的跳转页面，仅限本小程序内的页面。支持带参数,（示例index?foo=bar）。该字段不填则模板无跳转。
-// @param $form_id 表单提交场景下，为 submit 事件带上的 formId；支付场景下，为本次支付的 prepay_id
-// @param $data type:object 模板内容，不填则下发空模板。具体格式请参考示例。
-// @param $emphasis_keyword 模板需要放大的关键词，不填则默认无放大
+// @desc 发送模板
+// @auth liuguoqiang 2020-04-17
+// @param
+// @return
 func (s *Wx) Send(params *SendRequest, isFresh bool) ([]byte, error) {
-	return s.Request(params, TemplatedSendUrl, isFresh)
+	return s.Request(nil, params, TemplatedSendUrl, isFresh, true)
 }
 
-func (s *Wx) Request(params interface{}, url string, isFresh bool) ([]byte, error) {
+// @desc 获取授权页面ticket
+// @auth liuguoqiang 2020-02-25
+// @param
+// @return
+func (s *Wx) GetTicket(ticketType string, isFresh bool) ([]byte, error) {
+	urlParam := make(map[string]string)
+	urlParam["type"] = "wx_card"
+	return s.Request(urlParam, nil, GetticketUrl, isFresh, false)
+}
+
+// @desc 获取微信授权页链接
+// @auth liuguoqiang 2020-02-25
+// @param
+// @return
+func (s *Wx) GetAuthUrl(params map[string]interface{}, isFresh bool) ([]byte, error) {
+	return s.Request(nil, params, AuthUrl, isFresh, true)
+}
+
+// @desc 通用请求
+// @auth liuguoqiang 2020-02-25
+// @param
+// @return
+func (s *Wx) Request(urlParam map[string]string, bodyParams interface{}, url string, isFresh bool, isPost bool) ([]byte, error) {
 	if s.accessToken == "" || isFresh {
 		_, err := s.InitAuthToken(isFresh)
 		if err != nil {
 			return nil, err
 		}
 	}
+	var req *httplib.BeegoHTTPRequest
+	if isPost {
+		req = httplib.Post(url)
+	} else {
+		req = httplib.Get(url)
+	}
 
-	req := httplib.Post(url + "?access_token=" + s.accessToken)
-	req, err := req.JSONBody(params)
+	req = req.Param("access_token", s.accessToken)
+	if urlParam != nil {
+		for key, value := range urlParam {
+			req = req.Param(key, value)
+		}
+	}
+	req, err := req.JSONBody(bodyParams)
 	if err != nil {
 		return nil, err
 	}
@@ -147,7 +180,7 @@ func (s *Wx) Request(params interface{}, url string, isFresh bool) ([]byte, erro
 	if err == nil {
 		if _, ok := data["errcode"]; ok {
 			if !isFresh {
-				dataByte, err = s.Request(params, url, true)
+				dataByte, err = s.Request(urlParam, bodyParams, url, true, isPost)
 				if err != nil {
 					return nil, err
 				}
