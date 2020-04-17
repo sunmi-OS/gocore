@@ -178,7 +178,7 @@ func (s *Wx) Request(urlParam map[string]string, bodyParams interface{}, url str
 	data := make(map[string]interface{})
 	err = json.Unmarshal(dataByte, &data)
 	if err == nil {
-		if _, ok := data["errcode"]; ok {
+		if _, ok := data["errcode"]; ok && data["errcode"].(float64) != 0 {
 			if !isFresh {
 				dataByte, err = s.Request(urlParam, bodyParams, url, true, isPost)
 				if err != nil {
