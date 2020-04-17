@@ -85,6 +85,8 @@ func (s *Wx) InitAuthToken(isFresh bool) (string, error) {
 	//查询缓存
 	tokenKey := "wechat:applet:token:" + s.appId
 	accessToken := s.getRedis().Get(tokenKey).Val()
+	fmt.Printf("tokenKey:%s,accessToken:%#v\n", tokenKey, accessToken)
+
 	if accessToken != "" && !isFresh {
 		s.accessToken = accessToken
 		return s.accessToken, nil
