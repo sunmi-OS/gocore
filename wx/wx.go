@@ -158,14 +158,14 @@ func (s *Wx) Request(urlParam map[string]string, bodyParams interface{}, url str
 		}
 	}
 	var req *httplib.BeegoHTTPRequest
+	url = url + "?access_token=" + s.accessToken
+	fmt.Printf("%#v\n", url)
 	if isPost {
 		req = httplib.Post(url)
 	} else {
 		req = httplib.Get(url)
 	}
 	fmt.Printf("%#v\n", s.accessToken)
-	url = url + "?access_token=" + s.accessToken
-	fmt.Printf("%#v\n", url)
 	if urlParam != nil {
 		for key, value := range urlParam {
 			req = req.Param(key, value)
