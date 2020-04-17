@@ -83,7 +83,7 @@ func NewWx(appId, secret, grantType string, getRedis func() *redis.Client) *Wx {
 // @return
 func (s *Wx) InitAuthToken(isFresh bool) (string, error) {
 	//查询缓存
-	tokenKey := "wechat:applet:token:" + s.appId
+	tokenKey := "tob_wechat:applet:token:" + s.appId
 	accessToken := s.getRedis().Get(tokenKey).Val()
 	fmt.Printf("tokenKey:%s,accessToken:%#v\n", tokenKey, accessToken)
 
@@ -163,9 +163,8 @@ func (s *Wx) Request(urlParam map[string]string, bodyParams interface{}, url str
 	} else {
 		req = httplib.Get(url)
 	}
-
-	req = req.Param("access_token", s.accessToken)
 	fmt.Printf("%#v\n", s.accessToken)
+	url = url + "?access_token=" + s.accessToken
 	fmt.Printf("%#v\n", url)
 	if urlParam != nil {
 		for key, value := range urlParam {
