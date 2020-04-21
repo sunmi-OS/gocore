@@ -85,7 +85,6 @@ func (s *Wx) InitAuthToken(isFresh bool) (string, error) {
 	//查询缓存
 	tokenKey := "tob_wechat:applet:token:" + s.appId
 	accessToken := s.getRedis().Get(tokenKey).Val()
-	fmt.Printf("tokenKey:%s,accessToken:%#v\n", tokenKey, accessToken)
 
 	if accessToken != "" && !isFresh {
 		s.accessToken = accessToken
@@ -150,7 +149,6 @@ func (s *Wx) GetAuthUrl(params map[string]interface{}, isFresh bool) ([]byte, er
 // @param
 // @return
 func (s *Wx) Request(urlParam map[string]string, bodyParams interface{}, url string, isFresh bool, isPost bool) ([]byte, error) {
-	fmt.Printf("s.accessToken:%#v\n", s.accessToken)
 	if s.accessToken == "" || isFresh {
 		_, err := s.InitAuthToken(isFresh)
 		if err != nil {
@@ -159,13 +157,11 @@ func (s *Wx) Request(urlParam map[string]string, bodyParams interface{}, url str
 	}
 	var req *httplib.BeegoHTTPRequest
 	url = url + "?access_token=" + s.accessToken
-	fmt.Printf("%#v\n", url)
 	if isPost {
 		req = httplib.Post(url)
 	} else {
 		req = httplib.Get(url)
 	}
-	fmt.Printf("%#v\n", s.accessToken)
 	if urlParam != nil {
 		for key, value := range urlParam {
 			req = req.Param(key, value)
@@ -176,7 +172,6 @@ func (s *Wx) Request(urlParam map[string]string, bodyParams interface{}, url str
 		return nil, err
 	}
 	dataByte, err := req.Bytes()
-	fmt.Printf("%#v\n", string(dataByte))
 	if err != nil {
 		return nil, err
 	}
@@ -256,6 +251,10 @@ func DecryptData(req *DecryptDataRequest) ([]byte, error) {
 	return resp, nil
 }
 
+// @desc aes加密
+// @auth liuguoqiang 2020-04-21
+// @param
+// @return
 func AesEncrypt(origData []byte, k []byte, iv []byte) string {
 	// 分组秘钥
 	// NewCipher该函数限制了输入k的长度必须为16, 24或者32
@@ -273,6 +272,10 @@ func AesEncrypt(origData []byte, k []byte, iv []byte) string {
 	return base64.StdEncoding.EncodeToString(cryted)
 }
 
+// @desc aes解密
+// @auth liuguoqiang 2020-04-21
+// @param
+// @return
 func AesDecrypt(crytedByte []byte, key []byte, iv []byte) []byte {
 	// 分组秘钥
 	block, _ := aes.NewCipher(key)
@@ -289,13 +292,20 @@ func AesDecrypt(crytedByte []byte, key []byte, iv []byte) []byte {
 
 //补码
 //AES加密数据块分组长度必须为128bit(byte[16])，密钥长度可以是128bit(byte[16])、192bit(byte[24])、256bit(byte[32])中的任意一个。
+// @desc
+// @auth liuguoqiang 2020-04-21
+// @param
+// @return
 func PKCS7Padding(ciphertext []byte, blocksize int) []byte {
 	padding := blocksize - len(ciphertext)%blocksize
 	padtext := bytes.Repeat([]byte{byte(padding)}, padding)
 	return append(ciphertext, padtext...)
 }
 
-//去码
+// @desc 去码
+// @auth liuguoqiang 2020-04-21
+// @param
+// @return
 func PKCS7UnPadding(origData []byte) []byte {
 	length := len(origData)
 	unpadding := int(origData[length-1])
