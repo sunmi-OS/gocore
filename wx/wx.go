@@ -324,6 +324,7 @@ func PKCS7UnPadding(origData []byte) []byte {
 // @param
 // @return
 func (s *Wx) InvoiceInsert(params map[string]interface{}, isFresh bool) ([]byte, error) {
+	params["appid"] = s.appId
 	return s.Request(nil, params, InvoiceInsertUrl, isFresh, true)
 }
 
