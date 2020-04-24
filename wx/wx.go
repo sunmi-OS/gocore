@@ -8,7 +8,9 @@ import (
 	"encoding/json"
 	"errors"
 	"fmt"
+	"io"
 	"io/ioutil"
+	"log"
 	"mime/multipart"
 	"net/http"
 	"strconv"
@@ -332,6 +334,83 @@ func (s *Wx) InvoiceInsert(params map[string]interface{}, isFresh bool) ([]byte,
 // @auth liuguoqiang 2020-02-25
 // @param
 // @return
+func (s *Wx) SetPd1(pdfPath string, isFresh bool) ([]byte, error) {
+	if s.accessToken == "" || isFresh {
+		_, err := s.InitAuthToken(isFresh)
+		if err != nil {
+			return nil, err
+		}
+	}
+	if pdfPath == "" {
+		return nil, fmt.Errorf("pdfPath is empty")
+	}
+	resp, err := http.Get(pdfPath)
+	if err != nil {
+		return nil, err
+	}
+	defer resp.Body.Close()
+
+	if resp.StatusCode != 200 {
+		return nil, errors.New("resp status:" + fmt.Sprint(resp.StatusCode))
+	}
+
+	// bin, err := ioutil.ReadAll(resp.Body)
+	// if err != nil {
+	// 	return nil, err
+	// }
+
+	fileName := fmt.Sprintf("%d.pdf", time.Now().UnixNano()/1000)
+	buf := new(bytes.Buffer)
+	w := multipart.NewWriter(buf)
+	fw, err := w.CreateFormFile("pdf", fileName)
+	if err != nil {
+		return nil, err
+	}
+	//iocopy
+	_, err = io.Copy(fw, resp.Body)
+	// _, err = fw.Write(bin)
+	if err != nil {
+		return nil, err
+	}
+	// w.Close()
+
+	req1, err := http.NewRequest("POST", SetpdfUrl+"?access_token="+s.accessToken, buf)
+	if err != nil {
+		return nil, err
+	}
+	fmt.Printf("%#v\n", SetpdfUrl+"?access_token="+s.accessToken)
+	fmt.Printf("%#v\n", fileName)
+	resp1, err := http.DefaultClient.Do(req1)
+	if err != nil {
+		return nil, err
+	}
+	defer resp1.Body.Close()
+
+	dataByte, err := ioutil.ReadAll(resp1.Body)
+	if err != nil {
+		return nil, err
+	}
+	data := make(map[string]interface{})
+	err = json.Unmarshal(dataByte, &data)
+	if err == nil {
+		if _, ok := data["errcode"]; ok && data["errcode"].(float64) != 0 {
+			if !isFresh {
+				dataByte, err = s.SetPdf(pdfPath, true)
+				if err != nil {
+					return nil, err
+				}
+			} else {
+				return nil, errors.New(strconv.FormatFloat(data["errcode"].(float64), 'f', -1, 64) + ":" + data["errmsg"].(string))
+			}
+		}
+	}
+	return dataByte, nil
+}
+
+// @desc 上传pdf文件
+// @auth liuguoqiang 2020-02-25
+// @param
+// @return
 func (s *Wx) SetPdf(pdfPath string, isFresh bool) ([]byte, error) {
 	if s.accessToken == "" || isFresh {
 		_, err := s.InitAuthToken(isFresh)
@@ -352,30 +431,25 @@ func (s *Wx) SetPdf(pdfPath string, isFresh bool) ([]byte, error) {
 		return nil, errors.New("resp status:" + fmt.Sprint(resp.StatusCode))
 	}
 
-	bin, err := ioutil.ReadAll(resp.Body)
-	if err != nil {
-		return nil, err
-	}
-
+	pr, pw := io.Pipe()
+	bodyWriter := multipart.NewWriter(pw)
 	fileName := fmt.Sprintf("%d.pdf", time.Now().UnixNano()/1000)
-	buf := new(bytes.Buffer)
-	w := multipart.NewWriter(buf)
-	fw, err := w.CreateFormFile("pdf", fileName)
+	fileWriter, err := bodyWriter.CreateFormFile("pdf", fileName)
 	if err != nil {
-		return nil, err
+		log.Println("Httplib:", err)
 	}
-	_, err = fw.Write(bin)
+	_, err = io.Copy(fileWriter, resp.Body)
 	if err != nil {
-		return nil, err
+		log.Println("Httplib:", err)
 	}
-	w.Close()
+	bodyWriter.Close()
+	pw.Close()
 
-	req1, err := http.NewRequest("POST", SetpdfUrl+"?access_token="+s.accessToken, buf)
+	req1, err := http.NewRequest("POST", SetpdfUrl+"?access_token="+s.accessToken, ioutil.NopCloser(pr))
+	req1.Header.Set("Content-Type", bodyWriter.FormDataContentType())
 	if err != nil {
 		return nil, err
 	}
-	fmt.Printf("%#v\n", SetpdfUrl+"?access_token="+s.accessToken)
-	fmt.Printf("%#v\n", fileName)
 	resp1, err := http.DefaultClient.Do(req1)
 	if err != nil {
 		return nil, err
