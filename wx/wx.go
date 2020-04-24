@@ -327,7 +327,7 @@ func (s *Wx) InvoiceInsert(params map[string]interface{}, isFresh bool) ([]byte,
 	return s.Request(nil, params, InvoiceInsertUrl, isFresh, true)
 }
 
-// @desc 通用请求
+// @desc 上传pdf文件
 // @auth liuguoqiang 2020-02-25
 // @param
 // @return
