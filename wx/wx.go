@@ -359,7 +359,7 @@ func (s *Wx) SetPdf(pdfPath string, isFresh bool) ([]byte, error) {
 	fileName := fmt.Sprintf("%d.pdf", time.Now().UnixNano()/1000)
 	buf := new(bytes.Buffer)
 	w := multipart.NewWriter(buf)
-	fw, err := w.CreateFormFile("filename", fileName)
+	fw, err := w.CreateFormFile("pdf", fileName)
 	if err != nil {
 		return nil, err
 	}
