@@ -373,7 +373,6 @@ func (s *Wx) SetPdf(pdfPath string, isFresh bool) ([]byte, error) {
 	if err != nil {
 		return nil, err
 	}
-	req1.Header.Set("Content-Type", w.FormDataContentType())
 
 	resp1, err := http.DefaultClient.Do(req1)
 	if err != nil {
