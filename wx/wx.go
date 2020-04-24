@@ -359,7 +359,7 @@ func (s *Wx) SetPdf(pdfPath string, isFresh bool) ([]byte, error) {
 	fileName := fmt.Sprintf("%d.pdf", time.Now().UnixNano()/1000)
 	buf := new(bytes.Buffer)
 	w := multipart.NewWriter(buf)
-	fw, err := w.CreateFormFile("file", fileName)
+	fw, err := w.CreateFormFile("filename", fileName)
 	if err != nil {
 		return nil, err
 	}
@@ -373,7 +373,8 @@ func (s *Wx) SetPdf(pdfPath string, isFresh bool) ([]byte, error) {
 	if err != nil {
 		return nil, err
 	}
-
+	fmt.Printf("%#v\n", SetpdfUrl+"?access_token="+s.accessToken)
+	fmt.Printf("%#v\n", fileName)
 	resp1, err := http.DefaultClient.Do(req1)
 	if err != nil {
 		return nil, err
