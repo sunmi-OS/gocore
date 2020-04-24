@@ -8,6 +8,9 @@ import (
 	"encoding/json"
 	"errors"
 	"fmt"
+	"io/ioutil"
+	"mime/multipart"
+	"net/http"
 	"strconv"
 	"time"
 
@@ -62,6 +65,10 @@ const (
 	GetticketUrl = "https://api.weixin.qq.com/cgi-bin/ticket/getticket"
 	//获取授权页链接
 	AuthUrl = "https://api.weixin.qq.com/card/invoice/getauthurl"
+	//上传电子发票PDF文件
+	SetpdfUrl = "https://api.weixin.qq.com/card/invoice/platform/setpdf"
+	//将电子发票卡券插入用户卡包
+	InvoiceInsertUrl = "https://api.weixin.qq.com/card/invoice/insert"
 )
 
 // @desc 初始化
@@ -310,4 +317,87 @@ func PKCS7UnPadding(origData []byte) []byte {
 	length := len(origData)
 	unpadding := int(origData[length-1])
 	return origData[:(length - unpadding)]
+}
+
+// @desc 电子发票插入微信卡包
+// @auth liuguoqiang 2020-04-24
+// @param
+// @return
+func (s *Wx) InvoiceInsert(params map[string]interface{}, isFresh bool) ([]byte, error) {
+	return s.Request(nil, params, InvoiceInsertUrl, isFresh, true)
+}
+
+// @desc 通用请求
+// @auth liuguoqiang 2020-02-25
+// @param
+// @return
+func (s *Wx) SetPdf(pdfPath string, isFresh bool) ([]byte, error) {
+	if s.accessToken == "" || isFresh {
+		_, err := s.InitAuthToken(isFresh)
+		if err != nil {
+			return nil, err
+		}
+	}
+	if pdfPath == "" {
+		return nil, fmt.Errorf("pdfPath is empty")
+	}
+	resp, err := http.Get(pdfPath)
+	if err != nil {
+		return nil, err
+	}
+	defer resp.Body.Close()
+
+	if resp.StatusCode != 200 {
+		return nil, errors.New("resp status:" + fmt.Sprint(resp.StatusCode))
+	}
+
+	bin, err := ioutil.ReadAll(resp.Body)
+	if err != nil {
+		return nil, err
+	}
+
+	fileName := fmt.Sprintf("%d.pdf", time.Now().UnixNano()/1000)
+	buf := new(bytes.Buffer)
+	w := multipart.NewWriter(buf)
+	fw, err := w.CreateFormFile("file", fileName)
+	if err != nil {
+		return nil, err
+	}
+	_, err = fw.Write(bin)
+	if err != nil {
+		return nil, err
+	}
+	w.Close()
+
+	req1, err := http.NewRequest("POST", SetpdfUrl+"?access_token="+s.accessToken, buf)
+	if err != nil {
+		return nil, err
+	}
+	req1.Header.Set("Content-Type", w.FormDataContentType())
+
+	resp1, err := http.DefaultClient.Do(req1)
+	if err != nil {
+		return nil, err
+	}
+	defer resp1.Body.Close()
+
+	dataByte, err := ioutil.ReadAll(resp1.Body)
+	if err != nil {
+		return nil, err
+	}
+	data := make(map[string]interface{})
+	err = json.Unmarshal(dataByte, &data)
+	if err == nil {
+		if _, ok := data["errcode"]; ok && data["errcode"].(float64) != 0 {
+			if !isFresh {
+				dataByte, err = s.SetPdf(pdfPath, true)
+				if err != nil {
+					return nil, err
+				}
+			} else {
+				return nil, errors.New(strconv.FormatFloat(data["errcode"].(float64), 'f', -1, 64) + ":" + data["errmsg"].(string))
+			}
+		}
+	}
+	return dataByte, nil
 }
