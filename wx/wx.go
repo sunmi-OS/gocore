@@ -452,7 +452,8 @@ func (s *Wx) SetPdf(pdfPath string, isFresh bool) ([]byte, error) {
 	if err != nil {
 		return nil, err
 	}
-	resp1, err := http.Client{}.Do(req1)
+	client := http.Client{}
+	resp1, err := client.Do(req1)
 	if err != nil {
 		return nil, err
 	}
@@ -462,6 +463,7 @@ func (s *Wx) SetPdf(pdfPath string, isFresh bool) ([]byte, error) {
 	if err != nil {
 		return nil, err
 	}
+	Info(resp1)
 	Info(string(dataByte))
 	Info(err)
 	Info(resp1.StatusCode)
