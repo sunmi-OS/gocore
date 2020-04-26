@@ -156,7 +156,7 @@ func (s *Wx) GetAuthUrl(params map[string]interface{}, isFresh bool) ([]byte, er
 // @auth liuguoqiang 2020-02-25
 // @param
 // @return
-func (s *Wx) Request(urlParam map[string]string, bodyParams interface{}, url string, isFresh bool, isPost bool) ([]byte, error) {
+func (s *Wx) Request(urlParam map[string]string, bodyParams interface{}, paramUrl string, isFresh bool, isPost bool) ([]byte, error) {
 	if s.accessToken == "" || isFresh {
 		_, err := s.InitAuthToken(isFresh)
 		if err != nil {
@@ -164,7 +164,7 @@ func (s *Wx) Request(urlParam map[string]string, bodyParams interface{}, url str
 		}
 	}
 	var req *httplib.BeegoHTTPRequest
-	url = url + "?access_token=" + s.accessToken
+	url := paramUrl + "?access_token=" + s.accessToken
 	if isPost {
 		req = httplib.Post(url)
 	} else {
@@ -187,10 +187,10 @@ func (s *Wx) Request(urlParam map[string]string, bodyParams interface{}, url str
 	err = json.Unmarshal(dataByte, &data)
 	if err == nil {
 		if _, ok := data["errcode"]; ok && data["errcode"].(float64) != 0 {
-			Info(url + "?access_token=" + s.accessToken)
+			Info(url)
 			Info(isFresh)
 			if !isFresh {
-				dataByte, err = s.Request(urlParam, bodyParams, url, true, isPost)
+				dataByte, err = s.Request(urlParam, bodyParams, paramUrl, true, isPost)
 				if err != nil {
 					return nil, err
 				}
