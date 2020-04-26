@@ -431,24 +431,32 @@ func (s *Wx) SetPdf(pdfPath string, isFresh bool) ([]byte, error) {
 	if resp.StatusCode != 200 {
 		return nil, errors.New("resp status:" + fmt.Sprint(resp.StatusCode))
 	}
+	bin, err := ioutil.ReadAll(resp.Body)
+	if err != nil {
+		fmt.Println(err)
+		return nil, err
+	}
+	buf := new(bytes.Buffer)
 
-	pr, pw := io.Pipe()
-	bodyWriter := multipart.NewWriter(pw)
+	// pr, pw := io.Pipe()
+
+	bodyWriter := multipart.NewWriter(buf)
 	fileName := fmt.Sprintf("%d.pdf", time.Now().UnixNano()/1000)
-	go func() {
-		fileWriter, err := bodyWriter.CreateFormFile("pdf", fileName)
-		if err != nil {
-			log.Println("Httplib:", err)
-		}
-		_, err = io.Copy(fileWriter, resp.Body)
-		if err != nil {
-			log.Println("Httplib:", err)
-		}
-		bodyWriter.Close()
-		pw.Close()
-	}()
-	req1, err := http.NewRequest("POST", SetpdfUrl+"?access_token="+s.accessToken, ioutil.NopCloser(pr))
-	// req1.Header.Set("Content-Type", bodyWriter.FormDataContentType())
+	// go func() {
+	fileWriter, err := bodyWriter.CreateFormFile("pdf", fileName)
+	if err != nil {
+		log.Println("Httplib:", err)
+	}
+	_, err = fileWriter.Write(bin)
+	// _, err = io.Copy(fileWriter, resp.Body)
+	if err != nil {
+		log.Println("Httplib:", err)
+	}
+	bodyWriter.Close()
+	// pw.Close()
+	// }()
+	req1, err := http.NewRequest("POST", SetpdfUrl+"?access_token="+s.accessToken, buf)
+	req1.Header.Set("Content-Type", bodyWriter.FormDataContentType())
 	if err != nil {
 		return nil, err
 	}
