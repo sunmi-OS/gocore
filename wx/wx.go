@@ -463,6 +463,7 @@ func (s *Wx) SetPdf(pdfPath string, isFresh bool) ([]byte, error) {
 	if err != nil {
 		return nil, err
 	}
+	Info(SetpdfUrl + "?access_token=" + s.accessToken)
 	Info(resp1)
 	Info(string(dataByte))
 	Info(err)
