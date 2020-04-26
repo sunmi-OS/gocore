@@ -448,7 +448,7 @@ func (s *Wx) SetPdf(pdfPath string, isFresh bool) ([]byte, error) {
 		pw.Close()
 	}()
 	req1, err := http.NewRequest("POST", SetpdfUrl+"?access_token="+s.accessToken, ioutil.NopCloser(pr))
-	req1.Header.Set("Content-Type", bodyWriter.FormDataContentType())
+	// req1.Header.Set("Content-Type", bodyWriter.FormDataContentType())
 	if err != nil {
 		return nil, err
 	}
