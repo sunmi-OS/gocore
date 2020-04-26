@@ -11,7 +11,6 @@ import (
 	"io/ioutil"
 	"mime/multipart"
 	"net/http"
-	"runtime"
 	"strconv"
 	"time"
 
@@ -187,8 +186,6 @@ func (s *Wx) Request(urlParam map[string]string, bodyParams interface{}, paramUr
 	err = json.Unmarshal(dataByte, &data)
 	if err == nil {
 		if _, ok := data["errcode"]; ok && data["errcode"].(float64) != 0 {
-			Info(url)
-			Info(isFresh)
 			if !isFresh {
 				dataByte, err = s.Request(urlParam, bodyParams, paramUrl, true, isPost)
 				if err != nil {
@@ -401,24 +398,4 @@ func (s *Wx) SetPdf(pdfPath string, isFresh bool) ([]byte, error) {
 		}
 	}
 	return dataByte, nil
-}
-
-type (
-	Param struct {
-		Time string      `json:"time"`
-		File string      `json:"file"`
-		Data interface{} `json:"data"`
-	}
-)
-
-func Info(args ...interface{}) {
-	_, file, line, ok := runtime.Caller(1)
-	if ok {
-		data, _ := json.Marshal(&Param{
-			Time: time.Now().Format("2006-01-02 15:04:05"),
-			File: fmt.Sprintf("%s:%d", file, line),
-			Data: args,
-		})
-		fmt.Printf("%s\n", string(data))
-	}
 }
