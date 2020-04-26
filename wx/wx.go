@@ -434,17 +434,18 @@ func (s *Wx) SetPdf(pdfPath string, isFresh bool) ([]byte, error) {
 	pr, pw := io.Pipe()
 	bodyWriter := multipart.NewWriter(pw)
 	fileName := fmt.Sprintf("%d.pdf", time.Now().UnixNano()/1000)
-	fileWriter, err := bodyWriter.CreateFormFile("pdf", fileName)
-	if err != nil {
-		log.Println("Httplib:", err)
-	}
-	_, err = io.Copy(fileWriter, resp.Body)
-	if err != nil {
-		log.Println("Httplib:", err)
-	}
-	bodyWriter.Close()
-	pw.Close()
-
+	go func() {
+		fileWriter, err := bodyWriter.CreateFormFile("pdf", fileName)
+		if err != nil {
+			log.Println("Httplib:", err)
+		}
+		_, err = io.Copy(fileWriter, resp.Body)
+		if err != nil {
+			log.Println("Httplib:", err)
+		}
+		bodyWriter.Close()
+		pw.Close()
+	}()
 	req1, err := http.NewRequest("POST", SetpdfUrl+"?access_token="+s.accessToken, ioutil.NopCloser(pr))
 	req1.Header.Set("Content-Type", bodyWriter.FormDataContentType())
 	if err != nil {
