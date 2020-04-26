@@ -13,6 +13,7 @@ import (
 	"log"
 	"mime/multipart"
 	"net/http"
+	"runtime"
 	"strconv"
 	"time"
 
@@ -451,7 +452,7 @@ func (s *Wx) SetPdf(pdfPath string, isFresh bool) ([]byte, error) {
 	if err != nil {
 		return nil, err
 	}
-	resp1, err := http.DefaultClient.Do(req1)
+	resp1, err := http.Client{}.Do(req1)
 	if err != nil {
 		return nil, err
 	}
@@ -461,6 +462,9 @@ func (s *Wx) SetPdf(pdfPath string, isFresh bool) ([]byte, error) {
 	if err != nil {
 		return nil, err
 	}
+	Info(string(dataByte))
+	Info(err)
+	Info(resp1.StatusCode)
 	data := make(map[string]interface{})
 	err = json.Unmarshal(dataByte, &data)
 	if err == nil {
@@ -476,4 +480,24 @@ func (s *Wx) SetPdf(pdfPath string, isFresh bool) ([]byte, error) {
 		}
 	}
 	return dataByte, nil
+}
+
+type (
+	Param struct {
+		Time string      `json:"time"`
+		File string      `json:"file"`
+		Data interface{} `json:"data"`
+	}
+)
+
+func Info(args ...interface{}) {
+	_, file, line, ok := runtime.Caller(1)
+	if ok {
+		data, _ := json.Marshal(&Param{
+			Time: time.Now().Format("2006-01-02 15:04:05"),
+			File: fmt.Sprintf("%s:%d", file, line),
+			Data: args,
+		})
+		fmt.Printf("%s\n", string(data))
+	}
 }
