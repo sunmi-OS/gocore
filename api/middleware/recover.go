@@ -2,8 +2,10 @@ package middleware
 
 import (
 	"fmt"
-	"log"
+
+	"encoding/json"
 	"runtime"
+	"time"
 
 	"github.com/labstack/echo"
 	echoMiddleware "github.com/labstack/echo/middleware"
@@ -28,6 +30,13 @@ type (
 		// DisablePrintStack disables printing stack trace.
 		// Optional. Default value as false.
 		DisablePrintStack bool `yaml:"disable_print_stack"`
+	}
+	Param struct {
+		Time  string      `json:"time"`
+		Url   string      `json:"url"`
+		Err   string      `json:"error"`
+		Query interface{} `json:"query"`
+		Stack string      `json:"stack"`
 	}
 )
 
@@ -56,6 +65,7 @@ func RecoverWithConfig(config RecoverConfig) echo.MiddlewareFunc {
 	}
 	if config.StackSize == 0 {
 		config.StackSize = DefaultRecoverConfig.StackSize
+
 	}
 
 	return func(next echo.HandlerFunc) echo.HandlerFunc {
@@ -71,15 +81,22 @@ func RecoverWithConfig(config RecoverConfig) echo.MiddlewareFunc {
 						err = fmt.Errorf("%v", r)
 					}
 					stack := make([]byte, config.StackSize)
-					length := runtime.Stack(stack, !config.DisableStackAll)
+					stackStr := ""
+					length := runtime.Stack(stack, false)
 					if !config.DisablePrintStack {
-						c.Logger().Printf("[PANIC RECOVER] %v %s\n", err, stack[:length])
+						stackStr = string(stack[:length])
 					}
 					c.Response().Write([]byte("系统错误!具体原因:" + cast.ToString(err)))
-					log.Println("example-log:err", err.(error), map[string]interface{}{
-						"URL.Path":    c.Request().URL.Path,
-						"QueryParams": c.QueryParams(),
-					})
+					param := &Param{
+						Time:  time.Now().Format("2006-01-02 15:04:05"),
+						Url:   c.Request().URL.Path,
+						Err:   err.Error(),
+						Query: c.QueryParams(),
+						Stack: stackStr,
+					}
+					data, _ := json.Marshal(param)
+					fmt.Printf("%s\n", string(data))
+
 				}
 			}()
 			return next(c)
