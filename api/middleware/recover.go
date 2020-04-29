@@ -13,24 +13,6 @@ import (
 )
 
 type (
-	// RecoverConfig defines the config for Recover middleware.
-	RecoverConfig struct {
-		// Skipper defines a function to skip middleware.
-		Skipper echoMiddleware.Skipper
-
-		// Size of the stack to be printed.
-		// Optional. Default value 4KB.
-		StackSize int `yaml:"stack_size"`
-
-		// DisableStackAll disables formatting stack traces of all other goroutines
-		// into buffer after the trace for the current goroutine.
-		// Optional. Default value false.
-		DisableStackAll bool `yaml:"disable_stack_all"`
-
-		// DisablePrintStack disables printing stack trace.
-		// Optional. Default value as false.
-		DisablePrintStack bool `yaml:"disable_print_stack"`
-	}
 	Param struct {
 		Time  string      `json:"time"`
 		Url   string      `json:"url"`
@@ -42,7 +24,7 @@ type (
 
 var (
 	// DefaultRecoverConfig is the default Recover middleware config.
-	DefaultRecoverConfig = RecoverConfig{
+	DefaultRecoverConfig = echoMiddleware.RecoverConfig{
 		Skipper:           echoMiddleware.DefaultSkipper,
 		StackSize:         4 << 10, // 4 KB
 		DisableStackAll:   false,
@@ -58,7 +40,7 @@ func Recover() echo.MiddlewareFunc {
 
 // RecoverWithConfig returns a Recover middleware with config.
 // See: `Recover()`.
-func RecoverWithConfig(config RecoverConfig) echo.MiddlewareFunc {
+func RecoverWithConfig(config echoMiddleware.RecoverConfig) echo.MiddlewareFunc {
 	// Defaults
 	if config.Skipper == nil {
 		config.Skipper = DefaultRecoverConfig.Skipper
