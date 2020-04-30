@@ -9,7 +9,6 @@ import (
 
 	"github.com/labstack/echo"
 	echoMiddleware "github.com/labstack/echo/middleware"
-	"github.com/spf13/cast"
 )
 
 type (
@@ -22,20 +21,19 @@ type (
 	}
 )
 
-var (
-	// DefaultRecoverConfig is the default Recover middleware config.
-	DefaultRecoverConfig = echoMiddleware.RecoverConfig{
-		Skipper:           echoMiddleware.DefaultSkipper,
-		StackSize:         4 << 10, // 4 KB
-		DisableStackAll:   false,
-		DisablePrintStack: false,
-	}
-)
+var returnMsg = `{"code":-1,"data":null,"msg":"服务异常,请稍后再试。"}`
 
 // Recover returns a middleware which recovers from panics anywhere in the chain
 // and handles the control to the centralized HTTPErrorHandler.
-func Recover() echo.MiddlewareFunc {
-	return RecoverWithConfig(DefaultRecoverConfig)
+func Recover(msg ...string) echo.MiddlewareFunc {
+	if len(msg) > 0 {
+		returnMsg = msg[0]
+	}
+	return RecoverWithConfig(echoMiddleware.DefaultRecoverConfig)
+}
+
+func SetReturnMsg(msg string) {
+	returnMsg = msg
 }
 
 // RecoverWithConfig returns a Recover middleware with config.
@@ -43,10 +41,10 @@ func Recover() echo.MiddlewareFunc {
 func RecoverWithConfig(config echoMiddleware.RecoverConfig) echo.MiddlewareFunc {
 	// Defaults
 	if config.Skipper == nil {
-		config.Skipper = DefaultRecoverConfig.Skipper
+		config.Skipper = echoMiddleware.DefaultRecoverConfig.Skipper
 	}
 	if config.StackSize == 0 {
-		config.StackSize = DefaultRecoverConfig.StackSize
+		config.StackSize = echoMiddleware.DefaultRecoverConfig.StackSize
 
 	}
 
@@ -68,7 +66,7 @@ func RecoverWithConfig(config echoMiddleware.RecoverConfig) echo.MiddlewareFunc 
 					if !config.DisablePrintStack {
 						stackStr = string(stack[:length])
 					}
-					c.Response().Write([]byte("系统错误!具体原因:" + cast.ToString(err)))
+					c.Response().Write([]byte(returnMsg))
 					param := &Param{
 						Time:  time.Now().Format("2006-01-02 15:04:05"),
 						Url:   c.Request().URL.Path,
@@ -77,7 +75,7 @@ func RecoverWithConfig(config echoMiddleware.RecoverConfig) echo.MiddlewareFunc 
 						Stack: stackStr,
 					}
 					data, _ := json.Marshal(param)
-					fmt.Printf("%s\n", string(data))
+					fmt.Println(string(data))
 
 				}
 			}()
