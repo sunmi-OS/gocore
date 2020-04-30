@@ -66,6 +66,7 @@ func RecoverWithConfig(config echoMiddleware.RecoverConfig) echo.MiddlewareFunc 
 					if !config.DisablePrintStack {
 						stackStr = string(stack[:length])
 					}
+					c.Response().Header().Set("Content-Type", "application/json;charset=UTF-8")
 					c.Response().Write([]byte(returnMsg))
 					param := &Param{
 						Time:  time.Now().Format("2006-01-02 15:04:05"),
