@@ -8,6 +8,9 @@ import (
 	"encoding/json"
 	"errors"
 	"fmt"
+	"io/ioutil"
+	"mime/multipart"
+	"net/http"
 	"strconv"
 	"time"
 
@@ -62,6 +65,10 @@ const (
 	GetticketUrl = "https://api.weixin.qq.com/cgi-bin/ticket/getticket"
 	//获取授权页链接
 	AuthUrl = "https://api.weixin.qq.com/card/invoice/getauthurl"
+	//上传电子发票PDF文件
+	SetpdfUrl = "https://api.weixin.qq.com/card/invoice/platform/setpdf"
+	//将电子发票卡券插入用户卡包
+	InvoiceInsertUrl = "https://api.weixin.qq.com/card/invoice/insert"
 )
 
 // @desc 初始化
@@ -148,7 +155,7 @@ func (s *Wx) GetAuthUrl(params map[string]interface{}, isFresh bool) ([]byte, er
 // @auth liuguoqiang 2020-02-25
 // @param
 // @return
-func (s *Wx) Request(urlParam map[string]string, bodyParams interface{}, url string, isFresh bool, isPost bool) ([]byte, error) {
+func (s *Wx) Request(urlParam map[string]string, bodyParams interface{}, paramUrl string, isFresh bool, isPost bool) ([]byte, error) {
 	if s.accessToken == "" || isFresh {
 		_, err := s.InitAuthToken(isFresh)
 		if err != nil {
@@ -156,7 +163,7 @@ func (s *Wx) Request(urlParam map[string]string, bodyParams interface{}, url str
 		}
 	}
 	var req *httplib.BeegoHTTPRequest
-	url = url + "?access_token=" + s.accessToken
+	url := paramUrl + "?access_token=" + s.accessToken
 	if isPost {
 		req = httplib.Post(url)
 	} else {
@@ -180,7 +187,7 @@ func (s *Wx) Request(urlParam map[string]string, bodyParams interface{}, url str
 	if err == nil {
 		if _, ok := data["errcode"]; ok && data["errcode"].(float64) != 0 {
 			if !isFresh {
-				dataByte, err = s.Request(urlParam, bodyParams, url, true, isPost)
+				dataByte, err = s.Request(urlParam, bodyParams, paramUrl, true, isPost)
 				if err != nil {
 					return nil, err
 				}
@@ -310,4 +317,85 @@ func PKCS7UnPadding(origData []byte) []byte {
 	length := len(origData)
 	unpadding := int(origData[length-1])
 	return origData[:(length - unpadding)]
+}
+
+// @desc 电子发票插入微信卡包
+// @auth liuguoqiang 2020-04-24
+// @param
+// @return
+func (s *Wx) InvoiceInsert(params map[string]interface{}, isFresh bool) ([]byte, error) {
+	params["appid"] = s.appId
+	return s.Request(nil, params, InvoiceInsertUrl, isFresh, true)
+}
+
+// @desc 上传pdf文件
+// @auth liuguoqiang 2020-02-25
+// @param
+// @return
+func (s *Wx) SetPdf(pdfPath string, isFresh bool) ([]byte, error) {
+	if s.accessToken == "" || isFresh {
+		_, err := s.InitAuthToken(isFresh)
+		if err != nil {
+			return nil, err
+		}
+	}
+	if pdfPath == "" {
+		return nil, fmt.Errorf("pdfPath is empty")
+	}
+	resp, err := http.Get(pdfPath)
+	if err != nil {
+		return nil, err
+	}
+	defer resp.Body.Close()
+
+	if resp.StatusCode != 200 {
+		return nil, errors.New("resp status:" + fmt.Sprint(resp.StatusCode))
+	}
+	bin, err := ioutil.ReadAll(resp.Body)
+	if err != nil {
+		return nil, err
+	}
+	buf := new(bytes.Buffer)
+	bodyWriter := multipart.NewWriter(buf)
+	fileName := fmt.Sprintf("%d.pdf", time.Now().UnixNano()/1000)
+	fileWriter, err := bodyWriter.CreateFormFile("pdf", fileName)
+	if err != nil {
+		return nil, err
+	}
+	_, err = fileWriter.Write(bin)
+	if err != nil {
+		return nil, err
+	}
+	bodyWriter.Close()
+	req1, err := http.NewRequest("POST", SetpdfUrl+"?access_token="+s.accessToken, buf)
+	req1.Header.Set("Content-Type", bodyWriter.FormDataContentType())
+	if err != nil {
+		return nil, err
+	}
+	client := http.Client{}
+	resp1, err := client.Do(req1)
+	if err != nil {
+		return nil, err
+	}
+	defer resp1.Body.Close()
+
+	dataByte, err := ioutil.ReadAll(resp1.Body)
+	if err != nil {
+		return nil, err
+	}
+	data := make(map[string]interface{})
+	err = json.Unmarshal(dataByte, &data)
+	if err == nil {
+		if _, ok := data["errcode"]; ok && data["errcode"].(float64) != 0 {
+			if !isFresh {
+				dataByte, err = s.SetPdf(pdfPath, true)
+				if err != nil {
+					return nil, err
+				}
+			} else {
+				return nil, errors.New(strconv.FormatFloat(data["errcode"].(float64), 'f', -1, 64) + ":" + data["errmsg"].(string))
+			}
+		}
+	}
+	return dataByte, nil
 }
