@@ -1,12 +1,14 @@
 package main
 
 import (
+	"os"
+	"sort"
+
 	"github.com/labstack/echo"
 	"github.com/labstack/echo/middleware"
 	"github.com/sunmi-OS/gocore/api"
+	coreMiddleware "github.com/sunmi-OS/gocore/api/middleware"
 	"github.com/urfave/cli"
-	"os"
-	"sort"
 )
 
 type EchoApi struct {
@@ -24,7 +26,9 @@ func (a *EchoApi) echoStart(c *cli.Context) error {
 
 	// Middleware
 	e.Use(middleware.Logger())
-	e.Use(middleware.Recover())
+	//在捕捉panic的同时封装自定义返回错误内容
+	//如果Recover()函数不传参数默认响应客户端{"message":"Internal Server Error"}
+	e.Use(coreMiddleware.Recover(`{"code":-1,"data":null,"msg":"服务异常,请稍后再试。"}`))
 
 	// Route => handler
 	e.POST("/", func(c echo.Context) error {
