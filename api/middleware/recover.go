@@ -21,7 +21,7 @@ type (
 	}
 )
 
-var returnMsg = `{"code":-1,"data":null,"msg":"服务异常,请稍后再试。"}`
+var returnMsg = `{"message":"Internal Server Error"}`
 
 // Recover returns a middleware which recovers from panics anywhere in the chain
 // and handles the control to the centralized HTTPErrorHandler.
