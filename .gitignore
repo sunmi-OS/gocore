@@ -15,4 +15,3 @@
 go.mod
 go.sum
 .vscode/
-example/nacos/config/nacos.go
