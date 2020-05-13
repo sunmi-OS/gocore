@@ -83,3 +83,35 @@ func Push(msg string, msgName string) error {
 
 	return err
 }
+
+func Consume(queue string) (<-chan amqp.Delivery, error) {
+    if ch == nil {
+        err := connRbbitmq()
+        if err != nil {
+            return nil, err
+        }
+    }
+    
+    q, err := ch.QueueDeclare(
+        queue, // name
+        true,  // durable
+        false, // delete when unused
+        false, // exclusive
+        false, // no-wait
+        nil,   // arguments
+    )
+    if err != nil {
+        return nil, err
+    }
+    
+    msgs, err := ch.Consume(
+        q.Name, // queue
+        "",     // consumer
+        false,   // auto ack
+        false,  // exclusive
+        false,  // no local
+        false,  // no wait
+        nil,    // args
+    )
+    return msgs, nil
+}
