@@ -1,0 +1,25 @@
+syntax = "proto3";
+
+package proto;
+
+import "google/api/annotations.proto";
+
+message Request {
+  string message = 1;
+}
+
+message Response {
+  uint32 code = 1;
+  string data = 2;
+  string message = 3;
+}
+
+
+service PrintService {
+  rpc PrintOK(Request) returns (Response) {
+    option (google.api.http) = {
+      post: "/print"
+      body: "*"
+    };
+  }
+}
