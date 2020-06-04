@@ -13,6 +13,7 @@ const (
 	X_B3_PARENTSPANID = "x-b3-parentspanid"
 	X_B3_SAMPLED      = "x-b3-sampled"
 	X_B3_FLAGS        = "x-b3-flags"
+	B3                = "b3"
 	X_OT_SPAN_CONTEXT = "x-ot-span-context"
 )
 
@@ -51,27 +52,31 @@ func grpcTohttp(headersIn metadata.MD) http.Header {
 	sampled := headersIn.Get(X_B3_SAMPLED)
 	flags := headersIn.Get(X_B3_FLAGS)
 	spanContext := headersIn.Get(X_OT_SPAN_CONTEXT)
+	b3 := headersIn.Get(B3)
 
 	if len(requestId) > 0 {
 		httpHeader.Add(X_REQUEST_ID, requestId[0])
 	}
 	if len(traceId) > 0 {
-		httpHeader.Add(X_B3_TRACEID, requestId[0])
+		httpHeader.Add(X_B3_TRACEID, traceId[0])
 	}
 	if len(spanId) > 0 {
-		httpHeader.Add(X_B3_SPANID, requestId[0])
+		httpHeader.Add(X_B3_SPANID, spanId[0])
 	}
 	if len(panrentSpanId) > 0 {
-		httpHeader.Add(X_B3_PARENTSPANID, requestId[0])
+		httpHeader.Add(X_B3_PARENTSPANID, panrentSpanId[0])
 	}
 	if len(sampled) > 0 {
-		httpHeader.Add(X_B3_SAMPLED, requestId[0])
+		httpHeader.Add(X_B3_SAMPLED, sampled[0])
 	}
 	if len(flags) > 0 {
-		httpHeader.Add(X_B3_FLAGS, requestId[0])
+		httpHeader.Add(X_B3_FLAGS, flags[0])
 	}
 	if len(spanContext) > 0 {
-		httpHeader.Add(X_OT_SPAN_CONTEXT, requestId[0])
+		httpHeader.Add(X_OT_SPAN_CONTEXT, spanContext[0])
+	}
+	if len(b3) > 0 {
+		httpHeader.Add(B3, b3[0])
 	}
 
 	return httpHeader
@@ -87,6 +92,7 @@ func httpTogrpc(header http.Header) metadata.MD {
 	mddata[X_B3_SAMPLED] = header.Get(X_B3_SAMPLED)
 	mddata[X_B3_FLAGS] = header.Get(X_B3_FLAGS)
 	mddata[X_OT_SPAN_CONTEXT] = header.Get(X_OT_SPAN_CONTEXT)
+	mddata[B3] = header.Get(B3)
 
 	return metadata.New(mddata)
 }
