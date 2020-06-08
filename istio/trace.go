@@ -85,14 +85,31 @@ func grpcTohttp(headersIn metadata.MD) http.Header {
 func httpTogrpc(header http.Header) metadata.MD {
 
 	mddata := map[string]string{}
-	mddata[X_REQUEST_ID] = header.Get(X_REQUEST_ID)
-	mddata[X_B3_TRACEID] = header.Get(X_B3_TRACEID)
-	mddata[X_B3_SPANID] = header.Get(X_B3_SPANID)
-	mddata[X_B3_PARENTSPANID] = header.Get(X_B3_PARENTSPANID)
-	mddata[X_B3_SAMPLED] = header.Get(X_B3_SAMPLED)
-	mddata[X_B3_FLAGS] = header.Get(X_B3_FLAGS)
-	mddata[X_OT_SPAN_CONTEXT] = header.Get(X_OT_SPAN_CONTEXT)
-	mddata[B3] = header.Get(B3)
+
+	if header.Get(X_REQUEST_ID) != "" {
+		mddata[X_REQUEST_ID] = header.Get(X_REQUEST_ID)
+	}
+	if header.Get(X_B3_TRACEID) != "" {
+		mddata[X_B3_TRACEID] = header.Get(X_B3_TRACEID)
+	}
+	if header.Get(X_B3_SPANID) != "" {
+		mddata[X_B3_SPANID] = header.Get(X_B3_SPANID)
+	}
+	if header.Get(X_B3_PARENTSPANID) != "" {
+		mddata[X_B3_PARENTSPANID] = header.Get(X_B3_PARENTSPANID)
+	}
+	if header.Get(X_B3_SAMPLED) != "" {
+		mddata[X_B3_SAMPLED] = header.Get(X_B3_SAMPLED)
+	}
+	if header.Get(X_B3_FLAGS) != "" {
+		mddata[X_B3_FLAGS] = header.Get(X_B3_FLAGS)
+	}
+	if header.Get(X_OT_SPAN_CONTEXT) != "" {
+		mddata[X_OT_SPAN_CONTEXT] = header.Get(X_OT_SPAN_CONTEXT)
+	}
+	if header.Get(B3) != "" {
+		mddata[B3] = header.Get(B3)
+	}
 
 	return metadata.New(mddata)
 }
