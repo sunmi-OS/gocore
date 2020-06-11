@@ -17,10 +17,6 @@ type (
 
 		register RegisterFn
 	}
-	RpcServerConf struct {
-		ListenOn string
-		Timeout  int64
-	}
 )
 
 // @desc rpc服务端初始化入口函数

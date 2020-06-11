@@ -3,7 +3,7 @@ package serverinterceptors
 import (
 	"context"
 	"log"
-	"runtime/debug"
+	"runtime"
 
 	"google.golang.org/grpc"
 	"google.golang.org/grpc/codes"
@@ -40,6 +40,7 @@ func handleCrash(handler func(interface{})) {
 }
 
 func toPanicError(r interface{}) error {
-	log.Printf("[client-fail] - %v - %s", r, debug.Stack())
+	var buf [2 << 10]byte
+	log.Printf("[server-panic] - %v - %s", r, string(buf[:runtime.Stack(buf[:], false)]))
 	return status.Errorf(codes.Internal, "panic: %v", r)
 }
