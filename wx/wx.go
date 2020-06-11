@@ -34,6 +34,10 @@ type (
 		IsHyaline bool   `json:"is_hyaline"`
 		Width     int64  `json:"width"`
 	}
+	GetQRCodeRequest struct {
+		Path  string `json:"path"`
+		Width int64  `json:"width"`
+	}
 	SendRequest struct {
 		Openid          string `json:"touser"`
 		TemplateId      string `json:"template_id"`
@@ -58,6 +62,8 @@ const (
 	AccessTokenUrl = "https://api.weixin.qq.com/cgi-bin/token"
 	//获取无限制小程序二维码
 	CreateUqrcodeUrl = "https://api.weixin.qq.com/wxa/getwxacodeunlimit"
+	//获取小程序二维码 适用于需要的码数量较少的业务场景 有数量限制:与 wxacode.createQRCode 总共生成的码数量限制为100,000
+	CreateQrCodeUrl = "https://api.weixin.qq.com/wxa/getwxacode"
 	//授权$code 访问地址
 	CodeAccessUrl    = "https://api.weixin.qq.com/sns/jscode2session"
 	TemplatedSendUrl = "https://api.weixin.qq.com/cgi-bin/message/wxopen/template/send"
@@ -123,6 +129,14 @@ func (s *Wx) InitAuthToken(isFresh bool) (string, error) {
 // @return
 func (s *Wx) GetUnLimitQRCode(params *GetUnLimitQRCodeRequest, isFresh bool) ([]byte, error) {
 	return s.Request(nil, params, CreateUqrcodeUrl, isFresh, true)
+}
+
+// @desc 获取二维码 适用于需要的码数量较少的业务场景 有数量限制
+// @auth ykq 2020-05-13
+// @param
+// @return
+func (s *Wx) GetQRCode(params *GetQRCodeRequest, isFresh bool) ([]byte, error) {
+	return s.Request(nil, params, CreateQrCodeUrl, isFresh, true)
 }
 
 // @desc 发送模板

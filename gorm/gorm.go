@@ -1,7 +1,6 @@
 package gorm
 
 import (
-	"errors"
 	"fmt"
 	"sync"
 	"time"
@@ -17,15 +16,15 @@ var defaultName = "dbDefault"
 
 var (
 	// ErrRecordNotFound record not found error, happens when haven't find any matched data when looking up with a struct
-	ErrRecordNotFound = errors.New("record not found")
+	ErrRecordNotFound = gorm.ErrRecordNotFound
 	// ErrInvalidSQL invalid SQL error, happens when you passed invalid SQL
-	ErrInvalidSQL = errors.New("invalid SQL")
+	ErrInvalidSQL = gorm.ErrInvalidSQL
 	// ErrInvalidTransaction invalid transaction when you are trying to `Commit` or `Rollback`
-	ErrInvalidTransaction = errors.New("no valid transaction")
+	ErrInvalidTransaction = gorm.ErrInvalidTransaction
 	// ErrCantStartTransaction can't start transaction when you are trying to start one with `Begin`
-	ErrCantStartTransaction = errors.New("can't start transaction")
+	ErrCantStartTransaction = gorm.ErrCantStartTransaction
 	// ErrUnaddressable unaddressable value
-	ErrUnaddressable = errors.New("using unaddressable value")
+	ErrUnaddressable = gorm.ErrUnaddressable
 )
 
 // 初始化Gorm
