@@ -4,7 +4,8 @@ import (
 	"log"
 	"net"
 
-	"gocore/rpcx/serverinterceptors"
+	"github.com/weblazy/gocore/rpcx/serverinterceptors"
+
 	"time"
 
 	"google.golang.org/grpc"
