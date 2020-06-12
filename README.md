@@ -1,203 +1,612 @@
-> PS: 官方交流QQ群 1004023331
+<a href="https://echo.labstack.com"><img height="80" src="https://cdn.labstack.com/images/echo-logo.svg"></a>
 
-# gocore
-SUNMI go开发封装核心库 
+# GoCore Integrated Development Framework
 
-## 容器化微服务化
 
-kubernetes:[https://github.com/kubernetes/kubernetes](https://github.com/kubernetes/kubernetes)
+SUNMI Go language development core library, aggregation configuration center, configuration management, database, service grid, database,
+All common components such as encryption and decryption are considered and packaged uniformly.
+Form a complete development framework to improve R&D efficiency;
 
-Kubernetes安装工具Kops：[https://github.com/kubernetes/kops](https://github.com/kubernetes/kops)
+SUNMI Go语言开发核心库，聚合配置中心、配置管理、数据库、服务网格、数据库、
+加解密等各种常用组件进行统一考虑、统一封装，
+形成一套完整开发框架来提升研发效率；
 
-vmware开源kubernetes关联关系工具：[https://github.com/vmware/octant](https://github.com/vmware/octant)
+---
 
-kuberners命令终端控制工具：[https://github.com/astefanutti/kubebox](https://github.com/astefanutti/kubebox)
+## Installation
 
-vmware 开源 velero K8S迁移工具：[https://github.com/vmware-tanzu/velero](https://github.com/vmware-tanzu/velero)
+```go
 
-奇虎360团队开源Kubernetes完整流程管理套件：[https://github.com/Qihoo360/wayne](https://github.com/Qihoo360/wayne)
+go get github.com/sunmi-OS/gocore
 
-vmware开源私有容器仓库：[https://github.com/goharbor/harbor](https://github.com/goharbor/harbor)
 
-docker 运行时沙箱:[gvisor](https://github.com/google/gvisor)
+import (
+...
+	"github.com/sunmi-OS/gocore/xxxxx"
+...
+)
 
-Kubernetes的虚拟机管理附件:[KubeVirt](https://github.com/kubevirt/kubevirt)
+```
 
-Istio服务网格:[Istio](https://github.com/istio/istio)
 
-Naftis小米开源Istio管理工具[Naftis](https://github.com/XiaoMi/naftis)
+### Supported Go versions
 
-go-kit微服务套件:[go-kit](https://github.com/go-kit/kit)
+- Golang > 1.13
+- [Go module](https://github.com/golang/go/wiki/Modules)
 
-nacos 阿里巴巴开源服务发现+配置中心:[https://github.com/alibaba/nacos](https://github.com/alibaba/nacos)
+---
 
-nacos go sdk: [https://github.com/nacos-group/nacos-sdk-go](https://github.com/nacos-group/nacos-sdk-go)
+## Examples
 
-## 终端开发
+### API Service 
 
-CLI库(ETH等使用):[CLI库(ETH等使用)](https://github.com/urfave/cli)
+```go
+	// Echo instance
+	e := echo.New()
 
-cobra-CLI库(K8S,ETCD等使用):[CLI库(K8S,ETCD等使用)](https://github.com/spf13/cobra)
+	// Middleware
+	e.Use(middleware.Logger())
+	// panic custom returns error content
+	// Echo default {"message":"Internal Server Error"}
+	e.Use(coreMiddleware.Recover(`{"code":-1,"data":null,"msg":"Service is abnormal, please try again later"}`))
 
-终端仪表盘:[终端仪表盘](https://github.com/gizak/termui)
+	// Route => handler
+	e.POST("/", func(c echo.Context) error {
 
-终端文字美化输出各种色彩终端:[终端文字美化](https://github.com/fatih/color)
+		request := api.NewRequest(c)
+		response := api.NewResponse(c)
 
-在终端上输出进度条:[终端上输出进度条](https://github.com/schollz/progressbar)
+		err := request.InitRawJson()
+		if err != nil {
+			return response.RetError(err, 400)
+		}
 
+		msg := request.Param(`test`).GetString()
 
-## 系统组件
+		return response.RetSuccess(msg)
+	})
 
-DNS库:[DNS库](https://github.com/miekg/dns)
+	// Start server
+	e.Logger.Fatal(e.Start(":1323"))
+```
 
-obra docker(已使用):[docker](https://github.com/moby/moby)
+### Type Conversion
 
-持续交付平台Drone:[Drone](https://github.com/drone/drone)
+```go
 
-frp内网穿透支持http,tcp,udp(已使用):[frp](https://github.com/fatedier/frp)
+import (
+	"fmt"
+	"github.com/spf13/cast"
+...
+	var i64 int64
+	i64 = 60
 
-ngrok内网穿透:[github.com/inconshreveable/ngrok ](https://github.com/inconshreveable/ngrok)
+	toString(cast.ToString(i64))
+```
 
-stun打洞服务器go实现:[stun打洞](https://github.com/ccding/go-stun)
+### CronJob
 
-基于KCP协议UDP TO TCP 网络加速通道(已使用):[基于KCP协议UDP](https://github.com/xtaci/kcptun )
+```go
 
-持续文件同步:[持续文件同步](https://github.com/syncthing/syncthing)
+import (
+	"fmt"
+	"github.com/robfig/cron"
 
-文件同步(支持各种云):[文件同步](https://github.com/ncw/rclone)
+...
 
-请求流量复制:[goreplay](https://github.com/buger/goreplay)
+	c := cron.New()
+	c.AddFunc("0 30 * * * *", func() { fmt.Println("Every hour on the half hour") })
+	c.AddFunc("0 * * * * *", func() { fmt.Println("Every minutes") })
+	c.AddFunc("@hourly", func() { fmt.Println("Every hour") })
+	c.AddFunc("@every 1h30m", func() { fmt.Println("Every hour thirty") })
 
-redis集群解决方案:[redis集群](https://github.com/CodisLabs/codis)
+	// Synchronous blocking
+	c.Run()
 
-consul服务发现:[consul](https://www.consul.io)
+	// Run asynchronously
+	//c.Start()
+```
 
-etcd K/V数据库:[github.com/coreos/etcd](https://github.com/coreos/etcd)
+### Encryption
 
-实时分布式消息传递平台:[nsq](nsq.io)
+AES:
 
-消息推送集群服务:[github.com/Terry-Mao/gopush-cluster ](https://github.com/Terry-Mao/gopush-cluster)
+```go
 
-以太坊整套协议钱包Go实现:[go-ethereum](https://github.com/ethereum/go-ethereum)
+import (
+	"fmt"
+
+	"github.com/sunmi-OS/gocore/encryption/aes"
+
+...
+
+	str, _ := aes.AesEncrypt("sunmi", "sunmiWorkOnesunmiWorkOne")
+	fmt.Println(str)
+	str2, _ := aes.AesDecrypt(str, "sunmiWorkOnesunmiWorkOne")
+	fmt.Println(str2)
 
+```
 
-## 开发套件
+DES:
 
-桌面UI套件(基于CGO):[CGO](https://github.com/andlabs/ui)
+```go
 
-桌面UI库(基于HTML):[app](https://github.com/murlokswarm/app)
+import (
+	"fmt"
 
-logrus库:[logrus](https://github.com/Sirupsen/logrus)
+	"github.com/sunmi-OS/gocore/encryption/des"
+)
 
-zap日志库(集成gocore):[zap](https://github.com/uber-go/zap)
+...
+	str, _ := des.DesEncrypt("sunmi", "sunmi388", "12345678")
+	fmt.Println(str)
+	str2, _ := des.DesDecrypt(str, "sunmi388", "12345678")
+	fmt.Println(str2)
 
-图像处理库:[bild](https://github.com/anthonynsimon/bild)
+	str, _ = des.DesEncryptECB("sunmi", "sunmi388")
+	fmt.Println(str)
+	str2, _ = des.DesDecryptECB(str, "sunmi388")
+	fmt.Println(str2)
 
-图像处理库:[imaging](https://github.com/disintegration/imaging)
+	str, _ = des.TripleDesEncrypt("sunmi", "sunmi388sunmi388sunmi388", "12345678")
+	fmt.Println(str)
+	str2, _ = des.TripleDesDecrypt(str, "sunmi388sunmi388sunmi388", "12345678")
+	fmt.Println(str2)
 
-日期处理库:[now](https://github.com/jinzhu/now)
+```
 
-viper配置文件读取库(已使用):[viper](https://github.com/spf13/viper)
+RSA:
 
-类型转换库(已使用):[cast](https://github.com/spf13/cast)
+```go
 
-唯一识别码库(已使用):[uuid](https://github.com/satori/go.uuid)
+import (
+	"errors"
+	"log"
 
-压缩文件处理库:[archiver](https://github.com/mholt/archiver)
+	"github.com/sunmi-OS/gocore/encryption/gorsa"
+)
 
-连接池库(已使用):[go-commons-pool ](https://github.com/jolestar/go-commons-pool)
+var Pubkey = `-----BEGIN public-----
+...
+-----END public-----
+`
 
-程序内部系统资源,可以对不同的资源做出不同的规则调整:[gopsutil](https://github.com/shirou/gopsutil)
+var Pirvatekey = `-----BEGIN private-----
+...
+-----END private-----
+`
 
-定时任务(已使用):[cron](https://github.com/robfig/cron)
+func main() {
+	// Public key encryption and private key decryption
+	if err := applyPubEPriD(); err != nil {
+		log.Println(err)
+	}
+	// Private key encryption, public key decryption
+	if err := applyPriEPubD(); err != nil {
+		log.Println(err)
+	}
+}
 
-文件打包进二进制文件：[https://github.com/gobuffalo/packr](https://github.com/gobuffalo/packr)
+// Public key encryption and private key decryption
+func applyPubEPriD() error {
+	pubenctypt, err := gorsa.PublicEncrypt(`hello world`, Pubkey)
+	if err != nil {
+		return err
+	}
 
+	pridecrypt, err := gorsa.PriKeyDecrypt(pubenctypt, Pirvatekey)
+	if err != nil {
+		return err
+	}
+	if string(pridecrypt) != `hello world` {
+		return errors.New(`Decryption failed`)
+	}
+	return nil
+}
 
-## 数据文件处理
+// Private key encryption, public key decryption
+func applyPriEPubD() error {
+	prienctypt, err := gorsa.PriKeyEncrypt(`hello world`, Pirvatekey)
+	if err != nil {
+		return err
+	}
 
-文件嵌入到编译文件:[statik](https://github.com/rakyll/statik)
+	pubdecrypt, err := gorsa.PublicDecrypt(prienctypt, Pubkey)
+	if err != nil {
+		return err
+	}
+	if string(pubdecrypt) != `hello world` {
+		return errors.New(`Decryption failed`)
+	}
+	return nil
+}
 
-文件嵌入到编译文件(html,css,js):[rice](https://github.com/GeertJohan/go.rice)
 
-内存敏感数据处理:[memguard](https://github.com/awnumar/memguard)
+```
 
+### GoMail
 
-## 第三方软件使用
 
-邮件发送(已使用):[gomail](https://github.com/go-gomail/gomail)
+Config:
 
-数据库操作(已使用):[github.com/jinzhu/gorm](https://github.com/jinzhu/gorm)
+```toml
+[email]
+host="smtp.exmail.qq.com"
+port=465
+username="test@sunmi.com"
+password="password"
 
-mongodb官方库:[https://github.com/mongodb/mongo-go-driver](https://github.com/mongodb/mongo-go-driver)
+```
 
-数据库操作:[github.com/go-xorm/xorm ](https://github.com/go-xorm/xorm )
+```go
 
-solr索引引擎库:[https://github.com/rtt/Go-Solr](https://github.com/rtt/Go-Solr)
+import (
+	"github.com/sunmi-OS/gocore/gomail"
+	"github.com/sunmi-OS/gocore/viper"
+)
 
-redis操作库(已使用):[redis](https://gopkg.in/redis.v5)
+func main() {
 
-rabbitmq使用框架(已使用):[amqp](https://github.com/streadway/amqp)
+	viper.NewConfig("config", "conf")
 
-levelDB处理:[goleveldb ](https://github.com/syndtr/goleveldb )
+	gomail.SendEmail("wenzhenxi@vip.qq.com", "service@sunmi.com", "service", "title", "msg")
+}
 
-bolt嵌入式数据库:[bolt](https://github.com/boltdb/bolt)
 
-influxdb时序数据库:[influxdb](https://github.com/influxdata/influxdb)
+```
 
-oracle链接库:[goracle](https://github.com/go-goracle/goracle)
 
-### 解析库
+### Grpc
 
-JSON解析库(已使用):[gjson](https://github.com/tidwall/gjson)
 
-CSV处理库:[csvutil](https://github.com/jszwec/csvutil)
+```go
 
-msgpack binc  cbor json解密库:[ugorji](https://github.com/ugorji/go)
+var Rpc *rpcx.DirectClient
 
-golang解密php序列化库:[gphp_session_decoder](https://github.com/yvasiyarov/php_session_decoder )
+func Init(host string, timeout int64, opts ...rpcx.ClientOption) {
 
-高性能json库:[json-iterator](https://github.com/json-iterator/go)
+	var err error
+	Rpc, err = rpcx.NewDirectClient(host, timeout, opts...)
+	if err != nil {
+		log.Fatal("rpc connect fail")
+	}
+}
 
-easyjson : [https://github.com/mailru/easyjson](https://github.com/mailru/easyjson)
+func PrintOk(in *Request) (*Response, error) {
+	conn, ok := Rpc.Next()
+	if !ok || conn == nil {
+		return nil, errors.New("rpc connect fail")
+	}
+	client := NewPrintServiceClient(conn)
 
-google-protobuf库:[protobuf ](https://github.com/golang/protobuf )
+	return client.PrintOK(context.Background(), in)
+}
 
+...
 
-## 网络框架
 
-http网路框架(已使用):[echo](https://github.com/labstack/echo)
+resp, err := printpb.PrintOk(req, trace)
 
-http网路框架(已使用):[gin](https://github.com/gin-gonic/gin)
+```
 
-http网络框架:[martini](https://github.com/go-martini/martini)
 
-超级快的 http 网路框架(已使用):[fasthttp](https://github.com/valyala/fasthttp)
 
-KCP协议golang实现(已使用):[kcp](https://github.com/xtaci/kcp-go)
+### Istio
 
-IOT库 支持各种协议:[gobot](https://github.com/hybridgroup/gobot)
+```go
+func PrintOk(in *Request, trace istio.TraceHeader) (*Response, error) {
+	conn, ok := Rpc.Next()
+	if !ok || conn == nil {
+		return nil, errors.New("rpc connect fail")
+	}
+	client := NewPrintServiceClient(conn)
 
-socket.io协议Go实现(已使用):[go-socket.io](https://github.com/googollee/go-socket.io)
+	ctx := metadata.NewOutgoingContext(context.Background(), trace.Grpc_MD)
+	return client.PrintOK(ctx, in)
+}
+...
 
-金融8583报文生成和解析库:[iso8583](https://github.com/ideazxy/iso8583)
+    trace := istio.SetHttp(c.Request().Header)
+    req := &printpb.Request{
+		Message: "test",
+	}
+	resp, err := printpb.PrintOk(req, trace)
+	if err != nil {
+		log.Sugar.Errorf("请求失败: %s", err.Error())
+		return err
+	}
+```
 
-go语言graphql协议库:[https://github.com/99designs/gqlgen](https://github.com/99designs/gqlgen)
 
-## 深度学习
+### HttpLib
 
-Go语言实现机器学习框架:[golearn](https://github.com/sjwhitworth/golearn )
+```go
 
-GO机器学习图书馆,包含各种各样的算法:[gorgonia](https://github.com/gorgonia/gorgonia)
+	b := httplib.Post("https://baidu.com/")
+	b.Param("username", "astaxie")
+	b.Param("password", "123456")
+	b.PostFile("uploadfile1", "httplib.pdf")
+	b.PostFile("uploadfile2", "httplib.txt")
+	str, err := b.String()
+	if err != nil {
+		fmt.Println(err)
+	}
+	fmt.Println(str)
 
-go语言对Tensorflow的封装:[tfgo](https://github.com/galeone/tfgo )
+```
 
+### Logs
 
-## Golang依赖管理(统一使用 go mod 不在使用第三方管理工具)
+```go
 
-官方包管理:[dep](https://github.com/golang/dep )
+	log.InitLogger("example-log")
 
-包管理工具(本地打包到项目):[godep](https://github.com/tools/godep )
+...
 
-包管理工具(类似Composer和pip):[glide](https://github.com/Masterminds/glide )
+	log.Sugar.Debugw("example-log:debug")
+	log.Sugar.Infow("example-log:info", zap.String("type", "log"))
+	log.Sugar.Errorw("example-log:err", zap.Error(errors.New("IS ERROR")))
+
+```
+
+
+
+### Nacos
+
+```go
+
+func InitNacos(runtime string) {
+	nacos.SetRunTime(runtime)
+	nacos.ViperTomlHarder.SetviperBase(baseConfig)
+	switch runtime {
+	case "local":
+		nacos.AddLocalConfig(runtime, localConfig)
+	default:
+		Endpoint := os.Getenv("ENDPOINT")
+		NamespaceId := os.Getenv("NAMESPACE_ID")
+		AccessKey := os.Getenv("ACCESS_KEY")
+		SecretKey := os.Getenv("SECRET_KEY")
+		if Endpoint == "" || NamespaceId == "" || AccessKey == "" || SecretKey == "" {
+			panic("The configuration file cannot be empty.")
+		}
+		err := nacos.AddAcmConfig(runtime, constant.ClientConfig{
+			Endpoint:    Endpoint,
+			NamespaceId: NamespaceId,
+			AccessKey:   AccessKey,
+			SecretKey:   SecretKey,
+		})
+		if err != nil {
+			panic(err)
+		}
+	}
+}
+
+...
+
+	config.InitNacos("local")
+
+	nacos.ViperTomlHarder.SetDataIds("DEFAULT_GROUP", "adb")
+	nacos.ViperTomlHarder.SetDataIds("pay", "test")
+
+	nacos.ViperTomlHarder.SetCallBackFunc("DEFAULT_GROUP", "adb", func(namespace, group, dataId, data string) {
+
+		err := gorm.UpdateDB("remotemanageDB")
+		if err != nil {
+			fmt.Println(err.Error())
+		}
+	})
+
+	nacos.ViperTomlHarder.NacosToViper()
+
+```
+
+
+
+### Redis
+
+
+```toml
+[redisServer]
+host = "host"
+port = ":6379"
+auth = "password"
+prefix = "tob_"
+encryption = 0
+
+[redisDB]
+e_invoice = 34
+
+[OtherRedisServer]
+host = "host"
+port = ":6379"
+auth = "password"
+prefix = "tob_"
+encryption = 0
+
+[OtherRedisServer.redisDB]
+e_invoice = 34
+
+
+```
+
+```go
+
+	viper.NewConfig("config", "conf")
+	redis.GetRedisOptions("e_invoice")
+	redis.GetRedisDB("e_invoice").Set("test", "sunmi", 0)
+	fmt.Println(redis.GetRedisDB("e_invoice").Get("test").String())
+
+	redis.GetRedisOptions("OtherRedisServer.e_invoice")
+	redis.GetRedisDB("OtherRedisServer.e_invoice").Set("test", "sunmi_other", 0)
+	fmt.Println(redis.GetRedisDB("OtherRedisServer.e_invoice").Get("test").String())
+	fmt.Println(redis.GetRedisDB("e_invoice").Get("test").String())
+
+```
+
+### Utils
+
+
+file:
+```go
+	fmt.Println("GetPath:%s", utils.GetPath())
+	fmt.Println(utils.IsDirExists("/tmp/go-build803419530/command-line-arguments/_obj/exe"))
+	fmt.Println(utils.MkdirFile("test"))
+```
+
+gzip:
+```go
+	fmt.Println(utils.GzipEncode("dsxdjdhskfjkdsfhsdjlaal"))
+	var m = utils.GzipEncode("dsxdjdhskfjkdsfhsdjlaal")
+	fmt.Println(utils.GzipDecode(m))
+```
+
+random:
+```go
+	fmt.Println("RandInt", utils.RandInt(13, 233))
+
+	fmt.Println("RandInt64", utils.RandInt64(13, 233))
+
+	fmt.Println("GetRandomString", utils.GetRandomString(122))
+
+	fmt.Println("GetRandomNumeral", utils.GetRandomNumeral(133))
+```
+
+sign:
+```go
+	var secret, params string
+	secret = "123"
+	params = "abdsjfhdshfksdhf"
+	m, err := utils.GetParamMD5Sign(secret, params)
+	if err != nil {
+		fmt.Println("Error:", err)
+	}
+	fmt.Println("GetParamMD5Sign", m)
+
+	var maintain string
+
+	maintain = "dfssjfdsdfghjdsfgdsj"
+	n, err := utils.GetSHA(maintain)
+	if err != nil {
+		fmt.Println("GetSHA failed error", err)
+	}
+	fmt.Println("GetSHA", n)
+
+	l, err := utils.GetParamHmacSHA256Sign(secret, params)
+	if err != nil {
+		fmt.Println("GetParamHmacSHA256Sign failed err", err)
+	}
+
+	fmt.Println("GetParamHmacSHA256Sign", l)
+
+	p, err := utils.GetParamHmacSHA512Sign(secret, params)
+	if err != nil {
+		fmt.Println("GetParamHmacSHA512Sign failed error", err)
+	}
+	fmt.Println("GetParamHmacSHA512Sign", p)
+
+	u, err := utils.GetParamHmacSHA1Sign(secret, params)
+	if err != nil {
+		fmt.Println("GetParamHmacSHA1Sign failed error", err)
+	}
+
+	fmt.Println("GetParamHmacSHA1Sign", u)
+
+	c, err := utils.GetParamHmacMD5Sign(secret, params)
+	if err != nil {
+		fmt.Println("GetParamHmacMD5Sign failed error", err)
+	}
+
+	fmt.Println("GetParamHmacMD5Sign", c)
+
+	d, err := utils.GetParamHmacSha384Sign(secret, params)
+	if err != nil {
+		fmt.Println("GetParamHmacSha384Sign failed error", err)
+	}
+
+	fmt.Println("GetParamHmacSha384Sign", d)
+
+	f, err := utils.GetParamHmacSHA256Base64Sign(secret, params)
+	if err != nil {
+		fmt.Println("GetParamHmacSHA256Base64Sign failed error", err)
+	}
+
+	fmt.Println("GetParamHmacSHA256Base64Sign", f)
+
+	var hmac_key, hmac_data string
+	hmac_key = "12322334234"
+	hmac_data = "sjhdjsdjfh"
+	t := utils.GetParamHmacSHA512Base64Sign(hmac_key, hmac_data)
+
+	fmt.Println("GetParamHmacSHA512Base64Sign", t)
+```
+
+urlcode:
+```go
+	var urls string
+	urls = "https://www.sunmi.com/"
+	e, err := utils.UrlEncode(urls)
+	if err != nil {
+		fmt.Println("UrlEncode failed error", err)
+	}
+
+	fmt.Println("UrlEncode", e)
+
+	r, err := utils.UrlDecode(urls)
+	if err != nil {
+		fmt.Println("UrlDecode failed error", err)
+	}
+	fmt.Println("UrlDecode", r)
+```
+
+utils:
+```go
+	d := utils.GetDate()
+	fmt.Println("GetData", d)
+
+	m := utils.GetRunTime()
+	fmt.Println("GetRunTime", m)
+
+	var encryption string
+	encryption = "1243sdfds"
+
+	t := utils.GetMD5(encryption)
+	fmt.Println("GetMD5", t)
+```
+
+
+### Viper
+
+```toml
+[system]
+port = ":10001"
+OpenDES = false
+DESkey = "deskey12"
+DESiv = "12345678"
+MD5key = "SUNMIMD5"
+DESParam = "params"
+
+[dbDefault]
+dbHost = "xxxxx.com"     #数据库连接地址
+dbName = "xxxxx"         #数据库名称
+dbUser = "xxxxx"         #数据库用户名
+dbPasswd = "xxxxx"       #数据库密码
+dbPort = "3306"          #数据库端口号
+dbOpenconns_max = 20     #最大连接数
+dbIdleconns_max = 1      #最大空闲连接
+dbType = "mysql"         #数据库类型
+
+```
+
+
+```go
+	// 指定配置文件所在的目录和文件名称
+	viper.NewConfig("config", "conf")
+	// 打印读取的配置
+	fmt.Println("port : ", viper.C.Get("system.port"))
+	fmt.Println("ENV RUN_TIME : ", viper.GetEnvConfig("run.time"))
+```
+
+
+
+
 

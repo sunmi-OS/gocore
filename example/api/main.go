@@ -16,9 +16,6 @@ type EchoApi struct {
 
 var eApi EchoApi
 
-type Test struct {
-	Test string `json:"test"`
-}
 
 func (a *EchoApi) echoStart(c *cli.Context) error {
 	// Echo instance
@@ -29,6 +26,8 @@ func (a *EchoApi) echoStart(c *cli.Context) error {
 	//在捕捉panic的同时封装自定义返回错误内容
 	//如果Recover()函数不传参数默认响应客户端{"message":"Internal Server Error"}
 	e.Use(coreMiddleware.Recover(`{"code":-1,"data":null,"msg":"服务异常,请稍后再试。"}`))
+
+
 
 	// Route => handler
 	e.POST("/", func(c echo.Context) error {
