@@ -11,7 +11,7 @@ type DirectClient struct {
 	conn *grpc.ClientConn
 }
 
-// @desc 初始化客户端
+// @desc 初始化客户端 timeout:单位毫秒,默认两秒超时
 // @auth liuguoqiang 2020-04-21
 // @param
 // @return

@@ -21,11 +21,11 @@ func DurationInterceptor(ctx context.Context, method string, req, reply interfac
 	start := time.Now()
 	err := invoker(ctx, method, req, reply, cc, opts...)
 	if err != nil {
-		log.Printf("fail - %v - %s - %v - %s", time.Since(start), serverName, req, err.Error())
+		log.Printf("[client-fail] - %v - %s - %v - %s", time.Since(start), serverName, req, err.Error())
 	} else {
 		elapsed := time.Since(start)
 		if elapsed > slowThreshold {
-			log.Printf("[RPC] ok - slowcall-%v - %s - %v - %v", elapsed, serverName, req, reply)
+			log.Printf("[client-slow] ok - slowcall-%v - %s - %v - %v", elapsed, serverName, req, reply)
 		}
 	}
 

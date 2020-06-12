@@ -38,13 +38,14 @@ func buildDialOptions(opts ...ClientOption) []grpc.DialOption {
 	for _, opt := range opts {
 		opt(&clientOptions)
 	}
-
+	interceptor := make([]grpc.UnaryClientInterceptor, 0)
+	interceptor = append(interceptor, clientinterceptors.DurationInterceptor)
+	if clientOptions.Timeout > 0 {
+		interceptor = append(interceptor, clientinterceptors.ForTimeoutInterceptor(clientOptions.Timeout))
+	}
 	options := []grpc.DialOption{
 		grpc.WithInsecure(),
-		WithUnaryClientInterceptors(
-			clientinterceptors.DurationInterceptor,
-			clientinterceptors.ForTimeoutInterceptor(clientOptions.Timeout),
-		),
+		WithUnaryClientInterceptors(interceptor...),
 	}
 
 	return append(options, clientOptions.DialOptions...)
