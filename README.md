@@ -1,4 +1,4 @@
-<a href="https://sunmi.com"><img height="100" src="https://file.cdn.sunmi.com/gocore-logo.png"></a>
+<a href="https://sunmi.com"><img height="180" src="https://file.cdn.sunmi.com/gocore-logo.png"></a>
 
 # GoCore Integrated Development Framework
 
