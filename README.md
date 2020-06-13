@@ -1,6 +1,6 @@
 <a href="https://sunmi.com"><img height="180" src="https://file.cdn.sunmi.com/gocore-logo.png"></a>
 
-# GoCore Integrated Development Framework
+# Integrated Development Framework
 
 
 SUNMI Go language development core library, aggregation configuration center, configuration management, database, service grid, database,
