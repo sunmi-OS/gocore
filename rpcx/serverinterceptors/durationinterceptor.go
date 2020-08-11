@@ -3,8 +3,9 @@ package serverinterceptors
 import (
 	"context"
 	"encoding/json"
-	"log"
 	"time"
+
+	"github.com/2276282419/gocore/rpcx/logx"
 
 	"google.golang.org/grpc"
 	"google.golang.org/grpc/peer"
@@ -33,6 +34,7 @@ func UnaryStatInterceptor() grpc.UnaryServerInterceptor {
 // @param
 // @return
 func logDuration(ctx context.Context, method string, req interface{}, duration time.Duration) {
+
 	var addr string
 	client, ok := peer.FromContext(ctx)
 	if ok {
@@ -40,10 +42,10 @@ func logDuration(ctx context.Context, method string, req interface{}, duration t
 	}
 	content, err := json.Marshal(req)
 	if err != nil {
-		log.Printf("[sever-fail] %s - %s", addr, err.Error())
+		logx.LoggerObj.Error("rpc-sever-fail", map[string]string{"addr": addr, "method": method, "content": err.Error()})
 	} else if duration > serverSlowThreshold {
-		log.Printf("[sever-slow] - %s - %s - %s", addr, method, string(content))
+		logx.LoggerObj.Info("rpc-sever-slow", map[string]string{"addr": addr, "method": method, "content": string(content)})
 	} else {
-		log.Printf("[sever-call] %s - %s - %s", addr, method, string(content))
+		logx.LoggerObj.Info("rpc-sever-call", map[string]string{"addr": addr, "method": method, "content": string(content)})
 	}
 }
