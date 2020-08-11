@@ -2,7 +2,7 @@ package logx
 
 import (
 	"fmt"
-	"gocore/aliyunlog"
+	"time"
 )
 
 const timeFormat = "2006-01-02 15:04:05"
@@ -22,15 +22,9 @@ type defaultLogger struct {
 }
 
 func (s *defaultLogger) Info(key string, content map[string]string) {
-	err := aliyunlog.Info(key, content)
-	if err != nil {
-		fmt.Printf("%#v\n", err)
-	}
+	fmt.Printf("%s:%s:%#v\n", time.Now().Format("2006-01-02 15:04:05"), key, content)
 }
 
 func (s *defaultLogger) Error(key string, content map[string]string) {
-	err := aliyunlog.Info(key, content)
-	if err != nil {
-		fmt.Printf("%#v\n", err)
-	}
+	fmt.Printf("%s:%s:%#v\n", time.Now().Format("2006-01-02 15:04:05"), key, content)
 }
