@@ -20,7 +20,7 @@ type AliyunLog struct {
 
 var LogClient AliyunLog
 
-func InitLog(configName string) {
+func InitLog(configName, LogStore string) {
 
 	hostname, _ := os.Hostname()
 
@@ -29,7 +29,7 @@ func InitLog(configName string) {
 		Endpoint:  viper.GetEnvConfig(configName + ".Endpoint"),
 		AccessKey: viper.GetEnvConfig(configName + ".AccessKey"),
 		SecretKey: viper.GetEnvConfig(configName + ".SecretKey"),
-		LogStore:  viper.GetEnvConfig(configName + ".LogStore"),
+		LogStore:  LogStore,
 		HostName:  hostname,
 	}
 	err := checkConfig(LogClient)
