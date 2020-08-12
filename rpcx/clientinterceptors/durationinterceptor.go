@@ -30,10 +30,9 @@ func DurationInterceptor(ctx context.Context, method string, req, reply interfac
 		if err != nil {
 			fmt.Printf("%#v\n", err)
 		}
-		logx.LoggerObj.Error("rpc-client-fail", map[string]string{"duration": fmt.Sprintf("%d", duration), "serverName": serverName, "req": string(reqBtye), "err": errMsg})
+		logx.LoggerObj.Error("rpc-client-fail", map[string]string{"duration": fmt.Sprintf("%d", duration/time.Millisecond), "serverName": serverName, "req": string(reqBtye), "err": errMsg})
 	} else {
-		elapsed := time.Since(start)
-		if elapsed > slowThreshold {
+		if duration > slowThreshold {
 			reqBtye, err := json.Marshal(req)
 			if err != nil {
 				fmt.Printf("%#v\n", err)
@@ -42,7 +41,7 @@ func DurationInterceptor(ctx context.Context, method string, req, reply interfac
 			if err != nil {
 				fmt.Printf("%#v\n", err)
 			}
-			logx.LoggerObj.Error("rpc-client-slow", map[string]string{"elapsed": fmt.Sprintf("%d", duration), "serverName": serverName, "req": string(reqBtye), "reply": string(replyBtye)})
+			logx.LoggerObj.Error("rpc-client-slow", map[string]string{"elapsed": fmt.Sprintf("%d", duration/time.Millisecond), "serverName": serverName, "req": string(reqBtye), "reply": string(replyBtye)})
 		}
 	}
 
