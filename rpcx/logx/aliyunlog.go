@@ -6,18 +6,18 @@ import (
 	"github.com/sunmi-OS/gocore/aliyunlog"
 )
 
-type aliyunLogger struct {
+type AliyunLogger struct {
 }
 
-func (s *aliyunLogger) Info(key string, content map[string]string) {
+func (s *AliyunLogger) Info(key string, content map[string]string) {
 	err := aliyunlog.Info(key, content)
 	if err != nil {
 		fmt.Printf("%#v\n", err)
 	}
 }
 
-func (s *aliyunLogger) Error(key string, content map[string]string) {
-	err := aliyunlog.Info(key, content)
+func (s *AliyunLogger) Error(key string, content map[string]string) {
+	err := aliyunlog.Error(key, content)
 	if err != nil {
 		fmt.Printf("%#v\n", err)
 	}

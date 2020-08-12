@@ -46,17 +46,17 @@ func NewDirectClientV2(clientConfig *ClientConfig) (*DirectClient, error) {
 		return nil, fmt.Errorf("服务名不能为空")
 	}
 	if clientConfig.Timeout == "" {
-		clientConfig.Timeout = "20s"
+		clientConfig.Timeout = "5s"
 	}
 	if clientConfig.MaxAttempts == "" {
-		clientConfig.MaxAttempts = "4"
+		clientConfig.MaxAttempts = "2"
 	}
 	if clientConfig.InitialBackoff == "" {
 		clientConfig.InitialBackoff = "2s"
 	}
 
 	if clientConfig.MaxBackoff == "" {
-		clientConfig.MaxBackoff = "5s"
+		clientConfig.MaxBackoff = "3s"
 	}
 	if clientConfig.BackoffMultiplier == "" {
 		clientConfig.BackoffMultiplier = "1"

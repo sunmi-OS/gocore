@@ -25,11 +25,12 @@ func DurationInterceptor(ctx context.Context, method string, req, reply interfac
 	err := invoker(ctx, method, req, reply, cc, opts...)
 	duration := time.Since(start)
 	if err != nil {
+		errMsg := err.Error()
 		reqBtye, err := json.Marshal(req)
 		if err != nil {
 			fmt.Printf("%#v\n", err)
 		}
-		logx.LoggerObj.Error("rpc-client-fail", map[string]string{"duration": fmt.Sprintf("%d", duration), "serverName": serverName, "req": string(reqBtye), "err": err.Error()})
+		logx.LoggerObj.Error("rpc-client-fail", map[string]string{"duration": fmt.Sprintf("%d", duration), "serverName": serverName, "req": string(reqBtye), "err": errMsg})
 	} else {
 		elapsed := time.Since(start)
 		if elapsed > slowThreshold {
