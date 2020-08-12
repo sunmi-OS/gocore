@@ -1,7 +1,6 @@
 package rpcx
 
 import (
-	"fmt"
 	"time"
 
 	"google.golang.org/grpc"
@@ -39,41 +38,6 @@ func NewDirectClient(host string, timeout int64, opts ...ClientOption) (*DirectC
 // @param
 // @return
 func NewDirectClientV2(clientConfig *ClientConfig) (*DirectClient, error) {
-	if clientConfig == nil || clientConfig.Host == "" {
-		return nil, fmt.Errorf("rpc链接地址不能为空")
-	}
-	if len(clientConfig.Name) == 0 {
-		return nil, fmt.Errorf("服务名不能为空")
-	}
-	if clientConfig.Timeout == "" {
-		clientConfig.Timeout = "5s"
-	}
-	if clientConfig.MaxAttempts == "" {
-		clientConfig.MaxAttempts = "2"
-	}
-	if clientConfig.InitialBackoff == "" {
-		clientConfig.InitialBackoff = "2s"
-	}
-
-	if clientConfig.MaxBackoff == "" {
-		clientConfig.MaxBackoff = "3s"
-	}
-	if clientConfig.BackoffMultiplier == "" {
-		clientConfig.BackoffMultiplier = "1"
-	}
-	if len(clientConfig.RetryableStatusCodes) == 0 {
-		clientConfig.RetryableStatusCodes = []string{"UNAVAILABLE"}
-	}
-
-	if clientConfig.WaitForReady == "" {
-		clientConfig.WaitForReady = "true"
-	}
-	if clientConfig.MaxTokens == "" {
-		clientConfig.MaxTokens = "10"
-	}
-	if clientConfig.TokenRatio == "" {
-		clientConfig.TokenRatio = "0.1"
-	}
 	options := clientConfig.buildDialOptions()
 	conn, err := grpc.Dial(clientConfig.Host, options...)
 	if err != nil {

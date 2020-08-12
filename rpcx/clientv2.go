@@ -13,28 +13,51 @@ import (
 
 type (
 	ClientConfig struct {
-		Host                 string
-		Name                 []string
-		Timeout              string
-		MaxAttempts          string
-		InitialBackoff       string
-		MaxBackoff           string
-		BackoffMultiplier    string
-		RetryableStatusCodes []string
-		WaitForReady         string
-		MaxTokens            string
-		TokenRatio           string
-		DialOptions          []grpc.DialOption
+		Host                 string            //RPC链接
+		Name                 []string          //RPC包名.服务名 如shop_base.ShopBase
+		Timeout              string            //超时时间,默认:5s
+		MaxAttempts          string            //最大重试次数,必须是大于 1 的整数，对于大于5的值会被视为5,默认:4
+		InitialBackoff       string            //第一次重试默认时间间隔,必须具有大于0,默认:2s
+		MaxBackoff           string            //最大重试时间间隔,必须具有大于0,默认:3s
+		BackoffMultiplier    string            //间隔增量乘数因子,大于零,默认:1
+		RetryableStatusCodes []string          //重试会根据请求返回的状态码是否符合 retryableStatusCodes来进行重试请求,默认:UNAVAILABLE
+		WaitForReady         string            //如果为false，则RPC将在连接到服务器的瞬间失败时立即中止。否则，gRPC会尝试连接，直到超过截止日期。默认:true
+		MaxTokens            string            //如果 token_count <= ( maxTokens / 2), 则关闭重试策略，直到 token_count > (maxTokens/2)，恢复重试,默认10
+		TokenRatio           string            //成功 RPC 将会递增 token_count * tokenRatio
+		DialOptions          []grpc.DialOption //RPC链接可选参数
 	}
 )
 
-// grpc 重试策略：重试、对冲
-// 最多执行4次 RPC 请求，一个原始请求，三个重试请求，并且只有状态码为 `UNAVAILABLE` 时才重试
-// MaxAttempts 最大尝试次数
-// InitialBackoff 第一次重试的时间间隔
-// MaxBackoff 第 n 次的重试间隔
-// BackoffMultiplier 用于计算 MaxBackoff，必须大于0
-// RetryableStatusCodes 匹配返回的状态码，从而进行重试
+// @desc RPC客户端初始化链接配置
+// @auth liuguoqiang 2020-08-12
+// @param
+// @return
+func NewClientConfig(host string, name []string) (*ClientConfig, error) {
+	if host == "" {
+		return nil, fmt.Errorf("rpc链接地址不能为空")
+	}
+	if len(name) == 0 {
+		return nil, fmt.Errorf("服务名不能为空")
+	}
+	return &ClientConfig{
+		Host:                 host,
+		Name:                 name,
+		Timeout:              "5s",
+		MaxAttempts:          "2",
+		InitialBackoff:       "2s",
+		MaxBackoff:           "3s",
+		BackoffMultiplier:    "1",
+		RetryableStatusCodes: []string{"UNAVAILABLE"},
+		WaitForReady:         "true",
+		MaxTokens:            "10",
+		TokenRatio:           "0.1",
+	}, nil
+}
+
+// @desc 设置默认配置
+// @auth liuguoqiang 2020-08-12
+// @param
+// @return
 func (clientConfig *ClientConfig) WithDefaultServiceConfig() grpc.DialOption {
 	nameArr := make([]map[string]string, 0)
 	for k1 := range clientConfig.Name {
