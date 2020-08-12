@@ -38,6 +38,9 @@ func NewDirectClient(host string, timeout int64, opts ...ClientOption) (*DirectC
 // @param
 // @return
 func NewDirectClientV2(clientConfig *ClientConfig) (*DirectClient, error) {
+	if clientConfig == nil || clientConfig.Host == "" {
+		return nil, fmt.Errorf("rpc链接地址不能为空")
+	}
 	options := clientConfig.buildDialOptions()
 	conn, err := grpc.Dial(clientConfig.Host, options...)
 	if err != nil {
