@@ -1,6 +1,7 @@
 package rpcx
 
 import (
+	"fmt"
 	"time"
 
 	"google.golang.org/grpc"
@@ -33,6 +34,24 @@ func NewDirectClient(host string, timeout int64, opts ...ClientOption) (*DirectC
 	}, nil
 }
 
+// @desc 初始化客户端
+// @auth liuguoqiang 2020-04-21
+// @param
+// @return
+func NewDirectClientV2(clientConfig *ClientConfig) (*DirectClient, error) {
+	if clientConfig == nil || clientConfig.Host == "" {
+		return nil, fmt.Errorf("rpc链接地址不能为空")
+	}
+	options := clientConfig.buildDialOptions()
+	conn, err := grpc.Dial(clientConfig.Host, options...)
+	if err != nil {
+		return nil, err
+	}
+	return &DirectClient{
+		conn: conn,
+	}, nil
+}
+
 // @desc 返回grpc链接
 // @auth liuguoqiang 2020-04-21
 // @param
@@ -42,6 +61,6 @@ func (c *DirectClient) Next() (*grpc.ClientConn, bool) {
 	if state == connectivity.Ready {
 		return c.conn, true
 	} else {
-		return nil, false
+		return c.conn, false
 	}
 }

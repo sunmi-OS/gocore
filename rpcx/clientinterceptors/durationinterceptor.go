@@ -2,9 +2,12 @@ package clientinterceptors
 
 import (
 	"context"
-	"log"
+	"encoding/json"
+	"fmt"
 	"path"
 	"time"
+
+	"github.com/sunmi-OS/gocore/rpcx/logx"
 
 	"google.golang.org/grpc"
 )
@@ -20,12 +23,25 @@ func DurationInterceptor(ctx context.Context, method string, req, reply interfac
 	serverName := path.Join(cc.Target(), method)
 	start := time.Now()
 	err := invoker(ctx, method, req, reply, cc, opts...)
+	duration := time.Since(start)
 	if err != nil {
-		log.Printf("[client-fail] - %v - %s - %v - %s", time.Since(start), serverName, req, err.Error())
+		errMsg := err.Error()
+		reqBtye, err := json.Marshal(req)
+		if err != nil {
+			fmt.Printf("%#v\n", err)
+		}
+		logx.LoggerObj.Error("rpc-client-fail", map[string]string{"duration": fmt.Sprintf("%d", duration/time.Millisecond), "serverName": serverName, "req": string(reqBtye), "err": errMsg})
 	} else {
-		elapsed := time.Since(start)
-		if elapsed > slowThreshold {
-			log.Printf("[client-slow] ok - slowcall-%v - %s - %v - %v", elapsed, serverName, req, reply)
+		if duration > slowThreshold {
+			reqBtye, err := json.Marshal(req)
+			if err != nil {
+				fmt.Printf("%#v\n", err)
+			}
+			replyBtye, err := json.Marshal(reply)
+			if err != nil {
+				fmt.Printf("%#v\n", err)
+			}
+			logx.LoggerObj.Error("rpc-client-slow", map[string]string{"elapsed": fmt.Sprintf("%d", duration/time.Millisecond), "serverName": serverName, "req": string(reqBtye), "reply": string(replyBtye)})
 		}
 	}
 
