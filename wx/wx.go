@@ -35,8 +35,8 @@ type (
 		Width     int64  `json:"width"`
 	}
 	GetQRCodeRequest struct {
-		Path	  string `json:"path"`
-		Width     int64  `json:"width"`
+		Path  string `json:"path"`
+		Width int64  `json:"width"`
 	}
 	SendRequest struct {
 		Openid          string `json:"touser"`
@@ -218,27 +218,19 @@ func (s *Wx) Request(urlParam map[string]string, bodyParams interface{}, paramUr
 // @param
 // @return
 func (s *Wx) CheckLogin(code string) (*CheckLoginResponse, error) {
-	params := make(map[string]interface{})
-	params["appid"] = s.appId
-	params["secret"] = s.secret
-	params["js_code"] = code
-	params["grant_type"] = s.grantType
-	req := httplib.Post(CodeAccessUrl)
-	req, err := req.JSONBody(params)
-	if err != nil {
-		return nil, err
-	}
-	dataByte, err := req.Bytes()
-	if err != nil {
-		return nil, err
-	}
+	// 获取session_key
+	url := CodeAccessUrl + "?appid=" + s.appId + "&secret=" + s.secret + "&grant_type=" + s.grantType + "&js_code=" + code
+	req := httplib.Get(url)
 	data := make(map[string]interface{})
-	err = json.Unmarshal(dataByte, &data)
-	if err == nil {
-		if _, ok := data["errcode"]; ok {
-			return nil, errors.New(strconv.FormatFloat(data["errcode"].(float64), 'f', -1, 64) + ":" + data["errmsg"].(string))
-		}
+	err := req.ToJSON(&data)
+	if err != nil {
+		return nil, err
 	}
+
+	if _, ok := data["errcode"]; ok {
+		return nil, errors.New(strconv.FormatFloat(data["errcode"].(float64), 'f', -1, 64) + ":" + data["errmsg"].(string))
+	}
+
 	return &CheckLoginResponse{
 		OpenId:     data["openid"].(string),
 		SessionKey: data["session_key"].(string),
