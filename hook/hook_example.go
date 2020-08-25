@@ -5,7 +5,7 @@ import (
 	"time"
 )
 
-func ShowExample()  {
+func ShowExample() {
 	//该方法是线程安全的
 	AddShutdownHook(func() int {
 		fmt.Println("first task exit...")

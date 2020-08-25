@@ -4,10 +4,10 @@ import (
 	"fmt"
 	"time"
 
-	"gocore/example/nacos/config"
+	"github.com/sunmi-OS/gocore/example/nacos/config"
 	"github.com/sunmi-OS/gocore/gorm"
+	"github.com/sunmi-OS/gocore/nacos"
 	"github.com/sunmi-OS/gocore/viper"
-	"gocore/nacos"
 )
 
 type App struct {

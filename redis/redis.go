@@ -6,7 +6,6 @@ import (
 
 	"github.com/sunmi-OS/gocore/utils"
 	"github.com/sunmi-OS/gocore/viper"
-
 	"gopkg.in/redis.v5"
 )
 

@@ -4,12 +4,11 @@ import "C"
 import (
 	"bytes"
 	"fmt"
-	"github.com/spf13/viper"
-	"github.com/BurntSushi/toml"
 	"log"
+
+	"github.com/BurntSushi/toml"
+	"github.com/spf13/viper"
 )
-
-
 
 var str = `
 [server]
@@ -44,8 +43,6 @@ func main() {
 	if err != nil {
 		print(err)
 	}
-
-
 
 	var tmp interface{}
 

@@ -1,10 +1,11 @@
 package main
 
 import (
-	"github.com/sunmi-OS/gocore/aliyunlog"
 	"fmt"
-	"github.com/sunmi-OS/gocore/viper"
 	"time"
+
+	"github.com/sunmi-OS/gocore/aliyunlog"
+	"github.com/sunmi-OS/gocore/viper"
 )
 
 func main() {
@@ -14,7 +15,7 @@ func main() {
 	viper.C.SetDefault("log.SecretKey", "xxxxx")
 	viper.C.SetDefault("log.LogStore", "xxxx")
 
-	aliyunlog.InitLog("log")
+	aliyunlog.InitLog("log", "logStore")
 
 	for i := 0; i < 10; i++ {
 		aliyunlog.Info("test", map[string]string{"content": "test", "content2": fmt.Sprintf("%v", i)})

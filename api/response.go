@@ -7,8 +7,9 @@
 package api
 
 import (
-	"github.com/labstack/echo"
 	"net/http"
+
+	"github.com/labstack/echo"
 )
 
 type Response struct {
@@ -17,9 +18,9 @@ type Response struct {
 }
 
 type RetParameter struct {
-	Code int         `json:"code";xml:"code"`
-	Data interface{} `json:"data";xml:"data"`
-	Msg  string      `json:"msg";xml:"msg"`
+	Code int         `json:"code" xml:"code"`
+	Data interface{} `json:"data" xml:"data"`
+	Msg  string      `json:"msg" xml:"msg"`
 }
 
 const DefaultCode = 1

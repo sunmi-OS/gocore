@@ -12,10 +12,12 @@ import (
 	"go.uber.org/zap/zapcore"
 )
 
-var Logger *zap.Logger
-var Sugar *zap.SugaredLogger
-var logfile *os.File
-var cfg zap.Config
+var (
+	Logger  *zap.Logger
+	Sugar   *zap.SugaredLogger
+	logfile *os.File
+	cfg     zap.Config
+)
 
 // 初始化Log日志记录
 func InitLogger(serviceaName string) {

@@ -130,7 +130,6 @@ func (s *Schema) FieldtypesName(name string, showDefaults bool) (*SolrResponse, 
 	return s.Get(fmt.Sprintf("fieldtypes/%s", name), params)
 }
 
-
 // see https://wiki.apache.org/solr/SchemaRESTAPI
 func (s *Schema) DynamicFields(fl string, showDefaults bool) (*SolrResponse, error) {
 	params := &url.Values{}
@@ -164,7 +163,7 @@ func (s *Schema) Post(path string, data interface{}) (*SolrUpdateResponse, error
 	if err != nil {
 		return nil, err
 	}
-	
+
 	if s.core != "" {
 		r, err = HTTPPost(fmt.Sprintf("%s/%s/schema/%s?wt=json", s.url.String(), s.core, strings.Trim(path, "/")), b, [][]string{{"Content-Type", "application/json"}}, s.username, s.password)
 	} else {
@@ -173,7 +172,7 @@ func (s *Schema) Post(path string, data interface{}) (*SolrUpdateResponse, error
 	if err != nil {
 		return nil, err
 	}
-	
+
 	resp, err := bytes2json(&r)
 	if err != nil {
 		return nil, err
@@ -182,6 +181,6 @@ func (s *Schema) Post(path string, data interface{}) (*SolrUpdateResponse, error
 	if !successStatus(resp) || hasError(resp) {
 		return &SolrUpdateResponse{Success: false, Result: resp}, nil
 	}
-	
+
 	return &SolrUpdateResponse{Success: true, Result: resp}, nil
 }

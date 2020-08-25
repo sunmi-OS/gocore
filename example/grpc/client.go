@@ -3,10 +3,11 @@ package proto
 import (
 	"context"
 	"errors"
-	"github.com/sunmi-OS/gocore/rpcx"
-	"golang-example/pkg/istio"
-	"google.golang.org/grpc/metadata"
 	"log"
+
+	"github.com/sunmi-OS/gocore/istio"
+	"github.com/sunmi-OS/gocore/rpcx"
+	"google.golang.org/grpc/metadata"
 )
 
 var Rpc *rpcx.DirectClient

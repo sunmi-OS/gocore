@@ -14,11 +14,10 @@ import (
 	"encoding/json"
 	"errors"
 	"fmt"
+	"io/ioutil"
 	"net/url"
 	"regexp"
 	"strconv"
-
-	"io/ioutil"
 
 	"github.com/labstack/echo"
 	"github.com/sunmi-OS/gocore/api/validation"

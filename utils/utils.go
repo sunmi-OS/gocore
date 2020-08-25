@@ -64,8 +64,6 @@ func GetMd52(file io.Reader) (io.Reader, string, error) {
 	return &b, hex.EncodeToString(md5hash.Sum(nil)), nil
 }
 
-
-
 //解压
 func DeCompress(zipFile, dest string) error {
 	reader, err := zip.OpenReader(zipFile)
@@ -160,6 +158,7 @@ func GetFileSize(filePath string) (int64, error) {
 	fsize := fileInfo.Size()
 	return fsize, nil
 }
+
 /**
  * 判断文件是否存在  存在返回 true 不存在返回false
  */

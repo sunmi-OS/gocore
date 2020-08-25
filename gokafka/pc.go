@@ -2,21 +2,23 @@ package gokafka
 
 import (
 	"fmt"
-	"github.com/segmentio/kafka-go"
 	"time"
+
+	"github.com/segmentio/kafka-go"
 )
+
 // 用于写kafka阻塞模式，这样当写kafka失败时，可以收到该错误，并进行相应的日志记录或者处理，
 // 一次传输较多消息给kafka这样具有较高的吞吐，所以采用生产者消费者模式
 
 type PC struct {
 	blockingQueue chan interface{}
-	batchSize int						// 一个批次的最大消息数量
-	batchTimeOut time.Duration			// 准备一个批次的消息花费的最长时间
-	shutdown chan int
+	batchSize     int           // 一个批次的最大消息数量
+	batchTimeOut  time.Duration // 准备一个批次的消息花费的最长时间
+	shutdown      chan int
 }
 
 //获取当前队列堆积数量
-func (pc *PC) BlockingQueueSize() int{
+func (pc *PC) BlockingQueueSize() int {
 	return len(pc.blockingQueue)
 }
 
@@ -24,16 +26,16 @@ func (pc *PC) BlockingQueueSize() int{
 // capacity     阻塞队列的容量，建议这个值设置为 batchSize 的 4 倍
 // batchSize    批次大小
 // batchTimeOut 批次超时时间
-func (pc *PC) Init(capacity int, batchSize int, batchTimeOut time.Duration){
-	fmt.Printf("capacity %d, batchSize %d, batchTimeOut %d\n",capacity,batchSize,batchTimeOut)
+func (pc *PC) Init(capacity int, batchSize int, batchTimeOut time.Duration) {
+	fmt.Printf("capacity %d, batchSize %d, batchTimeOut %d\n", capacity, batchSize, batchTimeOut)
 	pc.blockingQueue = make(chan interface{}, capacity)
-	pc.batchSize=batchSize
-	pc.batchTimeOut=batchTimeOut
+	pc.batchSize = batchSize
+	pc.batchTimeOut = batchTimeOut
 	pc.shutdown = make(chan int)
 }
 
 // 向阻塞队列中生产消息，当阻塞队列已经满时，会阻塞
-func (pc *PC) Produce(object interface{})  {
+func (pc *PC) Produce(object interface{}) {
 	pc.blockingQueue <- object
 }
 
@@ -51,33 +53,33 @@ func (pc *PC) Produce(object interface{})  {
 //			fmt.Printf("Success write `%d` to kafka\n", len(messages))
 //		}
 //	})
-func (pc *PC) Subscribe(mapTo func(interface{})kafka.Message, consume func([]kafka.Message))  {
+func (pc *PC) Subscribe(mapTo func(interface{}) kafka.Message, consume func([]kafka.Message)) {
 	for {
 		L := make([]kafka.Message, pc.batchSize)
 		size := 0
 		run := true
-		timer := time.NewTimer(time.Hour * 999999)//inf
-		startTimer:=false
+		timer := time.NewTimer(time.Hour * 999999) //inf
+		startTimer := false
 		for run {
 			select {
-			case x := <- pc.blockingQueue:
+			case x := <-pc.blockingQueue:
 				L[size] = mapTo(x)
 				size++
-				if size >= pc.batchSize {//batchSize
+				if size >= pc.batchSize { //batchSize
 					//fmt.Println("buffer is full, send to kafka")
 					run = false
 				} else if !startTimer {
 					startTimer = true
-					timer.Reset(pc.batchTimeOut)//batchTimeout
+					timer.Reset(pc.batchTimeOut) //batchTimeout
 				}
-			case <- timer.C:
+			case <-timer.C:
 				//fmt.Println("it's time to send to kafka, batch size "+strconv.Itoa(size))
 				run = false
-			case <- pc.shutdown:
+			case <-pc.shutdown:
 				// add shutdown hook
 				tmp := make([]kafka.Message, len(pc.blockingQueue))
 				for i := len(tmp) - 1; i >= 0; i-- {
-					tmp[i] = mapTo(<- pc.blockingQueue)
+					tmp[i] = mapTo(<-pc.blockingQueue)
 				}
 				messages := append(L[:size], tmp...)
 				fmt.Printf("try flush buffer size %d\n", len(messages))
@@ -94,8 +96,8 @@ func (pc *PC) Subscribe(mapTo func(interface{})kafka.Message, consume func([]kaf
 }
 
 //cancel the produce, blocking until the kafka cache buffer is successfully refreshed
-func (pc *PC)Cancel() bool {
-	pc.shutdown <- 0 // send shutdown signal
-	_, ok := <- pc.shutdown // wait for shutdown
+func (pc *PC) Cancel() bool {
+	pc.shutdown <- 0       // send shutdown signal
+	_, ok := <-pc.shutdown // wait for shutdown
 	return ok
 }

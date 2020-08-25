@@ -2,14 +2,15 @@ package classifier
 
 import "github.com/sunmi-OS/gocore/algorithm/magicalbayes/brain"
 
-var VERSION = "1.0.0"
-var λ = 1 //平滑因子
-var K = 1e3
+var (
+	VERSION = "1.0.0"
+	λ       = 1 //平滑因子
+	K       = 1e3
+)
 
 // defaultProb is the tiny non-zero probability that a word
 // we have not seen before appears in the class.
 const defaultProb = 0.00000000001
-
 
 type BayesClassifier struct {
 	Brain *brain.BayesBrain
@@ -43,12 +44,12 @@ func (classifier *BayesClassifier) probabilityOfFeature(feature string) float64 
 func (classifier *BayesClassifier) probabilityOfCategory(category string) float64 {
 	categoryFrequency := classifier.Brain.CategoriesFrequency[category]
 	spaceSize := getSampleSpaceSize(classifier.Brain.CategoriesFrequency)
-	return  float64(categoryFrequency) / float64(spaceSize)
+	return float64(categoryFrequency) / float64(spaceSize)
 }
 
 //P(feature|category)
-func (classifier *BayesClassifier) probabilityOfFeatureInCategory( feature, category string) float64 {
-	return classifier.probabilityOf(feature,  classifier.Brain.TfIdfTempValues[category])
+func (classifier *BayesClassifier) probabilityOfFeatureInCategory(feature, category string) float64 {
+	return classifier.probabilityOf(feature, classifier.Brain.TfIdfTempValues[category])
 }
 
 func getSampleSpaceSize(typeFrequency map[string]float64) float64 {
@@ -74,8 +75,7 @@ func (classifier *BayesClassifier) BayesProbabilityOf(category string, features 
 	return float64(P) / float64(space)
 }
 
-
-func (classifier *BayesClassifier) MolecularProbabilityOf(features ...string)  []Classification{
+func (classifier *BayesClassifier) MolecularProbabilityOf(features ...string) []Classification {
 	i := 0
 	list := make([]Classification, len(classifier.Brain.CategoriesFrequency))
 	for category := range classifier.Brain.CategoriesFrequency {
@@ -83,12 +83,11 @@ func (classifier *BayesClassifier) MolecularProbabilityOf(features ...string)  [
 		//fmt.Println("P", P)
 		//fmt.Println("len",len(features), features)
 
-
 		for _, feature := range features {
 			inCategory := classifier.probabilityOfFeatureInCategory(feature, category)
 			P *= inCategory * K
 		}
-		list[i] = Classification {
+		list[i] = Classification{
 			Probability: P,
 			Category:    category,
 			Features:    features,
@@ -104,7 +103,7 @@ func (classifier *BayesClassifier) ProbabilityOf(features ...string) []Classific
 	list := make([]Classification, len(classifier.Brain.CategoriesFrequency))
 	for category := range classifier.Brain.CategoriesFrequency {
 		probability := classifier.BayesProbabilityOf(category, features...)
-		list[i] = Classification {
+		list[i] = Classification{
 			Probability: probability,
 			Category:    category,
 			Features:    features,
@@ -113,7 +112,6 @@ func (classifier *BayesClassifier) ProbabilityOf(features ...string) []Classific
 	}
 	return list
 }
-
 
 func (classifier *BayesClassifier) Classify(features ...string) string {
 	mostProbablyCategory := ""
@@ -130,4 +128,3 @@ func (classifier *BayesClassifier) Classify(features ...string) string {
 	}
 	return mostProbablyCategory
 }
-

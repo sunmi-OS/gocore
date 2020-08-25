@@ -1,8 +1,9 @@
 package aliyunmq
 
 import (
-	rocketmq "github.com/apache/rocketmq-client-go/core"
 	"sync"
+
+	rocketmq "github.com/apache/rocketmq-client-go/core"
 )
 
 type Producer struct {

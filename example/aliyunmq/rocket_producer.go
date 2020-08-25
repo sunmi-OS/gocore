@@ -1,9 +1,10 @@
 package main
 
 import (
-	"github.com/sunmi-OS/gocore/aliyunmq"
 	"fmt"
+
 	rocketmq "github.com/apache/rocketmq-client-go/core"
+	"github.com/sunmi-OS/gocore/aliyunmq"
 	"github.com/sunmi-OS/gocore/viper"
 )
 
@@ -17,13 +18,11 @@ func main() {
 
 	aliyunmq.NewProducer("aliyunmq")
 
-
-
 	// 业务中直接使用
 	for i := 0; i < 1; i++ {
 		msg := fmt.Sprintf("%s-%d", "Hello,Common MQ Message-", i)
 		//发送消息时请设置您在阿里云 RocketMQ 控制台上申请的 Topic。
-		result, err := aliyunmq.GetProducer("aliyunmq").SendMessageSync(&rocketmq.Message{Keys:"orderid",Topic: "xxxxxxx", Body: msg})
+		result, err := aliyunmq.GetProducer("aliyunmq").SendMessageSync(&rocketmq.Message{Keys: "orderid", Topic: "xxxxxxx", Body: msg})
 		if err != nil {
 			fmt.Println("Error:", err)
 		}

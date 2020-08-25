@@ -1,9 +1,10 @@
 package config
 
 import (
+	"os"
+
 	"github.com/nacos-group/nacos-sdk-go/common/constant"
 	"github.com/sunmi-OS/gocore/nacos"
-	"os"
 )
 
 func InitNacos(runtime string) {

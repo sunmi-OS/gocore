@@ -23,7 +23,6 @@ func NewCoreAdmin(solrUrl string) (*CoreAdmin, error) {
 	return &CoreAdmin{url: u}, nil
 }
 
-
 // Set basic auth in case solr require login
 func (ca *CoreAdmin) SetBasicAuth(username, password string) {
 	ca.username = username

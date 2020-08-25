@@ -1,15 +1,15 @@
 package http_request
 
-
 import (
 	"errors"
-	"github.com/go-resty/resty/v2"
 	"time"
+
+	"github.com/go-resty/resty/v2"
 )
 
 type HttpClient struct {
-	Client *resty.Client
-	*resty.Request
+	Client  *resty.Client
+	Request *resty.Request
 }
 
 func New() HttpClient {
@@ -36,23 +36,23 @@ func New() HttpClient {
 		})
 
 	return HttpClient{
-		Client: client,
-		client.R(),
+		Client:  client,
+		Request: client.R(),
 	}
 }
 
 func (h HttpClient) SetTrace(header interface{}) HttpClient {
 	trace := SetHeader(header)
 
-	h.SetHeader(X_REQUEST_ID, trace.Http_Header.Get(X_REQUEST_ID))
-	h.SetHeader(X_B3_TRACEID, trace.Http_Header.Get(X_B3_TRACEID))
-	h.SetHeader(X_B3_SPANID, trace.Http_Header.Get(X_B3_SPANID))
-	h.SetHeader(X_B3_PARENTSPANID, trace.Http_Header.Get(X_B3_PARENTSPANID))
-	h.SetHeader(X_B3_SAMPLED, trace.Http_Header.Get(X_B3_SAMPLED))
-	h.SetHeader(X_B3_FLAGS, trace.Http_Header.Get(X_B3_FLAGS))
-	h.SetHeader(B3, trace.Http_Header.Get(B3))
-	h.SetHeader(X_OT_SPAN_CONTEXT, trace.Http_Header.Get(X_OT_SPAN_CONTEXT))
+	h.Request.SetHeader(X_REQUEST_ID, trace.Http_Header.Get(X_REQUEST_ID))
+	h.Request.SetHeader(X_B3_TRACEID, trace.Http_Header.Get(X_B3_TRACEID))
+	h.Request.SetHeader(X_B3_SPANID, trace.Http_Header.Get(X_B3_SPANID))
+	h.Request.SetHeader(X_B3_PARENTSPANID, trace.Http_Header.Get(X_B3_PARENTSPANID))
+	h.Request.SetHeader(X_B3_SAMPLED, trace.Http_Header.Get(X_B3_SAMPLED))
+	h.Request.SetHeader(X_B3_FLAGS, trace.Http_Header.Get(X_B3_FLAGS))
+	h.Request.SetHeader(B3, trace.Http_Header.Get(B3))
+	h.Request.SetHeader(X_OT_SPAN_CONTEXT, trace.Http_Header.Get(X_OT_SPAN_CONTEXT))
 
-	h.Header = trace.Http_Header
+	h.Request.Header = trace.Http_Header
 	return h
 }

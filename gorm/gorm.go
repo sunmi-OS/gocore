@@ -11,9 +11,10 @@ import (
 	"github.com/sunmi-OS/gocore/viper"
 )
 
-var Gorm sync.Map
-var defaultName = "dbDefault"
-
+var (
+	Gorm        sync.Map
+	defaultName = "dbDefault"
+)
 
 var (
 	// ErrRecordNotFound record not found error, happens when haven't find any matched data when looking up with a struct

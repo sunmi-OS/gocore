@@ -8,7 +8,6 @@ import (
 var mail *gomail.Dialer
 
 func linkService() {
-
 	mail = gomail.NewDialer(viper.C.GetString("email.host"), viper.C.GetInt("email.port"), viper.C.GetString("email.username"), viper.C.GetString("email.password"))
 }
 

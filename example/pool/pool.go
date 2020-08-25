@@ -1,12 +1,17 @@
 package main
 
 import (
+	"context"
 	"fmt"
-	"github.com/jolestar/go-commons-pool"
 	"time"
+
+	"github.com/jolestar/go-commons-pool"
 )
 
-var pCommonPool *pool.ObjectPool
+var (
+	pCommonPool *pool.ObjectPool
+	ctx         = context.Background()
+)
 
 type PoolTest struct{}
 
@@ -21,8 +26,8 @@ func init() {
 	PoolConfig.MaxTotal = 1000
 	WithAbandonedConfig := pool.NewDefaultAbandonedConfig()
 	// 注册连接池初始化链接方式
-	pCommonPool = pool.NewObjectPoolWithAbandonedConfig(pool.NewPooledObjectFactorySimple(
-		func() (interface{}, error) {
+	pCommonPool = pool.NewObjectPoolWithAbandonedConfig(ctx, pool.NewPooledObjectFactorySimple(
+		func(ctx context.Context) (interface{}, error) {
 			return Link()
 		}), PoolConfig, WithAbandonedConfig)
 }
@@ -57,7 +62,7 @@ func main() {
 func Test() {
 	var client *PoolTest
 	// 从连接池中获取一个实例
-	obj, _ := pCommonPool.BorrowObject()
+	obj, _ := pCommonPool.BorrowObject(ctx)
 	// 转换为对应实体
 	if obj != nil {
 		client = obj.(*PoolTest)
@@ -65,5 +70,5 @@ func Test() {
 	// 调用需要的方法
 	fmt.Println(client.Test())
 	// 交还连接池
-	pCommonPool.ReturnObject(client)
+	pCommonPool.ReturnObject(ctx, obj)
 }

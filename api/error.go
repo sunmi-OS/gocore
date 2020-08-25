@@ -1,9 +1,10 @@
 package api
 
 import (
+	"log"
+
 	"github.com/labstack/echo"
 	"github.com/spf13/cast"
-	"log"
 )
 
 // 捕获panic异样防止程序终止 并且记录到日志

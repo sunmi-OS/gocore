@@ -5,10 +5,9 @@ import (
 	"crypto/x509"
 	"io/ioutil"
 
-	"gobot.io/x/gobot"
-
 	paho "github.com/eclipse/paho.mqtt.golang"
 	"github.com/hashicorp/go-multierror"
+	"gobot.io/x/gobot"
 )
 
 // @TODO 1. EMQ死亡断开连接,从连接上之后订阅事件没有更上
