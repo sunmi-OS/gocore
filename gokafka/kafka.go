@@ -2,15 +2,14 @@ package gokafka
 
 import (
 	"context"
+	"fmt"
+	"sync"
+	"time"
+
 	"github.com/segmentio/kafka-go"
 	"github.com/segmentio/kafka-go/snappy"
 	"github.com/sunmi-OS/gocore/viper"
-	"sync"
-	"time"
-	"fmt"
 )
-
-
 
 type Producer struct {
 	producer *kafka.Writer
@@ -39,13 +38,12 @@ func Init(topic string) *Producer {
 }
 
 //construct the producer
-func (p *Producer) newProducer(topic string)  {
+func (p *Producer) newProducer(topic string) {
 
-
-	viper.C.SetDefault(topic,map[string]interface{}{
-		"acks":          -1,
-		"async":          false,
-		"compression":   true,
+	viper.C.SetDefault(topic, map[string]interface{}{
+		"acks":         -1,
+		"async":        false,
+		"compression":  true,
 		"batchTimeout": 1000,
 	})
 
@@ -55,14 +53,12 @@ func (p *Producer) newProducer(topic string)  {
 	batchTimeout := viper.GetEnvConfigInt(topic + ".batchTimeout")
 	brokers := viper.GetEnvConfigStringSlice("kafkaClient.brokers")
 
-
-	fmt.Printf("topic: `%v`\n",topic)
-	fmt.Printf("acks: `%v`\n",acks)
-	fmt.Printf("async: `%v`\n",async)
-	fmt.Printf("compression: `%v`\n",compression)
-	fmt.Printf("batchTimeout: `%v`\n",batchTimeout)
-	fmt.Printf("brokers: `%v`\n",brokers)
-
+	fmt.Printf("topic: `%v`\n", topic)
+	fmt.Printf("acks: `%v`\n", acks)
+	fmt.Printf("async: `%v`\n", async)
+	fmt.Printf("compression: `%v`\n", compression)
+	fmt.Printf("batchTimeout: `%v`\n", batchTimeout)
+	fmt.Printf("brokers: `%v`\n", brokers)
 
 	config := kafka.WriterConfig{
 		Brokers:      brokers,
@@ -72,14 +68,14 @@ func (p *Producer) newProducer(topic string)  {
 		BatchTimeout: time.Millisecond * time.Duration(batchTimeout),
 	}
 
-	if compression  {
-		config.CompressionCodec =snappy.NewCompressionCodec() // snappy
+	if compression {
+		config.CompressionCodec = snappy.NewCompressionCodec() // snappy
 	}
 
 	p.producer = kafka.NewWriter(config)
 }
 
-func (p *Producer) ProduceMsgs(msgs[]kafka.Message) error {
+func (p *Producer) ProduceMsgs(msgs []kafka.Message) error {
 	return p.producer.WriteMessages(context.Background(), msgs...)
 }
 
@@ -100,36 +96,34 @@ func (p *Producer) Produce(msg []byte) error {
 
 //close the producer
 func (p *Producer) CloseProducer() error {
-	if p.producer!=nil {
+	if p.producer != nil {
 		return p.producer.Close()
 	} else {
 		return nil
 	}
 }
 
-
 var consumer *kafka.Reader
 var EveryPartitionLastMessage sync.Map
 
-
 //construct the consumer
-func NewConsumer()  {
+func NewConsumer() {
 	consumer = kafka.NewReader(kafka.ReaderConfig{
-		Brokers:   viper.GetEnvConfigStringSlice("kafkaClient.brokers"),
+		Brokers:  viper.GetEnvConfigStringSlice("kafkaClient.brokers"),
 		GroupID:  viper.GetEnvConfig("kafkaClient.consumerGroupId"),
-		Topic:     viper.GetEnvConfig("kafkaClient.topicName"),
-		MinBytes:   int(viper.GetEnvConfigInt("kafkaClient.consumerMinBytes")),
+		Topic:    viper.GetEnvConfig("kafkaClient.topicName"),
+		MinBytes: int(viper.GetEnvConfigInt("kafkaClient.consumerMinBytes")),
 		MaxBytes: int(viper.GetEnvConfigInt("kafkaClient.consumerMaxBytes")),
 	})
 }
 
 //consume message
-func Consume() (kafka.Message,error) {
+func Consume() (kafka.Message, error) {
 	lastMessage, err := consumer.FetchMessage(context.Background())
 	if err == nil {
 		EveryPartitionLastMessage.Store(lastMessage.Partition, lastMessage)
 	}
-	return lastMessage,err
+	return lastMessage, err
 }
 
 func ConsumeByCallback(consume func(kafka.Message, error) bool) {
@@ -141,7 +135,7 @@ func ConsumeByCallback(consume func(kafka.Message, error) bool) {
 }
 
 // commit offset for all partitions
-func CommitOffsetForAllPartition(onCommit func(message kafka.Message) ) error {
+func CommitOffsetForAllPartition(onCommit func(message kafka.Message)) error {
 	var err error
 	background := context.Background()
 	EveryPartitionLastMessage.Range(func(key interface{}, value interface{}) bool {
@@ -170,6 +164,3 @@ func CloseConsumer() error {
 		return nil
 	}
 }
-
-
-

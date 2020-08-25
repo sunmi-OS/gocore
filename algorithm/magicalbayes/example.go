@@ -2,15 +2,16 @@ package main
 
 import (
 	"fmt"
+
 	"github.com/sunmi-OS/gocore/algorithm/magicalbayes/brain"
 	"github.com/sunmi-OS/gocore/algorithm/magicalbayes/classifier"
 )
 
-func main()  {
- 	test0()
+func main() {
+	test0()
 }
 
-func test0()  {
+func test0() {
 	bayesBrain := brain.NewBayesBrain()
 	bayesClassifier := classifier.BayesClassifier{Brain: bayesBrain}
 	//训练样本

@@ -1,8 +1,9 @@
 package aliyunmq
 
 import (
-	rocketmq "github.com/apache/rocketmq-client-go/core"
 	"sync"
+
+	rocketmq "github.com/apache/rocketmq-client-go/core"
 )
 
 type Consumer struct {
@@ -64,4 +65,3 @@ func GetPushConsumer(name string) (consumer rocketmq.PushConsumer, err error) {
 	}
 	return
 }
-

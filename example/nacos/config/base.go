@@ -1,6 +1,5 @@
 package config
 
-
 var baseConfig = `
 [system]
 # RPC监听地址

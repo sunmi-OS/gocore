@@ -2,8 +2,9 @@ package istio
 
 import (
 	"context"
-	"google.golang.org/grpc/metadata"
 	"net/http"
+
+	"google.golang.org/grpc/metadata"
 )
 
 const (

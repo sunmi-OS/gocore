@@ -1,9 +1,10 @@
 package aliyunmq
 
 import (
+	"log"
+
 	"github.com/afex/hystrix-go/hystrix"
 	rocketmq "github.com/apache/rocketmq-client-go/core"
-	"log"
 )
 
 type ConsumeFunc struct {
@@ -12,7 +13,6 @@ type ConsumeFunc struct {
 }
 
 func NewConsumeFunc() ConsumeFunc {
-
 	return ConsumeFunc{
 		MaxCount: 16,
 		TimeOut:  60,

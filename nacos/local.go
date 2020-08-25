@@ -2,9 +2,10 @@ package nacos
 
 import (
 	"errors"
+	"io/ioutil"
+
 	"github.com/nacos-group/nacos-sdk-go/clients/config_client"
 	"github.com/nacos-group/nacos-sdk-go/vo"
-	"io/ioutil"
 )
 
 type LocalNacos struct {

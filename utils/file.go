@@ -195,7 +195,6 @@ func dirWindows() (string, error) {
 	return home, nil
 }
 
-
 func DeleteFile(filePath string) error {
 	return os.RemoveAll(filePath)
 }

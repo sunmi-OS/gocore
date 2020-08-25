@@ -6,7 +6,7 @@ import (
 	"log"
 	"net/http"
 
-	_ "./statik"
+	//_ "./statik"
 	"github.com/rakyll/statik/fs"
 )
 

@@ -2,13 +2,13 @@ package viper
 
 import (
 	"bytes"
-	"github.com/BurntSushi/toml"
 	"log"
 	"os"
 	"path"
 	"strings"
 	"sync"
 
+	"github.com/BurntSushi/toml"
 	"github.com/spf13/cast"
 	"github.com/spf13/viper"
 	"github.com/sunmi-OS/gocore/utils"

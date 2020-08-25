@@ -17,9 +17,8 @@ type BayesBrain struct {
 	FeaturesFrequencyInEachCategory map[string]map[string]float64
 	CategoriesSummary               map[string]*CategorySummary
 	LearnedCount                    int
-	DidConvertTfIdf   				bool
-
-	TfIdfTempValues					map[string]map[string]float64
+	DidConvertTfIdf                 bool
+	TfIdfTempValues                 map[string]map[string]float64
 }
 
 type CategorySummary struct {
@@ -27,7 +26,7 @@ type CategorySummary struct {
 	LearnedCount int
 }
 
-func NewBayesBrain() *BayesBrain{
+func NewBayesBrain() *BayesBrain {
 	brain := new(BayesBrain)
 	brain.FeaturesFrequency = make(map[string]float64)
 	brain.CategoriesFrequency = make(map[string]float64)
@@ -38,7 +37,7 @@ func NewBayesBrain() *BayesBrain{
 	return brain
 }
 
-func learn(featuresFrequency map[string]float64,  features []string) {
+func learn(featuresFrequency map[string]float64, features []string) {
 	for _, feature := range features {
 		featuresFrequency[feature]++
 	}
@@ -65,7 +64,6 @@ func (brain *BayesBrain) ApplyTfIdf() {
 
 	}
 
-
 	brain.DidConvertTfIdf = true
 }
 
@@ -79,7 +77,7 @@ func (brain *BayesBrain) Learn(category string, features ...string) {
 
 	//tf-idf
 	if brain.CategoriesSummary[category] == nil {
-		brain.CategoriesSummary[category] =  new(CategorySummary)
+		brain.CategoriesSummary[category] = new(CategorySummary)
 		brain.CategoriesSummary[category].Tfs = make(map[string][]float64)
 		brain.CategoriesSummary[category].LearnedCount = 0
 	}
@@ -102,7 +100,6 @@ func (brain *BayesBrain) Learn(category string, features ...string) {
 
 	}
 	brain.LearnedCount++
-
 
 }
 
@@ -190,7 +187,6 @@ func (brain *BayesBrain) Load(filename string) error {
 		return err
 	}
 
-
 	jsonBytes, err = load(parentPath + "/ffiec.json")
 	if err != nil {
 		return err
@@ -199,8 +195,6 @@ func (brain *BayesBrain) Load(filename string) error {
 	if err != nil {
 		return err
 	}
-
-
 
 	jsonBytes, err = load(parentPath + "/cs.json")
 	if err != nil {

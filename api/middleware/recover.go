@@ -1,9 +1,8 @@
 package middleware
 
 import (
-	"fmt"
-
 	"encoding/json"
+	"fmt"
 	"runtime"
 	"time"
 
@@ -11,15 +10,13 @@ import (
 	echoMiddleware "github.com/labstack/echo/middleware"
 )
 
-type (
-	Param struct {
-		Time  string      `json:"time"`
-		Url   string      `json:"url"`
-		Err   string      `json:"error"`
-		Query interface{} `json:"query"`
-		Stack string      `json:"stack"`
-	}
-)
+type Param struct {
+	Time  string      `json:"time"`
+	Url   string      `json:"url"`
+	Err   string      `json:"error"`
+	Query interface{} `json:"query"`
+	Stack string      `json:"stack"`
+}
 
 var returnMsg = `{"message":"Internal Server Error"}`
 

@@ -16,7 +16,7 @@ type Hook struct {
 
 var hookHandler = Hook{}
 
-func AddShutdownHook(runnables ...func() int)  {
+func AddShutdownHook(runnables ...func() int) {
 	defer hookHandler.lock.Unlock()
 	hookHandler.lock.Lock()
 	if hookHandler.task == nil {
@@ -29,7 +29,6 @@ func AddShutdownHook(runnables ...func() int)  {
 		go hookHandler.listenShutdownSignal() // only start once
 	}
 }
-
 
 func (h *Hook) listenShutdownSignal() {
 	c := make(chan os.Signal)
@@ -53,7 +52,7 @@ func (h *Hook) taskReplicas() []func() int {
 	h.lock.Lock()
 	replicas := make([]func() int, h.task.Len())
 	i := 0
-	for e := h.task.Front(); e != nil; e=e.Next() {
+	for e := h.task.Front(); e != nil; e = e.Next() {
 		replicas[i] = e.Value.(func() int)
 		i++
 	}

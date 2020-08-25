@@ -1,11 +1,11 @@
 package main
 
 import (
-	"github.com/sunmi-OS/gocore/aliyunmq"
 	"fmt"
+
 	rocketmq "github.com/apache/rocketmq-client-go/core"
+	"github.com/sunmi-OS/gocore/aliyunmq"
 	"github.com/sunmi-OS/gocore/viper"
-	"time"
 )
 
 func main() {
@@ -34,7 +34,6 @@ func main() {
 	}()
 
 	consumer.Subscribe("xxxxx", "*", consumeFunc.Middleware(func(msg *rocketmq.MessageExt) rocketmq.ConsumeStatus {
-
 
 		fmt.Printf("A message received, MessageID:%s, Body:%s \n", msg.MessageID, msg.Body)
 		fmt.Println(msg.ReconsumeTimes)

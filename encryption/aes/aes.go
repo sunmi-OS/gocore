@@ -56,7 +56,7 @@ func DecryptUseCBC(cipherText, key []byte, iv []byte) ([]byte, error) {
 		return nil, err
 	}
 	blockSize := blockKey.BlockSize()
-	if len(cipherText) % blockSize != 0 {
+	if len(cipherText)%blockSize != 0 {
 		return nil, errors.New("cipher text is not an integral multiple of the block size")
 	}
 	decryptTool := cipher.NewCBCDecrypter(blockKey, iv)

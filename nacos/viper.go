@@ -2,11 +2,12 @@ package nacos
 
 import (
 	"errors"
+	"sync"
+	"time"
+
 	"github.com/nacos-group/nacos-sdk-go/vo"
 	"github.com/spf13/cast"
 	"github.com/sunmi-OS/gocore/viper"
-	"sync"
-	"time"
 )
 
 type ViperToml struct {
