@@ -6,8 +6,8 @@ import (
 	"runtime"
 	"time"
 
-	"github.com/labstack/echo"
-	echoMiddleware "github.com/labstack/echo/middleware"
+	"github.com/labstack/echo/v4"
+	echoMiddleware "github.com/labstack/echo/v4/middleware"
 )
 
 type Param struct {
@@ -63,6 +63,7 @@ func RecoverWithConfig(config echoMiddleware.RecoverConfig) echo.MiddlewareFunc 
 					if !config.DisablePrintStack {
 						stackStr = string(stack[:length])
 					}
+
 					c.Response().Header().Set("Content-Type", "application/json;charset=UTF-8")
 					c.Response().Write([]byte(returnMsg))
 					param := &Param{
