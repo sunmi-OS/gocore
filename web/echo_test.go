@@ -6,6 +6,7 @@ import (
 	"os/signal"
 	"syscall"
 	"testing"
+	"time"
 
 	"github.com/labstack/echo/v4"
 )
@@ -24,9 +25,10 @@ func TestInitEcho(t *testing.T) {
 		si := <-ch
 		switch si {
 		case syscall.SIGQUIT, syscall.SIGTERM, syscall.SIGINT:
-
+			time.Sleep(time.Second)
 			// todo something
 
+			time.Sleep(time.Second)
 			return
 		case syscall.SIGHUP:
 		default:
