@@ -51,35 +51,35 @@ import (
 )
 
 func main() {
-	c := &web.Config{Port: ":2233"}
+    c := &web.Config{Port: ":2233"}
     // init web server
     // prod environment, please add .Release() 
-    // e.g: web.InitGin(c).Release()
-	g := web.InitGin(c)
+    // e.g: web.InitGin(c).Release() 
+    g := web.InitGin(c)
 
     // init route
-	initRouteG(g.Gin)
+    initRouteG(g.Gin)
     
-    // start http server
-	g.Start()
+    // start http server 
+    g.Start()
     
     // listen signal
-	ch := make(chan os.Signal)
-	signal.Notify(ch, syscall.SIGHUP, syscall.SIGQUIT, syscall.SIGTERM, syscall.SIGINT)
-	for {
-		si := <-ch
-		switch si {
-		case syscall.SIGQUIT, syscall.SIGTERM, syscall.SIGINT:
-			time.Sleep(time.Second)
-			// todo something e.g: close service, dao ...
-
-			time.Sleep(time.Second)
-			return
-		case syscall.SIGHUP:
-		default:
-			return
-		}
-	}
+    ch := make(chan os.Signal)
+    signal.Notify(ch, syscall.SIGHUP, syscall.SIGQUIT, syscall.SIGTERM, syscall.SIGINT)
+    for {
+        si := <-ch
+        switch si {
+        case syscall.SIGQUIT, syscall.SIGTERM, syscall.SIGINT:
+            time.Sleep(time.Second)
+            // todo something e.g: close service, dao ...
+    
+            time.Sleep(time.Second)
+            return
+        case syscall.SIGHUP:
+        default:
+            return
+        }
+    }
 }
 
 func initRouteG(g *gin.Engine) {
