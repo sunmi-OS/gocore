@@ -10,6 +10,16 @@ func TestLog(t *testing.T) {
 		"name": "jerry",
 		"age":  14,
 	})
-	Info("info")
-	Warning("warning")
+
+	Info(struct {
+		Name string
+		Age  int
+	}{
+		Name: "Jerry",
+		Age:  18,
+	})
+
+	Warn("Warn")
+	Debug("Debug")
+	Error("Error")
 }

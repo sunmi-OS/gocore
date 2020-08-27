@@ -1,35 +1,33 @@
 package xlog
 
-var (
-	infoLog Logger = &InfoLogger{}
-	warnLog Logger = &WarningLogger{}
-	errLog  Logger = &ErrorLogger{}
-)
-
-type Logger interface {
-	logOut(format *string, args ...interface{})
-}
-
 func Info(args ...interface{}) {
-	infoLog.logOut(nil, args...)
+	logger.Sugar.Info(args...)
 }
 
 func Infof(format string, args ...interface{}) {
-	infoLog.logOut(&format, args...)
+	logger.Sugar.Infof(format, args...)
 }
 
-func Warning(args ...interface{}) {
-	warnLog.logOut(nil, args...)
+func Debug(args ...interface{}) {
+	logger.Sugar.Debug(args...)
 }
 
-func Warningf(format string, args ...interface{}) {
-	warnLog.logOut(&format, args...)
+func Debugf(format string, args ...interface{}) {
+	logger.Sugar.Debugf(format, args...)
+}
+
+func Warn(args ...interface{}) {
+	logger.Sugar.Warn(args...)
+}
+
+func Warnf(format string, args ...interface{}) {
+	logger.Sugar.Warnf(format, args...)
 }
 
 func Error(args ...interface{}) {
-	errLog.logOut(nil, args...)
+	logger.Sugar.Error(args...)
 }
 
 func Errorf(format string, args ...interface{}) {
-	errLog.logOut(&format, args...)
+	logger.Sugar.Errorf(format, args...)
 }
