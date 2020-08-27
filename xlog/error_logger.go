@@ -1,0 +1,30 @@
+package xlog
+
+import (
+	"fmt"
+	"log"
+	"os"
+	"sync"
+)
+
+type ErrorLogger struct {
+	logger *log.Logger
+	once   sync.Once
+}
+
+func (e *ErrorLogger) logOut(format *string, v ...interface{}) {
+	e.once.Do(func() {
+		e.init()
+	})
+	if format != nil {
+		e.logger.Output(3, fmt.Sprintf(*format, v...))
+		//i.logger.Writer().Write(stack())
+		return
+	}
+	e.logger.Output(3, fmt.Sprintln(v...))
+	//i.logger.Writer().Write(stack())
+}
+
+func (e *ErrorLogger) init() {
+	e.logger = log.New(os.Stderr, "[ERROR] >> ", log.Lmsgprefix|log.Lshortfile|log.Lmicroseconds|log.Ldate)
+}
