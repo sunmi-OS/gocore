@@ -14,12 +14,13 @@ type Codes interface {
 	Message() string
 }
 
+// Add init you self service error code
 func Add(code int) Error {
-	return Int(code)
+	return Error(code)
 }
 
 func New(code int, msg string) Error {
-	ErrorMap.Store(code, msg)
+	errorMap.Store(code, msg)
 	return Error(code)
 }
 
@@ -27,7 +28,7 @@ func New(code int, msg string) Error {
 type Error int
 
 func (e Error) Error() string {
-	if msg, ok := ErrorMap.Load(e.Code()); ok {
+	if msg, ok := errorMap.Load(e.Code()); ok {
 		return msg.(string)
 	}
 	return strconv.Itoa(int(e))
@@ -38,14 +39,11 @@ func (e Error) Code() int { return int(e) }
 
 // Message return error message
 func (e Error) Message() string {
-	if msg, ok := ErrorMap.Load(e.Code()); ok {
+	if msg, ok := errorMap.Load(e.Code()); ok {
 		return msg.(string)
 	}
 	return e.Error()
 }
-
-// Int parse code int to error.
-func Int(i int) Error { return Error(i) }
 
 // analyse error info
 func AnalyseError(err error) Codes {
