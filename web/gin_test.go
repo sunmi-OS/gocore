@@ -46,9 +46,13 @@ func TestInitGin(t *testing.T) {
 }
 
 func initRouteG(g *gin.Engine) {
-
 	g.GET("/gin/ping", func(c *gin.Context) {
 		e := ecode.New(2233, "SUCCESS")
 		JSON(c, nil, e)
+	})
+
+	g.GET("/gin/file", func(c *gin.Context) {
+		//err := ecode.New(2323, "asdsda")
+		File(c, "echo_test.go", "gin.go")
 	})
 }

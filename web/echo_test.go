@@ -1,7 +1,6 @@
 package web
 
 import (
-	"net/http"
 	"os"
 	"os/signal"
 	"syscall"
@@ -40,10 +39,13 @@ func TestInitEcho(t *testing.T) {
 func initRouteE(e *echo.Echo) {
 	e.GET("/echo/ping", func(c echo.Context) error {
 		//err := ecode.New(2323, "asdsda")
-		return c.JSON(http.StatusOK, CommonRsp{
-			Code:    2234,
-			Message: "SUCCESS",
-			Data:    nil,
-		})
+		JSON(c, "echo data", nil)
+		return nil
+	})
+
+	e.GET("/echo/file", func(c echo.Context) error {
+		//err := ecode.New(2323, "asdsda")
+		File(c, "echo_test.go", "echo.go")
+		return nil
 	})
 }
