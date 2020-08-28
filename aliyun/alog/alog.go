@@ -19,11 +19,11 @@ type Logger struct {
 	producer  *producer.Producer
 }
 
-var Log *Logger
+var logger *Logger
 
 func Init(c *LoggerConfig) {
 	hostname, _ := os.Hostname()
-	Log = &Logger{
+	logger = &Logger{
 		Project:   viper.GetEnvConfig(c.ConfigName + ".Project"),
 		LogStore:  c.LogStore,
 		HostName:  hostname,
@@ -32,10 +32,10 @@ func Init(c *LoggerConfig) {
 		secretKey: viper.GetEnvConfig(c.ConfigName + ".SecretKey"),
 		producer:  nil,
 	}
-	if err := Log.checkConfig(); err != nil {
+	if err := logger.checkConfig(); err != nil {
 		panic(err)
 	}
-	Log.newProducer().Start()
+	logger.newProducer().Start()
 }
 
 func (l *Logger) newProducer() *Logger {

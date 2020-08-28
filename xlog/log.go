@@ -1,33 +1,76 @@
 package xlog
 
+var (
+	debugLog xLogger = &DebugLogger{}
+	infoLog  xLogger = &InfoLogger{}
+	warnLog  xLogger = &WarnLogger{}
+	errLog   xLogger = &ErrorLogger{}
+)
+
+type xLogger interface {
+	logOut(format *string, args ...interface{})
+}
+
 func Info(args ...interface{}) {
-	logger.Sugar.Info(args...)
+	if logger.Sugar != nil {
+		logger.Sugar.Info(args...)
+		return
+	}
+	infoLog.logOut(nil, args...)
 }
 
 func Infof(format string, args ...interface{}) {
-	logger.Sugar.Infof(format, args...)
+	if logger.Sugar != nil {
+		logger.Sugar.Infof(format, args...)
+		return
+	}
+	infoLog.logOut(&format, args...)
 }
 
 func Debug(args ...interface{}) {
-	logger.Sugar.Debug(args...)
+	if logger.Sugar != nil {
+		logger.Sugar.Debug(args...)
+		return
+	}
+	debugLog.logOut(nil, args...)
 }
 
 func Debugf(format string, args ...interface{}) {
-	logger.Sugar.Debugf(format, args...)
+	if logger.Sugar != nil {
+		logger.Sugar.Debugf(format, args...)
+		return
+	}
+	debugLog.logOut(&format, args...)
 }
 
 func Warn(args ...interface{}) {
-	logger.Sugar.Warn(args...)
+	if logger.Sugar != nil {
+		logger.Sugar.Warn(args...)
+		return
+	}
+	warnLog.logOut(nil, args...)
 }
 
 func Warnf(format string, args ...interface{}) {
-	logger.Sugar.Warnf(format, args...)
+	if logger.Sugar != nil {
+		logger.Sugar.Warnf(format, args...)
+		return
+	}
+	warnLog.logOut(&format, args...)
 }
 
 func Error(args ...interface{}) {
-	logger.Sugar.Error(args...)
+	if logger.Sugar != nil {
+		logger.Sugar.Error(args...)
+		return
+	}
+	errLog.logOut(nil, args...)
 }
 
 func Errorf(format string, args ...interface{}) {
-	logger.Sugar.Errorf(format, args...)
+	if logger.Sugar != nil {
+		logger.Sugar.Errorf(format, args...)
+		return
+	}
+	errLog.logOut(&format, args...)
 }

@@ -20,6 +20,7 @@ type Logger struct {
 	logFile     *os.File
 	logFileDir  string
 	logFileName string
+	err         error
 	once        sync.Once
 }
 
@@ -35,41 +36,54 @@ func init() {
 
 func (l *Logger) init() {
 	// new log file dir
-	l.logFileDir = utils.GetPath() + "/runtime"
-	if !utils.IsDirExists(l.logFileDir) {
-		if err := utils.MkdirFile(l.logFileDir); err != nil {
-			log.Printf("utils.MkdirFile(%s),err:%+v.\n", l.logFileDir, err)
-			// todo 确认是否return
-			return
-		}
-	}
+	l.newLogDir()
 	// new log file
 	l.newLogFile()
 	// init zap
-	l.initZap()
+	err := l.initZap()
+	if err != nil {
+		Errorf("l.initZap(),err:%+v", err)
+		return
+	}
 	// updateLogFile Loop
 	go l.updateLogFile()
 }
 
-func (l *Logger) newLogFile() (err error) {
-	l.logFileName = l.logFileDir + time.Now().Format("2006-01-02") + ".log"
-	if l.logFile != nil {
-		l.logFile.Close()
-	}
-	l.logFile, err = os.OpenFile(l.logFileName, os.O_RDWR|os.O_APPEND, 0666)
-	if err != nil {
-		l.logFile, err = os.Create(l.logFileName)
-		if err != nil {
-			return err
+func (l *Logger) newLogDir() {
+	l.logFileDir = utils.GetPath() + "/runtime"
+	if !utils.IsDirExists(l.logFileDir) {
+		if err := utils.MkdirFile(l.logFileDir); err != nil {
+			log.Printf("utils.MkdirFile(%s),err:%+v.\n", l.logFileDir, err)
+			l.logFileDir = ""
+			l.err = err
 		}
 	}
-	return nil
+}
+
+func (l *Logger) newLogFile() {
+	if l.err == nil && l.logFileDir != "" {
+		var err error
+		l.logFileName = l.logFileDir + time.Now().Format("2006-01-02") + ".log"
+		if l.logFile != nil {
+			l.logFile.Close()
+		}
+		l.logFile, err = os.OpenFile(l.logFileName, os.O_RDWR|os.O_APPEND, 0666)
+		if err != nil {
+			l.logFile, err = os.Create(l.logFileName)
+			if err != nil {
+				l.logFileName = ""
+				l.err = err
+			}
+		}
+	}
 }
 
 func (l *Logger) initZap() (err error) {
 	l.cfg = zap.NewProductionConfig()
-	l.cfg.OutputPaths = []string{l.logFileName, "stdout"}
-	l.cfg.ErrorOutputPaths = []string{l.logFileName, "stderr"}
+	if l.err == nil && l.logFileName != "" {
+		l.cfg.OutputPaths = []string{l.logFileName, "stdout"}
+		l.cfg.ErrorOutputPaths = []string{l.logFileName, "stderr"}
+	}
 	l.cfg.EncoderConfig.EncodeTime = zapcore.ISO8601TimeEncoder
 
 	viper.C.SetDefault("system.debug", "true")
@@ -98,10 +112,7 @@ func (l *Logger) updateLogFile() {
 		case <-t.C:
 			go deleteLog(l.logFileDir, saveDays) //删除修改时间在saveDays天前的文件
 
-			if err := l.newLogFile(); err != nil {
-				log.Printf("l.newLogFile(%s),err:%+v.\n", l.logFileName, err)
-				continue
-			}
+			l.newLogFile()
 
 			if err := l.initZap(); err != nil {
 				log.Printf("l.initZap(),err:%+v.\n", err)
