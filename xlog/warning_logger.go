@@ -14,7 +14,7 @@ type WarnLogger struct {
 
 func (i *WarnLogger) logOut(format *string, v ...interface{}) {
 	i.once.Do(func() {
-		i.init()
+		i.new()
 	})
 	if format != nil {
 		i.logger.Output(3, fmt.Sprintf(*format, v...))
@@ -23,6 +23,6 @@ func (i *WarnLogger) logOut(format *string, v ...interface{}) {
 	i.logger.Output(3, fmt.Sprintln(v...))
 }
 
-func (i *WarnLogger) init() {
+func (i *WarnLogger) new() {
 	i.logger = log.New(os.Stderr, "[WARN] >> ", log.Lmsgprefix|log.Lshortfile|log.Lmicroseconds|log.Ldate)
 }

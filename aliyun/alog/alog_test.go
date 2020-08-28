@@ -7,6 +7,5 @@ func TestInit(t *testing.T) {
 		ConfigName: "TestLog",
 		LogStore:   "TestLogStore",
 	}
-	Init(c)
-
+	New(c)
 }

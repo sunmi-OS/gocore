@@ -14,7 +14,7 @@ type ErrorLogger struct {
 
 func (e *ErrorLogger) logOut(format *string, v ...interface{}) {
 	e.once.Do(func() {
-		e.init()
+		e.new()
 	})
 	if format != nil {
 		e.logger.Output(3, fmt.Sprintf(*format, v...))
@@ -25,7 +25,7 @@ func (e *ErrorLogger) logOut(format *string, v ...interface{}) {
 	//i.logger.Writer().Write(stack())
 }
 
-func (e *ErrorLogger) init() {
+func (e *ErrorLogger) new() {
 	e.logger = log.New(os.Stderr, "[ERROR] >> ", log.Lmsgprefix|log.Lshortfile|log.Lmicroseconds|log.Ldate)
 }
 

@@ -14,7 +14,7 @@ type InfoLogger struct {
 
 func (i *InfoLogger) logOut(format *string, v ...interface{}) {
 	i.once.Do(func() {
-		i.init()
+		i.new()
 	})
 	if format != nil {
 		i.logger.Output(3, fmt.Sprintf(*format, v...))
@@ -23,6 +23,6 @@ func (i *InfoLogger) logOut(format *string, v ...interface{}) {
 	i.logger.Output(3, fmt.Sprintln(v...))
 }
 
-func (i *InfoLogger) init() {
+func (i *InfoLogger) new() {
 	i.logger = log.New(os.Stdout, "[INFO] >> ", log.Lmsgprefix|log.Lshortfile|log.Lmicroseconds|log.Ldate)
 }

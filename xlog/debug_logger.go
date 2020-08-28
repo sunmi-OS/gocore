@@ -14,7 +14,7 @@ type DebugLogger struct {
 
 func (i *DebugLogger) logOut(format *string, v ...interface{}) {
 	i.once.Do(func() {
-		i.init()
+		i.new()
 	})
 	if format != nil {
 		i.logger.Output(3, fmt.Sprintf(*format, v...))
@@ -23,6 +23,6 @@ func (i *DebugLogger) logOut(format *string, v ...interface{}) {
 	i.logger.Output(3, fmt.Sprintln(v...))
 }
 
-func (i *DebugLogger) init() {
+func (i *DebugLogger) new() {
 	i.logger = log.New(os.Stdout, "[DEBUG] >> ", log.Lmsgprefix|log.Lshortfile|log.Lmicroseconds|log.Ldate)
 }

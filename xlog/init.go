@@ -39,7 +39,7 @@ func (l *Logger) init() {
 	l.newLogDir()
 	// new log file
 	l.newLogFile()
-	// init zap
+	// new zap
 	err := l.initZap()
 	if err != nil {
 		Errorf("l.initZap(),err:%+v", err)

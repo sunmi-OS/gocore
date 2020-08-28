@@ -21,7 +21,7 @@ type Logger struct {
 
 var logger *Logger
 
-func Init(c *LoggerConfig) {
+func New(c *LoggerConfig) {
 	hostname, _ := os.Hostname()
 	logger = &Logger{
 		Project:   viper.GetEnvConfig(c.ConfigName + ".Project"),
