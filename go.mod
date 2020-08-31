@@ -7,6 +7,7 @@ require (
 	github.com/afex/hystrix-go v0.0.0-20180502004556-fa1af6a1f4f5
 	github.com/aliyun/aliyun-log-go-sdk v0.1.12
 	github.com/apache/rocketmq-client-go v1.2.4
+	github.com/apache/rocketmq-client-go/v2 v2.0.0
 	github.com/eclipse/paho.mqtt.golang v1.2.0
 	github.com/fortytw2/leaktest v1.3.0 // indirect
 	github.com/gin-gonic/gin v1.6.3
@@ -17,6 +18,7 @@ require (
 	github.com/hashicorp/go-multierror v1.1.0
 	github.com/jinzhu/gorm v1.9.16
 	github.com/jolestar/go-commons-pool v2.0.0+incompatible
+	github.com/labstack/echo v3.3.10+incompatible
 	github.com/labstack/echo/v4 v4.1.16
 	github.com/labstack/gommon v0.3.0
 	github.com/nacos-group/nacos-sdk-go v1.0.0
@@ -24,6 +26,7 @@ require (
 	github.com/rakyll/statik v0.1.7
 	github.com/robfig/cron v1.2.0
 	github.com/segmentio/kafka-go v0.4.2
+	github.com/sirupsen/logrus v1.4.1 // indirect
 	github.com/spf13/cast v1.3.1
 	github.com/spf13/viper v1.7.1
 	github.com/streadway/amqp v1.0.0
