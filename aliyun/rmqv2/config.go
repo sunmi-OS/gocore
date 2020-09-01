@@ -1,4 +1,8 @@
-package mq
+/*
+	消息并发多条推送，但commit回复一次性回复，无法对单条消息进行commit回复，暂时不推荐使用
+	阿里云官方推荐使用 v1.2.4 版本
+*/
+package rmqv2
 
 import (
 	"errors"
