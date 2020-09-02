@@ -14,6 +14,14 @@ var (
 	_hystrixName                  = "rmqv1"
 )
 
+func GetPushConsumer(configName string) (consumer rocketmq.PushConsumer, ok bool) {
+	pc, ok := ConsumerList.Load(configName)
+	if ok {
+		return pc.(rocketmq.PushConsumer), ok
+	}
+	return nil, false
+}
+
 func (c *Consumer) Subscribe(callback func(msg *rocketmq.MessageExt) rocketmq.ConsumeStatus) (err error) {
 	if c.pushConsumer == nil {
 		return errors.New("consumer is nil")
