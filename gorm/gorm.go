@@ -42,7 +42,7 @@ func NewDB(dbname string) {
 		orm, err = openORM(dbname)
 	}
 
-	Gorm.LoadOrStore(dbname, orm)
+	Gorm.Store(dbname, orm)
 }
 
 // 设置获取db的默认值
@@ -58,7 +58,7 @@ func UpdateDB(dbname string) error {
 	orm, err := openORM(dbname)
 
 	Gorm.Delete(dbname)
-	Gorm.LoadOrStore(dbname, orm)
+	Gorm.Store(dbname, orm)
 	if v != nil {
 		err = v.(*gorm.DB).Close()
 		if err != nil {
