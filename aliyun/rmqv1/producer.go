@@ -6,6 +6,14 @@ import (
 	rocketmq "github.com/apache/rocketmq-client-go/core"
 )
 
+func GetProducer(configName string) (producer rocketmq.Producer, ok bool) {
+	p, ok := ProducerList.Load(configName)
+	if ok {
+		return p.(rocketmq.Producer), ok
+	}
+	return nil, false
+}
+
 func (p *Producer) SendMessageSync(msg *rocketmq.Message) (*rocketmq.SendResult, error) {
 	if p.producer != nil {
 		return p.producer.SendMessageSync(msg)

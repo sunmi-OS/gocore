@@ -2,25 +2,20 @@ package rmqv1
 
 import (
 	"errors"
+	"sync"
 
 	rocketmq "github.com/apache/rocketmq-client-go/core"
 	"github.com/sunmi-OS/gocore/viper"
 )
 
-type RocketMQ struct {
-	groupID string
-	// 设置 TCP 协议接入点，从阿里云 RocketMQ 控制台的实例详情页面获取。
-	nameServer string
-	// 您在阿里云账号管理控制台中创建的 AccessKeyId，用于身份认证。
-	accessKey string
-	// 您在阿里云账号管理控制台中创建的 AccessKeySecret，用于身份认证。
-	secretKey string
-	// 用户渠道，默认值为：ALIYUN。
-	channel string
-}
+var (
+	ConsumerList sync.Map
+	ProducerList sync.Map
+)
 
 func NewRocketMQ(configName string) (r *RocketMQ, err error) {
 	r = &RocketMQ{
+		ConfigName: configName,
 		groupID:    viper.GetEnvConfig(configName + ".GroupID"),
 		nameServer: viper.GetEnvConfig(configName + ".NameServer"),
 		accessKey:  viper.GetEnvConfig(configName + ".AccessKey"),
@@ -90,6 +85,7 @@ func (r *RocketMQ) NewConsumer(c *ConsumerConfig) (consumer *Consumer, err error
 	if err != nil {
 		return nil, err
 	}
+	ConsumerList.Store(r.ConfigName, pushConsumer)
 	return &Consumer{pushConsumer: pushConsumer, cc: c}, nil
 }
 
@@ -122,5 +118,6 @@ func (r *RocketMQ) NewProducer(c *ProducerConfig) (producer *Producer, err error
 	if err != nil {
 		return nil, err
 	}
+	ProducerList.Store(r.ConfigName, p)
 	return &Producer{producer: p}, nil
 }
