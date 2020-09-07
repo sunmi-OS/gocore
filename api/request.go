@@ -3,7 +3,7 @@
 //	喵了个咪 <wenzhenxi@vip.qq.com> 2016/5/11
 //  依赖情况:
 //          "github.com/astaxie/beego/validation" 基于beego的拦截器(已经集成)
-//          "github.com/labstack/echo" 依赖于echo
+//          "github.com/labstack/echo/v4" 依赖于echo
 
 package api
 
@@ -19,7 +19,7 @@ import (
 	"regexp"
 	"strconv"
 
-	"github.com/labstack/echo"
+	"github.com/labstack/echo/v4"
 	"github.com/sunmi-OS/gocore/api/validation"
 	"github.com/sunmi-OS/gocore/encryption/des"
 	"github.com/sunmi-OS/gocore/viper"

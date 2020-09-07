@@ -4,8 +4,8 @@ import (
 	"os"
 	"sort"
 
-	"github.com/labstack/echo"
-	"github.com/labstack/echo/middleware"
+	"github.com/labstack/echo/v4"
+	"github.com/labstack/echo/v4/middleware"
 	"github.com/sunmi-OS/gocore/api"
 	coreMiddleware "github.com/sunmi-OS/gocore/api/middleware"
 	"github.com/urfave/cli"

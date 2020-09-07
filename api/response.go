@@ -2,14 +2,14 @@
 //	返回json参数,默认结构code,data,msg
 //	喵了个咪 <wenzhenxi@vip.qq.com> 2016/5/11
 //  依赖情况:
-//          "github.com/labstack/echo" 必须基于echo路由
+//          "github.com/labstack/echo/v4" 必须基于echo路由
 
 package api
 
 import (
 	"net/http"
 
-	"github.com/labstack/echo"
+	"github.com/labstack/echo/v4"
 )
 
 type Response struct {
