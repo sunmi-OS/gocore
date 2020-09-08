@@ -28,9 +28,3 @@ func (e *ErrorLogger) logOut(format *string, v ...interface{}) {
 func (e *ErrorLogger) new() {
 	e.logger = log.New(os.Stderr, "[ERROR] >> ", log.Lmsgprefix|log.Lshortfile|log.Lmicroseconds|log.Ldate)
 }
-
-//func stack() (bs []byte) {
-//	var buf [2 << 10]byte
-//	runtime.Stack(buf[:], false)
-//	return buf[:]
-//}

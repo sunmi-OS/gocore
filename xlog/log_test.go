@@ -1,25 +1,28 @@
 package xlog
 
 import (
+	"fmt"
 	"testing"
 )
 
 func TestLog(t *testing.T) {
+	// default log
+	Info("info")
+	Debug("debug")
+	Warn("warning")
+	Error("error")
 
-	Error(map[string]interface{}{
-		"name": "jerry",
-		"age":  14,
-	})
+	fmt.Println()
 
-	Info(struct {
+	// zap log
+	Zap().Info(struct {
 		Name string
 		Age  int
 	}{
 		Name: "Jerry",
 		Age:  18,
 	})
-
-	Warn("Warn")
-	Debug("Debug")
-	Error("Error")
+	Zap().Debug("zap debug")
+	Zap().Warn("zap warn")
+	Zap().Error("zap error")
 }
