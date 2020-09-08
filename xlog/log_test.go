@@ -15,7 +15,7 @@ func TestLog(t *testing.T) {
 	fmt.Println()
 
 	// zap log
-	Zap().Info(struct {
+	Zap().Infof("%+v", struct {
 		Name string
 		Age  int
 	}{

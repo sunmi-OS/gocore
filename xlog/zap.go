@@ -150,7 +150,6 @@ func (l *Logger) newLogFile() {
 		if l.logFile != nil {
 			l.logFile.Close()
 		}
-		Debug(l.logFileName)
 		l.logFile, err = os.OpenFile(l.logFileName, os.O_RDWR|os.O_APPEND, 0666)
 		if err != nil {
 			Error(err)
