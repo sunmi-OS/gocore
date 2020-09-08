@@ -1,13 +1,13 @@
 package gorm
 
 import (
-	"fmt"
 	"sync"
 	"time"
 
 	"github.com/jinzhu/gorm"
 	_ "github.com/jinzhu/gorm/dialects/mysql"
 	_ "github.com/jinzhu/gorm/dialects/postgres"
+	"github.com/sunmi-OS/gocore/retry"
 	"github.com/sunmi-OS/gocore/viper"
 )
 
@@ -36,10 +36,15 @@ func NewDB(dbname string) {
 		err error
 	)
 
-	for orm, err = openORM(dbname); err != nil; {
-		fmt.Println("Database connection exception! 5 seconds to retry")
-		time.Sleep(5 * time.Second)
+	err = retry.Retry(func() error {
 		orm, err = openORM(dbname)
+		if err != nil {
+			return err
+		}
+		return nil
+	}, 5, 3*time.Second)
+	if err != nil || orm == nil {
+		panic(err)
 	}
 
 	Gorm.Store(dbname, orm)
