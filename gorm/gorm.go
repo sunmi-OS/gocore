@@ -59,18 +59,34 @@ func SetDefaultName(dbname string) {
 
 // 初始化Gorm
 func UpdateDB(dbname string) error {
+	var (
+		orm *gorm.DB
+		err error
+	)
 
-	v, _ := Gorm.Load(dbname)
-
-	orm, err := openORM(dbname)
-
-	Gorm.Delete(dbname)
-	Gorm.Store(dbname, orm)
-	if v != nil {
-		err = v.(*gorm.DB).Close()
+	// first: open new gorm client
+	err = retry.Retry(func() error {
+		orm, err = openORM(dbname)
 		if err != nil {
+			xlog.Errorf("UpdateDB(%s) error:%+v", dbname, err)
 			return err
 		}
+		return nil
+	}, 5, 3*time.Second)
+	if err != nil {
+		return err
+	}
+
+	// second: load gorm client
+	v, _ := Gorm.Load(dbname)
+
+	// third: delete old gorm client and store the new gorm client
+	Gorm.Delete(dbname)
+	Gorm.Store(dbname, orm)
+
+	// fourth: if old client is not nil, delete and close connection
+	if v != nil {
+		v.(*gorm.DB).Close()
 	}
 	return nil
 }
