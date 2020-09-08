@@ -9,6 +9,7 @@ import (
 	_ "github.com/jinzhu/gorm/dialects/postgres"
 	"github.com/sunmi-OS/gocore/retry"
 	"github.com/sunmi-OS/gocore/viper"
+	"github.com/sunmi-OS/gocore/xlog"
 )
 
 var (
@@ -39,6 +40,7 @@ func NewDB(dbname string) {
 	err = retry.Retry(func() error {
 		orm, err = openORM(dbname)
 		if err != nil {
+			xlog.Errorf("NewDB(%s) error:%+v", dbname, err)
 			return err
 		}
 		return nil
