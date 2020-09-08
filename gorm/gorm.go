@@ -68,6 +68,7 @@ func UpdateDB(dbname string) error {
 	return nil
 }
 
+// Deprecated
 // 通过名称获取Gorm实例
 func GetORMByName(dbname string) *gorm.DB {
 	v, ok := Gorm.Load(dbname)
@@ -77,9 +78,14 @@ func GetORMByName(dbname string) *gorm.DB {
 	return nil
 }
 
-// 获取默认的Gorm实例
-func GetORM() *gorm.DB {
-	v, ok := Gorm.Load(defaultName)
+// GetORM 获取默认的Gorm实例
+// 目前仅支持 不传 或者仅传一个 dbname
+func GetORM(dbname ...string) *gorm.DB {
+	name := defaultName
+	if len(dbname) == 1 {
+		name = dbname[0]
+	}
+	v, ok := Gorm.Load(name)
 	if ok {
 		return v.(*gorm.DB)
 	}
