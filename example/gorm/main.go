@@ -5,10 +5,11 @@ import (
 
 	"github.com/sunmi-OS/gocore/gorm"
 	"github.com/sunmi-OS/gocore/viper"
+	"github.com/sunmi-OS/gocore/xlog"
 )
 
 type Machine struct {
-	MId int64  `gorm:"column:mId"`
+	Mid int64  `gorm:"column:mid"`
 	Msn string `gorm:"column:msn"`
 }
 
@@ -20,16 +21,24 @@ func main() {
 	// 指定配置文件所在的目录和文件名称
 	viper.NewConfig("config", "conf")
 
-	gorm.NewDB("dbDefault")
+	gorm.NewDB("a")
+	gorm.NewDB("b")
+	gorm.NewDB("c")
 
-	MC := []Machine{}
+	client := gorm.Gorm()
+	err := client.NewOrUpdateDB("d")
+	if err != nil {
+		xlog.Errorf("NewOrUpdateDB(%s),error:%+v", "d", err)
+	}
 
-	err := gorm.GetORM().Where("msn =  ?", "7102V04115500128").Find(&MC).Error
+	var MC []Machine
+
+	err = client.GetORM().Where("msn =  ?", "7102V04115500128").Find(&MC).Error
 
 	if err != nil {
 		fmt.Println(err.Error())
 	}
-
 	fmt.Println(MC)
 
+	client.Close()
 }
