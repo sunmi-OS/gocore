@@ -23,7 +23,7 @@ func Gorm() *Client {
 }
 
 // 初始化Gorm
-func NewDB(dbname string) {
+func NewGorm(dbname string) {
 	var (
 		orm *gorm.DB
 		err error
@@ -36,7 +36,7 @@ func NewDB(dbname string) {
 	err = retry.Retry(func() error {
 		orm, err = openORM(dbname)
 		if err != nil {
-			xlog.Errorf("NewDB(%s) error:%+v", dbname, err)
+			xlog.Errorf("NewGorm(%s) error:%+v", dbname, err)
 			return err
 		}
 		return nil

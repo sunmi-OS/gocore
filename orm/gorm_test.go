@@ -5,9 +5,9 @@ import (
 )
 
 func TestNewDB(t *testing.T) {
-	//NewDB("a")
-	//NewDB("b")
-	//NewDB("c")
+	//NewGorm("a")
+	//NewGorm("b")
+	//NewGorm("c")
 
 	// only example
 	//Gorm().GetORM().Select("id").Where("id = ?", 1).First(nil)
