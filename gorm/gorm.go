@@ -6,41 +6,37 @@ import (
 
 	"github.com/jinzhu/gorm"
 	_ "github.com/jinzhu/gorm/dialects/mysql"
-	_ "github.com/jinzhu/gorm/dialects/postgres"
 	"github.com/sunmi-OS/gocore/retry"
 	"github.com/sunmi-OS/gocore/viper"
 	"github.com/sunmi-OS/gocore/xlog"
 )
 
-var (
-	Gorm        sync.Map
-	defaultName = "dbDefault"
-)
+type Client struct {
+	maps          sync.Map
+	defaultDbName string
+}
 
-var (
-	// ErrRecordNotFound record not found error, happens when haven't find any matched data when looking up with a struct
-	ErrRecordNotFound = gorm.ErrRecordNotFound
-	// ErrInvalidSQL invalid SQL error, happens when you passed invalid SQL
-	ErrInvalidSQL = gorm.ErrInvalidSQL
-	// ErrInvalidTransaction invalid transaction when you are trying to `Commit` or `Rollback`
-	ErrInvalidTransaction = gorm.ErrInvalidTransaction
-	// ErrCantStartTransaction can't start transaction when you are trying to start one with `Begin`
-	ErrCantStartTransaction = gorm.ErrCantStartTransaction
-	// ErrUnaddressable unaddressable value
-	ErrUnaddressable = gorm.ErrUnaddressable
-)
+var _Gorm *Client
+
+func Gorm() *Client {
+	return _Gorm
+}
 
 // 初始化Gorm
-func NewDB(dbname string) {
+func NewGorm(dbname string) {
 	var (
 		orm *gorm.DB
 		err error
 	)
+	if _Gorm == nil {
+		_Gorm = &Client{defaultDbName: defaultName}
+	}
 
+	// openORM
 	err = retry.Retry(func() error {
 		orm, err = openORM(dbname)
 		if err != nil {
-			xlog.Errorf("NewDB(%s) error:%+v", dbname, err)
+			xlog.Errorf("NewGorm(%s) error:%+v", dbname, err)
 			return err
 		}
 		return nil
@@ -49,16 +45,17 @@ func NewDB(dbname string) {
 		panic(err)
 	}
 
-	Gorm.Store(dbname, orm)
+	// store db client
+	_Gorm.maps.Store(dbname, orm)
 }
 
-// 设置获取db的默认值
-func SetDefaultName(dbname string) {
-	defaultName = dbname
+// SetDefaultName 设置默认DB Name
+func (c *Client) SetDefaultName(dbName string) {
+	c.defaultDbName = dbName
 }
 
-// 初始化Gorm
-func UpdateDB(dbname string) error {
+// NewOrUpdateDB 初始化或更新Gorm
+func (c *Client) NewOrUpdateDB(dbname string) error {
 	var (
 		orm *gorm.DB
 		err error
@@ -78,11 +75,11 @@ func UpdateDB(dbname string) error {
 	}
 
 	// second: load gorm client
-	v, _ := Gorm.Load(dbname)
+	v, _ := c.maps.Load(dbname)
 
 	// third: delete old gorm client and store the new gorm client
-	Gorm.Delete(dbname)
-	Gorm.Store(dbname, orm)
+	c.maps.Delete(dbname)
+	c.maps.Store(dbname, orm)
 
 	// fourth: if old client is not nil, delete and close connection
 	if v != nil {
@@ -91,28 +88,28 @@ func UpdateDB(dbname string) error {
 	return nil
 }
 
-// Deprecated
-// 通过名称获取Gorm实例
-func GetORMByName(dbname string) *gorm.DB {
-	v, ok := Gorm.Load(dbname)
+// GetORM 获取默认的Gorm实例
+// 目前仅支持 不传 或者仅传一个 dbname
+func (c *Client) GetORM(dbname ...string) *gorm.DB {
+	name := c.defaultDbName
+	if len(dbname) == 1 {
+		name = dbname[0]
+	}
+
+	v, ok := c.maps.Load(name)
 	if ok {
 		return v.(*gorm.DB)
 	}
 	return nil
 }
 
-// GetORM 获取默认的Gorm实例
-// 目前仅支持 不传 或者仅传一个 dbname
-func GetORM(dbname ...string) *gorm.DB {
-	name := defaultName
-	if len(dbname) == 1 {
-		name = dbname[0]
-	}
-	v, ok := Gorm.Load(name)
-	if ok {
-		return v.(*gorm.DB)
-	}
-	return nil
+func (c *Client) Close() {
+	c.maps.Range(func(dbName, orm interface{}) bool {
+		xlog.Warnf("close db %s", dbName)
+		c.maps.Delete(dbName)
+		orm.(*gorm.DB).Close()
+		return true
+	})
 }
 
 func openORM(dbname string) (*gorm.DB, error) {
