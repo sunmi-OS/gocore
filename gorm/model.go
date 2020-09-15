@@ -1,4 +1,4 @@
-package orm
+package gorm
 
 import "github.com/jinzhu/gorm"
 
