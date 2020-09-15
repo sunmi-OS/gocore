@@ -23,7 +23,7 @@ func Gorm() *Client {
 }
 
 // 初始化Gorm
-func NewGorm(dbname string) {
+func NewDB(dbname string) {
 	var (
 		orm *gorm.DB
 		err error
