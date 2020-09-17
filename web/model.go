@@ -1,7 +1,9 @@
 package web
 
 type Config struct {
-	// http export port. :8080
+	// http host
+	Host string
+	// http export port  :8080
 	Port string
 }
 
@@ -15,6 +17,6 @@ type RecoverInfo struct {
 
 type CommonRsp struct {
 	Code    int         `json:"code"`
-	Message string      `json:"message"`
+	Message string      `json:"msg"`
 	Data    interface{} `json:"data"`
 }

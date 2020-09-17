@@ -9,22 +9,24 @@ import (
 
 type GinEngine struct {
 	Gin  *gin.Engine
-	port string
+	addr string
 }
 
 func InitGin(c *Config) *GinEngine {
 	g := gin.Default()
 
-	engine := &GinEngine{Gin: g, port: c.Port}
 	if !strings.Contains(strings.TrimSpace(c.Port), ":") {
-		engine.port = ":" + c.Port
+		c.Port = ":" + c.Port
 	}
+
+	engine := &GinEngine{Gin: g, addr: c.Host + c.Port}
 
 	g.Use(engine.CORS())
 	g.Use(engine.Recovery())
 	return engine
 }
 
+// Release release
 func (g *GinEngine) Release() *GinEngine {
 	gin.SetMode(gin.ReleaseMode)
 	return g
@@ -35,8 +37,8 @@ func (g *GinEngine) Start(banner ...string) {
 		fmt.Println(banner[0])
 	}
 	go func() {
-		if err := g.Gin.Run(g.port); err != nil {
-			panic(fmt.Sprintf("web server port(%s) run error(%+v).", g.port, err))
+		if err := g.Gin.Run(g.addr); err != nil {
+			panic(fmt.Sprintf("web server port(%s) run error(%+v).", g.addr, err))
 		}
 	}()
 }
