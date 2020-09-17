@@ -133,7 +133,6 @@ func (l *Logger) newZap() (err error) {
 
 func (l *Logger) newLogDir() {
 	l.logFileDir = utils.GetPath() + "/runtime"
-	Infof("LogDir ==> %s", l.logFileDir)
 	if !utils.IsDirExists(l.logFileDir) {
 		if err := utils.MkdirFile(l.logFileDir); err != nil {
 			Errorf("utils.MkdirFile(%s),err:%+v.\n", l.logFileDir, err)
@@ -152,7 +151,6 @@ func (l *Logger) newLogFile() {
 		}
 		l.logFile, err = os.OpenFile(l.logFileName, os.O_RDWR|os.O_APPEND, 0666)
 		if err != nil {
-			Error(err)
 			l.logFile, err = os.Create(l.logFileName)
 			if err != nil {
 				l.logFileName = ""

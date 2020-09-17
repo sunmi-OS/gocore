@@ -23,7 +23,7 @@ func Gorm() *Client {
 }
 
 // 初始化Gorm
-func NewDB(dbname string) {
+func NewDB(dbname string) (g *Client) {
 	var (
 		orm *gorm.DB
 		err error
@@ -47,6 +47,7 @@ func NewDB(dbname string) {
 
 	// store db client
 	_Gorm.maps.Store(dbname, orm)
+	return _Gorm
 }
 
 // SetDefaultName 设置默认DB Name
