@@ -13,6 +13,8 @@ import (
 
 const serverSlowThreshold = time.Millisecond * 500
 
+// UnaryStatInterceptor
+// 链路用时打印 and Panic拦截打印
 func UnaryStatInterceptor() grpc.UnaryServerInterceptor {
 	return func(ctx context.Context, req interface{}, info *grpc.UnaryServerInfo,
 		handler grpc.UnaryHandler) (resp interface{}, err error) {
@@ -42,9 +44,11 @@ func logDuration(ctx context.Context, method string, req interface{}, duration t
 	content, err := json.Marshal(req)
 	if err != nil {
 		logx.LoggerObj.Error("rpc-sever-fail", map[string]string{"addr": addr, "method": method, "content": err.Error(), "duration": fmt.Sprintf("%d", duration/time.Millisecond)})
-	} else if duration > serverSlowThreshold {
-		logx.LoggerObj.Info("rpc-sever-slow", map[string]string{"addr": addr, "method": method, "content": string(content), "duration": fmt.Sprintf("%d", duration/time.Millisecond)})
-	} else {
-		logx.LoggerObj.Info("rpc-sever-call", map[string]string{"addr": addr, "method": method, "content": string(content), "duration": fmt.Sprintf("%d", duration/time.Millisecond)})
+		return
 	}
+	if duration > serverSlowThreshold {
+		logx.LoggerObj.Info("rpc-sever-slow", map[string]string{"addr": addr, "method": method, "content": string(content), "duration": fmt.Sprintf("%d", duration/time.Millisecond)})
+		return
+	}
+	logx.LoggerObj.Info("rpc-sever-call", map[string]string{"addr": addr, "method": method, "content": string(content), "duration": fmt.Sprintf("%d", duration/time.Millisecond)})
 }
