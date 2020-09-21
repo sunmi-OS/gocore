@@ -41,7 +41,7 @@ require (
 	golang.org/x/net v0.0.0-20200707034311-ab3426394381 // indirect
 	golang.org/x/tools v0.0.0-20200207183749-b753a1ba74fa // indirect
 	google.golang.org/genproto v0.0.0-20200815001618-f69a88009b70
-	google.golang.org/grpc v1.31.0
+	google.golang.org/grpc v1.32.0
 	google.golang.org/protobuf v1.25.0
 	gopkg.in/alexcesaro/quotedprintable.v3 v3.0.0-20150716171945-2caba252f4dc // indirect
 	gopkg.in/check.v1 v1.0.0-20190902080502-41f04d3bba15 // indirect

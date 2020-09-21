@@ -8,10 +8,21 @@ import (
 	"google.golang.org/grpc/connectivity"
 )
 
+// Deprecated
 type DirectClient struct {
 	conn *grpc.ClientConn
+	cfg  *ClientConfig
 }
 
+type GrpcClient struct {
+	Name string
+	addr string
+	conn *grpc.ClientConn
+	cfg  *GrpcClientConfig
+}
+
+// Deprecated
+// 推荐使用 NewGrpcClient
 // @desc 初始化客户端 timeout:单位毫秒,默认两秒超时
 // @auth liuguoqiang 2020-04-21
 // @param
@@ -34,6 +45,8 @@ func NewDirectClient(host string, timeout int64, opts ...ClientOption) (*DirectC
 	}, nil
 }
 
+// Deprecated
+// 推荐使用 NewGrpcClient
 // @desc 初始化客户端
 // @auth liuguoqiang 2020-04-21
 // @param
@@ -63,4 +76,30 @@ func (c *DirectClient) Next() (*grpc.ClientConn, bool) {
 	} else {
 		return c.conn, false
 	}
+}
+
+// NewGrpcClient new grpc client
+func NewGrpcClient(name, addr string, cfg *GrpcClientConfig) (gc *GrpcClient, err error) {
+
+	gc = &GrpcClient{cfg: cfg}
+	if gc.cfg == nil {
+		gc.cfg = defaultClientConfig(name)
+	}
+
+	options := cfg.buildDialOptions()
+	conn, err := grpc.Dial(gc.addr, options...)
+	if err != nil {
+		return nil, err
+	}
+	gc.conn = conn
+	return gc, nil
+}
+
+// Next
+func (c *GrpcClient) Next() (conn *grpc.ClientConn, ok bool) {
+	state := c.conn.GetState()
+	if state == connectivity.Ready {
+		ok = true
+	}
+	return c.conn, ok
 }

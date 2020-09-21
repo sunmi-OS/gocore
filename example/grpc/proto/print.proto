@@ -2,8 +2,6 @@ syntax = "proto3";
 
 package proto;
 
-import "google/api/annotations.proto";
-
 message Request {
   string message = 1;
 }
@@ -16,10 +14,5 @@ message Response {
 
 
 service PrintService {
-  rpc PrintOK(Request) returns (Response) {
-    option (google.api.http) = {
-      post: "/print"
-      body: "*"
-    };
-  }
+  rpc PrintOK(Request) returns (Response) {}
 }

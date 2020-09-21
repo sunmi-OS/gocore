@@ -5,6 +5,11 @@ import (
 )
 
 type (
+	GrpcServerConfig struct {
+		// 超时时间，单位：ms
+		Timeout int
+	}
+
 	RegisterFn func(*grpc.Server)
 
 	Server interface {
@@ -22,6 +27,12 @@ type (
 	}
 )
 
+func defaultServerConfig() *GrpcServerConfig {
+	return &GrpcServerConfig{
+		Timeout: 500,
+	}
+}
+
 func newBaseRpcServer(address string) *baseRpcServer {
 	return &baseRpcServer{
 		address: address,
@@ -37,5 +48,17 @@ func (s *baseRpcServer) AddStreamInterceptors(interceptors ...grpc.StreamServerI
 }
 
 func (s *baseRpcServer) AddUnaryInterceptors(interceptors ...grpc.UnaryServerInterceptor) {
+	s.unaryInterceptors = append(s.unaryInterceptors, interceptors...)
+}
+
+func (s *GrpcServer) AddOptions(options ...grpc.ServerOption) {
+	s.options = append(s.options, options...)
+}
+
+func (s *GrpcServer) AddStreamInterceptors(interceptors ...grpc.StreamServerInterceptor) {
+	s.streamInterceptors = append(s.streamInterceptors, interceptors...)
+}
+
+func (s *GrpcServer) AddUnaryInterceptors(interceptors ...grpc.UnaryServerInterceptor) {
 	s.unaryInterceptors = append(s.unaryInterceptors, interceptors...)
 }

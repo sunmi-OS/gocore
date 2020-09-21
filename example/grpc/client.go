@@ -1,33 +1,19 @@
-package proto
+package main
 
 import (
-	"context"
-	"errors"
-	"log"
-
-	"github.com/sunmi-OS/gocore/istio"
 	"github.com/sunmi-OS/gocore/rpcx"
-	"google.golang.org/grpc/metadata"
+	"github.com/sunmi-OS/gocore/xlog"
 )
 
-var Rpc *rpcx.DirectClient
-
-func Init(host string, timeout int64, opts ...rpcx.ClientOption) {
-
-	var err error
-	Rpc, err = rpcx.NewDirectClient(host, timeout, opts...)
+func main() {
+	client, err := rpcx.NewGrpcClient("server_name", ":2233", nil)
 	if err != nil {
-		log.Fatal("rpc connect fail")
+		xlog.Errorf("rpcx.NewGrpcClient, err:%+v", err)
+		return
 	}
-}
-
-func PrintOk(in *Request, trace istio.TraceHeader) (*Response, error) {
-	conn, ok := Rpc.Next()
-	if !ok || conn == nil {
-		return nil, errors.New("rpc connect fail")
+	grpcClient, ok := client.Next()
+	if !ok {
+		xlog.Error("not ok")
 	}
-	client := NewPrintServiceClient(conn)
-
-	ctx := metadata.NewOutgoingContext(context.Background(), trace.Grpc_MD)
-	return client.PrintOK(ctx, in)
+	xlog.Debug("client ok:", grpcClient)
 }
