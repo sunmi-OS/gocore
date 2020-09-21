@@ -103,3 +103,9 @@ func (c *GrpcClient) Conn() (conn *grpc.ClientConn, ok bool) {
 	}
 	return c.conn, ok
 }
+
+func (c *GrpcClient) Close() {
+	if c.conn != nil {
+		c.conn.Close()
+	}
+}

@@ -140,3 +140,9 @@ func (s *GrpcServer) Start() {
 		log.Fatal(err)
 	}
 }
+
+func (s *GrpcServer) Close() {
+	if s.server != nil {
+		s.server.Stop()
+	}
+}
