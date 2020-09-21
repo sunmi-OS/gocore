@@ -95,8 +95,8 @@ func NewGrpcClient(name, addr string, cfg *GrpcClientConfig) (gc *GrpcClient, er
 	return gc, nil
 }
 
-// Next
-func (c *GrpcClient) Next() (conn *grpc.ClientConn, ok bool) {
+// Conn get ready *grpc.ClientConn
+func (c *GrpcClient) Conn() (conn *grpc.ClientConn, ok bool) {
 	state := c.conn.GetState()
 	if state == connectivity.Ready {
 		ok = true
