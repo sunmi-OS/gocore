@@ -315,13 +315,13 @@ func main() {
 		xlog.Errorf("rpcx.NewGrpcClient, err:%+v", err)
 		return
 	}
-	grpcClient, ok := client.Next()
+	conn, ok := client.Conn()
 	if !ok {
 		xlog.Error("not ok")
 		return
 	}
-	printGRPC := proto.NewPrintServiceClient(grpcClient)
-	
+	printGRPC := proto.NewPrintServiceClient(conn)
+
 	req := &proto.Request{}
 	rsp, err := printGRPC.PrintOK(context.Background(), req)
 	if err != nil {
@@ -473,7 +473,6 @@ e_invoice = 34
 ```
 
 ```go
-
 viper.NewConfig("config", "conf")
 redis.GetRedisOptions("e_invoice")
 redis.GetRedisDB("e_invoice").Set("test", "sunmi", 0)
@@ -483,7 +482,6 @@ redis.GetRedisOptions("OtherRedisServer.e_invoice")
 redis.GetRedisDB("OtherRedisServer.e_invoice").Set("test", "sunmi_other", 0)
 fmt.Println(redis.GetRedisDB("OtherRedisServer.e_invoice").Get("test").String())
 fmt.Println(redis.GetRedisDB("e_invoice").Get("test").String())
-
 ```
 
 ### Utils
