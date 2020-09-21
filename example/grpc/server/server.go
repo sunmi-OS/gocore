@@ -21,8 +21,9 @@ func main() {
 
 	s := new(Print)
 
-	rpcx.NewGrpcServer("server_name", ":2233", c).RegisterService(func(server *grpc.Server) {
-		// register service
-		proto.RegisterPrintServiceServer(server, s)
-	}).Start()
+	rpcx.NewGrpcServer("server_name", ":2233", c).
+		RegisterService(func(server *grpc.Server) {
+			// register service
+			proto.RegisterPrintServiceServer(server, s)
+		}).Start()
 }
