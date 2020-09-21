@@ -1,6 +1,9 @@
 package main
 
 import (
+	"context"
+
+	"github.com/sunmi-OS/gocore/example/grpc/proto"
 	"github.com/sunmi-OS/gocore/rpcx"
 	"github.com/sunmi-OS/gocore/xlog"
 )
@@ -14,6 +17,15 @@ func main() {
 	grpcClient, ok := client.Next()
 	if !ok {
 		xlog.Error("not ok")
+		return
 	}
-	xlog.Debug("client ok:", grpcClient)
+	printGRPC := proto.NewPrintServiceClient(grpcClient)
+
+	req := &proto.Request{}
+	rsp, err := printGRPC.PrintOK(context.Background(), req)
+	if err != nil {
+		xlog.Errorf("printGRPC.PrintOK(%+v), err:%+v", req, err)
+		return
+	}
+	xlog.Info(rsp)
 }

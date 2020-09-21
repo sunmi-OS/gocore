@@ -284,38 +284,53 @@ func main() {
 
 ### Grpc
 
-
+- server
 ```go
-
-var Rpc *rpcx.DirectClient
-
-func Init(host string, timeout int64, opts ...rpcx.ClientOption) {
-
-	var err error
-	Rpc, err = rpcx.NewDirectClient(host, timeout, opts...)
-	if err != nil {
-		log.Fatal("rpc connect fail")
-	}
+type Print struct {
 }
 
-func PrintOk(in *Request) (*Response, error) {
-	conn, ok := Rpc.Next()
-	if !ok || conn == nil {
-		return nil, errors.New("rpc connect fail")
-	}
-	client := NewPrintServiceClient(conn)
-
-	return client.PrintOK(context.Background(), in)
+func (p *Print) PrintOK(ctx context.Context, in *proto.Request) (*proto.Response, error) {
+	return &proto.Response{Code: 1, Data: "ok", Message: "Hello "}, nil
 }
 
-...
+func main() {
 
+	c := &rpcx.GrpcServerConfig{Timeout: 500}
 
-resp, err := printpb.PrintOk(req, trace)
+	s := new(Print)
 
+	rpcx.NewGrpcServer("server_name", ":2233", c).
+		RegisterService(func(server *grpc.Server) {
+			// register service
+			proto.RegisterPrintServiceServer(server, s)
+		}).Start()
+}
 ```
 
-
+- client
+```go
+func main() {
+	client, err := rpcx.NewGrpcClient("server_name", ":2233", nil)
+	if err != nil {
+		xlog.Errorf("rpcx.NewGrpcClient, err:%+v", err)
+		return
+	}
+	grpcClient, ok := client.Next()
+	if !ok {
+		xlog.Error("not ok")
+		return
+	}
+	printGRPC := proto.NewPrintServiceClient(grpcClient)
+	
+	req := &proto.Request{}
+	rsp, err := printGRPC.PrintOK(context.Background(), req)
+	if err != nil {
+		xlog.Errorf("printGRPC.PrintOK(%+v), err:%+v", req, err)
+		return
+	}
+	xlog.Info(rsp)
+}
+```
 
 ### Istio
 
@@ -361,17 +376,27 @@ fmt.Println(str)
 
 ### Logs
 
+- log
 ```go
-log.InitLogger("example-log")
-
-...
-
-log.Sugar.Debugw("example-log:debug")
-log.Sugar.Infow("example-log:info", zap.String("type", "log"))
-log.Sugar.Errorw("example-log:err", zap.Error(errors.New("IS ERROR")))
+xlog.Info("info")
+xlog.Debug("debug")
+xlog.Warn("warning")
+xlog.Error("error")
 ```
 
-
+- zap log
+```go
+xlog.Zap().Infof("%+v", struct {
+    Name string
+    Age  int
+}{
+    Name: "Jerry",
+    Age:  18,
+})
+xlog.Zap().Debug("zap debug")
+xlog.Zap().Warn("zap warn")
+xlog.Zap().Error("zap error")
+```
 
 ### Nacos
 
@@ -623,8 +648,3 @@ viper.NewConfig("config", "conf")
 fmt.Println("port : ", viper.C.Get("system.port"))
 fmt.Println("ENV RUN_TIME : ", viper.GetEnvConfig("run.time"))
 ```
-
-
-
-
-
