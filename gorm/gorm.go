@@ -12,7 +12,7 @@ import (
 )
 
 type Client struct {
-	maps          sync.Map
+	gormMaps      sync.Map
 	defaultDbName string
 }
 
@@ -46,7 +46,7 @@ func NewDB(dbname string) (g *Client) {
 	}
 
 	// store db client
-	_Gorm.maps.Store(dbname, orm)
+	_Gorm.gormMaps.Store(dbname, orm)
 	return _Gorm
 }
 
@@ -76,11 +76,11 @@ func (c *Client) NewOrUpdateDB(dbname string) error {
 	}
 
 	// second: load gorm client
-	v, _ := c.maps.Load(dbname)
+	v, _ := c.gormMaps.Load(dbname)
 
 	// third: delete old gorm client and store the new gorm client
-	c.maps.Delete(dbname)
-	c.maps.Store(dbname, orm)
+	c.gormMaps.Delete(dbname)
+	c.gormMaps.Store(dbname, orm)
 
 	// fourth: if old client is not nil, delete and close connection
 	if v != nil {
@@ -97,7 +97,7 @@ func (c *Client) GetORM(dbname ...string) *gorm.DB {
 		name = dbname[0]
 	}
 
-	v, ok := c.maps.Load(name)
+	v, ok := c.gormMaps.Load(name)
 	if ok {
 		return v.(*gorm.DB)
 	}
@@ -105,9 +105,9 @@ func (c *Client) GetORM(dbname ...string) *gorm.DB {
 }
 
 func (c *Client) Close() {
-	c.maps.Range(func(dbName, orm interface{}) bool {
+	c.gormMaps.Range(func(dbName, orm interface{}) bool {
 		xlog.Warnf("close db %s", dbName)
-		c.maps.Delete(dbName)
+		c.gormMaps.Delete(dbName)
 		orm.(*gorm.DB).Close()
 		return true
 	})

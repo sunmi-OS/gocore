@@ -1,8 +1,8 @@
 package gomail
 
 import (
-	"github.com/go-gomail/gomail"
 	"github.com/sunmi-OS/gocore/viper"
+	"gopkg.in/gomail.v2"
 )
 
 var mail *gomail.Dialer

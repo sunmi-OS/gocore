@@ -138,7 +138,7 @@ mongodb官方库:[https://github.com/mongodb/mongo-go-driver](https://github.com
 
 solr索引引擎库:[https://github.com/rtt/Go-Solr](https://github.com/rtt/Go-Solr)
 
-redis操作库(已使用):[redis](https://gopkg.in/redis.v5)
+redis操作库(已使用):[redis](https://github.com/go-redis/redis)
 
 rabbitmq使用框架(已使用):[amqp](https://github.com/streadway/amqp)
 
