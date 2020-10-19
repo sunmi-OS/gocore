@@ -86,7 +86,7 @@ func NewGrpcClient(name, addr string, cfg *GrpcClientConfig) (gc *GrpcClient, er
 		gc.cfg = defaultClientConfig(name)
 	}
 
-	options := cfg.buildDialOptions()
+	options := gc.cfg.buildDialOptions()
 	conn, err := grpc.Dial(gc.addr, options...)
 	if err != nil {
 		return nil, err
