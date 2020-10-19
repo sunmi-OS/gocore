@@ -81,7 +81,7 @@ func (c *DirectClient) Next() (*grpc.ClientConn, bool) {
 // NewGrpcClient new grpc client
 func NewGrpcClient(name, addr string, cfg *GrpcClientConfig) (gc *GrpcClient, err error) {
 
-	gc = &GrpcClient{cfg: cfg}
+	gc = &GrpcClient{cfg: cfg, addr: addr}
 	if gc.cfg == nil {
 		gc.cfg = defaultClientConfig(name)
 	}
