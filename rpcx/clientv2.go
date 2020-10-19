@@ -26,7 +26,7 @@ type (
 		DialOptions          []grpc.DialOption //RPC链接可选参数
 	}
 	GrpcClientConfig struct {
-		name                 string
+		Name                 []string
 		Timeout              string            //超时时间,默认:5s
 		MaxAttempts          string            //最大重试次数,必须是大于 1 的整数，对于大于5的值会被视为5,默认:4
 		InitialBackoff       string            //第一次重试默认时间间隔,必须具有大于0,默认:2s
@@ -42,7 +42,7 @@ type (
 
 func defaultClientConfig(name string) *GrpcClientConfig {
 	return &GrpcClientConfig{
-		name:                 name,
+		Name:                 []string{name},
 		Timeout:              "5s",
 		MaxAttempts:          "2",
 		InitialBackoff:       "2s",
@@ -150,6 +150,18 @@ func (clientConfig *ClientConfig) buildDialOptions() []grpc.DialOption {
 
 // withDefaultServiceConfig
 func (c *GrpcClientConfig) withDefaultServiceConfig() grpc.DialOption {
+	nameArr := make([]map[string]string, 0)
+	for k1 := range c.Name {
+		name := map[string]string{
+			"service": c.Name[k1],
+		}
+		nameArr = append(nameArr, name)
+	}
+	nameByte, err := json.Marshal(nameArr)
+	if err != nil {
+		log.Print(string(nameByte))
+	}
+
 	retryableStatusCodesArr := make([]string, 0)
 	for k1 := range c.RetryableStatusCodes {
 		retryableStatusCodesArr = append(retryableStatusCodesArr, c.RetryableStatusCodes[k1])
@@ -184,7 +196,7 @@ func (c *GrpcClientConfig) withDefaultServiceConfig() grpc.DialOption {
         "maxTokens":%s,
         "tokenRatio":%s
     }
-}`, roundrobin.Name, c.name, c.WaitForReady, c.Timeout, c.MaxAttempts, c.InitialBackoff, c.MaxBackoff, c.BackoffMultiplier, string(retryableStatusCodesByte), c.MaxTokens, c.TokenRatio)
+}`, roundrobin.Name, string(nameByte), c.WaitForReady, c.Timeout, c.MaxAttempts, c.InitialBackoff, c.MaxBackoff, c.BackoffMultiplier, string(retryableStatusCodesByte), c.MaxTokens, c.TokenRatio)
 	return grpc.WithDefaultServiceConfig(retryPolicy)
 }
 
