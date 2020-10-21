@@ -18,10 +18,6 @@ type Client struct {
 
 var _Gorm *Client
 
-func Gorm() *Client {
-	return _Gorm
-}
-
 // 初始化Gorm
 func NewDB(dbname string) (g *Client) {
 	var (
@@ -51,12 +47,18 @@ func NewDB(dbname string) (g *Client) {
 }
 
 // SetDefaultName 设置默认DB Name
-func (c *Client) SetDefaultName(dbName string) {
-	c.defaultDbName = dbName
+func SetDefaultName(dbName string) {
+	_Gorm.defaultDbName = dbName
+}
+
+// Deprecated
+// Updata 更新Gorm集成新建
+func UpdateDB(dbname string) error {
+	return NewOrUpdateDB(dbname)
 }
 
 // NewOrUpdateDB 初始化或更新Gorm
-func (c *Client) NewOrUpdateDB(dbname string) error {
+func NewOrUpdateDB(dbname string) error {
 	var (
 		orm *gorm.DB
 		err error
@@ -76,11 +78,11 @@ func (c *Client) NewOrUpdateDB(dbname string) error {
 	}
 
 	// second: load gorm client
-	v, _ := c.gormMaps.Load(dbname)
+	v, _ := _Gorm.gormMaps.Load(dbname)
 
 	// third: delete old gorm client and store the new gorm client
-	c.gormMaps.Delete(dbname)
-	c.gormMaps.Store(dbname, orm)
+	_Gorm.gormMaps.Delete(dbname)
+	_Gorm.gormMaps.Store(dbname, orm)
 
 	// fourth: if old client is not nil, delete and close connection
 	if v != nil {
@@ -91,23 +93,23 @@ func (c *Client) NewOrUpdateDB(dbname string) error {
 
 // GetORM 获取默认的Gorm实例
 // 目前仅支持 不传 或者仅传一个 dbname
-func (c *Client) GetORM(dbname ...string) *gorm.DB {
-	name := c.defaultDbName
+func GetORM(dbname ...string) *gorm.DB {
+	name := _Gorm.defaultDbName
 	if len(dbname) == 1 {
 		name = dbname[0]
 	}
 
-	v, ok := c.gormMaps.Load(name)
+	v, ok := _Gorm.gormMaps.Load(name)
 	if ok {
 		return v.(*gorm.DB)
 	}
 	return nil
 }
 
-func (c *Client) Close() {
-	c.gormMaps.Range(func(dbName, orm interface{}) bool {
+func Close() {
+	_Gorm.gormMaps.Range(func(dbName, orm interface{}) bool {
 		xlog.Warnf("close db %s", dbName)
-		c.gormMaps.Delete(dbName)
+		_Gorm.gormMaps.Delete(dbName)
 		orm.(*gorm.DB).Close()
 		return true
 	})
