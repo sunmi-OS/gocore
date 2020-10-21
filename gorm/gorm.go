@@ -20,29 +20,7 @@ var _Gorm *Client
 
 // 初始化Gorm
 func NewDB(dbname string) (g *Client) {
-	var (
-		orm *gorm.DB
-		err error
-	)
-	if _Gorm == nil {
-		_Gorm = &Client{defaultDbName: defaultName}
-	}
-
-	// openORM
-	err = retry.Retry(func() error {
-		orm, err = openORM(dbname)
-		if err != nil {
-			xlog.Errorf("NewGorm(%s) error:%+v", dbname, err)
-			return err
-		}
-		return nil
-	}, 5, 3*time.Second)
-	if err != nil || orm == nil {
-		panic(err)
-	}
-
-	// store db client
-	_Gorm.gormMaps.Store(dbname, orm)
+	NewOrUpdateDB(dbname)
 	return _Gorm
 }
 
@@ -52,6 +30,7 @@ func SetDefaultName(dbName string) {
 }
 
 // Deprecated
+// 推荐使用：NewOrUpdateDB
 // Updata 更新Gorm集成新建
 func UpdateDB(dbname string) error {
 	return NewOrUpdateDB(dbname)
@@ -64,6 +43,13 @@ func NewOrUpdateDB(dbname string) error {
 		err error
 	)
 
+	if _Gorm == nil {
+		_Gorm = &Client{defaultDbName: defaultName}
+	}
+
+	// second: load gorm client
+	oldGorm, _ := _Gorm.gormMaps.Load(dbname)
+
 	// first: open new gorm client
 	err = retry.Retry(func() error {
 		orm, err = openORM(dbname)
@@ -73,20 +59,22 @@ func NewOrUpdateDB(dbname string) error {
 		}
 		return nil
 	}, 5, 3*time.Second)
+
+	// 如果NEW异常直接panic如果是Update返回error
 	if err != nil {
+		if oldGorm == nil {
+			panic(err)
+		}
 		return err
 	}
-
-	// second: load gorm client
-	v, _ := _Gorm.gormMaps.Load(dbname)
 
 	// third: delete old gorm client and store the new gorm client
 	_Gorm.gormMaps.Delete(dbname)
 	_Gorm.gormMaps.Store(dbname, orm)
 
 	// fourth: if old client is not nil, delete and close connection
-	if v != nil {
-		v.(*gorm.DB).Close()
+	if oldGorm != nil {
+		oldGorm.(*gorm.DB).Close()
 	}
 	return nil
 }
@@ -115,6 +103,9 @@ func Close() {
 	})
 }
 
+//----------------------------以下是私有方法--------------------------------
+
+// openORM 私有方法
 func openORM(dbname string) (*gorm.DB, error) {
 	//默认配置
 	viper.C.SetDefault(dbname, map[string]interface{}{
