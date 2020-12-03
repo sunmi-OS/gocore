@@ -4,6 +4,9 @@ import (
 	"fmt"
 	"log"
 	"os"
+	"runtime"
+	"strconv"
+	"strings"
 	"sync"
 )
 
@@ -24,5 +27,10 @@ func (i *DebugLogger) logOut(format *string, v ...interface{}) {
 }
 
 func (i *DebugLogger) new() {
-	i.logger = log.New(os.Stdout, "[DEBUG] >> ", log.Lmsgprefix|log.Lshortfile|log.Lmicroseconds|log.Ldate)
+	version, _ := strconv.Atoi(strings.Split(runtime.Version(), ".")[1])
+	if version >= 14 {
+		i.logger = log.New(os.Stdout, "[DEBUG] >> ", 64|log.Lshortfile|log.Ldate|log.Lmicroseconds)
+		return
+	}
+	i.logger = log.New(os.Stdout, "[DEBUG] ", log.Lshortfile|log.Ldate|log.Lmicroseconds)
 }

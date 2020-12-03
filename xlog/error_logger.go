@@ -4,6 +4,9 @@ import (
 	"fmt"
 	"log"
 	"os"
+	"runtime"
+	"strconv"
+	"strings"
 	"sync"
 )
 
@@ -26,5 +29,10 @@ func (e *ErrorLogger) logOut(format *string, v ...interface{}) {
 }
 
 func (e *ErrorLogger) new() {
-	e.logger = log.New(os.Stderr, "[ERROR] >> ", log.Lmsgprefix|log.Lshortfile|log.Lmicroseconds|log.Ldate)
+	version, _ := strconv.Atoi(strings.Split(runtime.Version(), ".")[1])
+	if version >= 14 {
+		e.logger = log.New(os.Stdout, "[ERROR] >> ", 64|log.Lshortfile|log.Ldate|log.Lmicroseconds)
+		return
+	}
+	e.logger = log.New(os.Stdout, "[ERROR] ", log.Lshortfile|log.Ldate|log.Lmicroseconds)
 }
