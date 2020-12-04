@@ -21,8 +21,8 @@ func InitGin(c *Config) *GinEngine {
 
 	engine := &GinEngine{Gin: g, addr: c.Host + c.Port}
 
-	g.Use(engine.CORS())
-	g.Use(engine.Recovery())
+	//g.Use(engine.CORS())
+	//g.Use(engine.Recovery())
 	return engine
 }
 
