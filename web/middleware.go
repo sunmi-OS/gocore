@@ -24,7 +24,7 @@ func (g *GinEngine) CORS() gin.HandlerFunc {
 		}
 		if origin != "" {
 			c.Header("Access-Control-Allow-Origin", origin)
-			c.Header("Access-Control-Allow-Headers", "Origin, Content-Type, X-CSRF-Token, Authorization, Token, Session")
+			c.Header("Access-Control-Allow-Headers", "Origin, Content-Type, X-CSRF-Token, X-Client-Name, X-Client-Version, X-Timestamp, X-Nonce, X-Timezone, X-Language, X-Sign, X-Token")
 			c.Header("Access-Control-Allow-Methods", "GET, POST, PUT, PATCH, DELETE, HEAD, OPTIONS")
 			c.Header("Access-Control-Expose-Headers", "Content-Length, Access-Control-Allow-Origin, Access-Control-Allow-Headers, Content-Type")
 			c.Header("Access-Control-Max-Age", "172800")
