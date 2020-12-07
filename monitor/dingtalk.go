@@ -1,11 +1,14 @@
 package monitor
 
 import (
+	"fmt"
+
 	http_request "github.com/sunmi-OS/gocore/http-request"
 )
 
 type (
 	DingTalk struct {
+		Handler
 		Url       string `json:"url"`
 		atMobiles []string
 		isAtAll   bool
@@ -67,14 +70,18 @@ func (dingTalk *DingTalk) SendMsg(body interface{}) ([]byte, error) {
 // @auth liuguoqiang 2020-12-07
 // @param
 // @return
-func (dingTalk *DingTalk) SendTextMsg(content string) ([]byte, error) {
+func (dingTalk *DingTalk) SendTextMsg(content string) error {
+	if dingTalk.Url == "" {
+		return fmt.Errorf("报警地址为空")
+	}
 	msg := TextMsg{
 		Msgtype: "text",
 	}
 	msg.Text.Content = content
 	msg.At.IsAtAll = dingTalk.isAtAll
 	msg.At.AtMobiles = dingTalk.atMobiles
-	return dingTalk.SendMsg(msg)
+	_, err := dingTalk.SendMsg(msg)
+	return err
 }
 
 // @desc Request 通用请求
