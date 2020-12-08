@@ -10,6 +10,7 @@ import (
 type Monitor struct {
 	handlerList    []Handler
 	closeWaitGroup *sync.WaitGroup
+	closed         bool
 }
 
 type Handler interface {
@@ -24,6 +25,7 @@ func NewMonitor(handlerList ...Handler) *Monitor {
 	return &Monitor{
 		handlerList:    handlerList,
 		closeWaitGroup: &sync.WaitGroup{},
+		closed:         false,
 	}
 }
 
@@ -32,6 +34,9 @@ func NewMonitor(handlerList ...Handler) *Monitor {
 // @param
 // @return
 func (monitor *Monitor) SendTextMsg(content string) error {
+	if monitor.closed {
+		return fmt.Errorf("monitor closed")
+	}
 	monitor.closeWaitGroup.Add(1)
 	go func() {
 		defer func() {
@@ -55,6 +60,7 @@ func (monitor *Monitor) SendTextMsg(content string) error {
 // @param
 // @return
 func (monitor *Monitor) Close(timeout int64) {
+	monitor.closed = true
 	ctx, cancel := context.WithCancel(context.Background())
 	go func(ctx context.Context) {
 		monitor.closeWaitGroup.Wait()
