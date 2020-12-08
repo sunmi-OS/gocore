@@ -40,10 +40,10 @@ func (monitor *Monitor) SendTextMsg(content string) error {
 	monitor.closeWaitGroup.Add(1)
 	go func() {
 		defer func() {
-			monitor.closeWaitGroup.Done()
 			if r := recover(); r != nil {
 				fmt.Printf("%#v\n", r)
 			}
+			monitor.closeWaitGroup.Done()
 		}()
 		for k1 := range monitor.handlerList {
 			err := monitor.handlerList[k1].SendTextMsg(content)
