@@ -15,10 +15,10 @@ type DirectClient struct {
 }
 
 type GrpcClient struct {
-	Name string
-	addr string
-	conn *grpc.ClientConn
-	cfg  *GrpcClientConfig
+	Name       string
+	addr       string
+	ClientConn *grpc.ClientConn
+	cfg        *GrpcClientConfig
 }
 
 // Deprecated
@@ -91,21 +91,21 @@ func NewGrpcClient(name, addr string, cfg *GrpcClientConfig) (gc *GrpcClient, er
 	if err != nil {
 		return nil, err
 	}
-	gc.conn = conn
+	gc.ClientConn = conn
 	return gc, nil
 }
 
 // Conn get ready *grpc.ClientConn
 func (c *GrpcClient) Conn() (conn *grpc.ClientConn, ok bool) {
-	state := c.conn.GetState()
+	state := c.ClientConn.GetState()
 	if state == connectivity.Ready {
 		ok = true
 	}
-	return c.conn, ok
+	return c.ClientConn, ok
 }
 
 func (c *GrpcClient) Close() {
-	if c.conn != nil {
-		c.conn.Close()
+	if c.ClientConn != nil {
+		c.ClientConn.Close()
 	}
 }
