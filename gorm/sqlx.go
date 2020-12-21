@@ -2,7 +2,8 @@ package gorm
 
 import (
 	"strings"
-
+	"fmt"
+	
 	"github.com/jinzhu/gorm"
 )
 
