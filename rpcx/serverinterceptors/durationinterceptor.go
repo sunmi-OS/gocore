@@ -47,6 +47,7 @@ func logDuration(ctx context.Context, method string, req interface{}, duration t
 	}
 	if duration > serverSlowThreshold {
 		logx.LoggerObj.Info("rpc-sever-slow", map[string]string{"addr": addr, "method": method, "content": string(content), "duration": fmt.Sprintf("%d", duration/time.Millisecond)})
+		return
 	}
 	logx.LoggerObj.Info("rpc-sever-call", map[string]string{"addr": addr, "method": method, "content": string(content), "duration": fmt.Sprintf("%d", duration/time.Millisecond)})
 }
