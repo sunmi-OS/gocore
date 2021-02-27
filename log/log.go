@@ -20,7 +20,7 @@ var (
 )
 
 // 初始化Log日志记录
-func InitLogger(serviceaName string) {
+func InitLogger(serviceName string) {
 	var err error
 
 	if !utils.IsDirExists(utils.GetPath() + "/Runtime") {
