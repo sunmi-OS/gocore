@@ -33,6 +33,7 @@ func (g *GinEngine) CORS() gin.HandlerFunc {
 		if method == "OPTIONS" {
 			c.AbortWithStatus(http.StatusNoContent)
 		}
+		c.Request.Header.Del("Origin")
 		c.Next()
 	}
 }
