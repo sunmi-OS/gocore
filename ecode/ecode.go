@@ -1,7 +1,11 @@
 package ecode
 
 import (
+	"math"
 	"strconv"
+
+	"google.golang.org/grpc/codes"
+	"google.golang.org/grpc/status"
 )
 
 // Codes ecode error interface which has a code & message.
@@ -19,6 +23,7 @@ func Add(code int) Error {
 	return Error(code)
 }
 
+// New new error code and msg
 func New(code int, msg string) Error {
 	errorMap.Store(code, msg)
 	return Error(code)
@@ -45,13 +50,17 @@ func (e Error) Message() string {
 	return e.Error()
 }
 
+func (e Error) GRPCStatus() *status.Status {
+	return status.New(codes.Code(uint32(math.Abs(float64(e.Code())))), e.Error())
+}
+
 // analyse error info
 func AnalyseError(err error) Codes {
 	if err == nil {
 		return OK
 	}
-	if codes, ok := err.(Error); ok {
-		return codes
+	if e, ok := err.(Error); ok {
+		return e
 	}
 	return errStringToError(err.Error())
 }
