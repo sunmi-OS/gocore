@@ -7,7 +7,7 @@ require (
 	github.com/afex/hystrix-go v0.0.0-20180502004556-fa1af6a1f4f5
 	github.com/aliyun/aliyun-log-go-sdk v0.1.18
 	github.com/apache/rocketmq-client-go v1.2.4
-	github.com/apache/rocketmq-client-go/v2 v2.0.0
+	github.com/apache/rocketmq-client-go/v2 v2.1.0
 	github.com/denisenkom/go-mssqldb v0.0.0-20200428022330-06a60b6afbbc // indirect
 	github.com/eclipse/paho.mqtt.golang v1.3.2
 	github.com/fortytw2/leaktest v1.3.0 // indirect

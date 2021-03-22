@@ -7,6 +7,7 @@ package rmqv2
 import (
 	"errors"
 
+	"github.com/apache/rocketmq-client-go/v2/consumer"
 	"github.com/sunmi-OS/gocore/viper"
 )
 
@@ -20,6 +21,8 @@ type RocketMQConfig struct {
 	SecretKey string
 	// 用户渠道，默认值为：ALIYUN。
 	Channel string
+	// 配置
+	Options []consumer.Option
 }
 
 func initConfig(configName string) (config *RocketMQConfig) {
