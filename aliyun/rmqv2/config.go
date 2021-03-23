@@ -5,49 +5,74 @@
 package rmqv2
 
 import (
-	"errors"
-
 	"github.com/apache/rocketmq-client-go/v2/consumer"
-	"github.com/sunmi-OS/gocore/viper"
+	"github.com/apache/rocketmq-client-go/v2/primitive"
+	"github.com/apache/rocketmq-client-go/v2/producer"
 )
 
+const (
+	LogDebug LogLevel = "debug"
+	LogWarn  LogLevel = "warn"
+	LogError LogLevel = "error"
+	LogInfo  LogLevel = "info"
+)
+
+type LogLevel string
+
 type RocketMQConfig struct {
-	GroupID string
+	// 阿里云 实例ID
+	Namespace string
+	// GroupID 阿里云创建
+	GroupName string
 	// 设置 TCP 协议接入点，从阿里云 RocketMQ 控制台的实例详情页面获取。
-	NameServer string
+	EndPoint string
 	// 您在阿里云账号管理控制台中创建的 AccessKeyId，用于身份认证。
 	AccessKey string
 	// 您在阿里云账号管理控制台中创建的 AccessKeySecret，用于身份认证。
 	SecretKey string
-	// 用户渠道，默认值为：ALIYUN。
-	Channel string
-	// 配置
-	Options []consumer.Option
+	// log 级别 // default info
+	LogLevel LogLevel
+	// 消费者配置
+	ConsumerOptions []consumer.Option
+	// 生产者配置
+	ProducerOptions []producer.Option
 }
 
-func initConfig(configName string) (config *RocketMQConfig) {
-
-	config = &RocketMQConfig{
-		GroupID:    viper.GetEnvConfig(configName + ".GroupID"),
-		NameServer: viper.GetEnvConfig(configName + ".NameServer"),
-		AccessKey:  viper.GetEnvConfig(configName + ".AccessKey"),
-		SecretKey:  viper.GetEnvConfig(configName + ".SecretKey"),
-		Channel:    viper.GetEnvConfig(configName + ".Channel"),
+func defaultConsumerOps(conf *RocketMQConfig) (ops []consumer.Option) {
+	ops = []consumer.Option{
+		consumer.WithNamespace(conf.Namespace),
+		consumer.WithGroupName(conf.GroupName),
+		consumer.WithNameServer(primitive.NamesrvAddr{conf.EndPoint}),
+		consumer.WithCredentials(primitive.Credentials{AccessKey: conf.AccessKey, SecretKey: conf.SecretKey}),
+		consumer.WithConsumerModel(consumer.Clustering),
+		consumer.WithRetry(2),
+		consumer.WithMaxReconsumeTimes(16),
+		consumer.WithConsumeMessageBatchMaxSize(1),
+		consumer.WithTrace(&primitive.TraceConfig{
+			//TraceTopic:  conf.TraceTopic, // 此处不能设置，否则消息消费commit会失效
+			GroupName:   conf.GroupName,
+			Access:      primitive.Cloud,
+			Resolver:    primitive.NewPassthroughResolver(primitive.NamesrvAddr{conf.EndPoint}),
+			Credentials: primitive.Credentials{AccessKey: conf.AccessKey, SecretKey: conf.SecretKey},
+		}),
 	}
-
-	err := checkConfig(config)
-	if err != nil {
-		panic(err)
-	}
-	return
+	return ops
 }
 
-func checkConfig(conf *RocketMQConfig) (err error) {
-	if conf == nil {
-		return errors.New("nil RocketMQConfig")
+func defaultProducerOps(conf *RocketMQConfig) (ops []producer.Option) {
+	ops = []producer.Option{
+		producer.WithNamespace(conf.Namespace),
+		producer.WithGroupName(conf.GroupName),
+		producer.WithNameServer(primitive.NamesrvAddr{conf.EndPoint}),
+		producer.WithCredentials(primitive.Credentials{AccessKey: conf.AccessKey, SecretKey: conf.SecretKey}),
+		producer.WithRetry(2),
+		producer.WithTrace(&primitive.TraceConfig{
+			//TraceTopic:  conf.TraceTopic, // 此处不能设置，否则消息消费commit会失效
+			GroupName:   conf.GroupName,
+			Access:      primitive.Cloud,
+			Resolver:    primitive.NewPassthroughResolver(primitive.NamesrvAddr{conf.EndPoint}),
+			Credentials: primitive.Credentials{AccessKey: conf.AccessKey, SecretKey: conf.SecretKey},
+		}),
 	}
-	if conf.AccessKey == "" || conf.Channel == "" || conf.GroupID == "" || conf.NameServer == "" || conf.SecretKey == "" {
-		err = errors.New("config Missing parameter")
-	}
-	return
+	return ops
 }

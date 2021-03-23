@@ -7,39 +7,29 @@ import (
 	"github.com/apache/rocketmq-client-go/v2"
 	"github.com/apache/rocketmq-client-go/v2/consumer"
 	"github.com/apache/rocketmq-client-go/v2/primitive"
+	"github.com/apache/rocketmq-client-go/v2/rlog"
 )
 
 type Consumer struct {
 	Consumer            rocketmq.PushConsumer
-	consumerName        string
+	serverName          string
 	messageBatchMaxSize int // default 1
+	conf                *RocketMQConfig
 	ops                 []consumer.Option
 }
 
 func NewConsumer(conf *RocketMQConfig) (c *Consumer) {
-	ops := []consumer.Option{
-		consumer.WithGroupName(conf.GroupID),
-		consumer.WithNameServer(primitive.NamesrvAddr{conf.NameServer}),
-		consumer.WithCredentials(primitive.Credentials{AccessKey: conf.AccessKey, SecretKey: conf.SecretKey}),
-		consumer.WithConsumerModel(consumer.Clustering),
-		consumer.WithMaxReconsumeTimes(16),
-		consumer.WithConsumeMessageBatchMaxSize(1),
-	}
-
-	if len(conf.Options) > 0 {
-		ops = append(ops, conf.Options...)
+	ops := defaultConsumerOps(conf)
+	if len(conf.ConsumerOptions) > 0 {
+		ops = append(ops, conf.ConsumerOptions...)
 	}
 	c = &Consumer{
 		Consumer:            nil,
-		consumerName:        conf.NameServer,
+		serverName:          conf.EndPoint,
 		messageBatchMaxSize: 1,
+		conf:                conf,
 		ops:                 ops,
 	}
-	return c
-}
-
-func (c *Consumer) Namespace(namespace string) *Consumer {
-	c.ops = append(c.ops, consumer.WithNamespace(namespace))
 	return c
 }
 
@@ -60,18 +50,35 @@ func (c *Consumer) ConsumeMessageBatchMaxSize(size int) *Consumer {
 }
 
 func (c *Consumer) Start() (err error) {
+	if c.conf.LogLevel != "" {
+		rlog.SetLogLevel(string(c.conf.LogLevel))
+	}
 	newPushConsumer, err := consumer.NewPushConsumer(c.ops...)
 	if err != nil {
 		return err
 	}
 	c.Consumer = newPushConsumer
-	return nil
+	return c.Consumer.Start()
+}
+
+func (c *Consumer) Unsubscribe(topic string) (err error) {
+	if c.Consumer == nil {
+		return fmt.Errorf("[%s] is nil", c.serverName)
+	}
+	return c.Consumer.Unsubscribe(topic)
+}
+
+func (c *Consumer) Shutdown() (err error) {
+	if c.Consumer == nil {
+		return fmt.Errorf("[%s] is nil", c.serverName)
+	}
+	return c.Consumer.Shutdown()
 }
 
 // 多条消息消费，需配置 client.ConsumeMessageBatchMaxSize() 且size不为 1，否则不生效
-func (c *Consumer) SubscribeMultiMessage(topic, expression string, callback func(ctx context.Context, ext ...*primitive.MessageExt) error) (err error) {
+func (c *Consumer) SubscribeMulti(topic, expression string, callback func(ctx context.Context, ext ...*primitive.MessageExt) error) (err error) {
 	if c.Consumer == nil {
-		return fmt.Errorf("[%s] is nil", c.consumerName)
+		return fmt.Errorf("[%s] is nil", c.serverName)
 	}
 	selector := consumer.MessageSelector{Type: consumer.TAG, Expression: expression}
 	err = c.Consumer.Subscribe(topic, selector, func(ctx context.Context, ext ...*primitive.MessageExt) (consumer.ConsumeResult, error) {
@@ -88,9 +95,9 @@ func (c *Consumer) SubscribeMultiMessage(topic, expression string, callback func
 }
 
 // 单条消息消费 default
-func (c *Consumer) SubscribeSingleMessage(topic, expression string, callback func(ctx context.Context, ext *primitive.MessageExt) error) (err error) {
+func (c *Consumer) SubscribeSingle(topic, expression string, callback func(ctx context.Context, ext *primitive.MessageExt) error) (err error) {
 	if c.Consumer == nil {
-		return fmt.Errorf("[%s] is nil", c.consumerName)
+		return fmt.Errorf("[%s] is nil", c.serverName)
 	}
 	selector := consumer.MessageSelector{Type: consumer.TAG, Expression: expression}
 	err = c.Consumer.Subscribe(topic, selector, func(ctx context.Context, ext ...*primitive.MessageExt) (consumer.ConsumeResult, error) {
@@ -107,18 +114,4 @@ func (c *Consumer) SubscribeSingleMessage(topic, expression string, callback fun
 		return err
 	}
 	return nil
-}
-
-func (c *Consumer) Unsubscribe(topic string) (err error) {
-	if c.Consumer == nil {
-		return fmt.Errorf("[%s] is nil", c.consumerName)
-	}
-	return c.Consumer.Unsubscribe(topic)
-}
-
-func (c *Consumer) Shutdown() (err error) {
-	if c.Consumer == nil {
-		return fmt.Errorf("[%s] is nil", c.consumerName)
-	}
-	return c.Consumer.Shutdown()
 }
