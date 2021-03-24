@@ -1,55 +1,47 @@
 package main
 
 import (
+	"os"
+	"time"
+	"context"
 	"fmt"
 
-	rocketmq "github.com/apache/rocketmq-client-go/core"
-	"github.com/sunmi-OS/gocore/aliyunmq"
+	"github.com/apache/rocketmq-client-go/v2/consumer"
+	"github.com/apache/rocketmq-client-go/v2/primitive"
 	"github.com/sunmi-OS/gocore/viper"
+	"github.com/sunmi-OS/gocore/aliyunmq"
 )
 
 func main() {
 
-	viper.C.SetDefault("aliyunmq.GroupID", "GID_xxxx")
-	viper.C.SetDefault("aliyunmq.NameServer", "http://xxxx.cn-hangzhou.mq-internal.aliyuncs.com:8080")
-	viper.C.SetDefault("aliyunmq.AccessKey", "xxxx")
-	viper.C.SetDefault("aliyunmq.SecretKey", "xxxx")
-	viper.C.SetDefault("aliyunmq.Channel", "ALIYUN")
+	viper.NewConfigToToml(`
+		[aliyunmq]
+		NameServer = "http://xxx.cn-hangzhou.mq-internal.aliyuncs.com:8080"
+ 		AccessKey = "xxx"
+ 		SecretKey = "xxx"
+ 		Namespace = "xxx"
+	`)
 
-	aliyunmq.NewConsumer("aliyunmq")
+	c := aliyunmq.NewConsumer("aliyunmq", "GID_xxx", consumer.WithMaxReconsumeTimes(2))
 
-	consumer, err := aliyunmq.GetPushConsumer("aliyunmq")
+	err := c.Subscribe("topic", consumer.MessageSelector{}, func(ctx context.Context,
+		msgs ...*primitive.MessageExt) (consumer.ConsumeResult, error) {
+		fmt.Printf("subscribe callback: %v \n", msgs[0].MsgId)
+		return consumer.ConsumeSuccess, nil
+	})
 	if err != nil {
-		panic(err)
+		fmt.Println(err.Error())
+	}
+	// Note: start after subscribe
+	err = c.Start()
+	if err != nil {
+		fmt.Println(err.Error())
+		os.Exit(-1)
 	}
 
-	consumeFunc := aliyunmq.NewConsumeFunc()
-
-	defer func() {
-		err = consumer.Shutdown()
-		if err != nil {
-			println("consumer shutdown failed")
-			return
-		}
-	}()
-
-	consumer.Subscribe("xxxxx", "*", consumeFunc.Middleware(func(msg *rocketmq.MessageExt) rocketmq.ConsumeStatus {
-
-		fmt.Printf("A message received, MessageID:%s, Body:%s \n", msg.MessageID, msg.Body)
-		fmt.Println(msg.ReconsumeTimes)
-
-		//消费成功回复 ConsumeSuccess，消费失败回复 ReConsumeLater。此时会触发消费重试。
-		return rocketmq.ConsumeSuccess
-	}))
-
-	err = consumer.Start()
+	time.Sleep(time.Hour)
+	err = c.Shutdown()
 	if err != nil {
-		println("consumer start failed,", err)
-		return
+		fmt.Printf("Shutdown Consumer error: %s", err.Error())
 	}
-
-	fmt.Printf("consumer: %s started...\n", consumer)
-
-	ch := make(chan interface{})
-	<-ch
 }

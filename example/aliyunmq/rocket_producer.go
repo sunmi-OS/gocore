@@ -1,32 +1,49 @@
 package main
 
+
 import (
+	"context"
+	"time"
 	"fmt"
 
-	rocketmq "github.com/apache/rocketmq-client-go/core"
-	"github.com/sunmi-OS/gocore/aliyunmq"
+	"github.com/apache/rocketmq-client-go/v2/primitive"
 	"github.com/sunmi-OS/gocore/viper"
+	"github.com/sunmi-OS/gocore/aliyunmq"
+
 )
 
 func main() {
 
-	viper.C.SetDefault("aliyunmq.GroupID", "GID_xxxx")
-	viper.C.SetDefault("aliyunmq.NameServer", "http://xxxxxxx.cn-hangzhou.mq-internal.aliyuncs.com:8080")
-	viper.C.SetDefault("aliyunmq.AccessKey", "xxxx")
-	viper.C.SetDefault("aliyunmq.SecretKey", "xxxx")
-	viper.C.SetDefault("aliyunmq.Channel", "ALIYUN")
+	viper.NewConfigToToml(`
+		[aliyunmq]
+		NameServer = "http://xxx.cn-hangzhou.mq-internal.aliyuncs.com:8080"
+		AccessKey = "xxx"
+		SecretKey = "xxx"
+		Namespace = "xxx"
+	`)
 
 	aliyunmq.NewProducer("aliyunmq")
 
-	// 业务中直接使用
-	for i := 0; i < 1; i++ {
-		msg := fmt.Sprintf("%s-%d", "Hello,Common MQ Message-", i)
-		//发送消息时请设置您在阿里云 RocketMQ 控制台上申请的 Topic。
-		result, err := aliyunmq.GetProducer("aliyunmq").SendMessageSync(&rocketmq.Message{Keys: "orderid", Topic: "xxxxxxx", Body: msg})
+	p := aliyunmq.GetProducer("aliyunmq")
+
+	for i := 0; i < 10; i++ {
+		err := p.SendAsync(context.Background(),
+			func(ctx context.Context, result *primitive.SendResult, e error) {
+				if e != nil {
+					fmt.Printf("receive message error: %s\n", e)
+				} else {
+					fmt.Printf("send message success: result=%s\n", result.String())
+				}
+			}, primitive.NewMessage("topic", []byte("Hello RocketMQ Go Client!")))
+
 		if err != nil {
-			fmt.Println("Error:", err)
+			fmt.Printf("send message error: %s\n", err)
 		}
-		fmt.Printf("send message: %s result: %s\n", msg, result)
 	}
 
+	time.Sleep(1 * time.Hour)
+	err := p.Shutdown()
+	if err != nil {
+		fmt.Printf("shutdown producer error: %s", err.Error())
+	}
 }

@@ -1,67 +1,43 @@
 package aliyunmq
 
 import (
-	"sync"
-
-	rocketmq "github.com/apache/rocketmq-client-go/core"
+	"github.com/apache/rocketmq-client-go/v2"
+	"github.com/apache/rocketmq-client-go/v2/consumer"
+	"github.com/apache/rocketmq-client-go/v2/primitive"
 )
 
-type Consumer struct {
-	RocketConf     RocketMQConfig
-	ConsumerConfig *rocketmq.PushConsumerConfig
-}
-
-var ConsumerList sync.Map
-
-func NewConsumer(configName string) (consumer Consumer) {
+// NewConsumer 初始化消费者
+func NewConsumer(configName, groupID string, option ...consumer.Option) rocketmq.PushConsumer {
 
 	conf := initConfig(configName)
 
-	consumerConfig := &rocketmq.PushConsumerConfig{
-		ClientConfig: rocketmq.ClientConfig{
-			//您在阿里云 RocketMQ 控制台上申请的 GID。
-			GroupID: conf.GroupID,
-			//设置 TCP 协议接入点，从阿里云 RocketMQ 控制台的实例详情页面获取。 TCP方式接入VPN也不行
-			NameServer: conf.NameServer,
-			Credentials: &rocketmq.SessionCredentials{
-				//您在阿里云账号管理控制台中创建的 AccessKeyId，用于身份认证。
-				AccessKey: conf.AccessKey,
-				//您在阿里云账号管理控制台中创建的 AccessKeySecret，用于身份认证。
-				SecretKey: conf.SecretKey,
-				//用户渠道，默认值为：ALIYUN。
-				Channel: conf.Channel,
-			},
-		},
-		//设置使用集群模式。
-		Model: rocketmq.Clustering,
-		//设置该消费者为普通消息消费。
-		ConsumerModel: rocketmq.CoCurrently,
+	consumerOption := []consumer.Option{
+		consumer.WithGroupName(groupID),
+		consumer.WithNsResolver(primitive.NewPassthroughResolver([]string{conf.NameServer})),
+		consumer.WithCredentials(primitive.Credentials{
+			AccessKey: conf.AccessKey,
+			SecretKey: conf.SecretKey,
+		}),
+		consumer.WithConsumeMessageBatchMaxSize(1), // 批量获取数量 默认每次获取一条处理一条
+		consumer.WithNamespace(conf.Namespace),
+		consumer.WithTrace(&primitive.TraceConfig{
+			GroupName:   groupID,
+			Access:      primitive.Cloud,
+			Resolver:    primitive.NewPassthroughResolver(primitive.NamesrvAddr{conf.NameServer}),
+			Credentials: primitive.Credentials{AccessKey: conf.AccessKey, SecretKey: conf.SecretKey},
+		}),
 	}
 
-	consumer = Consumer{
-		RocketConf:     conf,
-		ConsumerConfig: consumerConfig,
+	// 支持自定义配置
+	if len(option) > 0 {
+		consumerOption = append(consumerOption, option...)
 	}
 
-	ConsumerList.LoadOrStore(configName, consumer)
-	return
-}
+	conn, err := rocketmq.NewPushConsumer(consumerOption...)
 
-func (c Consumer) SetMessageModel(messageModel rocketmq.MessageModel) {
-	c.ConsumerConfig.Model = messageModel
-}
-
-func (c Consumer) SetConsumerModel(consumerModel rocketmq.ConsumerModel) {
-	c.ConsumerConfig.ConsumerModel = consumerModel
-}
-
-func GetPushConsumer(name string) (consumer rocketmq.PushConsumer, err error) {
-	v, _ := ConsumerList.Load(name)
-	conf := v.(Consumer)
-
-	consumer, err = rocketmq.NewPushConsumer(conf.ConsumerConfig)
 	if err != nil {
-		return
+		panic(err)
 	}
-	return
+
+	return conn
 }
