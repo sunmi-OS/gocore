@@ -86,7 +86,7 @@ func (c *Consumer) SubscribeSingle(topic, expression string, callback func(ctx c
 			}
 			return consumer.ConsumeSuccess, nil
 		}
-		return consumer.ConsumeSuccess, nil
+		return consumer.ConsumeRetryLater, nil
 	})
 	if err != nil {
 		return err
