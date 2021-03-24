@@ -20,14 +20,17 @@ func TestProducer(t *testing.T) {
 		SecretKey: "xxx",
 		LogLevel:  LogError,
 	}
-	producer := NewProducer(conf)
 
-	if err := producer.Start(); err != nil {
+	conn, err := NewProducer(conf).Conn()
+	if err != nil {
 		xlog.Error(err)
+		return
 	}
 
-	for i := 0; i < 3; i++ {
-		_, err := producer.SendSyncSingle(ctx, &primitive.Message{
+	defer conn.Close()
+
+	for i := 0; i < 5; i++ {
+		/*res,*/ err = conn.SendAsyncSingle(ctx, &primitive.Message{
 			Topic:         "mdm_demo_topic",
 			Body:          []byte(fmt.Sprintf("我是消息啦啦啦啦啦_%d", i)),
 			TransactionId: fmt.Sprintf("TransactionId_%d", i),
@@ -36,10 +39,6 @@ func TestProducer(t *testing.T) {
 			xlog.Errorf("%v", err)
 			return
 		}
-		//xlog.Debugf("%#v", result)
-	}
-	err := producer.Shutdown()
-	if err != nil {
-		xlog.Error("shutdown error:", err)
+		//xlog.Debugf("res:%#v", res)
 	}
 }

@@ -31,26 +31,29 @@ func NewProducer(conf *RocketMQConfig) (p *Producer) {
 	return p
 }
 
-func (p *Producer) Start() (err error) {
+// connect to aliyun rocketmq
+func (p *Producer) Conn() (conn *Producer, err error) {
 	if p.conf.LogLevel != "" {
 		rlog.SetLogLevel(string(p.conf.LogLevel))
 	}
 	defaultProducer, err := producer.NewDefaultProducer(p.ops...)
 	if err != nil {
-		return err
+		return nil, err
 	}
 	p.Producer = defaultProducer
-	return p.Producer.Start()
-}
-
-func (p *Producer) Shutdown() (err error) {
-	if p.Producer == nil {
-		return fmt.Errorf("[%s] is nil", p.serverName)
+	if err = p.Producer.Start(); err != nil {
+		return nil, err
 	}
-
-	return p.Producer.Shutdown()
+	return p, nil
 }
 
+func (p *Producer) Close() {
+	if p.Producer != nil {
+		_ = p.Producer.Shutdown()
+	}
+}
+
+// 同步单条消息发送，对应消费 topic 的 MessageBatchMaxSize = 1时用
 func (p *Producer) SendSyncSingle(c context.Context, message *primitive.Message) (result *primitive.SendResult, err error) {
 	if p.Producer == nil {
 		return nil, fmt.Errorf("[%s] is nil", p.serverName)
@@ -58,57 +61,21 @@ func (p *Producer) SendSyncSingle(c context.Context, message *primitive.Message)
 	return p.Producer.SendSync(c, message)
 }
 
-func (p *Producer) SendSyncMulti(c context.Context, messages []*primitive.Message) (result *primitive.SendResult, err error) {
+// 异步单条消息发送，对应消费 topic 的 MessageBatchMaxSize = 1时用
+func (p *Producer) SendAsyncSingle(c context.Context, message *primitive.Message) (err error) {
 	if p.Producer == nil {
-		return nil, fmt.Errorf("[%s] is nil", p.serverName)
+		return fmt.Errorf("[%s] is nil", p.serverName)
 	}
-	return p.Producer.SendSync(c, messages...)
+	err = p.Producer.SendAsync(c, nil, message)
+	if err != nil {
+		return err
+	}
+	return nil
 }
 
-// 不能用，暂时注释掉
-//func (p *Producer) SendAsyncSingle(c context.Context, message *primitive.Message) (result *primitive.SendResult, err error) {
-//	if p.Producer == nil {
-//		return nil, fmt.Errorf("[%s] is nil", p.serverName)
-//	}
-//
-//	err = p.Producer.SendAsync(c, func(ctx context.Context, res *primitive.SendResult, err error) {
-//		if err != nil {
-//			//result = res
-//			xlog.Debugf("%#v", res)
-//		}
-//	}, message)
-//	if err != nil {
-//		return nil, err
-//	}
-//	return result, nil
-//}
-//
-//func (p *Producer) SendAsyncMulti(c context.Context, messages []*primitive.Message) (result *primitive.SendResult, err error) {
-//	if p.Producer == nil {
-//		return nil, fmt.Errorf("[%s] is nil", p.serverName)
-//	}
-//	err = p.Producer.SendAsync(c, func(ctx context.Context, res *primitive.SendResult, err error) {
-//		if err != nil {
-//			result = res
-//		}
-//	}, messages...)
-//	if err != nil {
-//		return nil, err
-//	}
-//	return result, nil
-//}
-
-// 不能用，暂时注释掉
-//func (p *Producer) SendOneWaySingle(c context.Context, message *primitive.Message) (err error) {
-//	if p.Producer == nil {
-//		return fmt.Errorf("[%s] is nil", p.serverName)
-//	}
-//	return p.Producer.SendOneWay(c, message)
-//}
-//
-//func (p *Producer) SendOneWayMulti(c context.Context, messages []*primitive.Message) (err error) {
-//	if p.Producer == nil {
-//		return fmt.Errorf("[%s] is nil", p.serverName)
-//	}
-//	return p.Producer.SendOneWay(c, messages...)
-//}
+func (p *Producer) SendOneWaySingle(c context.Context, message *primitive.Message) (err error) {
+	if p.Producer == nil {
+		return fmt.Errorf("[%s] is nil", p.serverName)
+	}
+	return p.Producer.SendOneWay(c, message)
+}
