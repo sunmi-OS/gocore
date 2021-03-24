@@ -24,11 +24,10 @@ func NewConsumer(conf *RocketMQConfig) (c *Consumer) {
 		ops = append(ops, conf.ConsumerOptions...)
 	}
 	c = &Consumer{
-		Consumer:            nil,
-		serverName:          conf.EndPoint,
-		messageBatchMaxSize: 1,
-		conf:                conf,
-		ops:                 ops,
+		Consumer:   nil,
+		serverName: conf.EndPoint,
+		conf:       conf,
+		ops:        ops,
 	}
 	return c
 }
@@ -52,6 +51,9 @@ func (c *Consumer) ConsumeMessageBatchMaxSize(size int) *Consumer {
 func (c *Consumer) Start() (err error) {
 	if c.conf.LogLevel != "" {
 		rlog.SetLogLevel(string(c.conf.LogLevel))
+	}
+	if c.messageBatchMaxSize == 0 {
+		c.ops = append(c.ops, consumer.WithConsumeMessageBatchMaxSize(1))
 	}
 	newPushConsumer, err := consumer.NewPushConsumer(c.ops...)
 	if err != nil {

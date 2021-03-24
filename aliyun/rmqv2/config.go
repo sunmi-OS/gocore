@@ -47,7 +47,6 @@ func defaultConsumerOps(conf *RocketMQConfig) (ops []consumer.Option) {
 		consumer.WithConsumerModel(consumer.Clustering),
 		consumer.WithRetry(2),
 		consumer.WithMaxReconsumeTimes(16),
-		consumer.WithConsumeMessageBatchMaxSize(1),
 		consumer.WithTrace(&primitive.TraceConfig{
 			//TraceTopic:  conf.TraceTopic, // 此处不能设置，否则消息消费commit会失效
 			GroupName:   conf.GroupName,
