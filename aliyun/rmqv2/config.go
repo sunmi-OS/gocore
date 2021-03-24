@@ -32,9 +32,9 @@ type RocketMQConfig struct {
 	SecretKey string
 	// log 级别 // default info
 	LogLevel LogLevel
-	// 消费者配置
+	// 自定义消费者配置
 	ConsumerOptions []consumer.Option
-	// 生产者配置
+	// 自定义生产者配置
 	ProducerOptions []producer.Option
 }
 
@@ -46,7 +46,6 @@ func defaultConsumerOps(conf *RocketMQConfig) (ops []consumer.Option) {
 		consumer.WithCredentials(primitive.Credentials{AccessKey: conf.AccessKey, SecretKey: conf.SecretKey}),
 		consumer.WithConsumerModel(consumer.Clustering),
 		consumer.WithRetry(2),
-		consumer.WithMaxReconsumeTimes(16),
 		consumer.WithTrace(&primitive.TraceConfig{
 			//TraceTopic:  conf.TraceTopic, // 此处不能设置，否则消息消费commit会失效
 			GroupName:   conf.GroupName,
@@ -61,17 +60,13 @@ func defaultConsumerOps(conf *RocketMQConfig) (ops []consumer.Option) {
 func defaultProducerOps(conf *RocketMQConfig) (ops []producer.Option) {
 	ops = []producer.Option{
 		producer.WithNamespace(conf.Namespace),
-		producer.WithGroupName(conf.GroupName),
 		producer.WithNameServer(primitive.NamesrvAddr{conf.EndPoint}),
 		producer.WithCredentials(primitive.Credentials{AccessKey: conf.AccessKey, SecretKey: conf.SecretKey}),
 		producer.WithRetry(2),
-		producer.WithTrace(&primitive.TraceConfig{
-			//TraceTopic:  conf.TraceTopic, // 此处不能设置，否则消息消费commit会失效
-			GroupName:   conf.GroupName,
-			Access:      primitive.Cloud,
-			Resolver:    primitive.NewPassthroughResolver(primitive.NamesrvAddr{conf.EndPoint}),
-			Credentials: primitive.Credentials{AccessKey: conf.AccessKey, SecretKey: conf.SecretKey},
-		}),
+	}
+	// GroupName is not necessary for producer
+	if conf.GroupName != "" {
+		ops = append(ops, producer.WithGroupName(conf.GroupName))
 	}
 	return ops
 }
