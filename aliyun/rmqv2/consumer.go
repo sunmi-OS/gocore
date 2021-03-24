@@ -72,6 +72,14 @@ func (c *Consumer) Close() {
 	}
 }
 
+// get topic list
+func (c *Consumer) TopicList() (ts []string) {
+	for topic, _ := range c.subscribeTopic {
+		ts = append(ts, topic)
+	}
+	return
+}
+
 // 单条消息消费 default
 func (c *Consumer) SubscribeSingle(topic, expression string, callback func(ctx context.Context, ext *primitive.MessageExt) error) (err error) {
 	if c.Consumer == nil {
