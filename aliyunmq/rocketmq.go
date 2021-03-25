@@ -6,39 +6,41 @@ import (
 	"github.com/sunmi-OS/gocore/viper"
 )
 
+// RocketMQConfig 基础配置
 type RocketMQConfig struct {
-	GroupID string
 	// 设置 TCP 协议接入点，从阿里云 RocketMQ 控制台的实例详情页面获取。
 	NameServer string
+	// 命名空间（阿里云上的实例ID）
+	Namespace string
 	// 您在阿里云账号管理控制台中创建的 AccessKeyId，用于身份认证。
 	AccessKey string
 	// 您在阿里云账号管理控制台中创建的 AccessKeySecret，用于身份认证。
 	SecretKey string
-	// 用户渠道，默认值为：ALIYUN。
-	Channel string
 }
 
-func initConfig(configName string) (config RocketMQConfig) {
+// initConfig 通过viper初始化配置
+func initConfig(configName string) RocketMQConfig {
 
-	config = RocketMQConfig{
-		GroupID:    viper.GetEnvConfig(configName + ".GroupID"),
+	mqConfig := RocketMQConfig{
 		NameServer: viper.GetEnvConfig(configName + ".NameServer"),
 		AccessKey:  viper.GetEnvConfig(configName + ".AccessKey"),
 		SecretKey:  viper.GetEnvConfig(configName + ".SecretKey"),
-		Channel:    viper.GetEnvConfig(configName + ".Channel"),
+		Namespace:  viper.GetEnvConfig(configName + ".Namespace"),
 	}
-
-	err := checkConfig(config)
-
+	err := checkConfig(mqConfig)
 	if err != nil {
 		panic(err)
 	}
-	return
+	// 默认日志等级 Error
+	LogError()
+
+	return mqConfig
 }
 
+// checkConfig 检查配置完整性
 func checkConfig(conf RocketMQConfig) (err error) {
 
-	if conf.AccessKey == "" || conf.Channel == "" || conf.GroupID == "" || conf.NameServer == "" || conf.SecretKey == "" {
+	if conf.AccessKey == "" || conf.Namespace == "" || conf.NameServer == "" || conf.SecretKey == "" {
 		err = errors.New("config Missing parameter")
 	}
 	return

@@ -3,43 +3,32 @@ package aliyunmq
 import (
 	"sync"
 
-	rocketmq "github.com/apache/rocketmq-client-go/core"
+	"github.com/apache/rocketmq-client-go/v2"
+	"github.com/apache/rocketmq-client-go/v2/primitive"
+	"github.com/apache/rocketmq-client-go/v2/producer"
 )
 
-type Producer struct {
-	RocketConf     RocketMQConfig
-	ProducerConfig *rocketmq.ProducerConfig
-}
+var ProducerPool sync.Map
 
-var ProducerList sync.Map
-
-func NewProducer(configName string) (producer Producer) {
+// NewProducer 初始化生产者
+func NewProducer(configName string, option ...producer.Option) rocketmq.Producer {
 
 	conf := initConfig(configName)
 
-	producer = Producer{
-		RocketConf: conf,
-		ProducerConfig: &rocketmq.ProducerConfig{
-			ClientConfig: rocketmq.ClientConfig{
-				//您在阿里云 RocketMQ 控制台上申请的 GID。
-				GroupID: conf.GroupID,
-				//设置 TCP 协议接入点，从阿里云 RocketMQ 控制台的实例详情页面获取。 TCP方式接入VPN也不行
-				NameServer: conf.NameServer,
-				Credentials: &rocketmq.SessionCredentials{
-					//您在阿里云账号管理控制台中创建的 AccessKeyId，用于身份认证。
-					AccessKey: conf.AccessKey,
-					//您在阿里云账号管理控制台中创建的 AccessKeySecret，用于身份认证。
-					SecretKey: conf.SecretKey,
-					//用户渠道，默认值为：ALIYUN。
-					Channel: conf.Channel,
-				},
-			},
-			//主动设置该实例用于发送普通消息。
-			ProducerModel: rocketmq.CommonProducer,
-		},
+	producerOption := []producer.Option{
+		producer.WithNsResolver(primitive.NewPassthroughResolver([]string{conf.NameServer})),
+		producer.WithCredentials(primitive.Credentials{
+			AccessKey: conf.AccessKey,
+			SecretKey: conf.SecretKey,
+		}),
+		producer.WithNamespace(conf.Namespace),
 	}
 
-	conn, err := rocketmq.NewProducer(producer.ProducerConfig)
+	if len(option) > 0 {
+		producerOption = append(producerOption, option...)
+	}
+
+	conn, err := rocketmq.NewProducer(producerOption...)
 	if err != nil {
 		panic(err)
 	}
@@ -49,16 +38,22 @@ func NewProducer(configName string) (producer Producer) {
 		panic(err)
 	}
 
-	ProducerList.LoadOrStore(configName, conn)
+	ProducerPool.LoadOrStore(configName, conn)
+	return conn
+}
+
+// GetProducer 获取生产者实例
+func GetProducer(configName string) (conn rocketmq.Producer) {
+	v, _ := ProducerPool.Load(configName)
+	conn = v.(rocketmq.Producer)
 	return
 }
 
-func (p Producer) SetProducerModel(producerModel rocketmq.ProducerModel) {
-	p.ProducerConfig.ProducerModel = producerModel
-}
-
-func GetProducer(name string) (producer rocketmq.Producer) {
-	v, _ := ProducerList.Load(name)
-	producer = v.(rocketmq.Producer)
-	return
+// CloseProducer 关闭所有生产者而连接
+func CloseProducer() {
+	ProducerPool.Range(func(key, value interface{}) bool {
+		conn := value.(rocketmq.Producer)
+		conn.Shutdown()
+		return true
+	})
 }
