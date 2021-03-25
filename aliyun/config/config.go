@@ -14,10 +14,13 @@ const (
 	Local   = "local"
 )
 
-var cc config_client.IConfigClient
+var (
+	cc      config_client.IConfigClient
+	runtime string
+)
 
 func Parse(group, dataId, localConfig string, confPtr interface{}) (err error) {
-	runtime := os.Getenv(Runtime)
+	runtime = os.Getenv(Runtime)
 
 	// local
 	if runtime == Local {
@@ -62,7 +65,7 @@ func Parse(group, dataId, localConfig string, confPtr interface{}) (err error) {
 }
 
 func ListenConfig(group, dataId string, confPtr interface{}, f func(config string, err error)) error {
-	if cc != nil {
+	if runtime != Local && cc != nil {
 		// callback function
 		callback := func(namespace string, group string, dataId string, data string) {
 			_, err := toml.Decode(data, confPtr)
@@ -80,5 +83,5 @@ func ListenConfig(group, dataId string, confPtr interface{}, f func(config strin
 		}
 		return cc.ListenConfig(cp)
 	}
-	return errors.New("nacos client is nil")
+	return errors.New("runtime is local or nacos client is nil")
 }
