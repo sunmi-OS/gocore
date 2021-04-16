@@ -2,47 +2,30 @@ package clientinterceptors
 
 import (
 	"context"
-	"encoding/json"
 	"fmt"
-	"path"
 	"time"
 
-	"github.com/sunmi-OS/gocore/rpcx/logx"
+	"github.com/sunmi-OS/gocore/xlog"
 	"google.golang.org/grpc"
 )
 
-const slowThreshold = time.Millisecond * 500
+var slowThreshold = (time.Millisecond * 500).Milliseconds()
 
 // @desc 请求失败或者慢请求会打印日志
 // @auth liuguoqiang 2020-04-21
 // @param
 // @return
-func DurationInterceptor(ctx context.Context, method string, req, reply interface{},
-	cc *grpc.ClientConn, invoker grpc.UnaryInvoker, opts ...grpc.CallOption) error {
-	serverName := path.Join(cc.Target(), method)
+func DurationInterceptor(ctx context.Context, method string, req, reply interface{}, cc *grpc.ClientConn, invoker grpc.UnaryInvoker, opts ...grpc.CallOption) error {
+	serverName := fmt.Sprintf("host: %s, method: %s", cc.Target(), method)
 	start := time.Now()
 	err := invoker(ctx, method, req, reply, cc, opts...)
 	duration := time.Since(start)
 	if err != nil {
-		errMsg := err.Error()
-		reqBtye, err := json.Marshal(req)
-		if err != nil {
-			fmt.Printf("%#v\n", err)
-		}
-		logx.LoggerObj.Error("rpc-client-fail", map[string]string{"duration": fmt.Sprintf("%d", duration/time.Millisecond), "serverName": serverName, "req": string(reqBtye), "err": errMsg})
-	} else {
-		if duration > slowThreshold {
-			reqBtye, err := json.Marshal(req)
-			if err != nil {
-				fmt.Printf("%#v\n", err)
-			}
-			replyBtye, err := json.Marshal(reply)
-			if err != nil {
-				fmt.Printf("%#v\n", err)
-			}
-			logx.LoggerObj.Error("rpc-client-slow", map[string]string{"elapsed": fmt.Sprintf("%d", duration/time.Millisecond), "serverName": serverName, "req": string(reqBtye), "reply": string(replyBtye)})
-		}
+		xlog.Zap().Errorf("rpc-client-fail: server: {%s}, req: {%+v}, reply: {%+v}, err: %+v", serverName, req, reply, err)
+		return err
 	}
-
-	return err
+	if duration.Milliseconds() > slowThreshold {
+		xlog.Zap().Warnf("rpc-client-slow: server: {%s}, duration: %dms, req: {%+v}, reply: {%+v}", serverName, duration.Milliseconds(), req, reply)
+	}
+	return nil
 }

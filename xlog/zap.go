@@ -97,37 +97,23 @@ func (l *Logger) Errorf(format string, args ...interface{}) {
 }
 
 func (l *Logger) initZap() {
-	// new log file dir
-	l.newLogDir()
-	// new log file
-	l.newLogFile()
-	// new zap
-	err := l.newZap()
-	if err != nil {
-		Errorf("l.newZap(),err:%+v", err)
-		return
-	}
-	// updateLogFile Loop
-	go l.updateLogFile()
-}
-
-func (l *Logger) newZap() (err error) {
+	var err error
 	l.c = zap.NewProductionConfig()
-	if l.err == nil && l.logFileName != "" {
-		l.c.OutputPaths = []string{l.logFileName, "stdout"}
-		l.c.ErrorOutputPaths = []string{l.logFileName, "stderr"}
-	}
-	l.c.EncoderConfig.EncodeTime = zapcore.ISO8601TimeEncoder
-
 	viper.C.SetDefault("system.debug", "true")
 	if viper.GetEnvConfigBool("system.debug") {
 		l.c.Level = zap.NewAtomicLevelAt(zap.DebugLevel)
 	}
-	l.Logger, err = l.c.Build()
+	l.c.EncoderConfig.EncodeTime = timeEncoder
+	l.Logger, err = l.c.Build(zap.AddCallerSkip(1))
 	if err != nil {
-		return err
+		Errorf("l.initZap(),err:%+v", err)
+		return
 	}
 	l.Sugar = l.Logger.Sugar()
+}
+
+func (l *Logger) newZap() (err error) {
+
 	return nil
 }
 

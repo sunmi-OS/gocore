@@ -95,6 +95,7 @@ func NewGrpcClient(name, addr string, cfg *GrpcClientConfig) (gc *GrpcClient, er
 	return gc, nil
 }
 
+// Deprecated
 // Conn get ready *grpc.ClientConn
 func (c *GrpcClient) Conn() (conn *grpc.ClientConn, ok bool) {
 	state := c.ClientConn.GetState()

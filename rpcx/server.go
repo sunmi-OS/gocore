@@ -1,13 +1,15 @@
 package rpcx
 
 import (
+	"time"
+
 	"google.golang.org/grpc"
 )
 
 type (
 	GrpcServerConfig struct {
-		// 超时时间，单位：ms
-		Timeout int
+		// 超时时间，默认 500ms
+		Timeout time.Duration
 	}
 
 	RegisterFn func(*grpc.Server)
@@ -29,7 +31,7 @@ type (
 
 func defaultServerConfig() *GrpcServerConfig {
 	return &GrpcServerConfig{
-		Timeout: 500,
+		Timeout: 500 * time.Millisecond,
 	}
 }
 

@@ -7,11 +7,12 @@ import (
 	"time"
 
 	"github.com/sunmi-OS/gocore/rpcx/logx"
+	"github.com/sunmi-OS/gocore/xlog"
 	"google.golang.org/grpc"
 	"google.golang.org/grpc/peer"
 )
 
-const serverSlowThreshold = time.Millisecond * 500
+var serverSlowThreshold = (time.Millisecond * 500).Milliseconds()
 
 // UnaryStatInterceptor
 // 链路用时打印 and Panic拦截打印
@@ -23,9 +24,14 @@ func UnaryStatInterceptor() grpc.UnaryServerInterceptor {
 		startTime := time.Now()
 		defer func() {
 			duration := time.Since(startTime)
-			logDuration(ctx, info.FullMethod, req, duration)
-		}()
+			//logDuration(ctx, info.FullMethod, req, duration)
+			if duration.Milliseconds() > serverSlowThreshold {
+				xlog.Zap().Warnf("rpc-sever-slow: method: {%s}, duration: %dms, req: {%+v}", info.FullMethod, duration.Milliseconds(), req)
+				//logx.LoggerObj.Info("rpc-sever-slow", map[string]string{"addr": addr, "method": method, "content": string(content), "duration": fmt.Sprintf("%d", duration/time.Millisecond)})
+				return
+			}
 
+		}()
 		return handler(ctx, req)
 	}
 }
@@ -45,9 +51,9 @@ func logDuration(ctx context.Context, method string, req interface{}, duration t
 		logx.LoggerObj.Error("rpc-sever-fail", map[string]string{"addr": addr, "method": method, "content": err.Error(), "duration": fmt.Sprintf("%d", duration/time.Millisecond)})
 		return
 	}
-	if duration > serverSlowThreshold {
+	if duration.Milliseconds() > serverSlowThreshold {
 		logx.LoggerObj.Info("rpc-sever-slow", map[string]string{"addr": addr, "method": method, "content": string(content), "duration": fmt.Sprintf("%d", duration/time.Millisecond)})
 		return
 	}
-	logx.LoggerObj.Info("rpc-sever-call", map[string]string{"addr": addr, "method": method, "content": string(content), "duration": fmt.Sprintf("%d", duration/time.Millisecond)})
+	//logx.LoggerObj.Info("rpc-sever-call", map[string]string{"addr": addr, "method": method, "content": string(content), "duration": fmt.Sprintf("%d", duration/time.Millisecond)})
 }

@@ -14,14 +14,9 @@ func main() {
 		xlog.Errorf("rpcx.NewGrpcClient, err:%+v", err)
 		return
 	}
-	conn, ok := client.Conn()
-	if !ok {
-		xlog.Error("not ok")
-		return
-	}
-	printGRPC := proto.NewPrintServiceClient(conn)
+	printGRPC := proto.NewPrintServiceClient(client.ClientConn)
 
-	req := &proto.Request{}
+	req := &proto.Request{Message: "hello server"}
 	rsp, err := printGRPC.PrintOK(context.Background(), req)
 	if err != nil {
 		xlog.Errorf("printGRPC.PrintOK(%+v), err:%+v", req, err)

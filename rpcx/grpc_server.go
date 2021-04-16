@@ -102,7 +102,7 @@ func NewGrpcServer(name, addr string, cfg *GrpcServerConfig) *GrpcServer {
 func (s *GrpcServer) RegisterService(register RegisterFn) *GrpcServer {
 	s.register = register
 	if s.cfg.Timeout > 0 {
-		s.AddUnaryInterceptors(serverinterceptors.UnaryTimeoutInterceptor(time.Duration(s.cfg.Timeout) * time.Millisecond))
+		s.AddUnaryInterceptors(serverinterceptors.UnaryTimeoutInterceptor(s.cfg.Timeout))
 	}
 
 	unaryInterceptors := []grpc.UnaryServerInterceptor{
