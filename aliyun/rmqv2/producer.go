@@ -66,6 +66,9 @@ func (p *Producer) SendAsyncSingle(c context.Context, callback func(ctx context.
 	if p.Producer == nil {
 		return fmt.Errorf("[%s] is nil", p.serverName)
 	}
+	if callback == nil {
+		callback = func(ctx context.Context, result *primitive.SendResult, err error) {}
+	}
 	err = p.Producer.SendAsync(c, callback, message)
 	if err != nil {
 		return err
