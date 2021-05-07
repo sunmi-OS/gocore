@@ -4,6 +4,7 @@ import (
 	"context"
 	"fmt"
 	"testing"
+	"time"
 
 	"github.com/apache/rocketmq-client-go/v2/primitive"
 	"github.com/sunmi-OS/gocore/xlog"
@@ -29,9 +30,11 @@ func TestProducer(t *testing.T) {
 
 	defer conn.Close()
 
-	for i := 0; i < 5; i++ {
-		/*res,*/ err = conn.SendAsyncSingle(ctx, &primitive.Message{
-			Topic:         "mdm_demo_topic",
+	for i := 0; i < 1; i++ {
+		/*res,*/ err = conn.SendAsyncSingle(ctx, func(ctx context.Context, result *primitive.SendResult, err error) {
+			xlog.Debugf("%+v", result)
+		}, &primitive.Message{
+			Topic:         "push_online",
 			Body:          []byte(fmt.Sprintf("我是消息啦啦啦啦啦_%d", i)),
 			TransactionId: fmt.Sprintf("TransactionId_%d", i),
 		})
@@ -41,4 +44,5 @@ func TestProducer(t *testing.T) {
 		}
 		//xlog.Debugf("res:%#v", res)
 	}
+	time.Sleep(time.Hour)
 }

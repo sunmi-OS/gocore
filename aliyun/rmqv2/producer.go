@@ -62,11 +62,11 @@ func (p *Producer) SendSyncSingle(c context.Context, message *primitive.Message)
 }
 
 // 异步单条消息发送，对应消费 topic 的 MessageBatchMaxSize = 1时用
-func (p *Producer) SendAsyncSingle(c context.Context, message *primitive.Message) (err error) {
+func (p *Producer) SendAsyncSingle(c context.Context, callback func(ctx context.Context, result *primitive.SendResult, err error), message *primitive.Message) (err error) {
 	if p.Producer == nil {
 		return fmt.Errorf("[%s] is nil", p.serverName)
 	}
-	err = p.Producer.SendAsync(c, nil, message)
+	err = p.Producer.SendAsync(c, callback, message)
 	if err != nil {
 		return err
 	}
