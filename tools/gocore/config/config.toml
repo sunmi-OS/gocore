@@ -1,0 +1,5 @@
+[service]
+name = "order"
+[database.db1]
+[database.db1.dev]
+driver = "mysql"
