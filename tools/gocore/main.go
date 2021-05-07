@@ -1,41 +1,28 @@
 package main
 
 import (
-	"fmt"
-	"io"
 	"log"
 	"os"
-	"os/exec"
 
-	constant "github.com/sunmi-OS/gocore/tools/gocore/constant"
-	"github.com/sunmi-OS/gocore/viper"
+	cmd "github.com/sunmi-OS/gocore/tools/gocore/cmd"
+	"github.com/sunmi-OS/gocore/tools/gocore/conf"
+	"github.com/urfave/cli"
 )
 
 func main() {
-	fmt.Printf("%#v\n", create())
-}
+	// 配置cli参数
+	app := cli.NewApp()
+	app.Name = conf.PROJECT_NAME
+	app.Usage = conf.PROJECT_NAME
+	app.Email = ""
+	app.Version = conf.PROJECT_VERSION
+	// 指定命令运行的函数
+	app.Commands = []cli.Command{
+		cmd.CreatService,
+	}
 
-func create() error {
-	viper.NewConfig("config", "config")
-	service := viper.C.GetStringMap("service")
-	name := viper.C.GetString("service.name")
-	err := MkdirIfNotExist(name)
-	if err != nil {
-		panic(err)
+	// 启动cli
+	if err := app.Run(os.Args); err != nil {
+		log.Fatalf("Failed to start application: %v", err)
 	}
-	path := name + "/main.go"
-	file, e := os.OpenFile(path, os.O_WRONLY|os.O_TRUNC|os.O_CREATE, 0o644)
-	if e != nil {
-		return e
-	}
-	defer file.Close()
-	_, err = io.WriteString(file, constant.MainTemplate)
-	if err != nil {
-		panic(err)
-	} else {
-		exec.Command("goimports", "-l", "-w", path).Output()
-		log.Println(path + " 已生成...")
-	}
-	fmt.Printf("%#v\n", service)
-	return nil
 }
