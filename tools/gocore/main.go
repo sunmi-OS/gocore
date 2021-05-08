@@ -9,7 +9,20 @@ import (
 	"github.com/urfave/cli"
 )
 
+
+const banner string = `
+   ____   ____             ____  ___________   ____  
+  / ___\ /  _ \   ______ _/ ___\/  _ \_  __ \_/ __ \ 
+ / /_/  >  <_> ) /_____/ \  \__(  <_> )  | \/\  ___/ 
+ \___  / \____/           \___  >____/|__|    \___  >
+/_____/                       \/                  \/
+`
+
 func main() {
+
+	// 打印banner
+	log.Println(banner)
+
 	// 配置cli参数
 	app := cli.NewApp()
 	app.Name = conf.PROJECT_NAME
