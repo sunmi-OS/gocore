@@ -2,6 +2,7 @@ package file
 
 import (
 	"io"
+	"os"
 )
 
 // interval.间隔
@@ -25,7 +26,19 @@ func (w *Writer) Bytes() []byte {
 	return w.buff
 }
 
-func (w *Writer) WriteToFile(file io.Writer) error {
-	_, err := io.WriteString(file, string(w.buff))
-	return err
+func (w *Writer) WriteToFile(path string) {
+	f, err := os.OpenFile(path, os.O_WRONLY|os.O_TRUNC|os.O_CREATE, 0o644)
+	if err != nil {
+		panic(err)
+	}
+	defer f.Close()
+	_, err = io.WriteString(f, string(w.buff))
+	w.Clear()
+	if err != nil {
+		panic(err)
+	}
+}
+
+func (w *Writer) Clear() {
+	w.buff = w.buff[:0]
 }

@@ -20,21 +20,32 @@ require (
 	github.com/jolestar/go-commons-pool v2.0.0+incompatible
 	github.com/labstack/echo/v4 v4.2.0
 	github.com/labstack/gommon v0.3.0
+	github.com/magiconair/properties v1.8.5 // indirect
+	github.com/mitchellh/mapstructure v1.4.1 // indirect
 	github.com/nacos-group/nacos-sdk-go v1.0.6
+	github.com/pelletier/go-toml v1.9.0
 	github.com/rakyll/statik v0.1.7
 	github.com/robfig/cron/v3 v3.0.1
+	github.com/russross/blackfriday/v2 v2.1.0 // indirect
 	github.com/segmentio/kafka-go v0.4.10
+	github.com/spf13/afero v1.6.0 // indirect
 	github.com/spf13/cast v1.3.1
+	github.com/spf13/jwalterweatherman v1.1.0 // indirect
+	github.com/spf13/pflag v1.0.5 // indirect
 	github.com/spf13/viper v1.7.1
 	github.com/streadway/amqp v1.0.0
 	github.com/tidwall/gjson v1.6.8
 	github.com/urfave/cli v1.22.5
 	go.uber.org/zap v1.16.0
 	gobot.io/x/gobot v1.14.0
+	golang.org/x/sys v0.0.0-20210507014357-30e306a8bba5 // indirect
+	golang.org/x/text v0.3.6 // indirect
 	google.golang.org/grpc v1.32.0
 	google.golang.org/protobuf v1.25.0
 	gopkg.in/alexcesaro/quotedprintable.v3 v3.0.0-20150716171945-2caba252f4dc // indirect
 	gopkg.in/gomail.v2 v2.0.0-20160411212932-81ebce5c23df
+	gopkg.in/ini.v1 v1.62.0 // indirect
 	gopkg.in/redis.v5 v5.2.9
+	gopkg.in/yaml.v2 v2.4.0 // indirect
 	gopkg.in/yaml.v3 v3.0.0-20210107192922-496545a6307b
 )
