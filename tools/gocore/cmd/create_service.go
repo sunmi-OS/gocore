@@ -70,6 +70,7 @@ func creatService(c *cli.Context) error {
 	if name == "" {
 		return cli.NewExitError("service name  not found", 86)
 	}
+	name = "."
 	mkdir(name)
 	createMain(name)
 	createConf(name)
