@@ -61,7 +61,6 @@ func RunApi(c *cli.Context) error {
 			// Close相关服务
 			e.Echo.Close()
 			gorm.Close()
-			common.Monitor.Close(5)
 			aliyunlog.Close()
 			return nil
 		case syscall.SIGHUP:
@@ -184,8 +183,8 @@ import (
 	"log"
 	"os"
 
-	"order/cmd"
-	"order/common"
+	"` + name + `/cmd"
+	"` + name + `/common"
 
 	gocoreLog "github.com/sunmi-OS/gocore/log"
 	"github.com/urfave/cli"
@@ -229,10 +228,10 @@ ApiServicePort = "80"
 func CreateConfMyql(dbName string) string {
 	return `
 [db` + strings.Title(dbName) + `]
-dbHost = "dev.db.sunmi.com"           #数据库连接地址
+dbHost = ""           #数据库连接地址
 dbName = "` + dbName + `"           #数据库名称
-dbUser = "kingshardadmin"           #数据库用户名
-dbPasswd = "Kwbd7246005c039789d9"         #数据库密码
+dbUser = ""           #数据库用户名
+dbPasswd = ""         #数据库密码
 dbPort = "3306"       #数据库端口号
 dbOpenconns_max = 20  #最大连接数
 dbIdleconns_max = 20  #最大空闲连接
@@ -358,7 +357,7 @@ package api
 
 import (
 	"` + name + `/app/domain"
-	"` + name + `/errcode"
+	"` + name + `/app/errcode"
 	"` + name + `/pkg/parse"
 
 	"github.com/labstack/echo/v4"
@@ -428,7 +427,7 @@ package domain
 
 func CreateCronjob(cron string) string {
 	return `
-	package cron
+	package cronjob
 // ` + cron + `
 func ` + cron + `() {
 }
@@ -449,7 +448,6 @@ func CreateCmdCronjob(name, cronjobs string) string {
 package cmd
 
 import (
-	"fmt"
 	"log"
 	"` + name + `/app/cronjob"
 	"` + name + `/common"
@@ -460,12 +458,11 @@ import (
 	"github.com/robfig/cron"
 	"github.com/sunmi-OS/gocore/aliyunlog"
 	"github.com/sunmi-OS/gocore/gorm"
-	"github.com/sunmi-OS/gocore/utils"
 	"github.com/urfave/cli"
 )
 
-// Cron cmd 定时任务相关
-var Cron = cli.Command{
+// Cronjob cmd 定时任务相关
+var Cronjob = cli.Command{
 	Name:    "cron",
 	Aliases: []string{"c"},
 	Usage:   "run",
@@ -503,7 +500,6 @@ func runCron(c *cli.Context) error {
 			// Close相关服务
 			cronObj.Stop()
 			gorm.Close()
-			common.Monitor.Close(5)
 			aliyunlog.Close()
 			return nil
 		case syscall.SIGHUP:
@@ -520,18 +516,9 @@ func CreateCmdJob(name, jobCmd, jobFunctions string) string {
 package cmd
 
 import (
-	"fmt"
-	"log"
 	"` + name + `/app/job"
 	"` + name + `/common"
-	"os"
-	"os/signal"
-	"syscall"
 
-	"github.com/robfig/cron"
-	"github.com/sunmi-OS/gocore/aliyunlog"
-	"github.com/sunmi-OS/gocore/gorm"
-	"github.com/sunmi-OS/gocore/utils"
 	"github.com/urfave/cli"
 )
 
@@ -676,6 +663,57 @@ func initConf() {
 // initDB 初始化DB服务 （内部方法）
 func initDB() {
 	` + initDb + `
+}
+`
+}
+
+func CreateErrCode() string {
+	return `
+package errcode
+
+const (
+	Code0001 = iota + 11030001 //系统异常
+	Code0002                   //参数错误
+)
+
+const CodeSuccess int64 = 1 //返回成功
+`
+}
+
+func CreateParse() string {
+	return `
+package parse
+
+import (
+	"github.com/go-playground/validator/v10"
+	"github.com/labstack/echo/v4"
+	"github.com/sunmi-OS/gocore/api"
+)
+
+func ParseJson(c echo.Context, req interface{}) (*api.Request, *api.Response, error) {
+	request := api.NewRequest(c)
+	response := api.NewResponse(c)
+	err := request.InitRawJson()
+	if err != nil {
+		return request, response, err
+	}
+	request.GetRoot().GetJsonObject(req) //校验必填参数
+	err = request.GetError()
+	if err != nil {
+		return request, response, err
+	}
+	validate := validator.New()
+	err = validate.Struct(req)
+	return request, response, err
+}
+
+	`
+}
+
+func CreateCommon() string {
+	return `package common
+func Init(){
+	
 }
 `
 }

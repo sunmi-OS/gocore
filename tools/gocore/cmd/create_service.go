@@ -50,7 +50,7 @@ var dirList []string = []string{
 	"/cmd",
 	"/app/domain",
 	"/app/model",
-	"/app/apicode",
+	"/app/errcode",
 	"/app/routes",
 	"/conf",
 	"/pkg",
@@ -75,17 +75,23 @@ func creatService(c *cli.Context) error {
 	root := "."
 	mkdir(root)
 	createConf(root)
+	createParse(root)
 	createMain(root, name)
 	createCmd(root)
 	createCommon(root, name)
 	createDockerfile(root)
 	createReadme(root)
+	createErrCode(root)
 	createModel(root, name)
 	createCronjob(name, root)
 	createJob(name, root)
 	createApi(root, name)
 
 	cmd := exec.Command("go", "mod", "init", name)
+	cmd.Dir = root
+	cmd.Output()
+
+	cmd = exec.Command("goimports", "-l", "-w", "./...")
 	cmd.Dir = root
 	cmd.Output()
 
@@ -103,7 +109,17 @@ func creatService(c *cli.Context) error {
 
 func createMain(root, name string) {
 	mainPath := root + "/main.go"
-	writer.Add([]byte(template.CreateMain(name, "")))
+	cmds := ""
+	if configJson.Get("api").Exists() {
+		cmds += "cmd.Api,\n"
+	}
+	if configJson.Get("cronjob").Exists() {
+		cmds += "cmd.Cronjob,\n"
+	}
+	if configJson.Get("job").Exists() {
+		cmds += "cmd.Job,\n"
+	}
+	writer.Add([]byte(template.CreateMain(name, cmds)))
 	writer.WriteToFile(mainPath)
 }
 
@@ -125,7 +141,7 @@ func createCmd(root string) {
 
 func createCommon(root, name string) {
 	commonPath := root + "/common/common.go"
-	writer.Add([]byte("package common"))
+	writer.Add([]byte(template.CreateCommon()))
 	writer.WriteToFile(commonPath)
 
 	constPath := root + "/common/const.go"
@@ -145,24 +161,30 @@ func createReadme(root string) {
 	writer.WriteToFile(readmePath)
 }
 
+func createErrCode(root string) {
+	errCodePath := root + "/app/errcode/errcode.go"
+	writer.Add([]byte(template.CreateErrCode()))
+	writer.WriteToFile(errCodePath)
+}
+
 func createModel(root, name string) {
 	mysqlMap := configJson.Get("mysql").Map()
 	if len(mysqlMap) == 0 {
 		return
 	}
 	pkgs := ""
-	dbUpdate := ""
+	dbUpdate := "var err error"
 	initDb := ""
 	for k1, v1 := range mysqlMap {
-		pkgs += `"` + name + `/app/model/misun"` + "\n"
+		pkgs += `"` + name + `/app/model/` + k1 + `"` + "\n"
 		dir := root + "/app/model/" + k1
 		dbUpdate += `
-				err := gorm.NewOrUpdateDB("` + k1 + `")
+				err = gorm.NewOrUpdateDB("` + k1 + `")
 				if err != nil {
 					log.Fatalln(err)
 				}
 		`
-		initDb += `gorm.NewDB(` + k1 + `)
+		initDb += `gorm.NewDB("` + k1 + `")
 			` + k1 + `.CreateTable()` + "\n"
 		err := file.MkdirIfNotExist(dir)
 		if err != nil {
@@ -303,7 +325,7 @@ func createApi(root, name string) {
 			function := strings.Title(route)
 			functions = append(functions, function)
 			requests = append(requests, function)
-			routesStr += k1 + ".POST(\"/" + k1 + "/" + route + "\",api." + handler + "Handelr." + function + ")\n"
+			routesStr += k1 + ".POST(\"/" + k1 + "/" + route + "\",api." + handler + "Handler." + function + ")\n"
 
 			domainPath := domainDir + file.CamelToUnderline(route) + ".go"
 			domainWriter.Add([]byte(template.CreateDomain(handler, function)))
@@ -352,4 +374,15 @@ func parseToml(path string) {
 		panic(err)
 	}
 	configJson = gjson.ParseBytes(cMapBytes)
+}
+
+func createParse(root string) {
+	dir := root + "/pkg/parse"
+	err := file.MkdirIfNotExist(dir)
+	if err != nil {
+		panic(err)
+	}
+	parsePath := dir + "/parse.go"
+	writer.Add([]byte(template.CreateParse()))
+	writer.WriteToFile(parsePath)
 }
