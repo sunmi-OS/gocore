@@ -2,6 +2,7 @@ package file
 
 import (
 	"os"
+	"strings"
 	"unicode"
 )
 
@@ -25,7 +26,7 @@ func checkFileIsExist(filename string) bool {
 	return exist
 }
 
-// 驼峰单词转下划线单词
+// CamelToUnderline 驼峰单词转下划线单词
 func CamelToUnderline(s string) string {
 	var output []rune
 	for i, r := range s {
@@ -39,4 +40,11 @@ func CamelToUnderline(s string) string {
 		}
 	}
 	return string(output)
+}
+
+// UnderlineToCamel 下划线写法转为驼峰写法
+func UnderlineToCamel(name string) string {
+	name = strings.Replace(name, "_", " ", -1)
+	name = strings.Title(name)
+	return strings.Replace(name, " ", "", -1)
 }

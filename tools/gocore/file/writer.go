@@ -22,6 +22,13 @@ func (w *Writer) Add(s []byte) {
 	w.buff = append(w.buff, s...)
 }
 
+func (w *Writer) AddStrs(s ...string) {
+	for _, v1 := range s {
+		w.buff = append(w.buff, v1...)
+	}
+
+}
+
 func (w *Writer) Bytes() []byte {
 	return w.buff
 }

@@ -1,173 +1,14 @@
 package template
 
+import "strings"
+
 const (
-	BackQuote    = "``"
-	MainTemplate = `
-package main
-
-import (
-
-	gocoreLog "github.com/sunmi-OS/gocore/log"
-
+	OneBackQuote = "`"
+	TwoBackQuote = "``"
 )
 
-func main() {
-
-	//初始化log
-	gocoreLog.InitLogger("order")
-	
-}
-`
-	ConfBaseTemplate = `
-package conf
-
-var baseConfig = ` + BackQuote
-
-	ConfLocalTemplate = `
-package conf
-
-var localConfig = ` + BackQuote
-	ConfNacosTemplate = `
-package conf
-
-import (
-	"os"
-
-	"github.com/nacos-group/nacos-sdk-go/common/constant"
-	"github.com/sunmi-OS/gocore/nacos"
-)
-
-// @title        初始化配置中心
-// @description  通过环境初始化配置中心，从环境变量获取连接配置中心的必要配置
-// @param        runtime  string  "当前运行的环境字符串 local/dev/test/uat/onl等"
-// @return       无
-func InitNacos(runtime string) {
-	nacos.SetRunTime(runtime)
-	nacos.ViperTomlHarder.SetviperBase(baseConfig)
-	switch runtime {
-	case "local":
-		nacos.AddLocalConfig(runtime, localConfig)
-	default:
-		Endpoint := os.Getenv("ENDPOINT")
-		NamespaceId := os.Getenv("NAMESPACE_ID")
-		AccessKey := os.Getenv("ACCESS_KEY")
-		SecretKey := os.Getenv("SECRET_KEY")
-
-		if Endpoint == "" || NamespaceId == "" || AccessKey == "" || SecretKey == "" {
-			panic("The configuration file cannot be empty.")
-		}
-
-		err := nacos.AddAcmConfig(runtime, constant.ClientConfig{
-			Endpoint:    Endpoint,
-			NamespaceId: NamespaceId,
-			AccessKey:   AccessKey,
-			SecretKey:   SecretKey,
-		})
-		if err != nil {
-			panic(err)
-		}
-	}
-}
-`
-
-	RoutesTemplate = `
-package routes
-
-import (
-	"fmt"
-	"os"
-	"runtime"
-	"runtime/pprof"
-	"strings"
-	"time"
-
-	"github.com/labstack/echo/v4"
-	"github.com/sunmi-OS/gocore/log"
-)
-
-var (
-	pid      int
-	progname string
-)
-
-func init() {
-	pid = os.Getpid()
-	paths := strings.Split(os.Args[0], "/")
-	paths = strings.Split(paths[len(paths)-1], string(os.PathSeparator))
-	progname = paths[len(paths)-1]
-
-}
-
-// Router 初始化路由
-func Router(e *echo.Echo) {
-
-	// 内存溢出检测
-	e.Any("/pprof-init", func(context echo.Context) error {
-		pid = os.Getpid()
-		paths := strings.Split(os.Args[0], "/")
-		paths = strings.Split(paths[len(paths)-1], string(os.PathSeparator))
-		progname = paths[len(paths)-1]
-		runtime.MemProfileRate = 1
-		return nil
-	})
-	// 内存溢出检测
-	e.Any("/pprof", func(context echo.Context) error {
-		runtime.GC()
-		f, err := os.Create(fmt.Sprintf("./heap_%s_%d_%s.prof", progname, pid, time.Now().Format("2006_01_02_03_04_05")))
-		if err != nil {
-			return err
-		}
-		defer f.Close()
-		err = pprof.Lookup("heap").WriteTo(f, 1)
-		if err != nil {
-			log.Sugar.Info(err)
-		}
-		runtime.MemProfileRate = 0
-		return context.JSON(200, "pong")
-	})
-}
-`
-)
-
-var (
-	CmdInitTemplate = []string{`
-	package cmd
-
-import (
-	"log"
-
-	"order/app/model"
-	"order/app/model/misun"
-	"order/conf"
-
-	"github.com/sunmi-OS/gocore/gorm"
-	"github.com/sunmi-OS/gocore/nacos"
-	"github.com/sunmi-OS/gocore/utils"
-)
-
-// initConf 初始化配置服务 （内部方法）
-func initConf() {
-	// 初始化Nacos配置
-	conf.InitNacos(utils.GetRunTime())
-	// 注册需要的配置
-	nacos.ViperTomlHarder.SetDataIds("`, `", "mysql", "config", "redis")
-	nacos.ViperTomlHarder.SetDataIds("general", "general")
-	// 注册配置更新回调
-	nacos.ViperTomlHarder.SetCallBackFunc("`, `", "mysql", func(namespace, group, dataId, data string) {
-		err := gorm.NewOrUpdateDB(conf.OrderDB)
-		if err != nil {
-			log.Fatalln(err)
-		}
-	})
-	// 把Nacos的配置注册到Viper
-	nacos.ViperTomlHarder.NacosToViper()
-}
-
-// initDB 初始化DB服务 （内部方法）
-func initDB() {
-}
-`}
-	CmdApiTemplate = `
+func CreateCmdApi(name string) string {
+	return `
 package cmd
 
 import (
@@ -176,8 +17,8 @@ import (
 	"os/signal"
 	"syscall"
 
-	"order/app/routes"
-	"order/common"
+	"` + name + `/app/routes"
+	"` + name + `/common"
 
 	"github.com/sunmi-OS/gocore/aliyunlog"
 	"github.com/sunmi-OS/gocore/gorm"
@@ -230,9 +71,9 @@ func RunApi(c *cli.Context) error {
 	}
 }
 `
-	CommonTemplate = `package common`
-
-	DockerfileTemplate = `
+}
+func CreateDockerfile() string {
+	return `
 #template
 FROM sunmi-docker-images-registry.cn-hangzhou.cr.aliyuncs.com/public/golang:1.15 As builder
 
@@ -259,7 +100,10 @@ COPY --from=builder /project/main .
 # your project shell [project] [arg1] [arg2] ...
 CMD [ "/app/main","api","start"]
 `
-	ReadmeTemplate = `
+}
+
+func CreateReadme() string {
+	return `
 ## 项目名称
 > 请介绍一下你的项目吧  
 
@@ -293,98 +137,322 @@ CMD [ "/app/main","api","start"]
 ## 协作者
 > 高效的协作会激发无尽的创造力，将他们的名字记录在这里吧
 `
+}
 
-	ModelClientTemplate = `
-package model
+func CreateToml() string {
+	return `[service]
+name = "order"
+
+[api]
+[api.publicOrder]
+prefix = "/public/v1/order/"
+routes = [
+    "createPreOrder",
+    "getPreOrder"
+]
+[api.privateOrder]
+prefix = "/private/v1/order/"
+routes = [
+    "createPrivatePreOrder",
+    "getPrivatePreOrder"
+]
+
+[cronjob]
+StatisticDataByDay = "30 1 0 * * *"
+LoopCSync = "30 1 0 * * *"
+
+[job]
+LoopOrder = "loopOrder"
+LoopInvoice = "loopOrder"
+
+[mysql]
+[mysql.order]
+tables = ["order","goods"]
+[mysql.wallet]
+tables = ["record"]
+
+[redis]
+[redis.order]
+`
+}
+
+func CreateMain(name, cmds string) string {
+	return `
+package main
+
+import (
+	"log"
+	"os"
+
+	"order/cmd"
+	"order/common"
+
+	gocoreLog "github.com/sunmi-OS/gocore/log"
+	"github.com/urfave/cli"
+)
+
+func main() {
+	// 配置cli参数
+	app := cli.NewApp()
+	app.Name = common.PROJECT_NAME
+	app.Usage = common.PROJECT_NAME
+	app.Email = ""
+	app.Version = common.PROJECT_VERSION
+
+	// 指定命令运行的函数
+	app.Commands = []cli.Command{
+` + cmds + `
+	}
+
+	//初始化log
+	gocoreLog.InitLogger("` + name + `")
+
+	// 启动cli
+	if err := app.Run(os.Args); err != nil {
+		log.Fatalf("Failed to start application: %v", err)
+	}
+}
+`
+}
+
+func CreateConfBase() string {
+	return `
+package conf
+
+var baseConfig = ` + OneBackQuote + `
+[network]
+ApiServiceHost = ""
+ApiServicePort = "80"
+` + OneBackQuote
+}
+
+func CreateConfMyql(dbName string) string {
+	return `
+[db` + strings.Title(dbName) + `]
+dbHost = "dev.db.sunmi.com"           #数据库连接地址
+dbName = "` + dbName + `"           #数据库名称
+dbUser = "kingshardadmin"           #数据库用户名
+dbPasswd = "Kwbd7246005c039789d9"         #数据库密码
+dbPort = "3306"       #数据库端口号
+dbOpenconns_max = 20  #最大连接数
+dbIdleconns_max = 20  #最大空闲连接
+dbType = "mysql"
+		`
+}
+
+func CreateConfLocal(content string) string {
+	return `
+package conf
+
+var localConfig = ` + OneBackQuote + content + OneBackQuote
+}
+
+func CreateConfNacos() string {
+	return `
+package conf
+
+import (
+	"os"
+
+	"github.com/nacos-group/nacos-sdk-go/common/constant"
+	"github.com/sunmi-OS/gocore/nacos"
+)
+
+// InitNacos  通过环境变量初始化配置中心，从环境变量获取连接配置中心的必要配置
+func InitNacos(runtime string) {
+	nacos.SetRunTime(runtime)
+	nacos.ViperTomlHarder.SetviperBase(baseConfig)
+	switch runtime {
+	case "local":
+		nacos.AddLocalConfig(runtime, localConfig)
+	default:
+		Endpoint := os.Getenv("ENDPOINT")
+		NamespaceId := os.Getenv("NAMESPACE_ID")
+		AccessKey := os.Getenv("ACCESS_KEY")
+		SecretKey := os.Getenv("SECRET_KEY")
+
+		if Endpoint == "" || NamespaceId == "" || AccessKey == "" || SecretKey == "" {
+			panic("The configuration file cannot be empty.")
+		}
+
+		err := nacos.AddAcmConfig(runtime, constant.ClientConfig{
+			Endpoint:    Endpoint,
+			NamespaceId: NamespaceId,
+			AccessKey:   AccessKey,
+			SecretKey:   SecretKey,
+		})
+		if err != nil {
+			panic(err)
+		}
+	}
+}
+`
+}
+
+func CreateRoutes(pkg, routes string) string {
+	return `
+package routes
 
 import (
 	"fmt"
+	"os"
+	"runtime"
+	"runtime/pprof"
+	"strings"
+	"time"
 
-	"github.com/jinzhu/gorm"
-	g "github.com/sunmi-OS/gocore/gorm"
-	"github.com/sunmi-OS/gocore/utils"
+	` + pkg + `
+	"github.com/labstack/echo/v4"
+	"github.com/sunmi-OS/gocore/log"
 )
 
-func Orm() *gorm.DB {
-	db := g.GetORM("order")
-	if utils.GetRunTime() != "onl" {
-		db = db.Debug()
-	}
-	return db
+var (
+	pid      int
+	progname string
+)
+
+func init() {
+	pid = os.Getpid()
+	paths := strings.Split(os.Args[0], "/")
+	paths = strings.Split(paths[len(paths)-1], string(os.PathSeparator))
+	progname = paths[len(paths)-1]
+
 }
 
-func CreateTable() {
-	fmt.Println("开始初始化order数据库")
-	//自动建表，数据迁移
-	Orm().Set("gorm:table_options", "CHARSET=utf8mb4 comment='订单表' AUTO_INCREMENT=1;").AutoMigrate(&Order{})
-	fmt.Println("数据库order初始化完成")
+// Router 初始化路由
+func Router(e *echo.Echo) {
+
+	// 内存溢出检测
+	e.Any("/pprof-init", func(context echo.Context) error {
+		pid = os.Getpid()
+		paths := strings.Split(os.Args[0], "/")
+		paths = strings.Split(paths[len(paths)-1], string(os.PathSeparator))
+		progname = paths[len(paths)-1]
+		runtime.MemProfileRate = 1
+		return nil
+	})
+	// 内存溢出检测
+	e.Any("/pprof", func(context echo.Context) error {
+		runtime.GC()
+		f, err := os.Create(fmt.Sprintf("./heap_%s_%d_%s.prof", progname, pid, time.Now().Format("2006_01_02_03_04_05")))
+		if err != nil {
+			return err
+		}
+		defer f.Close()
+		err = pprof.Lookup("heap").WriteTo(f, 1)
+		if err != nil {
+			log.Sugar.Info(err)
+		}
+		runtime.MemProfileRate = 0
+		return context.JSON(200, "pong")
+	})
+
+` + routes + `
 }
 `
+}
 
-	ModelTableTemplate = `
-package model
+func CreateApi(name, handler string, functions ...string) string {
+	res := `
+package api
 
 import (
-	gormx "github.com/jinzhu/gorm"
+	"` + name + `/app/domain"
+	"` + name + `/errcode"
+	"` + name + `/pkg/parse"
+
+	"github.com/labstack/echo/v4"
 )
 
-var AccountHandler = &Account{}
-
-type Account struct {
-}
-
-func (*Account) TableName() string {
-	return "wallet_account"
-}
-
-func (*Account) Insert(db *gormx.DB, data *Account) error {
-	if db == nil {
-		db = Orm()
+var ` + handler + `Handler = ` + handler + `{}
+type ` + handler + ` struct{}
+`
+	for _, v1 := range functions {
+		res += `
+// ` + v1 + `
+func (*` + handler + `) ` + v1 + `(c echo.Context) error {
+	params := new(domain.` + v1 + `Request)
+	//参数验证绑定
+	_, response, err := parse.ParseJson(c, params)
+	if err != nil {
+		return response.RetError(err, errcode.Code0002)
 	}
-	return db.Create(data).Error
-}
-
-func (*Account) GetOne(where string, args ...interface{}) (*Account, error) {
-	var obj Account
-	return &obj, Orm().Where(where, args...).Take(&obj).Error
-}
-
-func (*Account) GetList(where string, args ...interface{}) ([]*Account, error) {
-	var list []*Account
-	db := Orm()
-	return list, db.Where(where, args...).Find(&list).Error
-}
-
-func (*Account) GetCount(where string, args ...interface{}) (int, error) {
-	var number int
-	err := Orm().Model(&Account{}).Where(where, args...).Count(&number).Error
-	return number, err
-}
-
-func (*Account) Delete(db *gormx.DB, where string, args ...interface{}) error {
-	if db == nil {
-		db = Orm()
+	resp, code, err := domain.` + handler + `Handler.` + v1 + `(params)
+	if err != nil {
+		return response.RetError(err, code)
 	}
-	return db.Where(where, args...).Delete(&Account{}).Error
-}
-
-func (*Account) Update(db *gormx.DB, data map[string]interface{}, where string, args ...interface{}) (int64, error) {
-	if db == nil {
-		db = Orm()
-	}
-	db = db.Model(&Account{}).Where(where, args...).Update(data)
-	return db.RowsAffected, db.Error
+	return response.RetSuccess(resp)
 }
 `
-	JobCmdTemplate = `
+	}
+
+	return res
+}
+
+func CreateDomain(handler, function string) string {
+	return `
+package domain
+
+// ` + function + `
+func (this *` + handler + `) ` + function + `(req *` + function + `Request)(map[string]interface{}, int, error) {
+	return map[string]interface{}{}, 1, nil
+}
+`
+}
+
+func CreateDomainHandler(handlers ...string) string {
+	res := `
+package domain
+`
+	for _, v1 := range handlers {
+		res += `var ` + v1 + `Handler = &` + v1 + `{}
+		type ` + v1 + ` struct{}
+`
+	}
+	return res
+
+}
+
+func CreateDomainRequest(requests ...string) string {
+	res := `
+package domain
+`
+	for _, v1 := range requests {
+		res += "type " + v1 + `Request struct {
+		OrderNo string ` + OneBackQuote + `json:"order_no"` + OneBackQuote + `
+	}
+	`
+	}
+	return res
+}
+
+func CreateCronjob(cron string) string {
+	return `
+	package cron
+// ` + cron + `
+func ` + cron + `() {
+}
+`
+}
+
+func CreateJob(job string) string {
+	return `
+	package job
+// ` + job + `
+func ` + job + `() {
+}
+`
+}
+
+func CreateCmdCronjob(name, cronjobs string) string {
+	return `
 package cmd
 
 import (
 	"fmt"
 	"log"
-	orderCron "order/app/domain/cron"
-	"order/app/model"
-	"order/common"
+	"` + name + `/app/cronjob"
+	"` + name + `/common"
 	"os"
 	"os/signal"
 	"syscall"
@@ -405,63 +473,24 @@ var Cron = cli.Command{
 		{
 			Name:   "start",
 			Usage:  "开启运行api服务",
-			Action: RunCron,
+			Action: runCron,
 		},
 	},
 }
 
-//执行一次性订单统计任务执行
-var OneTaskOrderStatistic = cli.Command{
-	Name:  "orderstatistic",
-	Usage: "按时间段统计入库",
-	Subcommands: []cli.Command{
-		{
-			Name:   "exec",
-			Usage:  "按时间段手动执行统计脚本",
-			Action: OneTaskOrderStatisFun,
-			Flags: []cli.Flag{
-				cli.StringFlag{
-					Name:  "startDate", //  ./main orderstatistic exec --startDate=2020-12-21 --endDate=2020-12-21 --businessKey=test
-					Value: "",
-					Usage: "开始日期格式2020-01-01",
-				},
-				cli.StringFlag{
-					Name:  "endDate",
-					Value: "",
-					Usage: "结束日期格式2020-01-10",
-				},
-				cli.StringFlag{
-					Name:  "businessKey",
-					Value: "",
-					Usage: "业务类型标识 可空指所有",
-				},
-			},
-		},
-	},
-}
-
-// RunCron 运行定时任务
-func RunCron(c *cli.Context) error {
+// runCron 运行定时任务
+func runCron(c *cli.Context) error {
 
 	// 初始化必要内容
 	initConf()
 	initDB()
 	common.Init()
-	job := cron.New()
-	go orderCron.LoopMonitorHandler.LoopMonitorList()
-	go orderCron.LoopMonitorHandler.LoopMonitorMsg()
-	go orderCron.LoopCSyncHandler.LoopCSync(1) // c端同步业务组
-	if utils.GetRunTime() == "onl" {
-		go orderCron.LoopSyncNcHandler.Loop()
-		go orderCron.LoopSyncNcHandler.LoopInvoice()
-		go orderCron.LoopCSyncHandler.LoopCSync(2) // c端同步nc
-	}
-	go orderCron.LoopSyncBusinessHandler.Loop()
-	_ = job.AddFunc("30 1 0 * * *", orderCron.LoopExpireHandler.Loop)
-	_ = job.AddFunc("30 5 0 * * *", orderCron.LoopOrderStatisticHandler.StatisticDataByDay) // 0点5分30秒开始执行
+	cronObj := cron.New()
+	
+` + cronjobs + `
 
 	// 同步阻塞运行
-	job.Start()
+	cronObj.Start()
 
 	// 监听信号
 	ch := make(chan os.Signal, 1)
@@ -472,7 +501,7 @@ func RunCron(c *cli.Context) error {
 		case syscall.SIGQUIT, syscall.SIGTERM, syscall.SIGINT:
 			log.Fatalf("get a signal %s, stop the process", si.String())
 			// Close相关服务
-			job.Stop()
+			cronObj.Stop()
 			gorm.Close()
 			common.Monitor.Close(5)
 			aliyunlog.Close()
@@ -483,225 +512,170 @@ func RunCron(c *cli.Context) error {
 		}
 	}
 }
-
-//OneTaskOrderStatisFun 手动执行统计订单数据脚本
-func OneTaskOrderStatisFun(c *cli.Context) error {
-
-	// 初始化必要内容
-	initConf()
-	initDB()
-	common.Init()
-
-	var startDate string = c.String("startDate")
-	var endDate string = c.String("endDate")
-	var businessKey string = c.String("businessKey")
-	fmt.Println("startDate=", startDate, "endDate=", endDate, "businessKey=", businessKey)
-	if startDate == "" || endDate == "" {
-		fmt.Println("请输入开始和结束日期")
-		return nil
-	}
-	if businessKey == "" {
-		//查询所有的businessKey
-		businessList, err := model.BusinessTypeHandler.GetList("")
-		if err != nil {
-			_ = aliyunlog.Error("order-StatisticDataByDay-err", map[string]string{
-				"err": err.Error(),
-				"msg": "model.BusinessTypeHandler.GetList err,脚本退出",
-			})
-		}
-		for _, val := range businessList {
-			_ = orderCron.LoopOrderStatisticHandler.OrderStatistic(val.BusinessKey, startDate, endDate)
-		}
-	} else {
-		_ = orderCron.LoopOrderStatisticHandler.OrderStatistic(businessKey, startDate, endDate)
-	}
-	return nil
-}
 	`
-	JobTemplate = `
-	package cron
+}
+
+func CreateCmdJob(name, jobCmd, jobFunctions string) string {
+	return `
+package cmd
 
 import (
-	"time"
+	"fmt"
+	"log"
+	"` + name + `/app/job"
+	"` + name + `/common"
+	"os"
+	"os/signal"
+	"syscall"
 
-	"order/app/domain"
-	"order/app/model"
-	"order/common"
-
-	"github.com/sunmi-OS/gocore/log"
-	"github.com/weblazy/core/mapreduce"
+	"github.com/robfig/cron"
+	"github.com/sunmi-OS/gocore/aliyunlog"
+	"github.com/sunmi-OS/gocore/gorm"
+	"github.com/sunmi-OS/gocore/utils"
+	"github.com/urfave/cli"
 )
 
-var LoopCSyncHandler = &LoopCSync{}
+// Job cmd 任务相关
+var Job = cli.Command{
+	Name:    "job",
+	Aliases: []string{"j"},
+	Usage:   "job",
+	Subcommands: []cli.Command{
+		` + jobCmd + `
+	},
+}
+` + jobFunctions
+}
 
-type LoopCSync struct{}
+func CreateModelClient(dbName string, tabels string) string {
+	return `
+package ` + dbName + `
 
-// @desc  回调通知
-// @auth liuguoqiang 2020-11-24
-// @param
-// @return
-func (this *LoopCSync) LoopCSync(syncType int) {
-	for {
-		var indexId int64 = 0
-		for {
-			now := time.Now().Unix()
-			tempTime := now - 86400 //24个小时内的订单,下一次回调时间大于当前时间,回调次数小于10
-			list, err := model.COrderSyncHandler.GetList("create_time > ? and sync_status = 0  and next_sync_time < ? and sync_num < 10 and id > ? and sync_type = ?", tempTime, now, indexId, syncType)
+import (
+	"fmt"
 
-			if err != nil {
-				log.Sugar.Info(err)
-				common.SendMonitorMsg(common.MONITOR_LIST_SYNC_NC, "\n订单通知NC:查询未通知订单失败:---\n"+err.Error())
-				time.Sleep(time.Second * 10)
-				continue
-			}
+	"github.com/jinzhu/gorm"
+	g "github.com/sunmi-OS/gocore/gorm"
+	"github.com/sunmi-OS/gocore/utils"
+)
 
-			if len(list) == 0 {
-				time.Sleep(time.Second * 10)
-				break
-			}
-			//并发处理
-			mapreduce.MapVoid(func(source chan<- interface{}) {
-				for _, item := range list {
-					indexId = item.Id
-					source <- item
-				}
-			}, func(obj interface{}) {
-				item := obj.(*model.COrderSync)
-				domain.OrderHandler.CSync(item)
-			})
-			time.Sleep(time.Second * 10)
-		}
+func Orm() *gorm.DB {
+	db := g.GetORM("` + dbName + `")
+	if utils.GetRunTime() != "onl" {
+		db = db.Debug()
 	}
+	return db
+}
+
+func CreateTable() {
+	fmt.Println("开始初始化` + dbName + `数据库")
+	//自动建表，数据迁移
+` + tabels + `
+	fmt.Println("数据库` + dbName + `初始化完成")
 }
 `
 
-	ApiTemplate = []string{`
-package api
+}
+
+func CreateModelTable(dbName, tableStruct, tableName string) string {
+	return `
+package ` + dbName + `
 
 import (
-	"order/app/domain"
-	"order/errcode"
-	"order/pkg/parse"
-
-	"github.com/labstack/echo/v4"
+	gormx "github.com/jinzhu/gorm"
 )
 
-var InvoiceHandler = Invoice{}
+var ` + tableStruct + `Handler = &` + tableStruct + `{}
 
-type Invoice struct{}
-`, `
-//Notice 发票结果回传
-func (*Invoice) Notice(c echo.Context) error {
-	params := new(domain.NoticeRequest)
-	//参数验证绑定
-	_, response, err := parse.ParseJson(c, params)
-	if err != nil {
-		return response.RetError(err, errcode.Code0002)
-	}
-	resp, code, err := domain.InvoiceHandler.InvoiceNotice(params)
-	if err != nil {
-		return response.RetError(err, code)
-	}
-	return response.RetSuccess(resp)
+type ` + tableStruct + ` struct {
 }
-`}
 
-	DomainTemplate = `
-package cron
+func (* ` + tableStruct + `) TableName() string {
+	return "` + tableName + `"
+}
+
+func (* ` + tableStruct + `) Insert(db *gormx.DB, data * ` + tableStruct + `) error {
+	if db == nil {
+		db = Orm()
+	}
+	return db.Create(data).Error
+}
+
+func (*` + tableStruct + `) GetOne(where string, args ...interface{}) (*` + tableStruct + `, error) {
+	var obj ` + tableStruct + `
+	return &obj, Orm().Where(where, args...).Take(&obj).Error
+}
+
+func (*` + tableStruct + `) GetList(where string, args ...interface{}) ([]*` + tableStruct + `, error) {
+	var list []*` + tableStruct + `
+	db := Orm()
+	return list, db.Where(where, args...).Find(&list).Error
+}
+
+func (*` + tableStruct + `) GetCount(where string, args ...interface{}) (int, error) {
+	var number int
+	err := Orm().Model(&` + tableStruct + `{}).Where(where, args...).Count(&number).Error
+	return number, err
+}
+
+func (*` + tableStruct + `) Delete(db *gormx.DB, where string, args ...interface{}) error {
+	if db == nil {
+		db = Orm()
+	}
+	return db.Where(where, args...).Delete(&` + tableStruct + `{}).Error
+}
+
+func (*` + tableStruct + `) Update(db *gormx.DB, data map[string]interface{}, where string, args ...interface{}) (int64, error) {
+	if db == nil {
+		db = Orm()
+	}
+	db = db.Model(&` + tableStruct + `{}).Where(where, args...).Update(data)
+	return db.RowsAffected, db.Error
+}
+`
+}
+
+func CreateCommonConst(name string) string {
+	return `package common
+const (
+	PROJECT_NAME    = "` + name + `"
+	PROJECT_VERSION = "v1.0.0"
+)
+`
+}
+
+func CreateCmdInit(name, pkgs, dbUpdate, initDb string) string {
+	return `
+	package cmd
 
 import (
-	"time"
+	"log"
 
-	"order/app/domain"
-	"order/app/model"
-	"order/common"
+	` + pkgs + `
+	"` + name + `/conf"
 
-	"github.com/sunmi-OS/gocore/log"
-	"github.com/weblazy/core/mapreduce"
+	"github.com/sunmi-OS/gocore/gorm"
+	"github.com/sunmi-OS/gocore/nacos"
+	"github.com/sunmi-OS/gocore/utils"
 )
 
-var LoopCSyncHandler = &LoopCSync{}
+// initConf 初始化配置服务 （内部方法）
+func initConf() {
+	// 初始化Nacos配置
+	conf.InitNacos(utils.GetRunTime())
+	// 注册需要的配置
+	nacos.ViperTomlHarder.SetDataIds("` + name + `", "mysql", "config", "redis")
+	// 注册配置更新回调
+	nacos.ViperTomlHarder.SetCallBackFunc("` + name + `", "mysql", func(namespace, group, dataId, data string) {
+		` + dbUpdate + `
+	})
+	// 把Nacos的配置注册到Viper
+	nacos.ViperTomlHarder.NacosToViper()
+}
 
-type LoopCSync struct{}
-
-// @desc  回调通知
-// @auth liuguoqiang 2020-11-24
-// @param
-// @return
-func (this *LoopCSync) LoopCSync(syncType int) {
-	for {
-		var indexId int64 = 0
-		for {
-			now := time.Now().Unix()
-			tempTime := now - 86400 //24个小时内的订单,下一次回调时间大于当前时间,回调次数小于10
-			list, err := model.COrderSyncHandler.GetList("create_time > ? and sync_status = 0  and next_sync_time < ? and sync_num < 10 and id > ? and sync_type = ?", tempTime, now, indexId, syncType)
-
-			if err != nil {
-				log.Sugar.Info(err)
-				common.SendMonitorMsg(common.MONITOR_LIST_SYNC_NC, "\n订单通知NC:查询未通知订单失败:---\n"+err.Error())
-				time.Sleep(time.Second * 10)
-				continue
-			}
-
-			if len(list) == 0 {
-				time.Sleep(time.Second * 10)
-				break
-			}
-			//并发处理
-			mapreduce.MapVoid(func(source chan<- interface{}) {
-				for _, item := range list {
-					indexId = item.Id
-					source <- item
-				}
-			}, func(obj interface{}) {
-				item := obj.(*model.COrderSync)
-				domain.OrderHandler.CSync(item)
-			})
-			time.Sleep(time.Second * 10)
-		}
-	}
+// initDB 初始化DB服务 （内部方法）
+func initDB() {
+	` + initDb + `
 }
 `
-	TomlTemplate = `[service]
-name = "order"
-[api]
-[api.publicOrder]
-prefix = "/public/v1/order/"
-routes = [
-    "createPreOrder",
-    "getPreOrder"
-]
-[api.privateOrder]
-prefix = "/private/v1/order/"
-routes = [
-    "createPreOrder",
-    "getPreOrder"
-]
-
-
-[job]
-StatisticDataByDay = "30 1 0 * * *"
-LoopCSync = "30 1 0 * * *"
-
-[cmd]
-[cmd.createOrder]
-flag = ["LoopOrder","LoopInvoice"]
-
-
-[mysql]
-[mysql.order]
-tables = ["order","goods"]
-[mysql.wallet]
-tables = ["record"]
-
-[redis]
-[redis.order]
-`
-	// PkgMap imports head options. import包含选项
-	PkgMap = map[string]string{
-		"stirng":     `"string"`,
-		"time.Time":  `"time"`,
-		"gorm.Model": `"github.com/jinzhu/gorm"`,
-		"fmt":        `"fmt"`,
-	}
-)
+}

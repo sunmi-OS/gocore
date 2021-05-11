@@ -25,6 +25,7 @@ require (
 	github.com/nacos-group/nacos-sdk-go v1.0.6
 	github.com/pelletier/go-toml v1.9.0
 	github.com/rakyll/statik v0.1.7
+	github.com/robfig/cron v1.2.0
 	github.com/robfig/cron/v3 v3.0.1
 	github.com/russross/blackfriday/v2 v2.1.0 // indirect
 	github.com/segmentio/kafka-go v0.4.10
@@ -34,8 +35,9 @@ require (
 	github.com/spf13/pflag v1.0.5 // indirect
 	github.com/spf13/viper v1.7.1
 	github.com/streadway/amqp v1.0.0
-	github.com/tidwall/gjson v1.6.8
+	github.com/tidwall/gjson v1.7.5
 	github.com/urfave/cli v1.22.5
+	github.com/weblazy/core v1.1.1
 	go.uber.org/zap v1.16.0
 	gobot.io/x/gobot v1.14.0
 	golang.org/x/sys v0.0.0-20210507014357-30e306a8bba5 // indirect
