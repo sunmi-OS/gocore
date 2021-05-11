@@ -144,13 +144,13 @@ name = "order"
 
 [api]
 [api.publicOrder]
-prefix = "/public/v1/order/"
+prefix = "/public/v1/order"
 routes = [
     "createPreOrder",
     "getPreOrder"
 ]
 [api.privateOrder]
-prefix = "/private/v1/order/"
+prefix = "/private/v1/order"
 routes = [
     "createPrivatePreOrder",
     "getPrivatePreOrder"
