@@ -34,13 +34,29 @@ func (w *Writer) Bytes() []byte {
 }
 
 func (w *Writer) WriteToFile(path string) {
+	defer w.Clear()
+	if checkFileIsExist(path) {
+		return
+	}
 	f, err := os.OpenFile(path, os.O_WRONLY|os.O_TRUNC|os.O_CREATE, 0o644)
 	if err != nil {
 		panic(err)
 	}
 	defer f.Close()
 	_, err = io.WriteString(f, string(w.buff))
-	w.Clear()
+	if err != nil {
+		panic(err)
+	}
+}
+
+func (w *Writer) ForceWriteToFile(path string) {
+	defer w.Clear()
+	f, err := os.OpenFile(path, os.O_WRONLY|os.O_TRUNC|os.O_CREATE, 0o644)
+	if err != nil {
+		panic(err)
+	}
+	defer f.Close()
+	_, err = io.WriteString(f, string(w.buff))
 	if err != nil {
 		panic(err)
 	}

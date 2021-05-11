@@ -120,7 +120,7 @@ func createMain(root, name string) {
 		cmds += "cmd.Job,\n"
 	}
 	writer.Add([]byte(template.CreateMain(name, cmds)))
-	writer.WriteToFile(mainPath)
+	writer.ForceWriteToFile(mainPath)
 }
 
 func createConf(root string) {
@@ -204,16 +204,16 @@ func createModel(root, name string) {
 
 		clientPath := dir + "/mysql_client.go"
 		writer.Add([]byte(template.CreateModelClient(k1, tableStr)))
-		writer.WriteToFile(clientPath)
+		writer.ForceWriteToFile(clientPath)
 
 		localConf += template.CreateConfMyql(k1)
 		confLocalPath := root + "/conf/local.go"
 		writer.Add([]byte(template.CreateConfLocal(localConf)))
-		writer.WriteToFile(confLocalPath)
+		writer.ForceWriteToFile(confLocalPath)
 
 		cmdInitPath := root + "/cmd/init.go"
 		writer.Add([]byte(template.CreateCmdInit(name, pkgs, dbUpdate, initDb)))
-		writer.WriteToFile(cmdInitPath)
+		writer.ForceWriteToFile(cmdInitPath)
 	}
 }
 
@@ -238,7 +238,7 @@ func createCronjob(name, root string) {
 
 	cronCmdPath := root + "/cmd/cronjob.go"
 	writer.Add([]byte(template.CreateCmdCronjob(name, cronjobs)))
-	writer.WriteToFile(cronCmdPath)
+	writer.ForceWriteToFile(cronCmdPath)
 }
 
 func createJob(name, root string) {
@@ -277,7 +277,7 @@ func ` + k1 + `(c *cli.Context) error {
 
 	jobCmdPath := root + "/cmd/job.go"
 	writer.Add([]byte(template.CreateCmdJob(name, jobCmd, jobFunctions)))
-	writer.WriteToFile(jobCmdPath)
+	writer.ForceWriteToFile(jobCmdPath)
 }
 
 func createApi(root, name string) {
@@ -337,15 +337,15 @@ func createApi(root, name string) {
 	}
 	domainRequestPath := domainDir + "request.go"
 	writer.Add([]byte(template.CreateDomainRequest(requests...)))
-	writer.WriteToFile(domainRequestPath)
+	writer.ForceWriteToFile(domainRequestPath)
 
 	routesPath := root + "/app/routes/routers.go"
 	writer.Add([]byte(template.CreateRoutes(pkg, routesStr)))
-	writer.WriteToFile(routesPath)
+	writer.ForceWriteToFile(routesPath)
 
 	domainHandlerPath := domainDir + "handler.go"
 	writer.Add([]byte(template.CreateDomainHandler(handlers...)))
-	writer.WriteToFile(domainHandlerPath)
+	writer.ForceWriteToFile(domainHandlerPath)
 }
 
 func mkdir(root string) {
