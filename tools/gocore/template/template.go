@@ -1,6 +1,11 @@
 package template
 
-import "strings"
+import (
+	"strings"
+
+	"github.com/sunmi-OS/gocore/tools/gocore/def"
+	"github.com/sunmi-OS/gocore/tools/gocore/file"
+)
 
 const (
 	OneBackQuote = "`"
@@ -164,11 +169,26 @@ LoopCSync = "30 1 0 * * *"
 LoopOrder = "loopOrder"
 LoopInvoice = "loopOrder"
 
-[mysql]
 [mysql.order]
-tables = ["order","goods"]
+order = [
+    "column:id;primary_key;type:int AUTO_INCREMENT",
+    "column:order_no;type:varchar(100) NOT NULL;default:'';comment:'订单号';unique_index",
+    "column:uId;type:int NOT NULL;default:0;comment:'用户ID号';index",
+    ]
+goods = [
+    "column:id;primary_key;type:int AUTO_INCREMENT",
+    "column:order_no;type:varchar(100) NOT NULL;default:'';comment:'订单号';unique_index",
+    "column:uId;type:int NOT NULL;default:0;comment:'用户ID号';index",
+    "column:goods_id;type:varchar(50) NOT NULL;default:'';comment:'商品id';index",
+    ]
 [mysql.wallet]
-tables = ["record"]
+record = [
+    "column:id;primary_key;type:int AUTO_INCREMENT",
+    "column:order_no;type:varchar(100) NOT NULL;default:'';comment:'订单号';unique_index",
+    "column:uId;type:int NOT NULL;default:0;comment:'用户ID号';index",
+    "column:goods_id;type:varchar(50) NOT NULL;default:'';comment:'商品id';index",
+    "column:goods_num;type:int NOT NULL;default:'0';comment:'数量(sku属性)'",
+    ]
 
 [redis]
 [redis.order]
@@ -236,7 +256,7 @@ dbPort = "3306"       #数据库端口号
 dbOpenconns_max = 20  #最大连接数
 dbIdleconns_max = 20  #最大空闲连接
 dbType = "mysql"
-		`
+`
 }
 
 func CreateConfLocal(content string) string {
@@ -547,7 +567,7 @@ import (
 )
 
 func Orm() *gorm.DB {
-	db := g.GetORM("` + dbName + `")
+	db := g.GetORM("db` + strings.Title(dbName) + `")
 	if utils.GetRunTime() != "onl" {
 		db = db.Debug()
 	}
@@ -564,7 +584,7 @@ func CreateTable() {
 
 }
 
-func CreateModelTable(dbName, tableStruct, tableName string) string {
+func CreateModelTable(dbName, tableStruct, tableName, fields string) string {
 	return `
 package ` + dbName + `
 
@@ -575,6 +595,7 @@ import (
 var ` + tableStruct + `Handler = &` + tableStruct + `{}
 
 type ` + tableStruct + ` struct {
+	` + fields + `
 }
 
 func (* ` + tableStruct + `) TableName() string {
@@ -620,6 +641,26 @@ func (*` + tableStruct + `) Update(db *gormx.DB, data map[string]interface{}, wh
 	return db.RowsAffected, db.Error
 }
 `
+}
+
+func CreateField(field string) string {
+	tags := strings.Split(field, ";")
+	if len(tags) == 0 {
+		return ""
+	}
+
+	fieldMap := make(map[string]string)
+	for _, v1 := range tags {
+		attributes := strings.Split(v1, ":")
+		if len(attributes) < 2 {
+			continue
+		}
+		fieldMap[attributes[0]] = attributes[1]
+	}
+	fieldName := fieldMap["column"]
+	upFieldName := file.UnderlineToCamel(fieldName)
+	fieldType := def.GetTypeName(fieldMap["type"])
+	return upFieldName + "  " + fieldType + " `json:\"" + fieldName + "\" gorm:\"" + field + "\"`\n"
 }
 
 func CreateCommonConst(name string) string {

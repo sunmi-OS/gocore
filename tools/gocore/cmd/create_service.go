@@ -173,32 +173,41 @@ func createModel(root, name string) {
 		return
 	}
 	pkgs := ""
-	dbUpdate := "var err error"
+	dbUpdate := ""
+	if len(mysqlMap) > 0 {
+		dbUpdate = "var err error"
+	}
 	initDb := ""
 	for k1, v1 := range mysqlMap {
 		pkgs += `"` + name + `/app/model/` + k1 + `"` + "\n"
 		dir := root + "/app/model/" + k1
 		dbUpdate += `
-				err = gorm.NewOrUpdateDB("` + k1 + `")
+				err = gorm.NewOrUpdateDB("db` + strings.Title(k1) + `")
 				if err != nil {
 					log.Fatalln(err)
 				}
 		`
-		initDb += `gorm.NewDB("` + k1 + `")
+		initDb += `gorm.NewDB("db` + strings.Title(k1) + `")
 			` + k1 + `.CreateTable()` + "\n"
 		err := file.MkdirIfNotExist(dir)
 		if err != nil {
 			panic(err)
 		}
-		tables := v1.Get("tables").Array()
+		tables := v1.Map()
 		tableStr := ""
-		for _, v2 := range tables {
-			tableName := cast.ToString(v2)
+
+		for k2, v2 := range tables {
+			tableName := cast.ToString(k2)
 			tableStruct := file.UnderlineToCamel(tableName)
 			tableStr += "Orm().Set(\"gorm:table_options\", \"CHARSET=utf8mb4 comment='中台订单记录表' AUTO_INCREMENT=1;\").AutoMigrate(&" + tableStruct + "{})\n"
 			tabelPath := dir + "/" + tableName + ".go"
-			writer.Add([]byte(template.CreateModelTable(k1, tableStruct, tableName)))
-			writer.WriteToFile(tabelPath)
+			fieldStr := ""
+			fields := v2.Array()
+			for _, v3 := range fields {
+				fieldStr += template.CreateField(v3.String())
+			}
+			writer.Add([]byte(template.CreateModelTable(k1, tableStruct, tableName, fieldStr)))
+			writer.ForceWriteToFile(tabelPath)
 
 		}
 
