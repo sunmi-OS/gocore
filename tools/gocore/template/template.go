@@ -145,22 +145,46 @@ func CreateReadme() string {
 
 func CreateToml() string {
 	return `[service]
-name = "order"
+name = "gen"
 
 [api]
-[api.publicOrder]
-prefix = "/public/v1/order"
-routes = [
-    "createPreOrder",
-    "getPreOrder"
+[api.structs]
+GetPreOrderRequest = [
+    "name;string;用户姓名",
+    "dId;int64;用户dId",
 ]
-[api.privateOrder]
-prefix = "/private/v1/order"
-routes = [
-    "createPrivatePreOrder",
-    "getPrivatePreOrder"
+CreatePreOrderRequest = [
+    "name;string;用户姓名",
+    "dId;int64;用户dId",
+    "create_pre_order_content;struct:CreatePreOrderContent:详情"
+]
+CreatePreOrderContent = [
+    "get_pre_order_content;*GetPreOrderContent;用户姓名",
+    "list;[]*GetPreOrderContent;用户dId",
+]
+GetPreOrderContent = [
+    "name;string;用户姓名",
+    "dId;int64;用户dId",
 ]
 
+[[api.handlers]]
+name = "PublicOrder"
+prefix = "/public/v1/order"
+routes = [
+    "createPreOrder;CreatePreOrderRequest;创建订单",
+    "getPreOrder;GetPreOrderRequest;获取订单详情",
+]
+
+
+
+[[api.handlers]]
+name = "PrivateOrder"
+prefix = "/private/v1/order"
+routes = [
+    "createPrivatePreOrder;CreatePreOrderRequest;创建私有订单",
+    "getPrivatePreOrder;GetPreOrderRequest;获取私有订单"
+    ]
+ 
 [cronjob]
 StatisticDataByDay = "30 1 0 * * *"
 LoopCSync = "30 1 0 * * *"
@@ -169,6 +193,7 @@ LoopCSync = "30 1 0 * * *"
 LoopOrder = "loopOrder"
 LoopInvoice = "loopOrder"
 
+[mysql]
 [mysql.order]
 order = [
     "column:id;primary_key;type:int AUTO_INCREMENT",
@@ -371,7 +396,7 @@ func Router(e *echo.Echo) {
 `
 }
 
-func CreateApi(name, handler string, functions ...string) string {
+func CreateApi(name, handler string, functions []string, req []string) string {
 	res := `
 package api
 
@@ -379,6 +404,7 @@ import (
 	"` + name + `/app/domain"
 	"` + name + `/app/errcode"
 	"` + name + `/pkg/parse"
+	"` + name + `/app/def"
 
 	"github.com/labstack/echo/v4"
 )
@@ -386,11 +412,11 @@ import (
 var ` + handler + `Handler = ` + handler + `{}
 type ` + handler + ` struct{}
 `
-	for _, v1 := range functions {
+	for k1, v1 := range functions {
 		res += `
 // ` + v1 + `
 func (*` + handler + `) ` + v1 + `(c echo.Context) error {
-	params := new(domain.` + v1 + `Request)
+	params := new(def.` + req[k1] + `)
 	//参数验证绑定
 	_, response, err := parse.ParseJson(c, params)
 	if err != nil {
@@ -408,12 +434,16 @@ func (*` + handler + `) ` + v1 + `(c echo.Context) error {
 	return res
 }
 
-func CreateDomain(handler, function string) string {
+func CreateDomain(name, handler, function, req string) string {
 	return `
 package domain
 
+import (
+	"` + name + `/app/def"
+)
+
 // ` + function + `
-func (this *` + handler + `) ` + function + `(req *` + function + `Request)(map[string]interface{}, int, error) {
+func (this *` + handler + `) ` + function + `(req * def.` + req + `)(map[string]interface{}, int, error) {
 	return map[string]interface{}{}, 1, nil
 }
 `
@@ -432,16 +462,12 @@ package domain
 
 }
 
-func CreateDomainRequest(requests ...string) string {
-	res := `
-package domain
-`
-	for _, v1 := range requests {
-		res += "type " + v1 + `Request struct {
-		OrderNo string ` + OneBackQuote + `json:"order_no"` + OneBackQuote + `
+func CreateDefRquest(request, params string) string {
+	res := ""
+	res += "type " + request + ` struct {
+		` + params + `
 	}
 	`
-	}
 	return res
 }
 

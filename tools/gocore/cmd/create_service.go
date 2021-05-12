@@ -86,6 +86,7 @@ func creatService(c *cli.Context) error {
 	createCronjob(name, root)
 	createJob(name, root)
 	createApi(root, name)
+	createDef(root)
 
 	cmd := exec.Command("go", "mod", "init", name)
 	cmd.Dir = root
@@ -294,6 +295,10 @@ func createApi(root, name string) {
 	if len(apiMap) == 0 {
 		return
 	}
+	handlersList := apiMap["handlers"].Array()
+	if len(handlersList) == 0 {
+		return
+	}
 	cmdApiPath := root + "/cmd/api.go"
 	writer.Add([]byte(template.CreateCmdApi(name)))
 	writer.WriteToFile(cmdApiPath)
@@ -316,37 +321,42 @@ func createApi(root, name string) {
 	pkg := ""
 	handlers := make([]string, 0)
 	requests := make([]string, 0)
-	for k1, v1 := range apiMap {
-		routesStr += "\n" + k1 + ":=e.Group(\"" + v1.Get("prefix").String() + "\")\n"
-		apiPath := apiDir + file.CamelToUnderline(k1) + ".go"
+
+	for _, v1 := range handlersList {
+		handlerName := v1.Get("name").String()
+		routesStr += "\n" + handlerName + ":=e.Group(\"" + v1.Get("prefix").String() + "\")\n"
+		apiPath := apiDir + file.CamelToUnderline(handlerName) + ".go"
 		routes := v1.Get("routes").Array()
 		if len(routes) == 0 {
 			continue
 		}
 		// 首字母大写
-		handler := strings.Title(k1)
+		handler := strings.Title(handlerName)
 		handlers = append(handlers, handler)
 		functions := make([]string, 0)
-
+		reqs := make([]string, 0)
 		for _, v2 := range routes {
+			routesObj := strings.Split(v2.String(), ";")
+			if len(routesObj) < 3 {
+				continue
+			}
 			pkg = "\"" + name + "/app/api\"\n"
-			route := cast.ToString(v2)
+			route := routesObj[0]
+			req := strings.Title(routesObj[1])
+			reqs = append(reqs, req)
 			function := strings.Title(route)
 			functions = append(functions, function)
 			requests = append(requests, function)
-			routesStr += k1 + ".POST(\"/" + k1 + "/" + route + "\",api." + handler + "Handler." + function + ")\n"
+			routesStr += handlerName + ".POST(\"/" + handlerName + "/" + route + "\",api." + handler + "Handler." + function + ")\n"
 
 			domainPath := domainDir + file.CamelToUnderline(route) + ".go"
-			domainWriter.Add([]byte(template.CreateDomain(handler, function)))
+			domainWriter.Add([]byte(template.CreateDomain(name, handler, function, req)))
 			domainWriter.WriteToFile(domainPath)
 
 		}
-		apiWriter.Add([]byte(template.CreateApi(name, handler, functions...)))
+		apiWriter.Add([]byte(template.CreateApi(name, handler, functions, reqs)))
 		apiWriter.WriteToFile(apiPath)
 	}
-	domainRequestPath := domainDir + "request.go"
-	writer.Add([]byte(template.CreateDomainRequest(requests...)))
-	writer.ForceWriteToFile(domainRequestPath)
 
 	routesPath := root + "/app/routes/routers.go"
 	writer.Add([]byte(template.CreateRoutes(pkg, routesStr)))
@@ -355,6 +365,33 @@ func createApi(root, name string) {
 	domainHandlerPath := domainDir + "handler.go"
 	writer.Add([]byte(template.CreateDomainHandler(handlers...)))
 	writer.ForceWriteToFile(domainHandlerPath)
+}
+
+func createDef(root string) {
+	structs := configJson.Get("api.structs").Map()
+	if len(structs) == 0 {
+		return
+	}
+	dir := root + "/app/def"
+	err := file.MkdirIfNotExist(dir)
+	if err != nil {
+		panic(err)
+	}
+	defPath := dir + "/def.go"
+	writer.Add([]byte(`package def` + "\n"))
+	for k1, v1 := range structs {
+		params := ""
+		fields := v1.Array()
+		for _, v2 := range fields {
+			field := strings.Split(v2.String(), ";")
+			if len(field) < 3 {
+				continue
+			}
+			params += file.UnderlineToCamel(field[0]) + " " + field[1] + " `json:\"" + field[0] + "\"`\n"
+		}
+		writer.Add([]byte(template.CreateDefRquest(k1, params)))
+	}
+	writer.ForceWriteToFile(defPath)
 }
 
 func mkdir(root string) {
