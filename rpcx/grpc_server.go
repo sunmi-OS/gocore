@@ -104,18 +104,9 @@ func (s *GrpcServer) RegisterService(register RegisterFn) *GrpcServer {
 	if s.cfg.Timeout > 0 {
 		s.AddUnaryInterceptors(serverinterceptors.UnaryTimeoutInterceptor(s.cfg.Timeout))
 	}
-
-	unaryInterceptors := []grpc.UnaryServerInterceptor{
-		serverinterceptors.UnaryStatInterceptor(),
-	}
-	unaryInterceptors = append(unaryInterceptors, s.unaryInterceptors...)
-
-	streamInterceptors := []grpc.StreamServerInterceptor{
-		serverinterceptors.StreamCrashInterceptor,
-	}
-	streamInterceptors = append(streamInterceptors, s.streamInterceptors...)
-
-	options := append(s.options, WithUnaryServerInterceptors(unaryInterceptors...), WithStreamServerInterceptors(streamInterceptors...))
+	s.AddUnaryInterceptors(serverinterceptors.UnaryCrashInterceptor)
+	s.AddStreamInterceptors(serverinterceptors.StreamCrashInterceptor)
+	options := append(s.options, WithUnaryServerInterceptors(s.unaryInterceptors...), WithStreamServerInterceptors(s.streamInterceptors...))
 
 	s.server = grpc.NewServer(options...)
 	s.isPre = true

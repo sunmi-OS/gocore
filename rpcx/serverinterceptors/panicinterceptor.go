@@ -10,23 +10,18 @@ import (
 	"google.golang.org/grpc/status"
 )
 
-func StreamCrashInterceptor(srv interface{}, stream grpc.ServerStream, info *grpc.StreamServerInfo,
-	handler grpc.StreamHandler) (err error) {
+func StreamCrashInterceptor(srv interface{}, stream grpc.ServerStream, info *grpc.StreamServerInfo, handler grpc.StreamHandler) (err error) {
 	defer handleCrash(func(r interface{}) {
 		err = toPanicError(r)
 	})
 	return handler(srv, stream)
 }
 
-func UnaryCrashInterceptor() grpc.UnaryServerInterceptor {
-	return func(ctx context.Context, req interface{}, info *grpc.UnaryServerInfo,
-		handler grpc.UnaryHandler) (resp interface{}, err error) {
-		defer handleCrash(func(r interface{}) {
-			err = toPanicError(r)
-		})
-
-		return handler(ctx, req)
-	}
+func UnaryCrashInterceptor(ctx context.Context, req interface{}, info *grpc.UnaryServerInfo, handler grpc.UnaryHandler) (resp interface{}, err error) {
+	defer handleCrash(func(r interface{}) {
+		err = toPanicError(r)
+	})
+	return handler(ctx, req)
 }
 
 // @desc 捕获panic
