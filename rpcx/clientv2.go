@@ -204,7 +204,7 @@ func (c *GrpcClientConfig) withDefaultServiceConfig() grpc.DialOption {
 func (c *GrpcClientConfig) buildDialOptions() (options []grpc.DialOption) {
 	options = []grpc.DialOption{
 		grpc.WithInsecure(),
-		grpc.WithUnaryInterceptor(clientinterceptors.DurationInterceptor),
+		//grpc.WithUnaryInterceptor(clientinterceptors.DurationInterceptor),
 		c.withDefaultServiceConfig(),
 	}
 	options = append(options, c.DialOptions...)
