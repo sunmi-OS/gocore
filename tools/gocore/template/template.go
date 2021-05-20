@@ -75,11 +75,12 @@ func RunApi(c *cli.Context) error {
 	}
 }
 `
+
 }
 func CreateDockerfile() string {
 	return `
 #template
-FROM sunmi-docker-images-registry.cn-hangzhou.cr.aliyuncs.com/public/golang:1.15 As builder
+FROM sunmi-docker-images-registry.cn-hangzhou.cr.aliyuncs.com/public/golang As builder
 
 ENV GOPROXY https://mirrors.aliyun.com/goproxy/,direct
 ENV GO111MODULE on
@@ -144,7 +145,8 @@ func CreateReadme() string {
 }
 
 func CreateToml() string {
-	return `[service]
+	return `
+[service]
 name = "gen"
 
 [api]

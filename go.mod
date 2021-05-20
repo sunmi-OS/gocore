@@ -16,6 +16,7 @@ require (
 	github.com/labstack/gommon v0.3.0
 	github.com/nacos-group/nacos-sdk-go v1.0.7
 	github.com/pelletier/go-toml v1.9.0
+	github.com/russross/blackfriday/v2 v2.1.0 // indirect
 	github.com/segmentio/kafka-go v0.4.15
 	github.com/spf13/cast v1.3.1
 	github.com/spf13/viper v1.7.1

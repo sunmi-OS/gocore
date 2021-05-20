@@ -4,10 +4,12 @@ import (
 	"context"
 	viper2 "github.com/sunmi-OS/gocore/conf/viper"
 	xlog2 "github.com/sunmi-OS/gocore/utils/xlog"
+	"gopkg.in/redis.v5"
 	"strings"
 	"sync"
 
 	"github.com/sunmi-OS/gocore/utils"
+	"gopkg.in/redis.v8"
 )
 
 type Client struct {
