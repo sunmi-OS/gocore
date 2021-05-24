@@ -1,4 +1,4 @@
-module github.com/sunmi-OS/gocore
+module github.com/sunmi-OS/gocore/v2
 
 go 1.16
 
