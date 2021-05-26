@@ -1,12 +1,11 @@
 package gorm
 
 import (
-	"strings"
 	"fmt"
-	
-	"github.com/jinzhu/gorm"
-)
+	"strings"
 
+	"gorm.io/gorm"
+)
 
 // @desc 批量插入 不对唯一索引做更新
 // @auth liuguoqiang 2020-11-27

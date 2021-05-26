@@ -1,4 +1,4 @@
-package serverinterceptors
+package interceptor
 
 import (
 	"context"
@@ -8,11 +8,7 @@ import (
 	"google.golang.org/grpc"
 )
 
-// @desc 超时插件
-// @auth liuguoqiang 2020-06-11
-// @param
-// @return
-func UnaryTimeoutInterceptor(timeout time.Duration) grpc.UnaryServerInterceptor {
+func UnaryTimeout(timeout time.Duration) grpc.UnaryServerInterceptor {
 	return func(ctx context.Context, req interface{}, info *grpc.UnaryServerInfo, handler grpc.UnaryHandler) (resp interface{}, err error) {
 		ctx, cancel := context.WithTimeout(ctx, timeout)
 		defer cancel()

@@ -2,14 +2,13 @@ package redis
 
 import (
 	"context"
-	viper2 "github.com/sunmi-OS/gocore/conf/viper"
-	xlog2 "github.com/sunmi-OS/gocore/utils/xlog"
-	"gopkg.in/redis.v5"
 	"strings"
 	"sync"
 
+	"github.com/go-redis/redis/v8"
+	"github.com/sunmi-OS/gocore/conf/viper"
 	"github.com/sunmi-OS/gocore/utils"
-	"gopkg.in/redis.v8"
+	"github.com/sunmi-OS/gocore/utils/xlog"
 )
 
 type Client struct {
@@ -30,13 +29,13 @@ func NewRedis(dbName string) (c *Client) {
 func newRedis(db string) (rc *redis.Client, err error) {
 	redisName, dbName := splitDbName(db)
 
-	host := viper2.GetEnvConfig(redisName + ".host")
-	port := viper2.GetEnvConfig(redisName + ".port")
-	auth := viper2.GetEnvConfig(redisName + ".auth")
-	encryption := viper2.GetEnvConfigInt(redisName + ".encryption")
-	dbIndex := viper2.GetEnvConfigCastInt(redisName + ".redisDB." + dbName)
+	host := viper.GetEnvConfig(redisName + ".host")
+	port := viper.GetEnvConfig(redisName + ".port")
+	auth := viper.GetEnvConfig(redisName + ".auth")
+	encryption := viper.GetEnvConfigInt(redisName + ".encryption")
+	dbIndex := viper.GetEnvConfigCastInt(redisName + ".redisDB." + dbName)
 	if redisName == "redisServer" {
-		dbIndex = viper2.GetEnvConfigCastInt("redisDB." + dbName)
+		dbIndex = viper.GetEnvConfigCastInt("redisDB." + dbName)
 	}
 	if encryption == 1 {
 		auth = utils.GetMD5(auth)
@@ -84,7 +83,7 @@ func (c *Client) GetRedis(dbName string) *redis.Client {
 
 func (c *Client) Close() {
 	c.redisMaps.Range(func(dbName, rc interface{}) bool {
-		xlog2.Warnf("close db %s", dbName)
+		xlog.Warnf("close db %s", dbName)
 		c.redisMaps.Delete(dbName)
 		rc.(*redis.Client).Close()
 		return true

@@ -2,21 +2,21 @@ package wx
 
 import (
 	"bytes"
+	"context"
 	"crypto/aes"
 	"crypto/cipher"
 	"encoding/base64"
 	"encoding/json"
 	"errors"
 	"fmt"
-	"github.com/sunmi-OS/gocore/db/redis"
 	"io/ioutil"
 	"mime/multipart"
 	"net/http"
 	"strconv"
 	"time"
 
+	"github.com/go-redis/redis/v8"
 	"github.com/sunmi-OS/gocore/utils/httplib"
-	"gopkg.in/redis.v5"
 )
 
 type (
@@ -95,10 +95,10 @@ func NewWx(appId, secret, grantType string, getRedis func() *redis.Client) *Wx {
 // @auth liuguoqiang 2020-02-25
 // @param $isFresh 是否刷新access_token
 // @return
-func (s *Wx) InitAuthToken(isFresh bool) (string, error) {
+func (s *Wx) InitAuthToken(ctx context.Context, isFresh bool) (string, error) {
 	//查询缓存
 	tokenKey := "tob_wechat:applet:token:" + s.appId
-	accessToken := s.getRedis().Get(tokenKey).Val()
+	accessToken := s.getRedis().Get(ctx, tokenKey).Val()
 
 	if accessToken != "" && !isFresh {
 		s.accessToken = accessToken
@@ -115,7 +115,7 @@ func (s *Wx) InitAuthToken(isFresh bool) (string, error) {
 	if accessToken, ok := data["access_token"]; !ok {
 		return "", errors.New(strconv.FormatFloat(data["errcode"].(float64), 'f', -1, 64) + ":" + data["errmsg"].(string))
 	} else {
-		err := s.getRedis().Set(tokenKey, accessToken, 7000*time.Second).Err()
+		err := s.getRedis().Set(ctx, tokenKey, accessToken, 7000*time.Second).Err()
 		if err != nil {
 			return "", err
 		}
@@ -128,51 +128,51 @@ func (s *Wx) InitAuthToken(isFresh bool) (string, error) {
 // @auth liuguoqiang 2020-02-25
 // @param
 // @return
-func (s *Wx) GetUnLimitQRCode(params *GetUnLimitQRCodeRequest, isFresh bool) ([]byte, error) {
-	return s.Request(nil, params, CreateUqrcodeUrl, isFresh, true)
+func (s *Wx) GetUnLimitQRCode(ctx context.Context, params *GetUnLimitQRCodeRequest, isFresh bool) ([]byte, error) {
+	return s.Request(ctx, nil, params, CreateUqrcodeUrl, isFresh, true)
 }
 
 // @desc 获取二维码 适用于需要的码数量较少的业务场景 有数量限制
 // @auth ykq 2020-05-13
 // @param
 // @return
-func (s *Wx) GetQRCode(params *GetQRCodeRequest, isFresh bool) ([]byte, error) {
-	return s.Request(nil, params, CreateQrCodeUrl, isFresh, true)
+func (s *Wx) GetQRCode(ctx context.Context, params *GetQRCodeRequest, isFresh bool) ([]byte, error) {
+	return s.Request(ctx, nil, params, CreateQrCodeUrl, isFresh, true)
 }
 
 // @desc 发送模板
 // @auth liuguoqiang 2020-04-17
 // @param
 // @return
-func (s *Wx) Send(params *SendRequest, isFresh bool) ([]byte, error) {
-	return s.Request(nil, params, TemplatedSendUrl, isFresh, true)
+func (s *Wx) Send(ctx context.Context, params *SendRequest, isFresh bool) ([]byte, error) {
+	return s.Request(ctx, nil, params, TemplatedSendUrl, isFresh, true)
 }
 
 // @desc 获取授权页面ticket
 // @auth liuguoqiang 2020-02-25
 // @param
 // @return
-func (s *Wx) GetTicket(ticketType string, isFresh bool) ([]byte, error) {
+func (s *Wx) GetTicket(ctx context.Context, ticketType string, isFresh bool) ([]byte, error) {
 	urlParam := make(map[string]string)
 	urlParam["type"] = "wx_card"
-	return s.Request(urlParam, nil, GetticketUrl, isFresh, false)
+	return s.Request(ctx, urlParam, nil, GetticketUrl, isFresh, false)
 }
 
 // @desc 获取微信授权页链接
 // @auth liuguoqiang 2020-02-25
 // @param
 // @return
-func (s *Wx) GetAuthUrl(params map[string]interface{}, isFresh bool) ([]byte, error) {
-	return s.Request(nil, params, AuthUrl, isFresh, true)
+func (s *Wx) GetAuthUrl(ctx context.Context, params map[string]interface{}, isFresh bool) ([]byte, error) {
+	return s.Request(ctx, nil, params, AuthUrl, isFresh, true)
 }
 
 // @desc 通用请求
 // @auth liuguoqiang 2020-02-25
 // @param
 // @return
-func (s *Wx) Request(urlParam map[string]string, bodyParams interface{}, paramUrl string, isFresh bool, isPost bool) ([]byte, error) {
+func (s *Wx) Request(ctx context.Context, urlParam map[string]string, bodyParams interface{}, paramUrl string, isFresh bool, isPost bool) ([]byte, error) {
 	if s.accessToken == "" || isFresh {
-		_, err := s.InitAuthToken(isFresh)
+		_, err := s.InitAuthToken(ctx, isFresh)
 		if err != nil {
 			return nil, err
 		}
@@ -202,7 +202,7 @@ func (s *Wx) Request(urlParam map[string]string, bodyParams interface{}, paramUr
 	if err == nil {
 		if _, ok := data["errcode"]; ok && data["errcode"].(float64) != 0 {
 			if !isFresh {
-				dataByte, err = s.Request(urlParam, bodyParams, paramUrl, true, isPost)
+				dataByte, err = s.Request(ctx, urlParam, bodyParams, paramUrl, true, isPost)
 				if err != nil {
 					return nil, err
 				}
@@ -330,18 +330,18 @@ func PKCS7UnPadding(origData []byte) []byte {
 // @auth liuguoqiang 2020-04-24
 // @param
 // @return
-func (s *Wx) InvoiceInsert(params map[string]interface{}, isFresh bool) ([]byte, error) {
+func (s *Wx) InvoiceInsert(ctx context.Context, params map[string]interface{}, isFresh bool) ([]byte, error) {
 	params["appid"] = s.appId
-	return s.Request(nil, params, InvoiceInsertUrl, isFresh, true)
+	return s.Request(ctx, nil, params, InvoiceInsertUrl, isFresh, true)
 }
 
 // @desc 上传pdf文件
 // @auth liuguoqiang 2020-02-25
 // @param
 // @return
-func (s *Wx) SetPdf(pdfPath string, isFresh bool) ([]byte, error) {
+func (s *Wx) SetPdf(ctx context.Context, pdfPath string, isFresh bool) ([]byte, error) {
 	if s.accessToken == "" || isFresh {
-		_, err := s.InitAuthToken(isFresh)
+		_, err := s.InitAuthToken(ctx, isFresh)
 		if err != nil {
 			return nil, err
 		}
@@ -395,7 +395,7 @@ func (s *Wx) SetPdf(pdfPath string, isFresh bool) ([]byte, error) {
 	if err == nil {
 		if _, ok := data["errcode"]; ok && data["errcode"].(float64) != 0 {
 			if !isFresh {
-				dataByte, err = s.SetPdf(pdfPath, true)
+				dataByte, err = s.SetPdf(ctx, pdfPath, true)
 				if err != nil {
 					return nil, err
 				}

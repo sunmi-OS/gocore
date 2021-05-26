@@ -1,88 +1,24 @@
 package rpcx
 
 import (
-	serverinterceptors2 "github.com/sunmi-OS/gocore/rpc/rpcx/serverinterceptors"
 	"log"
 	"net"
 	"time"
 
+	"github.com/sunmi-OS/gocore/rpc/rpcx/interceptor"
 	"google.golang.org/grpc"
 )
 
-type (
-	// Deprecated
-	RpcServer struct {
-		*baseRpcServer
-
-		register RegisterFn
-	}
-
-	GrpcServer struct {
-		Name               string
-		addr               string
-		isPre              bool
-		cfg                *GrpcServerConfig
-		register           RegisterFn
-		server             *grpc.Server
-		options            []grpc.ServerOption
-		streamInterceptors []grpc.StreamServerInterceptor
-		unaryInterceptors  []grpc.UnaryServerInterceptor
-	}
-)
-
-// Deprecated
-// 推荐使用 NewGrpcServer
-// @desc rpc服务端初始化入口函数
-// @auth liuguoqiang 2020-06-11
-// @param timeout 为0时，不做超时处理
-// @return
-func NewRpcServer(name, addr string, timeout int64, register RegisterFn) *RpcServer {
-	server := &RpcServer{
-		baseRpcServer: newBaseRpcServer(addr),
-		register:      register,
-	}
-	setupInterceptors(server, int(timeout))
-	return server
-}
-
-// @desc 启动rpc
-// @auth liuguoqiang 2020-06-11
-// @param
-// @return
-func (s *RpcServer) Start() {
-	lis, err := net.Listen("tcp", s.address)
-	if err != nil {
-		log.Fatal(err)
-	}
-
-	unaryInterceptors := []grpc.UnaryServerInterceptor{
-		//serverinterceptors.UnaryCrashInterceptor(),
-		serverinterceptors2.UnaryStatInterceptor(),
-	}
-	unaryInterceptors = append(unaryInterceptors, s.unaryInterceptors...)
-
-	streamInterceptors := []grpc.StreamServerInterceptor{
-		serverinterceptors2.StreamCrashInterceptor,
-	}
-	streamInterceptors = append(streamInterceptors, s.streamInterceptors...)
-
-	options := append(s.options, WithUnaryServerInterceptors(unaryInterceptors...), WithStreamServerInterceptors(streamInterceptors...))
-	server := grpc.NewServer(options...)
-
-	s.register(server)
-	err = server.Serve(lis)
-	server.GracefulStop()
-	log.Fatal(err)
-}
-
-// @desc 设置超时
-// @auth liuguoqiang 2020-06-11
-// @param
-// @return
-func setupInterceptors(server *RpcServer, timeout int) {
-	if timeout > 0 {
-		server.AddUnaryInterceptors(serverinterceptors2.UnaryTimeoutInterceptor(time.Duration(timeout) * time.Millisecond))
-	}
+type GrpcServer struct {
+	Name               string
+	addr               string
+	isPre              bool
+	cfg                *GrpcServerConfig
+	register           RegisterFn
+	server             *grpc.Server
+	options            []grpc.ServerOption
+	streamInterceptors []grpc.StreamServerInterceptor
+	unaryInterceptors  []grpc.UnaryServerInterceptor
 }
 
 // NewGrpcServer new grpc server
@@ -93,7 +29,9 @@ func NewGrpcServer(name, addr string, cfg *GrpcServerConfig) *GrpcServer {
 		cfg:  cfg,
 	}
 	if server.cfg == nil {
-		server.cfg = defaultServerConfig()
+		server.cfg = &GrpcServerConfig{
+			Timeout: 500 * time.Millisecond,
+		}
 	}
 	return server
 }
@@ -102,21 +40,12 @@ func NewGrpcServer(name, addr string, cfg *GrpcServerConfig) *GrpcServer {
 func (s *GrpcServer) RegisterService(register RegisterFn) *GrpcServer {
 	s.register = register
 	if s.cfg.Timeout > 0 {
-		s.AddUnaryInterceptors(serverinterceptors2.UnaryTimeoutInterceptor(s.cfg.Timeout))
+		s.AddUnaryInterceptors(interceptor.UnaryTimeout(s.cfg.Timeout))
 	}
+	s.AddUnaryInterceptors(interceptor.UnaryCrash)
+	s.AddStreamInterceptors(interceptor.StreamCrash)
 
-	unaryInterceptors := []grpc.UnaryServerInterceptor{
-		serverinterceptors2.UnaryStatInterceptor(),
-	}
-	unaryInterceptors = append(unaryInterceptors, s.unaryInterceptors...)
-
-	streamInterceptors := []grpc.StreamServerInterceptor{
-		serverinterceptors2.StreamCrashInterceptor,
-	}
-	streamInterceptors = append(streamInterceptors, s.streamInterceptors...)
-
-	options := append(s.options, WithUnaryServerInterceptors(unaryInterceptors...), WithStreamServerInterceptors(streamInterceptors...))
-
+	options := append(s.options, interceptor.WithUnaryServer(s.unaryInterceptors...), interceptor.WithStreamServer(s.streamInterceptors...))
 	s.server = grpc.NewServer(options...)
 	s.isPre = true
 	return s

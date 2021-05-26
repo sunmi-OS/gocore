@@ -5,12 +5,12 @@ import (
 )
 
 func TestNewDB(t *testing.T) {
-	//NewGorm("a")
-	//NewGorm("b")
-	//NewGorm("c")
-
-	// only example
-	//Gorm().GetORM().Select("id").Where("id = ?", 1).First(nil)
-
-	//Gorm().Close()
+	//NewOrUpdateDB("a")
+	//NewOrUpdateDB("b")
+	//NewOrUpdateDB("c")
+	//
+	//// just example
+	//GetORM().Select("id").Where("id = ?", 1).First(nil)
+	//
+	//Close()
 }

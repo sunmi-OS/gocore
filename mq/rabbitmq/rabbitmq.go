@@ -2,22 +2,22 @@ package rabbitmq
 
 import (
 	"fmt"
-	viper2 "github.com/sunmi-OS/gocore/conf/viper"
 	"net/url"
 	"time"
 
 	"github.com/streadway/amqp"
+	"github.com/sunmi-OS/gocore/conf/viper"
 )
 
 var ch *amqp.Channel
 
 func connRbbitmq() error {
 
-	host := viper2.GetEnvConfig("rabbitmq.host")
-	port := viper2.GetEnvConfig("rabbitmq.port")
-	vhost := viper2.GetEnvConfig("rabbitmq.vhost")
-	user := url.QueryEscape(viper2.GetEnvConfig("rabbitmq.user"))
-	password := url.QueryEscape(viper2.GetEnvConfig("rabbitmq.password"))
+	host := viper.GetEnvConfig("rabbitmq.host")
+	port := viper.GetEnvConfig("rabbitmq.port")
+	vhost := viper.GetEnvConfig("rabbitmq.vhost")
+	user := url.QueryEscape(viper.GetEnvConfig("rabbitmq.user"))
+	password := url.QueryEscape(viper.GetEnvConfig("rabbitmq.password"))
 
 	amqpcoinf := amqp.Config{
 		Vhost:     vhost,

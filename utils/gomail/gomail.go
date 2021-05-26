@@ -1,14 +1,14 @@
 package gomail
 
 import (
-	viper2 "github.com/sunmi-OS/gocore/conf/viper"
+	"github.com/sunmi-OS/gocore/conf/viper"
 	"gopkg.in/gomail.v2"
 )
 
 var mail *gomail.Dialer
 
 func linkService() {
-	mail = gomail.NewDialer(viper2.C.GetString("email.host"), viper2.C.GetInt("email.port"), viper2.C.GetString("email.username"), viper2.C.GetString("email.password"))
+	mail = gomail.NewDialer(viper.C.GetString("email.host"), viper.C.GetInt("email.port"), viper.C.GetString("email.username"), viper.C.GetString("email.password"))
 }
 
 func SendEmail(email, fromMail, formNmae, subject, text string) error {

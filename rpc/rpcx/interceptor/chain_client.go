@@ -1,4 +1,4 @@
-package rpcx
+package interceptor
 
 import (
 	"context"
@@ -6,11 +6,11 @@ import (
 	"google.golang.org/grpc"
 )
 
-func WithStreamClientInterceptors(interceptors ...grpc.StreamClientInterceptor) grpc.DialOption {
+func WithStreamClient(interceptors ...grpc.StreamClientInterceptor) grpc.DialOption {
 	return grpc.WithStreamInterceptor(chainStreamClientInterceptors(interceptors...))
 }
 
-func WithUnaryClientInterceptors(interceptors ...grpc.UnaryClientInterceptor) grpc.DialOption {
+func WithUnaryClient(interceptors ...grpc.UnaryClientInterceptor) grpc.DialOption {
 	return grpc.WithUnaryInterceptor(chainUnaryClientInterceptors(interceptors...))
 }
 

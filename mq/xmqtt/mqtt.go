@@ -2,14 +2,14 @@ package xmqtt
 
 import (
 	"fmt"
-	retry2 "github.com/sunmi-OS/gocore/utils/retry"
-	xlog2 "github.com/sunmi-OS/gocore/utils/xlog"
 	"strings"
 	"sync"
 	"time"
 
 	"github.com/eclipse/paho.mqtt.golang"
 	"github.com/google/uuid"
+	"github.com/sunmi-OS/gocore/utils/retry"
+	"github.com/sunmi-OS/gocore/utils/xlog"
 )
 
 type Client struct {
@@ -72,7 +72,7 @@ func (c *Client) StartAndConnect() (err error) {
 	}
 	// new
 	c.Mqtt = mqtt.NewClient(c.Ops)
-	err = retry2.Retry(func() error {
+	err = retry.Retry(func() error {
 		token := c.Mqtt.Connect()
 		if token.Wait() && token.Error() != nil {
 			return token.Error()
@@ -145,7 +145,7 @@ func subCallbackKey(topic string, qos QosType) string {
 }
 
 func (c *Client) DefaultOnConnectFunc(cli mqtt.Client) {
-	xlog2.Info("mqtt connected")
+	xlog.Info("mqtt connected")
 	c.mu.Lock()
 	defer c.mu.Unlock()
 	// 连接后，注册订阅
@@ -165,11 +165,11 @@ func (c *Client) DefaultOnConnectFunc(cli mqtt.Client) {
 				default:
 					qos = QosAtMostOne
 				}
-				err := retry2.Retry(func() error {
+				err := retry.Retry(func() error {
 					return c.sub(split[0], qos, cb)
 				}, 3, 2*time.Second)
 				if err != nil {
-					xlog2.Errorf("topic[%s] sub callback register err:%+v", split[0], err)
+					xlog.Errorf("topic[%s] sub callback register err:%+v", split[0], err)
 				}
 			}
 		}(key, handler)

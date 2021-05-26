@@ -5,13 +5,11 @@ import (
 )
 
 func TestNewGrpcClient(t *testing.T) {
-	//client, err := NewGrpcClient("grpc", "127.0.0.1:11007", nil)
+	//addr := ""
+	//xlog.Info("Grpc Server:", addr)
+	//client, err := NewGrpcClient("client_name", addr, nil)
 	//if err != nil {
-	//	xlog.Error(err)
 	//	return
 	//}
-	//conn, ok := client.Conn()
-	//if ok {
-	//	conn = conn
-	//}
+	// todo: use client.ClientConn to new your grpc client
 }

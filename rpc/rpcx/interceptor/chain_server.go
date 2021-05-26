@@ -1,4 +1,4 @@
-package rpcx
+package interceptor
 
 import (
 	"context"
@@ -6,11 +6,11 @@ import (
 	"google.golang.org/grpc"
 )
 
-func WithStreamServerInterceptors(interceptors ...grpc.StreamServerInterceptor) grpc.ServerOption {
+func WithStreamServer(interceptors ...grpc.StreamServerInterceptor) grpc.ServerOption {
 	return grpc.StreamInterceptor(chainStreamServerInterceptors(interceptors...))
 }
 
-func WithUnaryServerInterceptors(interceptors ...grpc.UnaryServerInterceptor) grpc.ServerOption {
+func WithUnaryServer(interceptors ...grpc.UnaryServerInterceptor) grpc.ServerOption {
 	return grpc.UnaryInterceptor(chainUnaryServerInterceptors(interceptors...))
 }
 

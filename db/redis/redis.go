@@ -1,10 +1,10 @@
 package redis
 
 import (
-	viper2 "github.com/sunmi-OS/gocore/conf/viper"
 	"strings"
 	"sync"
 
+	viper2 "github.com/sunmi-OS/gocore/conf/viper"
 	"github.com/sunmi-OS/gocore/utils"
 	"gopkg.in/redis.v5"
 )
