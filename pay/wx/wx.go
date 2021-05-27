@@ -16,7 +16,7 @@ import (
 	"time"
 
 	"github.com/go-redis/redis/v8"
-	"github.com/sunmi-OS/gocore/utils/httplib"
+	"github.com/sunmi-OS/gocore/v2/utils/httplib"
 )
 
 type (

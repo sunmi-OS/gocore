@@ -14,15 +14,15 @@ import (
 	"encoding/json"
 	"errors"
 	"fmt"
-	viper2 "github.com/sunmi-OS/gocore/conf/viper"
-	des2 "github.com/sunmi-OS/gocore/utils/encryption/des"
+	viper2 "github.com/sunmi-OS/gocore/v2/conf/viper"
+	des2 "github.com/sunmi-OS/gocore/v2/utils/encryption/des"
 	"io/ioutil"
 	"net/url"
 	"regexp"
 	"strconv"
 
 	"github.com/labstack/echo/v4"
-	"github.com/sunmi-OS/gocore/api/resutful/validation"
+	"github.com/sunmi-OS/gocore/v2/api/resutful/validation"
 	"github.com/tidwall/gjson"
 )
 

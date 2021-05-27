@@ -1,7 +1,7 @@
 package log
 
 import (
-	xlog2 "github.com/sunmi-OS/gocore/utils/xlog"
+	xlog2 "github.com/sunmi-OS/gocore/v2/utils/xlog"
 	"testing"
 	"time"
 )

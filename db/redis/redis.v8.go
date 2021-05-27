@@ -6,9 +6,9 @@ import (
 	"sync"
 
 	"github.com/go-redis/redis/v8"
-	"github.com/sunmi-OS/gocore/conf/viper"
-	"github.com/sunmi-OS/gocore/utils"
-	"github.com/sunmi-OS/gocore/utils/xlog"
+	"github.com/sunmi-OS/gocore/v2/conf/viper"
+	"github.com/sunmi-OS/gocore/v2/utils"
+	"github.com/sunmi-OS/gocore/v2/utils/xlog"
 )
 
 type Client struct {

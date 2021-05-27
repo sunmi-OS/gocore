@@ -1,7 +1,7 @@
 package gomail
 
 import (
-	"github.com/sunmi-OS/gocore/conf/viper"
+	"github.com/sunmi-OS/gocore/v2/conf/viper"
 	"gopkg.in/gomail.v2"
 )
 

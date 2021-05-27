@@ -10,8 +10,8 @@ import (
 
 	"github.com/pelletier/go-toml"
 	"github.com/spf13/cast"
-	"github.com/sunmi-OS/gocore/tools/gocore/file"
-	"github.com/sunmi-OS/gocore/tools/gocore/template"
+	"github.com/sunmi-OS/gocore/v2/tools/gocore/file"
+	"github.com/sunmi-OS/gocore/v2/tools/gocore/template"
 	"github.com/tidwall/gjson"
 
 	"github.com/urfave/cli"

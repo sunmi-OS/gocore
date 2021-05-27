@@ -1,7 +1,7 @@
 package classifier
 
 import (
-	brain2 "github.com/sunmi-OS/gocore/utils/algorithm/magicalbayes/brain"
+	brain2 "github.com/sunmi-OS/gocore/v2/utils/algorithm/magicalbayes/brain"
 )
 
 var (

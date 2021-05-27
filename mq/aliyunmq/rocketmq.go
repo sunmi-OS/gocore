@@ -2,7 +2,7 @@ package aliyunmq
 
 import (
 	"errors"
-	viper2 "github.com/sunmi-OS/gocore/conf/viper"
+	viper2 "github.com/sunmi-OS/gocore/v2/conf/viper"
 )
 
 // RocketMQConfig 基础配置

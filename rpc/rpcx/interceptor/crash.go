@@ -4,7 +4,7 @@ import (
 	"context"
 	"runtime"
 
-	"github.com/sunmi-OS/gocore/utils/xlog"
+	"github.com/sunmi-OS/gocore/v2/utils/xlog"
 	"google.golang.org/grpc"
 	"google.golang.org/grpc/codes"
 	"google.golang.org/grpc/status"

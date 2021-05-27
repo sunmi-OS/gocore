@@ -4,8 +4,8 @@ import (
 	"strings"
 	"sync"
 
-	viper2 "github.com/sunmi-OS/gocore/conf/viper"
-	"github.com/sunmi-OS/gocore/utils"
+	viper2 "github.com/sunmi-OS/gocore/v2/conf/viper"
+	"github.com/sunmi-OS/gocore/v2/utils"
 	"gopkg.in/redis.v5"
 )
 

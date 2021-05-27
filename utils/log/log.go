@@ -2,12 +2,12 @@ package log
 
 import (
 	"fmt"
-	viper2 "github.com/sunmi-OS/gocore/conf/viper"
+	viper2 "github.com/sunmi-OS/gocore/v2/conf/viper"
 	"os"
 	"path/filepath"
 	"time"
 
-	"github.com/sunmi-OS/gocore/utils"
+	"github.com/sunmi-OS/gocore/v2/utils"
 	"go.uber.org/zap"
 	"go.uber.org/zap/zapcore"
 )

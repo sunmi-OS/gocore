@@ -7,9 +7,9 @@ import (
 	"sync"
 	"time"
 
-	"github.com/sunmi-OS/gocore/conf/viper"
-	"github.com/sunmi-OS/gocore/utils/retry"
-	"github.com/sunmi-OS/gocore/utils/xlog"
+	"github.com/sunmi-OS/gocore/v2/conf/viper"
+	"github.com/sunmi-OS/gocore/v2/utils/retry"
+	"github.com/sunmi-OS/gocore/v2/utils/xlog"
 	"gorm.io/driver/mysql"
 	"gorm.io/gorm"
 	"gorm.io/gorm/logger"

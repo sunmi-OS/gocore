@@ -2,7 +2,7 @@ package logx
 
 import (
 	"fmt"
-	aliyunlog2 "github.com/sunmi-OS/gocore/utils/aliyunlog"
+	aliyunlog2 "github.com/sunmi-OS/gocore/v2/utils/aliyunlog"
 )
 
 type AliyunLogger struct {

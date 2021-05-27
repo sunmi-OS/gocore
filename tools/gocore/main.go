@@ -4,8 +4,8 @@ import (
 	"log"
 	"os"
 
-	cmd "github.com/sunmi-OS/gocore/tools/gocore/cmd"
-	"github.com/sunmi-OS/gocore/tools/gocore/conf"
+	cmd "github.com/sunmi-OS/gocore/v2/tools/gocore/cmd"
+	"github.com/sunmi-OS/gocore/v2/tools/gocore/conf"
 	"github.com/urfave/cli"
 )
 

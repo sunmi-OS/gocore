@@ -11,7 +11,7 @@ import (
 	"github.com/BurntSushi/toml"
 	"github.com/spf13/cast"
 	"github.com/spf13/viper"
-	"github.com/sunmi-OS/gocore/utils"
+	"github.com/sunmi-OS/gocore/v2/utils"
 )
 
 type Viper struct {

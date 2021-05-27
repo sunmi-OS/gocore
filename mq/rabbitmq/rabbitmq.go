@@ -6,7 +6,7 @@ import (
 	"time"
 
 	"github.com/streadway/amqp"
-	"github.com/sunmi-OS/gocore/conf/viper"
+	"github.com/sunmi-OS/gocore/v2/conf/viper"
 )
 
 var ch *amqp.Channel

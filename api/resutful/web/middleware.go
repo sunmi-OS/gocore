@@ -3,7 +3,7 @@ package web
 import (
 	"encoding/json"
 	"fmt"
-	"github.com/sunmi-OS/gocore/api/ecode"
+	"github.com/sunmi-OS/gocore/v2/api/ecode"
 	"log"
 	"net/http"
 	"runtime"

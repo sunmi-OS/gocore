@@ -3,8 +3,8 @@ package template
 import (
 	"strings"
 
-	"github.com/sunmi-OS/gocore/tools/gocore/def"
-	"github.com/sunmi-OS/gocore/tools/gocore/file"
+	"github.com/sunmi-OS/gocore/v2/tools/gocore/def"
+	"github.com/sunmi-OS/gocore/v2/tools/gocore/file"
 )
 
 const (
@@ -25,10 +25,10 @@ import (
 	"` + name + `/app/routes"
 	"` + name + `/common"
 
-	"github.com/sunmi-OS/gocore/aliyunlog"
-	"github.com/sunmi-OS/gocore/gorm"
-	"github.com/sunmi-OS/gocore/viper"
-	"github.com/sunmi-OS/gocore/web"
+	"github.com/sunmi-OS/gocore/v2/aliyunlog"
+	"github.com/sunmi-OS/gocore/v2/gorm"
+	"github.com/sunmi-OS/gocore/v2/viper"
+	"github.com/sunmi-OS/gocore/v2/web"
 	"github.com/urfave/cli"
 )
 
@@ -233,7 +233,7 @@ import (
 	"` + name + `/cmd"
 	"` + name + `/common"
 
-	gocoreLog "github.com/sunmi-OS/gocore/log"
+	gocoreLog "github.com/sunmi-OS/gocore/v2/log"
 	"github.com/urfave/cli"
 )
 
@@ -301,7 +301,7 @@ import (
 	"os"
 
 	"github.com/nacos-group/nacos-sdk-go/common/constant"
-	"github.com/sunmi-OS/gocore/nacos"
+	"github.com/sunmi-OS/gocore/v2/nacos"
 )
 
 // InitNacos  通过环境变量初始化配置中心，从环境变量获取连接配置中心的必要配置
@@ -349,7 +349,7 @@ import (
 
 	` + pkg + `
 	"github.com/labstack/echo/v4"
-	"github.com/sunmi-OS/gocore/log"
+	"github.com/sunmi-OS/gocore/v2/log"
 )
 
 var (
@@ -504,8 +504,8 @@ import (
 	"syscall"
 
 	"github.com/robfig/cron"
-	"github.com/sunmi-OS/gocore/aliyunlog"
-	"github.com/sunmi-OS/gocore/gorm"
+	"github.com/sunmi-OS/gocore/v2/aliyunlog"
+	"github.com/sunmi-OS/gocore/v2/gorm"
 	"github.com/urfave/cli"
 )
 
@@ -590,8 +590,8 @@ import (
 	"fmt"
 
 	"github.com/jinzhu/gorm"
-	g "github.com/sunmi-OS/gocore/gorm"
-	"github.com/sunmi-OS/gocore/utils"
+	g "github.com/sunmi-OS/gocore/v2/gorm"
+	"github.com/sunmi-OS/gocore/v2/utils"
 )
 
 func Orm() *gorm.DB {
@@ -710,9 +710,9 @@ import (
 	` + pkgs + `
 	"` + name + `/conf"
 
-	"github.com/sunmi-OS/gocore/gorm"
-	"github.com/sunmi-OS/gocore/nacos"
-	"github.com/sunmi-OS/gocore/utils"
+	"github.com/sunmi-OS/gocore/v2/gorm"
+	"github.com/sunmi-OS/gocore/v2/nacos"
+	"github.com/sunmi-OS/gocore/v2/utils"
 )
 
 // initConf 初始化配置服务 （内部方法）
@@ -756,7 +756,7 @@ package parse
 import (
 	"github.com/go-playground/validator/v10"
 	"github.com/labstack/echo/v4"
-	"github.com/sunmi-OS/gocore/api"
+	"github.com/sunmi-OS/gocore/v2/api"
 )
 
 func ParseJson(c echo.Context, req interface{}) (*api.Request, *api.Response, error) {

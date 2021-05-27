@@ -14,7 +14,7 @@ go get github.com/sunmi-OS/gocore
 
 ```go
 import (
-	"github.com/sunmi-OS/gocore/xxxxx"
+	"github.com/sunmi-OS/gocore/v2/xxxxx"
 )
 ```
 

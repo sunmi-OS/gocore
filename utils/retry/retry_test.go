@@ -2,7 +2,7 @@ package retry
 
 import (
 	"fmt"
-	xlog2 "github.com/sunmi-OS/gocore/utils/xlog"
+	xlog2 "github.com/sunmi-OS/gocore/v2/utils/xlog"
 	"sync/atomic"
 	"testing"
 	"time"

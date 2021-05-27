@@ -21,7 +21,7 @@ go get github.com/sunmi-OS/gocore
 
 ```go
 import (
-	"github.com/sunmi-OS/gocore/xxxxx"
+	"github.com/sunmi-OS/gocore/v2/xxxxx"
 )
 ```
 
@@ -46,8 +46,8 @@ import (
     "time"
 
     "github.com/gin-gonic/gin"
-    "github.com/sunmi-OS/gocore/ecode"
-    "github.com/sunmi-OS/gocore/web"
+    "github.com/sunmi-OS/gocore/v2/ecode"
+    "github.com/sunmi-OS/gocore/v2/web"
 )
 
 func main() {
@@ -140,7 +140,7 @@ package main
 import (
 	"fmt"
 
-	"github.com/sunmi-OS/gocore/encryption/aes"
+	"github.com/sunmi-OS/gocore/v2/encryption/aes"
 
 ...
 
@@ -158,7 +158,7 @@ package main
 import (
 	"fmt"
 
-	"github.com/sunmi-OS/gocore/encryption/des"
+	"github.com/sunmi-OS/gocore/v2/encryption/des"
 )
 
 ...
@@ -188,7 +188,7 @@ import (
 	"errors"
 	"log"
 
-	"github.com/sunmi-OS/gocore/encryption/gorsa"
+	"github.com/sunmi-OS/gocore/v2/encryption/gorsa"
 )
 
 var Pubkey = `-----BEGIN public-----
@@ -267,8 +267,8 @@ password="password"
 package main
 
 import (
-	"github.com/sunmi-OS/gocore/gomail"
-	"github.com/sunmi-OS/gocore/viper"
+	"github.com/sunmi-OS/gocore/v2/gomail"
+	"github.com/sunmi-OS/gocore/v2/viper"
 )
 
 func main() {

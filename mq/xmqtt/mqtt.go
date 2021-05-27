@@ -8,8 +8,8 @@ import (
 
 	"github.com/eclipse/paho.mqtt.golang"
 	"github.com/google/uuid"
-	"github.com/sunmi-OS/gocore/utils/retry"
-	"github.com/sunmi-OS/gocore/utils/xlog"
+	"github.com/sunmi-OS/gocore/v2/utils/retry"
+	"github.com/sunmi-OS/gocore/v2/utils/xlog"
 )
 
 type Client struct {

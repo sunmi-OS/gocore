@@ -5,7 +5,7 @@ import (
 	"net"
 	"time"
 
-	"github.com/sunmi-OS/gocore/rpc/rpcx/interceptor"
+	"github.com/sunmi-OS/gocore/v2/rpc/rpcx/interceptor"
 	"google.golang.org/grpc"
 )
 

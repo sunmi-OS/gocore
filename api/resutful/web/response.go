@@ -2,7 +2,7 @@ package web
 
 import (
 	"fmt"
-	"github.com/sunmi-OS/gocore/api/ecode"
+	"github.com/sunmi-OS/gocore/v2/api/ecode"
 	"net/http"
 
 	"github.com/gin-gonic/gin"

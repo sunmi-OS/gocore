@@ -3,7 +3,7 @@ package cmd
 import (
 	"log"
 
-	"github.com/sunmi-OS/gocore/tools/gocore/template"
+	"github.com/sunmi-OS/gocore/v2/tools/gocore/template"
 
 	"github.com/urfave/cli"
 )

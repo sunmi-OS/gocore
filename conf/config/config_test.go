@@ -4,7 +4,7 @@ import (
 	"os"
 	"testing"
 
-	"github.com/sunmi-OS/gocore/utils/xlog"
+	"github.com/sunmi-OS/gocore/v2/utils/xlog"
 )
 
 const (

@@ -7,7 +7,7 @@ import (
 	"github.com/nacos-group/nacos-sdk-go/clients/config_client"
 	"github.com/nacos-group/nacos-sdk-go/common/constant"
 	"github.com/nacos-group/nacos-sdk-go/vo"
-	"github.com/sunmi-OS/gocore/utils/retry"
+	"github.com/sunmi-OS/gocore/v2/utils/retry"
 )
 
 func New(cfg *Config) (nacosCli config_client.IConfigClient, err error) {
