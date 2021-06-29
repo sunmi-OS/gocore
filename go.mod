@@ -16,7 +16,7 @@ require (
 	github.com/golang/protobuf v1.5.2
 	github.com/google/uuid v1.1.2
 	github.com/hashicorp/go-multierror v1.1.0
-	github.com/iGoogle-ink/gopher v1.0.4-0.20210629024734-df2c564a3148
+	github.com/iGoogle-ink/gopher v1.0.4
 	github.com/jinzhu/gorm v1.9.16
 	github.com/jolestar/go-commons-pool v2.0.0+incompatible
 	github.com/labstack/echo/v4 v4.3.0
