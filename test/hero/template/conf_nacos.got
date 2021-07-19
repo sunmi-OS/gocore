@@ -5,7 +5,7 @@ import (
 	"os"
 
 	"github.com/nacos-group/nacos-sdk-go/common/constant"
-	"github.com/sunmi-OS/gocore/v2/nacos"
+	"github.com/sunmi-OS/gocore/v2/conf/nacos"
 )
 
 // InitNacos  通过环境变量初始化配置中心，从环境变量获取连接配置中心的必要配置

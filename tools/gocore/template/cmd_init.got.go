@@ -23,8 +23,8 @@ import (
 	hero.EscapeHTML(name, buffer)
 	buffer.WriteString(`/conf"
 
-	"github.com/sunmi-OS/gocore/v2/gorm"
-	"github.com/sunmi-OS/gocore/v2/nacos"
+	"github.com/sunmi-OS/gocore/v2/db/gorm"
+	"github.com/sunmi-OS/gocore/v2/conf/nacos"
 	"github.com/sunmi-OS/gocore/v2/utils"
 )
 
