@@ -45,7 +45,7 @@ var CreatService = cli.Command{
 	},
 }
 
-var dirList []string = []string{
+var dirList = []string{
 	"/common",
 	"/cmd",
 	"/app/domain",
@@ -305,8 +305,6 @@ func createApi(root, name string) {
 	if err != nil {
 		panic(err)
 	}
-	apiWriter := file.NewWriter()
-	domainWriter := file.NewWriter()
 
 	routesStr := ""
 	pkg := ""
@@ -337,20 +335,20 @@ func createApi(root, name string) {
 			function := strings.Title(route)
 			functions = append(functions, function)
 			routesStr += handlerName + ".POST(\"/" + handlerName + "/" + route + "\",api." + handler + "Handler." + function + ")\n"
-
-			domainWriter.Add([]byte(template.CreateDomain(name, handler, function, req)))
+			template.FromDomain(name, handler, function, req, fileBuffer)
 			fileWriter(fileBuffer, domainDir+file.CamelToUnderline(route)+".go")
 
 		}
-		apiWriter.Add([]byte(template.CreateApi(name, handler, functions, reqs)))
+
+		template.FromApi(name, handler, functions, reqs, fileBuffer)
 		writer.Add(fileBuffer.Bytes())
 		fileWriter(fileBuffer, apiPath)
 	}
 
-	writer.Add([]byte(template.CreateRoutes(pkg, routesStr)))
+	template.FromApiRoutes(pkg, routesStr, fileBuffer)
 	fileWriter(fileBuffer, root+"/app/routes/routers.go")
 
-	writer.Add([]byte(template.CreateDomainHandler(handlers...)))
+	template.FromDomainHandler(handlers, fileBuffer)
 	fileWriter(fileBuffer, domainDir+"handler.go")
 }
 

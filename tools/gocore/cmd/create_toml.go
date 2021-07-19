@@ -15,6 +15,7 @@ func creatToml(c *cli.Context) error {
 	} else {
 		dir = "gocore.toml"
 	}
+
 	writer.Add([]byte(template.CreateToml()))
 	writer.WriteToFile(dir)
 	log.Println("gocore.toml 已生成...")
