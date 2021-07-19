@@ -47,7 +47,7 @@ import (
 
     "github.com/gin-gonic/gin"
     "github.com/sunmi-OS/gocore/v2/ecode"
-    "github.com/sunmi-OS/gocore/v2/web"
+    "github.com/sunmi-OS/gocore/v2/api/resultful/web"
 )
 
 func main() {
@@ -268,7 +268,7 @@ package main
 
 import (
 	"github.com/sunmi-OS/gocore/v2/gomail"
-	"github.com/sunmi-OS/gocore/v2/viper"
+	"github.com/sunmi-OS/gocore/v2/conf/viper"
 )
 
 func main() {

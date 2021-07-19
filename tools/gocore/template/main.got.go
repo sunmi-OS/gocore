@@ -25,7 +25,7 @@ import (
 	buffer.WriteString(`/common"
 
     "github.com/urfave/cli"
-	gocoreLog "github.com/sunmi-OS/gocore/v2/log"
+	gocoreLog "github.com/sunmi-OS/gocore/v2/utils/log"
 )
 
 func main() {

@@ -25,7 +25,7 @@ import (
 	hero.EscapeHTML(pkg, buffer)
 	buffer.WriteString(`
 	"github.com/labstack/echo/v4"
-	"github.com/sunmi-OS/gocore/v2/log"
+	"github.com/sunmi-OS/gocore/v2/utils/log"
 )
 
 var (

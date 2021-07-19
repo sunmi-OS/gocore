@@ -10,10 +10,10 @@ import (
 	"<%= projectName %>/app/routes"
 	"<%= projectName %>/common"
 
-	"github.com/sunmi-OS/gocore/v2/aliyunlog"
-	"github.com/sunmi-OS/gocore/v2/gorm"
-	"github.com/sunmi-OS/gocore/v2/viper"
-	"github.com/sunmi-OS/gocore/v2/web"
+	"github.com/sunmi-OS/gocore/v2/utils/aliyunlog"
+	"github.com/sunmi-OS/gocore/v2/db/gorm"
+	"github.com/sunmi-OS/gocore/v2/conf/viper"
+	"github.com/sunmi-OS/gocore/v2/api/resutful/web"
 	"github.com/urfave/cli"
 )
 
