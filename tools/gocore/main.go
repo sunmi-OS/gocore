@@ -9,7 +9,6 @@ import (
 	"github.com/urfave/cli"
 )
 
-
 const banner string = `
    ____   ____             ____  ___________   ____  
   / ___\ /  _ \   ______ _/ ___\/  _ \_  __ \_/ __ \ 

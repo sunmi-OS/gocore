@@ -2,10 +2,11 @@ package retry
 
 import (
 	"fmt"
-	xlog2 "github.com/sunmi-OS/gocore/v2/utils/xlog"
 	"sync/atomic"
 	"testing"
 	"time"
+
+	xlog2 "github.com/sunmi-OS/gocore/v2/utils/xlog"
 )
 
 func TestRetry(t *testing.T) {

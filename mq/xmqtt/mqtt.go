@@ -6,7 +6,7 @@ import (
 	"sync"
 	"time"
 
-	"github.com/eclipse/paho.mqtt.golang"
+	mqtt "github.com/eclipse/paho.mqtt.golang"
 	"github.com/google/uuid"
 	"github.com/sunmi-OS/gocore/v2/utils/retry"
 	"github.com/sunmi-OS/gocore/v2/utils/xlog"

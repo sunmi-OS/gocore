@@ -2,9 +2,10 @@ package nacos
 
 import (
 	"errors"
-	viper2 "github.com/sunmi-OS/gocore/v2/conf/viper"
 	"sync"
 	"time"
+
+	viper2 "github.com/sunmi-OS/gocore/v2/conf/viper"
 
 	"github.com/nacos-group/nacos-sdk-go/vo"
 	"github.com/spf13/cast"

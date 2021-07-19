@@ -3,9 +3,10 @@ package gokafka
 import (
 	"context"
 	"fmt"
-	viper2 "github.com/sunmi-OS/gocore/v2/conf/viper"
 	"sync"
 	"time"
+
+	viper2 "github.com/sunmi-OS/gocore/v2/conf/viper"
 
 	"github.com/segmentio/kafka-go"
 	"github.com/segmentio/kafka-go/snappy"

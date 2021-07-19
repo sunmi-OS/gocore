@@ -1,8 +1,9 @@
 package web
 
 import (
-	"github.com/sunmi-OS/gocore/v2/api/ecode"
 	"testing"
+
+	"github.com/sunmi-OS/gocore/v2/api/ecode"
 
 	"github.com/gin-gonic/gin"
 )

@@ -8,6 +8,7 @@ import (
 )
 
 // hero -source=./test/hero/template -extensions=.got,.html,.docker,.md
+// hero -source=./tools/gocore/template -extensions=.got,.html,.docker,.md
 func main() {
 
 	buffer := new(bytes.Buffer)

@@ -1,9 +1,10 @@
 package log
 
 import (
-	xlog2 "github.com/sunmi-OS/gocore/v2/utils/xlog"
 	"testing"
 	"time"
+
+	xlog2 "github.com/sunmi-OS/gocore/v2/utils/xlog"
 )
 
 func TestInitLogger(t *testing.T) {

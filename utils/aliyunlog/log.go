@@ -3,9 +3,10 @@ package aliyunlog
 import (
 	"errors"
 	"fmt"
-	viper2 "github.com/sunmi-OS/gocore/v2/conf/viper"
 	"os"
 	"time"
+
+	viper2 "github.com/sunmi-OS/gocore/v2/conf/viper"
 
 	sls "github.com/aliyun/aliyun-log-go-sdk"
 	"github.com/aliyun/aliyun-log-go-sdk/producer"

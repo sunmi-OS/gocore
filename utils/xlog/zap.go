@@ -1,11 +1,12 @@
 package xlog
 
 import (
-	viper2 "github.com/sunmi-OS/gocore/v2/conf/viper"
 	"os"
 	"path/filepath"
 	"sync"
 	"time"
+
+	viper2 "github.com/sunmi-OS/gocore/v2/conf/viper"
 
 	"github.com/sunmi-OS/gocore/v2/utils"
 	"go.uber.org/zap"

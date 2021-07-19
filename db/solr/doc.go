@@ -1,4 +1,4 @@
-// Solr client in Go, core admin, add docs, update, delete, search and more 
+// Solr client in Go, core admin, add docs, update, delete, search and more
 //
 //
 //    package main
@@ -6,7 +6,7 @@
 //    	"github.com/vanng822/go-solr/solr"
 //    	"fmt"
 //    )
-//  
+//
 //    func main() {
 //      si, _ := solr.NewSolrInterface("http://localhost:8983/solr", "collection1")
 //      query := solr.NewQuery()

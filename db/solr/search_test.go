@@ -2,7 +2,6 @@ package solr
 
 import "testing"
 
-
 func TestSolrSearchMultipleValueSearchQuery(t *testing.T) {
 	q := NewQuery()
 	q.AddParam("testing", "test")
@@ -27,10 +26,10 @@ func TestSolrSearchSetQuery(t *testing.T) {
 	q2 := NewQuery()
 	q2.AddParam("testing", "test2")
 	s.SetQuery(q2)
-	
+
 	expected = "testing=test2"
 	res = s.QueryString()
-	
+
 	if res != expected {
 		t.Errorf("Expected to be: '%s' but got '%s'", expected, res)
 	}

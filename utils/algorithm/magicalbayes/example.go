@@ -2,6 +2,7 @@ package main
 
 import (
 	"fmt"
+
 	brain2 "github.com/sunmi-OS/gocore/v2/utils/algorithm/magicalbayes/brain"
 	classifier2 "github.com/sunmi-OS/gocore/v2/utils/algorithm/magicalbayes/classifier"
 )
