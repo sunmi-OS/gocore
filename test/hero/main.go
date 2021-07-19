@@ -4,7 +4,7 @@ import (
 	"bytes"
 	"fmt"
 
-	"github.com/sunmi-OS/gocore/v2/test/hero/template"
+	"github.com/sunmi-OS/gocore/v2/tools/gocore/template"
 )
 
 // hero -source=./test/hero/template -extensions=.got,.html,.docker,.md
@@ -17,4 +17,7 @@ func main() {
 
 	fmt.Println(buffer.String())
 
+	fmt.Println("22")
+
+	fmt.Println(buffer.String())
 }

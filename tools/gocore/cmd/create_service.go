@@ -58,6 +58,8 @@ var dirList []string = []string{
 
 var writer = file.NewWriter()
 
+var fileBuffer = new(bytes.Buffer)
+
 var configJson gjson.Result
 
 var localConf string
@@ -74,11 +76,8 @@ func creatService(c *cli.Context) error {
 	}
 	root := "."
 	mkdir(root)
-	createConf(root)
-	createParse(root)
+	createConf(root, name)
 	createMain(root, name)
-	createCmd(root)
-	createCommon(root, name)
 	createDockerfile(root)
 	createReadme(root)
 	createErrCode(root)
@@ -90,82 +89,77 @@ func creatService(c *cli.Context) error {
 
 	cmd := exec.Command("go", "mod", "init", name)
 	cmd.Dir = root
-	cmd.Output()
+	_, err := cmd.Output()
+	if err != nil {
+		panic(err)
+	}
 
 	cmd = exec.Command("goimports", "-l", "-w", "./...")
 	cmd.Dir = root
-	cmd.Output()
+	_, err = cmd.Output()
+	if err != nil {
+		panic(err)
+	}
 
 	cmd = exec.Command("go", "test", "./...")
 	cmd.Dir = root
-	cmd.Output()
+	_, err = cmd.Output()
+	if err != nil {
+		panic(err)
+	}
 
 	cmd = exec.Command("go", "fmt", "./...")
 	cmd.Dir = root
-	cmd.Output()
+	_, err = cmd.Output()
+	if err != nil {
+		panic(err)
+	}
 
 	log.Println(name + " 已生成...")
 	return nil
 }
 
 func createMain(root, name string) {
-	mainPath := root + "/main.go"
-	cmds := ""
+	var cmdList []string
 	if configJson.Get("api").Exists() {
-		cmds += "cmd.Api,\n"
+		cmdList = append(cmdList, "cmd.Api,")
 	}
 	if configJson.Get("cronjob").Exists() {
-		cmds += "cmd.Cronjob,\n"
+		cmdList = append(cmdList, "cmd.Cronjob,")
 	}
 	if configJson.Get("job").Exists() {
-		cmds += "cmd.Job,\n"
+		cmdList = append(cmdList, "cmd.Job,")
 	}
-	writer.Add([]byte(template.CreateMain(name, cmds)))
-	writer.ForceWriteToFile(mainPath)
+	template.FromMain(name, cmdList, fileBuffer)
+	fileWriter(fileBuffer, root+"/main.go")
 }
 
-func createConf(root string) {
-	confBasePath := root + "/conf/base.go"
-	writer.Add([]byte(template.CreateConfBase()))
-	writer.WriteToFile(confBasePath)
+func createConf(root string, name string) {
 
-	confNacosPath := root + "/conf/nacos.go"
-	writer.Add([]byte(template.CreateConfNacos()))
-	writer.WriteToFile(confNacosPath)
-}
+	// TODO: 如果用户不适用nacos就不应该初始化
+	template.FromConfBase(fileBuffer)
+	fileWriter(fileBuffer, root+"/conf/base.go")
 
-func createCmd(root string) {
-	// cmdInitPath := root + "/cmd/init.go"
-	// writer.Add([]byte(strings.Join(template.CmdInitTemplate, root)))
-	// writer.WriteToFile(cmdInitPath)
-}
+	template.FromConfNacos(fileBuffer)
+	fileWriter(fileBuffer, root+"/conf/nacos.go")
 
-func createCommon(root, name string) {
-	commonPath := root + "/common/common.go"
-	writer.Add([]byte(template.CreateCommon()))
-	writer.WriteToFile(commonPath)
-
-	constPath := root + "/common/const.go"
-	writer.Add([]byte(template.CreateCommonConst(name)))
-	writer.WriteToFile(constPath)
+	template.FromConfConst(name, fileBuffer)
+	fileWriter(fileBuffer, root+"/conf/const.go")
 }
 
 func createDockerfile(root string) {
-	dockerFilePath := root + "/Dockerfile"
-	writer.Add([]byte(template.CreateDockerfile()))
-	writer.WriteToFile(dockerFilePath)
+	template.FromDockerfile(fileBuffer)
+	fileWriter(fileBuffer, root+"/Dockerfile")
 }
 
 func createReadme(root string) {
-	readmePath := root + "/README.md"
-	writer.Add([]byte(template.CreateReadme()))
-	writer.WriteToFile(readmePath)
+	template.FromREADME(fileBuffer)
+	fileWriter(fileBuffer, root+"/README.md")
 }
 
 func createErrCode(root string) {
-	errCodePath := root + "/app/errcode/errcode.go"
-	writer.Add([]byte(template.CreateErrCode()))
-	writer.WriteToFile(errCodePath)
+	template.FromErrCode(fileBuffer)
+	fileWriter(fileBuffer, root+"/app/errcode/errcode.go")
 }
 
 func createModel(root, name string) {
@@ -207,23 +201,21 @@ func createModel(root, name string) {
 			for _, v3 := range fields {
 				fieldStr += template.CreateField(v3.String())
 			}
-			writer.Add([]byte(template.CreateModelTable(k1, tableStruct, tableName, fieldStr)))
-			writer.ForceWriteToFile(tabelPath)
+			template.FromModelTable(k1, tableStruct, tableName, fieldStr, fileBuffer)
+			fileWriter(fileBuffer, tabelPath)
 
 		}
 
-		clientPath := dir + "/mysql_client.go"
-		writer.Add([]byte(template.CreateModelClient(k1, tableStr)))
-		writer.ForceWriteToFile(clientPath)
+		template.FromModel(k1, tableStr, fileBuffer)
+		fileWriter(fileBuffer, dir+"/mysql_client.go")
 
-		localConf += template.CreateConfMyql(k1)
-		confLocalPath := root + "/conf/local.go"
-		writer.Add([]byte(template.CreateConfLocal(localConf)))
-		writer.ForceWriteToFile(confLocalPath)
+		template.FromConfMysql(k1, fileBuffer)
+		localConf += fileBuffer.String()
+		template.FromConfLocal(localConf, fileBuffer)
+		fileWriter(fileBuffer, root+"/conf/local.go")
 
-		cmdInitPath := root + "/cmd/init.go"
-		writer.Add([]byte(template.CreateCmdInit(name, pkgs, dbUpdate, initDb)))
-		writer.ForceWriteToFile(cmdInitPath)
+		template.FromCmdInit(name, pkgs, dbUpdate, initDb, fileBuffer)
+		fileWriter(fileBuffer, root+"/cmd/init.go")
 	}
 }
 
@@ -241,17 +233,17 @@ func createCronjob(name, root string) {
 	cronjobs := ""
 	for k1, v1 := range jobs {
 		jobPath := dir + file.CamelToUnderline(k1) + ".go"
-		writer.Add([]byte(template.CreateCronjob(k1)))
-		writer.WriteToFile(jobPath)
+		template.FromCronJob(k1, fileBuffer)
+		fileWriter(fileBuffer, jobPath)
 		cronjobs += "_ = cronObj.AddFunc(\"" + v1.String() + "\", cronjob." + k1 + ")\n"
 	}
 
-	cronCmdPath := root + "/cmd/cronjob.go"
-	writer.Add([]byte(template.CreateCmdCronjob(name, cronjobs)))
-	writer.ForceWriteToFile(cronCmdPath)
+	template.FromCmdCronJob(name, cronjobs, fileBuffer)
+	fileWriter(fileBuffer, root+"/cmd/cronjob.go")
 }
 
 func createJob(name, root string) {
+
 	jobs := configJson.Get("job").Map()
 	if len(jobs) == 0 {
 		return
@@ -265,9 +257,8 @@ func createJob(name, root string) {
 	jobCmd := ""
 	jobFunctions := ""
 	for k1, v1 := range jobs {
-		jobPath := dir + file.CamelToUnderline(k1) + ".go"
-		writer.Add([]byte(template.CreateJob(k1)))
-		writer.WriteToFile(jobPath)
+		template.FromCronJob(k1, fileBuffer)
+		fileWriter(fileBuffer, dir+file.CamelToUnderline(k1)+".go")
 		jobCmd += `		{
 			Name:   "` + v1.String() + `",
 			Usage:  "开启运行api服务",
@@ -285,12 +276,12 @@ func ` + k1 + `(c *cli.Context) error {
 `
 	}
 
-	jobCmdPath := root + "/cmd/job.go"
-	writer.Add([]byte(template.CreateCmdJob(name, jobCmd, jobFunctions)))
-	writer.ForceWriteToFile(jobCmdPath)
+	template.FromCmdJob(name, jobCmd, jobFunctions, fileBuffer)
+	fileWriter(fileBuffer, root+"/cmd/job.go")
 }
 
 func createApi(root, name string) {
+
 	apiMap := configJson.Get("api").Map()
 	if len(apiMap) == 0 {
 		return
@@ -299,9 +290,9 @@ func createApi(root, name string) {
 	if len(handlersList) == 0 {
 		return
 	}
-	cmdApiPath := root + "/cmd/api.go"
-	writer.Add([]byte(template.CreateCmdApi(name)))
-	writer.WriteToFile(cmdApiPath)
+
+	template.FromCmdApi(name, fileBuffer)
+	fileWriter(fileBuffer, root+"/cmd/api.go")
 
 	apiDir := root + "/app/api/"
 	err := file.MkdirIfNotExist(apiDir)
@@ -320,7 +311,6 @@ func createApi(root, name string) {
 	routesStr := ""
 	pkg := ""
 	handlers := make([]string, 0)
-	requests := make([]string, 0)
 
 	for _, v1 := range handlersList {
 		handlerName := v1.Get("name").String()
@@ -346,25 +336,22 @@ func createApi(root, name string) {
 			reqs = append(reqs, req)
 			function := strings.Title(route)
 			functions = append(functions, function)
-			requests = append(requests, function)
 			routesStr += handlerName + ".POST(\"/" + handlerName + "/" + route + "\",api." + handler + "Handler." + function + ")\n"
 
-			domainPath := domainDir + file.CamelToUnderline(route) + ".go"
 			domainWriter.Add([]byte(template.CreateDomain(name, handler, function, req)))
-			domainWriter.WriteToFile(domainPath)
+			fileWriter(fileBuffer, domainDir+file.CamelToUnderline(route)+".go")
 
 		}
 		apiWriter.Add([]byte(template.CreateApi(name, handler, functions, reqs)))
-		apiWriter.WriteToFile(apiPath)
+		writer.Add(fileBuffer.Bytes())
+		fileWriter(fileBuffer, apiPath)
 	}
 
-	routesPath := root + "/app/routes/routers.go"
 	writer.Add([]byte(template.CreateRoutes(pkg, routesStr)))
-	writer.ForceWriteToFile(routesPath)
+	fileWriter(fileBuffer, root+"/app/routes/routers.go")
 
-	domainHandlerPath := domainDir + "handler.go"
 	writer.Add([]byte(template.CreateDomainHandler(handlers...)))
-	writer.ForceWriteToFile(domainHandlerPath)
+	fileWriter(fileBuffer, domainDir+"handler.go")
 }
 
 func createDef(root string) {
@@ -377,7 +364,7 @@ func createDef(root string) {
 	if err != nil {
 		panic(err)
 	}
-	defPath := dir + "/def.go"
+
 	writer.Add([]byte(`package def` + "\n"))
 	for k1, v1 := range structs {
 		params := ""
@@ -389,20 +376,12 @@ func createDef(root string) {
 			}
 			params += file.UnderlineToCamel(field[0]) + " " + field[1] + " `json:\"" + field[0] + "\"`\n"
 		}
-		writer.Add([]byte(template.CreateDefRquest(k1, params)))
+		template.FromApiRequest(k1, params, fileBuffer)
 	}
-	writer.ForceWriteToFile(defPath)
+	fileWriter(fileBuffer, dir+"/def.go")
 }
 
-func mkdir(root string) {
-	for _, dir := range dirList {
-		dir = root + dir
-		err := file.MkdirIfNotExist(dir)
-		if err != nil {
-			panic(err)
-		}
-	}
-}
+// ------------------------------------------------------------------------------
 
 func parseToml(path string) {
 	buf, err := ioutil.ReadFile(path)
@@ -422,13 +401,18 @@ func parseToml(path string) {
 	configJson = gjson.ParseBytes(cMapBytes)
 }
 
-func createParse(root string) {
-	dir := root + "/pkg/parse"
-	err := file.MkdirIfNotExist(dir)
-	if err != nil {
-		panic(err)
+func fileWriter(buffer *bytes.Buffer, path string) {
+	writer.Add(buffer.Bytes())
+	writer.ForceWriteToFile(path)
+	buffer.Reset()
+}
+
+func mkdir(root string) {
+	for _, dir := range dirList {
+		dir = root + dir
+		err := file.MkdirIfNotExist(dir)
+		if err != nil {
+			panic(err)
+		}
 	}
-	parsePath := dir + "/parse.go"
-	writer.Add([]byte(template.CreateParse()))
-	writer.WriteToFile(parsePath)
 }
