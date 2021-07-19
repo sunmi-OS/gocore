@@ -1,0 +1,32 @@
+<%: func FromCmdInit(name, pkgs, dbUpdate, initDb string, buffer *bytes.Buffer) %>
+package cmd
+
+import (
+	"log"
+
+	<%= pkgs %>
+	"<%= name %>/conf"
+
+	"github.com/sunmi-OS/gocore/v2/gorm"
+	"github.com/sunmi-OS/gocore/v2/nacos"
+	"github.com/sunmi-OS/gocore/v2/utils"
+)
+
+// initConf 初始化配置服务 （内部方法）
+func initConf() {
+	// 初始化Nacos配置
+	conf.InitNacos(utils.GetRunTime())
+	// 注册需要的配置
+	nacos.ViperTomlHarder.SetDataIds("<%= name %>", "mysql", "config", "redis")
+	// 注册配置更新回调
+	nacos.ViperTomlHarder.SetCallBackFunc("<%= name %>", "mysql", func(namespace, group, dataId, data string) {
+		<%= dbUpdate %>
+	})
+	// 把Nacos的配置注册到Viper
+	nacos.ViperTomlHarder.NacosToViper()
+}
+
+// initDB 初始化DB服务 （内部方法）
+func initDB() {
+	<%= initDb %>
+}

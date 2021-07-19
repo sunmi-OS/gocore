@@ -141,6 +141,7 @@ func CreateReadme() string {
 
 ## 协作者
 > 高效的协作会激发无尽的创造力，将他们的名字记录在这里吧
+
 `
 }
 
@@ -475,7 +476,7 @@ func CreateDefRquest(request, params string) string {
 
 func CreateCronjob(cron string) string {
 	return `
-	package cronjob
+package cronjob
 // ` + cron + `
 func ` + cron + `() {
 }
@@ -692,7 +693,8 @@ func CreateField(field string) string {
 }
 
 func CreateCommonConst(name string) string {
-	return `package common
+	return `
+package common
 const (
 	PROJECT_NAME    = "` + name + `"
 	PROJECT_VERSION = "v1.0.0"
@@ -702,7 +704,7 @@ const (
 
 func CreateCmdInit(name, pkgs, dbUpdate, initDb string) string {
 	return `
-	package cmd
+package cmd
 
 import (
 	"log"
@@ -775,8 +777,7 @@ func ParseJson(c echo.Context, req interface{}) (*api.Request, *api.Response, er
 	err = validate.Struct(req)
 	return request, response, err
 }
-
-	`
+`
 }
 
 func CreateCommon() string {

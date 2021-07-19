@@ -1,0 +1,4 @@
+<%: func FromConfLocal(content string,buffer *bytes.Buffer) %>
+package conf
+
+var localConfig = `<%= content %>`

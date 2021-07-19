@@ -1,0 +1,37 @@
+<%: func FromMain(projectName string, cmdList []string, buffer *bytes.Buffer) %>
+package main
+
+import (
+	"log"
+	"os"
+
+	"<%= projectName %>/cmd"
+	"<%= projectName %>/common"
+
+    "github.com/urfave/cli"
+	gocoreLog "github.com/sunmi-OS/gocore/v2/log"
+)
+
+func main() {
+	// 配置cli参数
+	app := cli.NewApp()
+	app.Name = common.PROJECT_NAME
+	app.Usage = common.PROJECT_NAME
+	app.Email = ""
+	app.Version = common.PROJECT_VERSION
+
+	// 指定命令运行的函数
+	app.Commands = []cli.Command{
+        <% for _, cmd := range cmdList { %>
+            <%= cmd %>
+        <% } %>
+	}
+
+	//初始化log
+	gocoreLog.InitLogger(common.PROJECT_NAME)
+
+	// 启动cli
+	if err := app.Run(os.Args); err != nil {
+		log.Fatalf("Failed to start application: %v", err)
+	}
+}

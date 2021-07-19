@@ -1,0 +1,38 @@
+<%: func FromConfNacos(buffer *bytes.Buffer) %>
+package conf
+
+import (
+	"os"
+
+	"github.com/nacos-group/nacos-sdk-go/common/constant"
+	"github.com/sunmi-OS/gocore/v2/nacos"
+)
+
+// InitNacos  通过环境变量初始化配置中心，从环境变量获取连接配置中心的必要配置
+func InitNacos(runtime string) {
+	nacos.SetRunTime(runtime)
+	nacos.ViperTomlHarder.SetviperBase(baseConfig)
+	switch runtime {
+	case "local":
+		nacos.AddLocalConfig(runtime, localConfig)
+	default:
+		Endpoint := os.Getenv("ENDPOINT")
+		NamespaceId := os.Getenv("NAMESPACE_ID")
+		AccessKey := os.Getenv("ACCESS_KEY")
+		SecretKey := os.Getenv("SECRET_KEY")
+
+		if Endpoint == "" || NamespaceId == "" || AccessKey == "" || SecretKey == "" {
+			panic("The configuration file cannot be empty.")
+		}
+
+		err := nacos.AddAcmConfig(runtime, constant.ClientConfig{
+			Endpoint:    Endpoint,
+			NamespaceId: NamespaceId,
+			AccessKey:   AccessKey,
+			SecretKey:   SecretKey,
+		})
+		if err != nil {
+			panic(err)
+		}
+	}
+}

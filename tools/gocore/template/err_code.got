@@ -1,0 +1,9 @@
+<%: func FromErrCode(buffer *bytes.Buffer) %>
+package errcode
+
+const (
+	Code0001 = iota + 500 //系统异常（参考）
+	Code0002              //参数错误（参考）
+)
+
+const CodeSuccess int64 = 1 //返回成功

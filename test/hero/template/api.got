@@ -1,0 +1,32 @@
+<%: func FromApi(name, handler string, functions []string, req []string, buffer *bytes.Buffer) %>
+package api
+
+import (
+	"<%= name %>/app/domain"
+	"<%= name %>/app/errcode"
+	"<%= name %>/pkg/parse"
+	"<%= name %>/app/def"
+
+	"github.com/labstack/echo/v4"
+)
+
+var <%= handler %>Handler = ` + handler + `{}
+type <%= handler %> struct{}
+
+<% for k1, v1 := range functions { %>
+    // <%= v1 %>
+    func (*<%= handler %>) <%= v1 %>(c echo.Context) error {
+        params := new(def.<%= req[k1] %>)
+        //参数验证绑定
+        _, response, err := parse.ParseJson(c, params)
+        if err != nil {
+            return response.RetError(err, errcode.Code0002)
+        }
+        resp, code, err := domain.<%= handler %>Handler.<%= v1 %>(params)
+        if err != nil {
+            return response.RetError(err, code)
+        }
+        return response.RetSuccess(resp)
+    }
+
+<% } %>

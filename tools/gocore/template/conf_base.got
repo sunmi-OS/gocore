@@ -1,0 +1,8 @@
+<%: func FromConfBase(buffer *bytes.Buffer) %>
+package conf
+
+var baseConfig = `
+[network]
+ApiServiceHost = ""
+ApiServicePort = "80"
+`

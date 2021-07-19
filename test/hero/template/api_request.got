@@ -1,0 +1,5 @@
+<%: func FromApiRequest(request, params string, buffer *bytes.Buffer) %>
+
+type <%= request %> struct {
+    <%= params %>
+}

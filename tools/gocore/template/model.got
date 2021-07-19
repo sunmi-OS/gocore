@@ -1,0 +1,25 @@
+<%: func FromModel(dbName , tabels string, buffer *bytes.Buffer) %>
+package <%= dbName %>
+
+import (
+	"fmt"
+
+	"github.com/jinzhu/gorm"
+	g "github.com/sunmi-OS/gocore/v2/gorm"
+	"github.com/sunmi-OS/gocore/v2/utils"
+)
+
+func Orm() *gorm.DB {
+	db := g.GetORM("db<%= strings.Title(dbName) %>")
+	if utils.GetRunTime() != "onl" {
+		db = db.Debug()
+	}
+	return db
+}
+
+func CreateTable() {
+	fmt.Println("开始初始化` + dbName + `数据库")
+	//自动建表，数据迁移
+    <%= tabels %>
+	fmt.Println("数据库` + dbName + `初始化完成")
+}
