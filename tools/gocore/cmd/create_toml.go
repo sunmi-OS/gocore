@@ -3,12 +3,15 @@ package cmd
 import (
 	"log"
 
+	"github.com/sunmi-OS/gocore/v2/tools/gocore/file"
+
 	"github.com/sunmi-OS/gocore/v2/tools/gocore/template"
 
 	"github.com/urfave/cli"
 )
 
 func creatToml(c *cli.Context) error {
+	var writer = file.NewWriter()
 	dir := c.String("dir")
 	if dir != "" {
 		dir = dir + "/gocore.toml"
