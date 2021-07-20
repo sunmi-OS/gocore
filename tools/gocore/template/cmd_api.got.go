@@ -49,7 +49,6 @@ var Api = cli.Command{
 func RunApi(c *cli.Context) error {
 	// 如何确定哪些需要加载
 	initConf()
-	common.Init()
 	initDB()
 	e := web.InitEcho(&web.Config{
 		Port: viper.C.GetString("network.ApiServicePort"),

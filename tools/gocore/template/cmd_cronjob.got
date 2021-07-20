@@ -4,7 +4,6 @@ package cmd
 import (
 	"log"
 	"<%= name %>/app/cronjob"
-	"<%= name %>/common"
 	"os"
 	"os/signal"
 	"syscall"
@@ -35,7 +34,6 @@ func runCron(c *cli.Context) error {
 	// 初始化必要内容
 	initConf()
 	initDB()
-	common.Init()
 	cronObj := cron.New()
 
     <%= cronjobs %>
