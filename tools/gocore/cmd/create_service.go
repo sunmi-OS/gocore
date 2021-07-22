@@ -52,6 +52,7 @@ func creatService(c *cli.Context) error {
 		return cli.NewExitError("service name  not found", 86)
 	}
 	root := "."
+
 	template.CreateCode(root, name, configJson)
 
 	cmd := exec.Command("go", "mod", "init", name)
