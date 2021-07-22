@@ -283,7 +283,6 @@ func ` + k1 + `(c *cli.Context) error {
 	// 初始化必要内容
 	initConf()
 	initDB()
-	common.Init()
 	job.` + k1 + `()
 	return nil
 }

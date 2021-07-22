@@ -19,8 +19,7 @@ import (
 	hero.EscapeHTML(name, buffer)
 	buffer.WriteString(`/app/cronjob"
 	"`)
-	hero.EscapeHTML(name, buffer)
-	buffer.WriteString(`/common"
+	buffer.WriteString(`
 	"os"
 	"os/signal"
 	"syscall"
@@ -51,7 +50,6 @@ func runCron(c *cli.Context) error {
 	// 初始化必要内容
 	initConf()
 	initDB()
-	common.Init()
 	cronObj := cron.New()
 
     `)
