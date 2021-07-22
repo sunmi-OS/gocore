@@ -3,54 +3,50 @@ package nacos
 import (
 	"errors"
 	"sync"
-	"time"
 
-	viper2 "github.com/sunmi-OS/gocore/v2/conf/viper"
+	"github.com/sunmi-OS/gocore/v2/conf/viper"
 
 	"github.com/nacos-group/nacos-sdk-go/vo"
 	"github.com/spf13/cast"
 )
 
+type configParam struct {
+	group   string
+	dataIds []string
+}
+
 type ViperToml struct {
-	dataIdorGroupList []dataIdorGroup
+	dataIdOrGroupList []configParam
 	callbackList      map[string]func(namespace, group, dataId, data string)
 	callbackRun       bool
 	callbackFirst     sync.Map
 }
 
-var ViperTomlHarder = &ViperToml{
-	callbackList: make(map[string]func(namespace, group, dataId, data string)),
-	callbackRun:  false,
-}
-
-// 获取整套配置文件的拼接
+// GetConfig 获取整套配置文件
 func (vt *ViperToml) GetConfig() (string, error) {
-
-	if nacosHarder.list[nacosHarder.runtime].localStrus {
-		configs, err := nacosHarder.list[nacosHarder.runtime].cc.GetConfig(vo.ConfigParam{})
+	if nacosHarder.local {
+		configs, err := nacosHarder.icc.GetConfig(vo.ConfigParam{})
 		if err != nil {
 			return "", err
 		}
 		return configs, nil
 	}
-
 	var configs = ""
-
-	for _, dataIdorGroup := range vt.dataIdorGroupList {
+	for _, dataIdorGroup := range vt.dataIdOrGroupList {
 		group := dataIdorGroup.group
 		for _, v := range dataIdorGroup.dataIds {
 
-			content, err := nacosHarder.list[nacosHarder.runtime].cc.GetConfig(vo.ConfigParam{
+			content, err := nacosHarder.icc.GetConfig(vo.ConfigParam{
 				DataId: v,
 				Group:  group})
 			if err != nil {
 				return "", err
 			}
 			configs += "\r\n" + content
-			if vt.callbackRun == false {
+			if !vt.callbackRun {
 				// 注册回调
 				grouptodataId := group + v
-				err := nacosHarder.list[nacosHarder.runtime].cc.ListenConfig(vo.ConfigParam{
+				err := nacosHarder.icc.ListenConfig(vo.ConfigParam{
 					DataId:   v,
 					Group:    group,
 					OnChange: vt.callbackList[grouptodataId],
@@ -59,77 +55,59 @@ func (vt *ViperToml) GetConfig() (string, error) {
 					return "", err
 				}
 			}
-
 		}
 	}
-
 	vt.callbackRun = true
-
 	return configs, nil
-
 }
 
-// 设置需要读取哪些配置
+// SetDataIds 设置需要读取哪些配置
 func (vt *ViperToml) SetDataIds(group string, dataIds ...string) {
-	vt.dataIdorGroupList = append(vt.dataIdorGroupList, dataIdorGroup{group: group, dataIds: dataIds})
-
+	vt.dataIdOrGroupList = append(vt.dataIdOrGroupList, configParam{group: group, dataIds: dataIds})
 	for _, v := range dataIds {
-		grouptodataId := group + v
-		vt.callbackList[grouptodataId] = func(namespace, group, dataId, data string) {
-			i, _ := vt.callbackFirst.Load(grouptodataId)
-			if cast.ToBool(i) == true {
+		groupToDataId := group + v
+		vt.callbackList[groupToDataId] = func(namespace, group, dataId, data string) {
+			i, _ := vt.callbackFirst.Load(groupToDataId)
+			if cast.ToBool(i) {
 				panic(errors.New(namespace + "\r\n" + group + "\r\n" + dataId + "\r\n" + data + "\r\n Updata Config"))
 			}
-			vt.callbackFirst.Store(grouptodataId, true)
+			vt.callbackFirst.Store(groupToDataId, true)
 		}
 	}
 }
 
-// 配置回调方法
+// SetCallBackFunc 配置回调方法
 func (vt *ViperToml) SetCallBackFunc(group, dataId string, callbark func(namespace, group, dataId, data string)) {
-	grouptodataId := group + dataId
-	vt.callbackList[grouptodataId] = func(namespace, group, dataId, data string) {
+	groupToDataId := group + dataId
+	vt.callbackList[groupToDataId] = func(namespace, group, dataId, data string) {
 		vt.updateNacosToViper()
-		i, _ := vt.callbackFirst.Load(grouptodataId)
-		if cast.ToBool(i) == true {
+		i, _ := vt.callbackFirst.Load(groupToDataId)
+		if cast.ToBool(i) {
 			callbark(namespace, group, dataId, data)
 		}
-		vt.callbackFirst.Store(grouptodataId, true)
+		vt.callbackFirst.Store(groupToDataId, true)
 	}
 }
 
+// NacosToViper 同步Nacos读取的配置注入Viper
 func (vt *ViperToml) NacosToViper() {
-
-	var err error
-	s := ""
-
-	for i := 0; i < 3; i++ {
-		s, err = vt.GetConfig()
-		if err != nil {
-			time.Sleep(5 * time.Second)
-		} else {
-			break
-		}
-	}
+	s, err := vt.GetConfig()
 	if err != nil {
 		panic(err)
 	}
-
-	viper2.MerageConfigToToml(s)
+	viper.MergeConfigToToml(s)
 }
 
-//
-func (vt *ViperToml) SetviperBase(configs string) {
-
-	viper2.MerageConfigToToml(configs)
+// SetViperBase 注入基础配置
+func (vt *ViperToml) SetViperBase(configs string) {
+	viper.MergeConfigToToml(configs)
 }
 
+// updateNacosToViper 配置发送变化
 func (vt *ViperToml) updateNacosToViper() {
-
 	s, err := vt.GetConfig()
 	if err != nil {
 		print(err)
 	}
-
-	viper2.MerageConfigToToml(s)
+	viper.MergeConfigToToml(s)
 }

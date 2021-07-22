@@ -18,6 +18,7 @@ require (
 	github.com/labstack/gommon v0.3.0
 	github.com/nacos-group/nacos-sdk-go v1.0.7
 	github.com/pelletier/go-toml v1.9.1
+	github.com/pelletier/go-toml/v2 v2.0.0-beta.3 // indirect
 	github.com/segmentio/kafka-go v0.4.16
 	github.com/shiyanhui/hero v0.0.2 // indirect
 	github.com/spf13/cast v1.3.1
@@ -31,6 +32,7 @@ require (
 	gopkg.in/alexcesaro/quotedprintable.v3 v3.0.0-20150716171945-2caba252f4dc // indirect
 	gopkg.in/gomail.v2 v2.0.0-20160411212932-81ebce5c23df
 	gopkg.in/redis.v5 v5.2.9
+	gopkg.in/yaml.v2 v2.4.0 // indirect
 	gopkg.in/yaml.v3 v3.0.0-20210107192922-496545a6307b
 	gorm.io/driver/mysql v1.1.0
 	gorm.io/gorm v1.21.10

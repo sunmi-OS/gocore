@@ -1,6 +1,9 @@
 package nacos
 
 import (
+	"io/ioutil"
+	"os"
+
 	"github.com/nacos-group/nacos-sdk-go/clients"
 	"github.com/nacos-group/nacos-sdk-go/clients/config_client"
 	"github.com/nacos-group/nacos-sdk-go/common/constant"
@@ -8,46 +11,37 @@ import (
 )
 
 type nacos struct {
-	list    map[string]client
-	runtime string
-	vt      ViperToml
-}
-
-type client struct {
-	cc         config_client.IConfigClient
-	localStrus bool
-}
-
-type dataIdorGroup struct {
-	group   string
-	dataIds []string
+	icc   config_client.IConfigClient
+	local bool
+	vt    ViperToml
 }
 
 var nacosHarder = &nacos{
-	list: make(map[string]client),
 	vt: ViperToml{
 		callbackList: make(map[string]func(namespace, group, dataId, data string)),
 		callbackRun:  false,
 	},
 }
 
-// 注入本地文件配置
-func AddLocalConfigFile(runTime string, filePath string) {
-	localNacos := NewLocalNacos(filePath)
-	nacosHarder.list[runTime] = client{cc: localNacos, localStrus: true}
+// SetLocalConfigFile 注入本地配置
+func SetLocalConfigFile(filePath string) {
+	bytes, err := ioutil.ReadFile(filePath)
+	if err != nil {
+		panic(err)
+	}
+	SetLocalConfig(string(bytes))
 }
 
-// 注入本地文件配置
-func AddLocalConfig(runTime string, configs string) {
+// SetLocalConfig 注入本地配置
+func SetLocalConfig(configs string) {
 	localNacos := NewLocalNacos(configs)
-	nacosHarder.list[runTime] = client{cc: localNacos, localStrus: true}
+	nacosHarder.icc = localNacos
+	nacosHarder.local = true
 }
 
-// 注入Nacos配置文件
-func AddNacosConfig(runTime string, ccConfig constant.ClientConfig, csConfigs []constant.ServerConfig) error {
-
-	defaltClientConfig(&ccConfig)
-
+// NewNacos 注入Nacos配置文件
+func NewNacos(ccConfig constant.ClientConfig, csConfigs []constant.ServerConfig) error {
+	defaultClientConfig(&ccConfig)
 	configClient, err := clients.CreateConfigClient(map[string]interface{}{
 		"serverConfigs": csConfigs,
 		"clientConfig":  ccConfig,
@@ -55,38 +49,48 @@ func AddNacosConfig(runTime string, ccConfig constant.ClientConfig, csConfigs []
 	if err != nil {
 		return err
 	}
-	nacosHarder.list[runTime] = client{cc: configClient}
+	nacosHarder.icc = configClient
 	return nil
 }
 
-// 注入ACM配置文件
-func AddAcmConfig(runTime string, ccConfig constant.ClientConfig) error {
+// NewAcmEnv 注入ACM配置文件
+func NewAcmEnv() {
+	Endpoint := os.Getenv("ENDPOINT")
+	NamespaceId := os.Getenv("NAMESPACE_ID")
+	AccessKey := os.Getenv("ACCESS_KEY")
+	SecretKey := os.Getenv("SECRET_KEY")
 
-	defaltClientConfig(&ccConfig)
+	if Endpoint == "" || NamespaceId == "" || AccessKey == "" || SecretKey == "" {
+		panic("The configuration file cannot be empty.")
+	}
+	err := NewAcmConfig(constant.ClientConfig{
+		Endpoint:    Endpoint,
+		NamespaceId: NamespaceId,
+		AccessKey:   AccessKey,
+		SecretKey:   SecretKey,
+	})
+	if err != nil {
+		panic(err)
+	}
+}
 
+// NewAcmConfig 注入ACM配置文件
+func NewAcmConfig(ccConfig constant.ClientConfig) error {
+	defaultClientConfig(&ccConfig)
 	configClient, err := clients.CreateConfigClient(map[string]interface{}{
 		"clientConfig": ccConfig,
 	})
 	if err != nil {
 		return err
 	}
-	nacosHarder.list[runTime] = client{cc: configClient}
-
+	nacosHarder.icc = configClient
 	return nil
 }
 
-// 设置环境变量
-func SetRunTime(runtime string) {
-	nacosHarder.runtime = runtime
-}
-
-// 使用nacos时的默认配置
-func defaltClientConfig(ccConfig *constant.ClientConfig) {
+// defaultClientConfig 使用nacos时的默认配置
+func defaultClientConfig(ccConfig *constant.ClientConfig) {
 	if ccConfig.TimeoutMs == 0 {
-		ccConfig.TimeoutMs = 5 * 1000
-	}
-	if ccConfig.ListenInterval == 0 {
-		ccConfig.ListenInterval = 30 * 1000
+		ccConfig.TimeoutMs = 5000
 	}
 	if ccConfig.BeatInterval == 0 {
 		ccConfig.BeatInterval = 5 * 1000
@@ -99,8 +103,9 @@ func defaltClientConfig(ccConfig *constant.ClientConfig) {
 	}
 }
 
+// GetConfig 获取单条配置
 func GetConfig(group string, dataIds string) string {
-	content, err := nacosHarder.list[nacosHarder.runtime].cc.GetConfig(vo.ConfigParam{
+	content, err := nacosHarder.icc.GetConfig(vo.ConfigParam{
 		DataId: dataIds,
 		Group:  group})
 	if err != nil {
@@ -109,10 +114,9 @@ func GetConfig(group string, dataIds string) string {
 	return content
 }
 
-// 配置回调方法
+// CallBackFunc 参数更新回调方法
 func CallBackFunc(group, dataId string, callbark func(namespace, group, dataId, data string)) error {
-
-	err := nacosHarder.list[nacosHarder.runtime].cc.ListenConfig(vo.ConfigParam{
+	err := nacosHarder.icc.ListenConfig(vo.ConfigParam{
 		DataId:   dataId,
 		Group:    group,
 		OnChange: callbark,
