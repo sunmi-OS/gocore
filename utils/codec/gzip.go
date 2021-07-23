@@ -1,4 +1,4 @@
-package utils
+package codec
 
 import (
 	"bytes"
@@ -19,12 +19,18 @@ func GzipDecode(msg string) string {
 	return string(undatas)
 }
 
-func GzipEncode(msg string) string {
+func GzipEncode(msg string) (string, error) {
 	b := new(bytes.Buffer)
 	w := gzip.NewWriter(b)
 	defer w.Close()
 
-	w.Write([]byte(msg))
-	w.Flush()
-	return b.String()
+	_, err := w.Write([]byte(msg))
+	if err != nil {
+		return "", err
+	}
+	err = w.Flush()
+	if err != nil {
+		return "", err
+	}
+	return b.String(), nil
 }

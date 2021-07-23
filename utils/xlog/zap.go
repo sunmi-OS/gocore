@@ -6,9 +6,10 @@ import (
 	"sync"
 	"time"
 
-	viper2 "github.com/sunmi-OS/gocore/v2/conf/viper"
+	"github.com/sunmi-OS/gocore/v2/utils/file"
 
-	"github.com/sunmi-OS/gocore/v2/utils"
+	"github.com/sunmi-OS/gocore/v2/conf/viper"
+
 	"go.uber.org/zap"
 	"go.uber.org/zap/zapcore"
 )
@@ -100,8 +101,8 @@ func (l *Logger) Errorf(format string, args ...interface{}) {
 func (l *Logger) initZap() {
 	var err error
 	l.c = zap.NewProductionConfig()
-	viper2.C.SetDefault("system.debug", "true")
-	if viper2.GetEnvConfigBool("system.debug") {
+	viper.C.SetDefault("system.debug", "true")
+	if viper.GetEnvConfig("system.debug").Bool() {
 		l.c.Level = zap.NewAtomicLevelAt(zap.DebugLevel)
 	}
 	l.c.EncoderConfig.EncodeTime = timeEncoder
@@ -119,9 +120,9 @@ func (l *Logger) newZap() (err error) {
 }
 
 func (l *Logger) newLogDir() {
-	l.logFileDir = utils.GetPath() + "/runtime"
-	if !utils.IsDirExists(l.logFileDir) {
-		if err := utils.MkdirFile(l.logFileDir); err != nil {
+	l.logFileDir = file.GetPath() + "/runtime"
+	if !file.CheckDir(l.logFileDir) {
+		if err := file.MkdirDir(l.logFileDir); err != nil {
 			Errorf("utils.MkdirFile(%s),err:%+v.\n", l.logFileDir, err)
 			l.logFileDir = ""
 			l.err = err
@@ -149,8 +150,8 @@ func (l *Logger) newLogFile() {
 
 // 检测是否跨天了,把记录记录到新的文件目录中
 func (l *Logger) updateLogFile() {
-	viper2.C.SetDefault("system.saveDays", "7")
-	saveDays := viper2.GetEnvConfigFloat("system.saveDays")
+	viper.C.SetDefault("system.saveDays", "7")
+	saveDays := viper.GetEnvConfig("system.saveDays").Float64()
 	for {
 		now := time.Now()
 		// 计算下一个零点

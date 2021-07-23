@@ -1,18 +1,19 @@
-# GoRSA 加解密库
+# GoRSA Encryption library
 
-基于 https://github.com/farmerx/gorsa 进行封装优化了如下几点:
+based on https://github.com/farmerx/gorsa Optimized the following points for packaging:
 
-- 优化公私钥需要提前注册初始化,在并发情况下公私钥匙会混乱的问题
-- 加密机没有进行base64处理,在跨程序传递或存储过程中都避免base64二次封装
-- 传入返回都统一使用string类型避免转换麻烦
+- Optimization of public and private keys requires registration and initialization in advance.
+- The encryption machine does not perform base64 processing, and avoids secondary encapsulation of base64 during cross-program transfer or storage
+- The incoming return uses the string type uniformly to avoid conversion trouble
+- Supports RSAWithSHA1 and RSAWithSHA256 signature verification algorithms
 
-获取扩展包:
+Get expansion pack:
 
 ```
 go get github.com/wenzhenxi/gorsa
 ```
 
-具体使用:
+Specific use:
 
 
 ```
@@ -24,7 +25,7 @@ import (
 	"github.com/wenzhenxi/gorsa"
 )
 
-var Pubkey = `-----BEGIN 公钥-----
+var Pubkey = `-----BEGIN Public key-----
 MIIBIjANBgkqhkiG9w0BAQEFAAOCAQ8AMIIBCgKCAQEAk+89V7vpOj1rG6bTAKYM
 56qmFLwNCBVDJ3MltVVtxVUUByqc5b6u909MmmrLBqS//PWC6zc3wZzU1+ayh8xb
 UAEZuA3EjlPHIaFIVIz04RaW10+1xnby/RQE23tDqsv9a2jv/axjE/27b62nzvCW
@@ -32,10 +33,10 @@ eItu1kNQ3MGdcuqKjke+LKhQ7nWPRCOd/ffVqSuRvG0YfUEkOz/6UpsPr6vrI331
 hWRB4DlYy8qFUmDsyvvExe4NjZWblXCqkEXRRAhi2SQRCl3teGuIHtDUxCskRIDi
 aMD+Qt2Yp+Vvbz6hUiqIWSIH1BoHJer/JOq2/O6X3cmuppU4AdVNgy8Bq236iXvr
 MQIDAQAB
------END 公钥-----
+-----END Public key-----
 `
 
-var Pirvatekey = `-----BEGIN 私钥-----
+var Pirvatekey = `-----BEGIN Private key-----
 MIIEpAIBAAKCAQEAk+89V7vpOj1rG6bTAKYM56qmFLwNCBVDJ3MltVVtxVUUByqc
 5b6u909MmmrLBqS//PWC6zc3wZzU1+ayh8xbUAEZuA3EjlPHIaFIVIz04RaW10+1
 xnby/RQE23tDqsv9a2jv/axjE/27b62nzvCWeItu1kNQ3MGdcuqKjke+LKhQ7nWP
@@ -61,22 +62,22 @@ vUPy5G3iF5/nHj76CNRUbHsfQtv+wqnzoyPpHZgVQeQBhcoXJSm+qV3cdGjLU6OM
 HgqeaQKBgQCnmL5SX7GSAeB0rSNugPp2GezAQj0H4OCc8kNrHK8RUvXIU9B2zKA2
 z/QUKFb1gIGcKxYr+LqQ25/+TGvINjuf6P3fVkHL0U8jOG0IqpPJXO3Vl9B8ewWL
 cFQVB/nQfmaMa4ChK0QEUe+Mqi++MwgYbRHx1lIOXEfUJO+PXrMekw==
------END 私钥-----
+-----END Private key-----
 `
 
 
 func main() {
-	// 公钥加密私钥解密
+	// Public key encryption private key decryption
 	if err := applyPubEPriD(); err != nil {
 		log.Println(err)
 	}
-	// 公钥解密私钥加密
+	// Public key decryption private key encryption
 	if err := applyPriEPubD(); err != nil {
 		log.Println(err)
 	}
 }
 
-// 公钥加密私钥解密
+// Public key encryption private key decryption
 func applyPubEPriD() error {
 	pubenctypt, err := gorsa.PublicEncrypt(`hello world`,Pubkey)
 	if err != nil {
@@ -88,12 +89,12 @@ func applyPubEPriD() error {
 		return err
 	}
 	if string(pridecrypt) != `hello world` {
-		return errors.New(`解密失败`)
+		return errors.New(`Decryption failed`)
 	}
 	return nil
 }
 
-// 公钥解密私钥加密
+// Public key decryption private key encryption
 func applyPriEPubD() error {
 	prienctypt, err := gorsa.PriKeyEncrypt(`hello world`,Pirvatekey)
 	if err != nil {
@@ -105,7 +106,7 @@ func applyPriEPubD() error {
 		return err
 	}
 	if string(pubdecrypt) != `hello world` {
-		return errors.New(`解密失败`)
+		return errors.New(`Decryption failed`)
 	}
 	return nil
 }

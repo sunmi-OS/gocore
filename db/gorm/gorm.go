@@ -122,13 +122,13 @@ func openORM(dbname string) (*gorm.DB, error) {
 		"dbType":          "mysql",
 		"dbDebug":         false,
 	})
-	dbHost := viper.GetEnvConfig(dbname + ".dbHost")
-	dbName := viper.GetEnvConfig(dbname + ".dbName")
-	dbUser := viper.GetEnvConfig(dbname + ".dbUser")
-	dbPasswd := viper.GetEnvConfig(dbname + ".dbPasswd")
-	dbPort := viper.GetEnvConfig(dbname + ".dbPort")
-	dbType := viper.GetEnvConfig(dbname + ".dbType")
-	dbDebug := viper.GetEnvConfigBool(dbname + ".dbDebug")
+	dbHost := viper.GetEnvConfig(dbname + ".dbHost").String()
+	dbName := viper.GetEnvConfig(dbname + ".dbName").String()
+	dbUser := viper.GetEnvConfig(dbname + ".dbUser").String()
+	dbPasswd := viper.GetEnvConfig(dbname + ".dbPasswd").String()
+	dbPort := viper.GetEnvConfig(dbname + ".dbPort").String()
+	dbType := viper.GetEnvConfig(dbname + ".dbType").String()
+	dbDebug := viper.GetEnvConfig(dbname + ".dbDebug").Bool()
 
 	dsn := dbUser + ":" + dbPasswd + "@tcp(" + dbHost + ":" + dbPort + ")/" + dbName + "?charset=utf8mb4&parseTime=true&loc=Local"
 	lc := logger.Config{

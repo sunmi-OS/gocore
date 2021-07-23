@@ -6,7 +6,7 @@ import (
 	"os"
 	"time"
 
-	viper2 "github.com/sunmi-OS/gocore/v2/conf/viper"
+	"github.com/sunmi-OS/gocore/v2/conf/viper"
 
 	sls "github.com/aliyun/aliyun-log-go-sdk"
 	"github.com/aliyun/aliyun-log-go-sdk/producer"
@@ -31,10 +31,10 @@ var LogClient AliyunLog
 func InitLog(configName, LogStore string) {
 	hostname, _ := os.Hostname()
 	LogClient = AliyunLog{
-		Project:   viper2.GetEnvConfig(configName + ".Project"),
-		Endpoint:  viper2.GetEnvConfig(configName + ".Endpoint"),
-		AccessKey: viper2.GetEnvConfig(configName + ".AccessKey"),
-		SecretKey: viper2.GetEnvConfig(configName + ".SecretKey"),
+		Project:   viper.GetEnvConfig(configName + ".Project").String(),
+		Endpoint:  viper.GetEnvConfig(configName + ".Endpoint").String(),
+		AccessKey: viper.GetEnvConfig(configName + ".AccessKey").String(),
+		SecretKey: viper.GetEnvConfig(configName + ".SecretKey").String(),
 		LogStore:  LogStore,
 		HostName:  hostname,
 	}

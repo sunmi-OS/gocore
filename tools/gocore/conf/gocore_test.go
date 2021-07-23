@@ -1,6 +1,7 @@
 package conf
 
 import (
+	"fmt"
 	"testing"
 
 	"gopkg.in/yaml.v2"
@@ -8,8 +9,9 @@ import (
 
 func TestGetGocoreConfig(t *testing.T) {
 	c := GetGocoreConfig()
-	_, err := yaml.Marshal(&c)
+	s, err := yaml.Marshal(&c)
 	if err != nil {
 		t.Error(err)
 	}
+	fmt.Println(string(s))
 }

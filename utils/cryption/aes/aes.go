@@ -10,7 +10,7 @@ import (
 	"strings"
 )
 
-// Encrypt using random iv parameter and cbc mode
+// EncryptUseCBCWithDefaultProtocol Encrypt using random iv parameter and cbc mode
 // Never panic, only possible to return an error
 func EncryptUseCBCWithDefaultProtocol(plainText, key []byte) ([]byte, error) {
 	iv := make([]byte, 16)
@@ -29,7 +29,7 @@ func EncryptUseCBCWithDefaultProtocol(plainText, key []byte) ([]byte, error) {
 	return result, err
 }
 
-// Encrypt using cbc mode
+// EncryptUseCBC Encrypt using cbc mode
 // When iv length does not equal block size, it will panic
 func EncryptUseCBC(plainText, key, iv []byte) ([]byte, error) {
 	blockKey, err := aes.NewCipher(key)
@@ -46,7 +46,7 @@ func EncryptUseCBC(plainText, key, iv []byte) ([]byte, error) {
 	return cipherText, nil
 }
 
-// Decrypt using cbc mode
+// DecryptUseCBC Decrypt using cbc mode
 // There are two kinds of panic that may occur:
 // 1. When iv length do not equal block size
 // 2. When key does not match the cipher text, and it always happens when do unpadding
@@ -65,7 +65,7 @@ func DecryptUseCBC(cipherText, key []byte, iv []byte) ([]byte, error) {
 	return PKCS5UnPadding(cipherText), nil
 }
 
-// Decrypt using given iv parameter and cbc mode
+// DecryptUseCBCWithDefaultProtocol Decrypt using given iv parameter and cbc mode
 // When key does not match the cipher text, it will panic
 func DecryptUseCBCWithDefaultProtocol(cipherText, key []byte) ([]byte, error) {
 	if len(cipherText) < 16 {
@@ -96,8 +96,8 @@ func getKey(key string) []byte {
 	return arrKey[:16]
 }
 
+// Base64UrlSafeEncode Base64 Url Safe is the same as Base64 but does not contain '/' and '+' (replaced by '_' and '-') and trailing '=' are removed.
 func Base64UrlSafeEncode(source []byte) string {
-	// Base64 Url Safe is the same as Base64 but does not contain '/' and '+' (replaced by '_' and '-') and trailing '=' are removed.
 	bytearr := base64.StdEncoding.EncodeToString(source)
 	safeurl := strings.Replace(string(bytearr), "/", "_", -1)
 	safeurl = strings.Replace(safeurl, "+", "-", -1)

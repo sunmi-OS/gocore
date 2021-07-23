@@ -62,7 +62,8 @@ type Config struct {
 }
 
 type Nacos struct {
-	Env bool
+	Env         bool
+	EmailConfig bool
 }
 
 type Mysql struct {
@@ -97,7 +98,9 @@ func GetGocoreConfig() *GoCore {
 			Version:     "v1.0.0",
 		},
 		Config: Config{
-			CNacos: Nacos{},
+			CNacos: Nacos{
+				EmailConfig: false,
+			},
 			CMysql: []Mysql{
 				{
 					Name: "default",

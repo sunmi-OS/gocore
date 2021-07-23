@@ -6,6 +6,10 @@ type TypeTransform struct {
 	Value interface{}
 }
 
+func Transform(v interface{}) *TypeTransform {
+	return &TypeTransform{Value: v}
+}
+
 func (t *TypeTransform) String() string {
 	return cast.ToString(t.Value)
 }
