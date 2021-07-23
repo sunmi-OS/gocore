@@ -6,9 +6,10 @@ import (
 	"sync"
 	"time"
 
+	"github.com/sunmi-OS/gocore/v2/utils"
+
 	mqtt "github.com/eclipse/paho.mqtt.golang"
 	"github.com/google/uuid"
-	"github.com/sunmi-OS/gocore/v2/utils/retry"
 	"github.com/sunmi-OS/gocore/v2/utils/xlog"
 )
 
@@ -72,7 +73,7 @@ func (c *Client) StartAndConnect() (err error) {
 	}
 	// new
 	c.Mqtt = mqtt.NewClient(c.Ops)
-	err = retry.Retry(func() error {
+	err = utils.Retry(func() error {
 		token := c.Mqtt.Connect()
 		if token.Wait() && token.Error() != nil {
 			return token.Error()
@@ -165,7 +166,7 @@ func (c *Client) DefaultOnConnectFunc(cli mqtt.Client) {
 				default:
 					qos = QosAtMostOne
 				}
-				err := retry.Retry(func() error {
+				err := utils.Retry(func() error {
 					return c.sub(split[0], qos, cb)
 				}, 3, 2*time.Second)
 				if err != nil {

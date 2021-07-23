@@ -2,11 +2,10 @@ package gokafka
 
 import (
 	"context"
-	"fmt"
 	"sync"
 	"time"
 
-	viper2 "github.com/sunmi-OS/gocore/v2/conf/viper"
+	"github.com/sunmi-OS/gocore/v2/conf/viper"
 
 	"github.com/segmentio/kafka-go"
 	"github.com/segmentio/kafka-go/snappy"
@@ -41,25 +40,18 @@ func Init(topic string) *Producer {
 //construct the producer
 func (p *Producer) newProducer(topic string) {
 
-	viper2.C.SetDefault(topic, map[string]interface{}{
+	viper.C.SetDefault(topic, map[string]interface{}{
 		"acks":         -1,
 		"async":        false,
 		"compression":  true,
 		"batchTimeout": 1000,
 	})
 
-	acks := int(viper2.GetEnvConfigInt(topic + ".acks"))
-	async := viper2.GetEnvConfigBool(topic + ".async")
-	compression := viper2.GetEnvConfigBool(topic + ".compression")
-	batchTimeout := viper2.GetEnvConfigInt(topic + ".batchTimeout")
-	brokers := viper2.GetEnvConfigStringSlice("kafkaClient.brokers")
-
-	fmt.Printf("topic: `%v`\n", topic)
-	fmt.Printf("acks: `%v`\n", acks)
-	fmt.Printf("async: `%v`\n", async)
-	fmt.Printf("compression: `%v`\n", compression)
-	fmt.Printf("batchTimeout: `%v`\n", batchTimeout)
-	fmt.Printf("brokers: `%v`\n", brokers)
+	acks := viper.GetEnvConfig(topic + ".acks").Int()
+	async := viper.GetEnvConfig(topic + ".async").Bool()
+	compression := viper.GetEnvConfig(topic + ".compression").Bool()
+	batchTimeout := viper.GetEnvConfig(topic + ".batchTimeout").Int()
+	brokers := viper.GetEnvConfig("kafkaClient.brokers").SliceString()
 
 	config := kafka.WriterConfig{
 		Brokers:      brokers,
@@ -110,11 +102,11 @@ var EveryPartitionLastMessage sync.Map
 //construct the consumer
 func NewConsumer() {
 	consumer = kafka.NewReader(kafka.ReaderConfig{
-		Brokers:  viper2.GetEnvConfigStringSlice("kafkaClient.brokers"),
-		GroupID:  viper2.GetEnvConfig("kafkaClient.consumerGroupId"),
-		Topic:    viper2.GetEnvConfig("kafkaClient.topicName"),
-		MinBytes: int(viper2.GetEnvConfigInt("kafkaClient.consumerMinBytes")),
-		MaxBytes: int(viper2.GetEnvConfigInt("kafkaClient.consumerMaxBytes")),
+		Brokers:  viper.GetEnvConfig("kafkaClient.brokers").SliceString(),
+		GroupID:  viper.GetEnvConfig("kafkaClient.consumerGroupId").String(),
+		Topic:    viper.GetEnvConfig("kafkaClient.topicName").String(),
+		MinBytes: viper.GetEnvConfig("kafkaClient.consumerMinBytes").Int(),
+		MaxBytes: viper.GetEnvConfig("kafkaClient.consumerMaxBytes").Int(),
 	})
 }
 

@@ -122,6 +122,9 @@ func checkConfig(conf AliyunLog) (err error) {
 		}
 	}
 
-	Client.Close()
+	err = Client.Close()
+	if err != nil {
+		return err
+	}
 	return
 }

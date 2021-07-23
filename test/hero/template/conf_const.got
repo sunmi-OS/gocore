@@ -1,7 +1,0 @@
-<%: func FromConfConst(projectName string, buffer *bytes.Buffer) %>
-package conf
-
-const (
-	PROJECT_NAME      = "<%= projectName %>"
-	PROJECT_VERSION   = "v1.0.0"
-)

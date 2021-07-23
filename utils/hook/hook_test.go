@@ -2,11 +2,11 @@ package hook
 
 import (
 	"fmt"
+	"testing"
 	"time"
 )
 
-func ShowExample() {
-	//该方法是线程安全的
+func TestName(t *testing.T) {
 	AddShutdownHook(func() int {
 		fmt.Println("first task exit...")
 		return 0 // the program exit code
@@ -25,5 +25,5 @@ func ShowExample() {
 	})
 
 	fmt.Println("service blocking..., please enter `ctr C` or `ctr Z`")
-	time.Sleep(time.Hour * 999)
+	time.Sleep(time.Second * 10)
 }

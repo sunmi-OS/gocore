@@ -7,8 +7,9 @@ import (
 	"sync"
 	"time"
 
+	"github.com/sunmi-OS/gocore/v2/utils"
+
 	"github.com/sunmi-OS/gocore/v2/conf/viper"
-	"github.com/sunmi-OS/gocore/v2/utils/retry"
 	"github.com/sunmi-OS/gocore/v2/utils/xlog"
 	"gorm.io/driver/mysql"
 	"gorm.io/gorm"
@@ -48,7 +49,7 @@ func NewOrUpdateDB(dbname string) error {
 	oldGorm, _ := _Gorm.gormMaps.Load(dbname)
 
 	// first: open new gorm client
-	err = retry.Retry(func() error {
+	err = utils.Retry(func() error {
 		orm, err = openORM(dbname)
 		if err != nil {
 			xlog.Errorf("UpdateDB(%s) error:%+v", dbname, err)

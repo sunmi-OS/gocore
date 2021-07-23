@@ -1,4 +1,4 @@
-package retry
+package utils
 
 import (
 	"time"

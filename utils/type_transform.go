@@ -33,3 +33,7 @@ func (t *TypeTransform) Bool() bool {
 func (t *TypeTransform) Slice() []interface{} {
 	return cast.ToSlice(t.Value)
 }
+
+func (t *TypeTransform) SliceString() []string {
+	return cast.ToStringSlice(t.Value)
+}
