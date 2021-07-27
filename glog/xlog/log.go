@@ -1,13 +1,13 @@
 package xlog
 
 var (
-	debugLog xLogger = &DebugLogger{}
-	infoLog  xLogger = &InfoLogger{}
-	warnLog  xLogger = &WarnLogger{}
-	errLog   xLogger = &ErrorLogger{}
+	debugLog XLogger = &DebugLogger{}
+	infoLog  XLogger = &InfoLogger{}
+	warnLog  XLogger = &WarnLogger{}
+	errLog   XLogger = &ErrorLogger{}
 )
 
-type xLogger interface {
+type XLogger interface {
 	logOut(format *string, args ...interface{})
 }
 

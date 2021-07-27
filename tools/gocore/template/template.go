@@ -8,10 +8,9 @@ import (
 
 	"github.com/pelletier/go-toml"
 	"github.com/spf13/cast"
-	"github.com/tidwall/gjson"
-
 	"github.com/sunmi-OS/gocore/v2/tools/gocore/def"
 	"github.com/sunmi-OS/gocore/v2/tools/gocore/file"
+	"github.com/tidwall/gjson"
 )
 
 var writer = file.NewWriter()
