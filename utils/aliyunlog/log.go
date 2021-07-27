@@ -6,10 +6,9 @@ import (
 	"os"
 	"time"
 
-	"github.com/sunmi-OS/gocore/v2/conf/viper"
-
 	sls "github.com/aliyun/aliyun-log-go-sdk"
 	"github.com/aliyun/aliyun-log-go-sdk/producer"
+	"github.com/sunmi-OS/gocore/v2/conf/viper"
 	"github.com/tidwall/gjson"
 )
 

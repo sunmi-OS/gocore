@@ -12,7 +12,7 @@ type HttpClient struct {
 	Request *resty.Request
 }
 
-func New() HttpClient {
+func New() *HttpClient {
 
 	// Create a Resty Client
 	client := resty.New()
@@ -35,13 +35,13 @@ func New() HttpClient {
 			return 0, errors.New("quota exceeded")
 		})
 
-	return HttpClient{
+	return &HttpClient{
 		Client:  client,
 		Request: client.R(),
 	}
 }
 
-func (h HttpClient) SetTrace(header interface{}) HttpClient {
+func (h *HttpClient) SetTrace(header interface{}) *HttpClient {
 	trace := SetHeader(header)
 
 	h.Request.SetHeader(X_REQUEST_ID, trace.Http_Header.Get(X_REQUEST_ID))

@@ -19,11 +19,10 @@ import (
 	"regexp"
 	"strconv"
 
-	viper2 "github.com/sunmi-OS/gocore/v2/conf/viper"
-	des2 "github.com/sunmi-OS/gocore/v2/utils/encryption/des"
-
 	"github.com/labstack/echo/v4"
 	"github.com/sunmi-OS/gocore/v2/api/resutful/validation"
+	viper2 "github.com/sunmi-OS/gocore/v2/conf/viper"
+	des2 "github.com/sunmi-OS/gocore/v2/utils/cryption/des"
 	"github.com/tidwall/gjson"
 )
 
@@ -151,7 +150,7 @@ func (this *Request) InitDES() error {
 					return err
 				}
 
-				origData, err := des2.DesDecrypt(string(base64params), viper2.C.GetString("system.DESkey"), viper2.C.GetString("system.DESiv"))
+				origData, err := des2.DecryptCBC(string(base64params), viper2.C.GetString("system.DESkey"), viper2.C.GetString("system.DESiv"))
 
 				if err != nil {
 					return err
