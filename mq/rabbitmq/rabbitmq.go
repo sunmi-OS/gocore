@@ -13,11 +13,11 @@ var ch *amqp.Channel
 
 func connRbbitmq() error {
 
-	host := viper.GetEnvConfig("rabbitmq.host")
-	port := viper.GetEnvConfig("rabbitmq.port")
-	vhost := viper.GetEnvConfig("rabbitmq.vhost")
-	user := url.QueryEscape(viper.GetEnvConfig("rabbitmq.user"))
-	password := url.QueryEscape(viper.GetEnvConfig("rabbitmq.password"))
+	host := viper.GetEnvConfig("rabbitmq.host").String()
+	port := viper.GetEnvConfig("rabbitmq.port").String()
+	vhost := viper.GetEnvConfig("rabbitmq.vhost").String()
+	user := url.QueryEscape(viper.GetEnvConfig("rabbitmq.user").String())
+	password := url.QueryEscape(viper.GetEnvConfig("rabbitmq.password").String())
 
 	amqpcoinf := amqp.Config{
 		Vhost:     vhost,
@@ -107,7 +107,7 @@ func Consume(queue string) (<-chan amqp.Delivery, error) {
 		return nil, err
 	}
 
-	msgs, err := ch.Consume(
+	msgs, _ := ch.Consume(
 		q.Name, // queue
 		"",     // consumer
 		false,  // auto ack

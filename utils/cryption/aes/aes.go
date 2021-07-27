@@ -98,11 +98,11 @@ func getKey(key string) []byte {
 
 // Base64UrlSafeEncode Base64 Url Safe is the same as Base64 but does not contain '/' and '+' (replaced by '_' and '-') and trailing '=' are removed.
 func Base64UrlSafeEncode(source []byte) string {
-	bytearr := base64.StdEncoding.EncodeToString(source)
-	safeurl := strings.Replace(string(bytearr), "/", "_", -1)
-	safeurl = strings.Replace(safeurl, "+", "-", -1)
-	safeurl = strings.Replace(safeurl, "=", "", -1)
-	return safeurl
+	byteArr := base64.StdEncoding.EncodeToString(source)
+	safeUrl := strings.Replace(byteArr, "/", "_", -1)
+	safeUrl = strings.Replace(safeUrl, "+", "-", -1)
+	safeUrl = strings.Replace(safeUrl, "=", "", -1)
+	return safeUrl
 }
 
 func AesDecrypt(msg, k string) (string, error) {

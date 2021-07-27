@@ -4,6 +4,8 @@ import (
 	"errors"
 	"time"
 
+	"github.com/sunmi-OS/gocore/v2/utils"
+
 	"github.com/go-resty/resty/v2"
 )
 
@@ -42,17 +44,17 @@ func New() HttpClient {
 }
 
 func (h HttpClient) SetTrace(header interface{}) HttpClient {
-	trace := SetHeader(header)
+	trace := utils.SetHeader(header)
 
-	h.Request.SetHeader(X_REQUEST_ID, trace.Http_Header.Get(X_REQUEST_ID))
-	h.Request.SetHeader(X_B3_TRACEID, trace.Http_Header.Get(X_B3_TRACEID))
-	h.Request.SetHeader(X_B3_SPANID, trace.Http_Header.Get(X_B3_SPANID))
-	h.Request.SetHeader(X_B3_PARENTSPANID, trace.Http_Header.Get(X_B3_PARENTSPANID))
-	h.Request.SetHeader(X_B3_SAMPLED, trace.Http_Header.Get(X_B3_SAMPLED))
-	h.Request.SetHeader(X_B3_FLAGS, trace.Http_Header.Get(X_B3_FLAGS))
-	h.Request.SetHeader(B3, trace.Http_Header.Get(B3))
-	h.Request.SetHeader(X_OT_SPAN_CONTEXT, trace.Http_Header.Get(X_OT_SPAN_CONTEXT))
+	h.Request.SetHeader(utils.X_REQUEST_ID, trace.HttpHeader.Get(utils.X_REQUEST_ID))
+	h.Request.SetHeader(utils.X_B3_TRACEID, trace.HttpHeader.Get(utils.X_B3_TRACEID))
+	h.Request.SetHeader(utils.X_B3_SPANID, trace.HttpHeader.Get(utils.X_B3_SPANID))
+	h.Request.SetHeader(utils.X_B3_PARENTSPANID, trace.HttpHeader.Get(utils.X_B3_PARENTSPANID))
+	h.Request.SetHeader(utils.X_B3_SAMPLED, trace.HttpHeader.Get(utils.X_B3_SAMPLED))
+	h.Request.SetHeader(utils.X_B3_FLAGS, trace.HttpHeader.Get(utils.X_B3_FLAGS))
+	h.Request.SetHeader(utils.B3, trace.HttpHeader.Get(utils.B3))
+	h.Request.SetHeader(utils.X_OT_SPAN_CONTEXT, trace.HttpHeader.Get(utils.X_OT_SPAN_CONTEXT))
 
-	h.Request.Header = trace.Http_Header
+	h.Request.Header = trace.HttpHeader
 	return h
 }

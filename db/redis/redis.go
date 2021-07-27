@@ -5,11 +5,12 @@ import (
 	"strings"
 	"sync"
 
+	xlog2 "github.com/sunmi-OS/gocore/v2/glog/xlog"
+
 	"github.com/sunmi-OS/gocore/v2/utils/hash"
 
 	"github.com/go-redis/redis/v8"
 	"github.com/sunmi-OS/gocore/v2/conf/viper"
-	"github.com/sunmi-OS/gocore/v2/utils/xlog"
 )
 
 type Client struct {
@@ -84,7 +85,7 @@ func (c *Client) GetRedis(dbName string) *redis.Client {
 
 func (c *Client) Close() {
 	c.redisMaps.Range(func(dbName, rc interface{}) bool {
-		xlog.Warnf("close db %s", dbName)
+		xlog2.Warnf("close db %s", dbName)
 		c.redisMaps.Delete(dbName)
 		rc.(*redis.Client).Close()
 		return true

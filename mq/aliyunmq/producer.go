@@ -53,7 +53,7 @@ func GetProducer(configName string) (conn rocketmq.Producer) {
 func CloseProducer() {
 	ProducerPool.Range(func(key, value interface{}) bool {
 		conn := value.(rocketmq.Producer)
-		conn.Shutdown()
-		return true
+		err := conn.Shutdown()
+		return err == nil
 	})
 }

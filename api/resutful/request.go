@@ -19,8 +19,8 @@ import (
 	"regexp"
 	"strconv"
 
-	viper2 "github.com/sunmi-OS/gocore/v2/conf/viper"
-	des2 "github.com/sunmi-OS/gocore/v2/utils/encryption/des"
+	"github.com/sunmi-OS/gocore/v2/conf/viper"
+	des2 "github.com/sunmi-OS/gocore/v2/utils/cryption/des"
 
 	"github.com/labstack/echo/v4"
 	"github.com/sunmi-OS/gocore/v2/api/resutful/validation"
@@ -99,15 +99,15 @@ func (this *Request) GetError() error {
 // 进行签名验证以及DES加密验证
 func (this *Request) InitDES() error {
 	// debug_key 跳过签名验证以及DES加密验证
-	debugKey := viper2.C.GetString("system.debugKey")
+	debugKey := viper.C.GetString("system.debugKey")
 	if debugKey != "" && this.Param("debug_key").GetString() == debugKey {
 		return this.InitWithoutDES()
 	}
 	params := ""
-	params = this.PostParam(viper2.C.GetString("system.DESParam")).GetString()
+	params = this.PostParam(viper.C.GetString("system.DESParam")).GetString()
 
 	//如果是开启了 DES加密 需要验证是否加密,然后需要验证签名,和加密内容
-	if viper2.C.GetBool("system.OpenDES") == true {
+	if viper.C.GetBool("system.OpenDES") {
 		if params == "" {
 			return ErrNoParams
 		}
@@ -115,7 +115,7 @@ func (this *Request) InitDES() error {
 
 	if params != "" {
 
-		if viper2.C.GetBool("system.OpenSign") {
+		if viper.C.GetBool("system.OpenSign") {
 
 			sign := this.PostParam("sign").GetString()
 			timeStamp := this.PostParam("timeStamp").GetString()
@@ -127,7 +127,7 @@ func (this *Request) InitDES() error {
 			}
 
 			keymd5 := md5.New()
-			keymd5.Write([]byte(viper2.C.GetString("system.MD5key")))
+			keymd5.Write([]byte(viper.C.GetString("system.MD5key")))
 			md5key := hex.EncodeToString(keymd5.Sum(nil))
 
 			signmd5 := md5.New()
@@ -151,7 +151,7 @@ func (this *Request) InitDES() error {
 					return err
 				}
 
-				origData, err := des2.DesDecrypt(string(base64params), viper2.C.GetString("system.DESkey"), viper2.C.GetString("system.DESiv"))
+				origData, err := des2.DecryptCBC(string(base64params), viper.C.GetString("system.DESkey"), viper.C.GetString("system.DESiv"))
 
 				if err != nil {
 					return err
@@ -169,7 +169,7 @@ func (this *Request) InitDES() error {
 // 跳过签名和加密
 func (this *Request) InitWithoutDES() error {
 	params := ""
-	params = this.PostParam(viper2.C.GetString("system.DESParam")).GetString()
+	params = this.PostParam(viper.C.GetString("system.DESParam")).GetString()
 	if params != "" {
 		this.Context.Set(RequestBody, string(params))
 		this.Json = gjson.Parse(params)
@@ -273,7 +273,7 @@ func (this *Request) Param(key string) *Request {
 }
 
 func (this *Request) SetDefault(val string) *Request {
-	if this.jsonTag == true {
+	if this.jsonTag {
 		defJson := fmt.Sprintf(`{"index":"%s"}`, val)
 		this.Jsonparam.val = gjson.Parse(defJson).Get("index")
 	} else {
@@ -316,9 +316,7 @@ func (this *Request) Min(i int) *Request {
 // 获取并且验证参数 string类型 适用于GET或POST参数
 func (this *Request) GetString() string {
 
-	var str string
-
-	str = this.getParamVal()
+	str := this.getParamVal()
 	if this.params.min != 0 {
 		this.valid.MinSize(str, this.params.min, this.getParamKey()).
 			Message("参数异常!参数长度为%d不能小于%d,参数名称:", len([]rune(str)), this.params.min)

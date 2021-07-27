@@ -4,7 +4,8 @@ import (
 	"context"
 	"runtime"
 
-	"github.com/sunmi-OS/gocore/v2/utils/xlog"
+	xlog2 "github.com/sunmi-OS/gocore/v2/glog/xlog"
+
 	"google.golang.org/grpc"
 	"google.golang.org/grpc/codes"
 	"google.golang.org/grpc/status"
@@ -32,6 +33,6 @@ func handleCrash(handler func(interface{})) {
 
 func toPanicError(r interface{}) error {
 	var buf [2 << 10]byte
-	xlog.Errorf("[server-panic] - %v - %s", r, string(buf[:runtime.Stack(buf[:], false)]))
+	xlog2.Errorf("[server-panic] - %v - %s", r, string(buf[:runtime.Stack(buf[:], false)]))
 	return status.Errorf(codes.Internal, "panic: %v", r)
 }

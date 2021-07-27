@@ -5,7 +5,8 @@ import (
 	"net"
 	"time"
 
-	"github.com/sunmi-OS/gocore/v2/rpc/rpcx/interceptor"
+	interceptor2 "github.com/sunmi-OS/gocore/v2/rpcx/interceptor"
+
 	"google.golang.org/grpc"
 )
 
@@ -40,12 +41,12 @@ func NewGrpcServer(name, addr string, cfg *GrpcServerConfig) *GrpcServer {
 func (s *GrpcServer) RegisterService(register RegisterFn) *GrpcServer {
 	s.register = register
 	if s.cfg.Timeout > 0 {
-		s.AddUnaryInterceptors(interceptor.UnaryTimeout(s.cfg.Timeout))
+		s.AddUnaryInterceptors(interceptor2.UnaryTimeout(s.cfg.Timeout))
 	}
-	s.AddUnaryInterceptors(interceptor.UnaryCrash)
-	s.AddStreamInterceptors(interceptor.StreamCrash)
+	s.AddUnaryInterceptors(interceptor2.UnaryCrash)
+	s.AddStreamInterceptors(interceptor2.StreamCrash)
 
-	options := append(s.options, interceptor.WithUnaryServer(s.unaryInterceptors...), interceptor.WithStreamServer(s.streamInterceptors...))
+	options := append(s.options, interceptor2.WithUnaryServer(s.unaryInterceptors...), interceptor2.WithStreamServer(s.streamInterceptors...))
 	s.server = grpc.NewServer(options...)
 	s.isPre = true
 	return s

@@ -8,6 +8,8 @@ import (
 	"strings"
 	"sync"
 
+	"github.com/sunmi-OS/gocore/v2/utils/file"
+
 	"github.com/BurntSushi/toml"
 	"github.com/spf13/viper"
 	"github.com/sunmi-OS/gocore/v2/utils"
@@ -55,7 +57,7 @@ func newConfig(filePath string, fileName string) *Viper {
 	v.SetConfigName(fileName)
 	//filePath支持相对路径和绝对路径 etc:"/a/b" "b" "./b"
 	if filePath[:1] != "/" {
-		v.AddConfigPath(path.Join(utils.GetPath(), filePath))
+		v.AddConfigPath(path.Join(file.GetPath(), filePath))
 	} else {
 		v.AddConfigPath(filePath)
 	}
@@ -91,5 +93,5 @@ func GetEnvConfig(key string) *utils.TypeTransform {
 	if env != "" {
 		return &utils.TypeTransform{Value: env}
 	}
-	return &utils.TypeTransform{Value: C.Get(key)}
+	return utils.Transform(C.Get(key))
 }

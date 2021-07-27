@@ -6,11 +6,12 @@ import (
 	"sync"
 	"time"
 
+	xlog2 "github.com/sunmi-OS/gocore/v2/glog/xlog"
+
 	"github.com/sunmi-OS/gocore/v2/utils"
 
 	mqtt "github.com/eclipse/paho.mqtt.golang"
 	"github.com/google/uuid"
-	"github.com/sunmi-OS/gocore/v2/utils/xlog"
 )
 
 type Client struct {
@@ -146,7 +147,7 @@ func subCallbackKey(topic string, qos QosType) string {
 }
 
 func (c *Client) DefaultOnConnectFunc(cli mqtt.Client) {
-	xlog.Info("mqtt connected")
+	xlog2.Info("mqtt connected")
 	c.mu.Lock()
 	defer c.mu.Unlock()
 	// 连接后，注册订阅
@@ -170,7 +171,7 @@ func (c *Client) DefaultOnConnectFunc(cli mqtt.Client) {
 					return c.sub(split[0], qos, cb)
 				}, 3, 2*time.Second)
 				if err != nil {
-					xlog.Errorf("topic[%s] sub callback register err:%+v", split[0], err)
+					xlog2.Errorf("topic[%s] sub callback register err:%+v", split[0], err)
 				}
 			}
 		}(key, handler)

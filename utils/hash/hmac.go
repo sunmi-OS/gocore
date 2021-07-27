@@ -10,33 +10,33 @@ import (
 	"hash"
 )
 
-func HmacSHA1(secret, params string) (string, error) {
-	return Hmac(sha1.New, []byte(secret), []byte(params))
+func HmacSha1(value, secret string) (string, error) {
+	return Hmac(sha1.New, value, secret)
 }
 
-func HmacSHA224(secret, params string) (string, error) {
-	return Hmac(sha256.New224, []byte(secret), []byte(params))
+func HmacSha224(value, secret string) (string, error) {
+	return Hmac(sha256.New224, value, secret)
 }
 
-func HmacSHA256(secret, params string) (string, error) {
-	return Hmac(sha256.New, []byte(secret), []byte(params))
+func HmacSha256(value, secret string) (string, error) {
+	return Hmac(sha256.New, value, secret)
 }
 
-func HmacSha384(secret, params string) (string, error) {
-	return Hmac(sha512.New384, []byte(secret), []byte(params))
+func HmacSha384(value, secret string) (string, error) {
+	return Hmac(sha512.New384, value, secret)
 }
 
-func HmacSHA512Sign(secret, params string) (string, error) {
-	return Hmac(sha512.New, []byte(secret), []byte(params))
+func HmacSha512(value, secret string) (string, error) {
+	return Hmac(sha512.New, value, secret)
 }
 
-func HmacMD5(secret, params string) (string, error) {
-	return Hmac(md5.New, []byte(secret), []byte(params))
+func HmacMD5(value, secret string) (string, error) {
+	return Hmac(md5.New, value, secret)
 }
 
-func Hmac(h func() hash.Hash, key, params []byte) (string, error) {
-	mac := hmac.New(h, key)
-	_, err := mac.Write(params)
+func Hmac(h func() hash.Hash, value, key string) (string, error) {
+	mac := hmac.New(h, []byte(key))
+	_, err := mac.Write([]byte(value))
 	if err != nil {
 		return "", err
 	}

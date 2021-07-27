@@ -8,14 +8,18 @@ import (
 var mail *gomail.Dialer
 
 func linkService() {
-	mail = gomail.NewDialer(viper.C.GetString("email.host"), viper.C.GetInt("email.port"), viper.C.GetString("email.username"), viper.C.GetString("email.password"))
+	mail = gomail.NewDialer(
+		viper.GetEnvConfig("email.host").String(),
+		viper.GetEnvConfig("email.port").Int(),
+		viper.GetEnvConfig("email.username").String(),
+		viper.GetEnvConfig("email.password").String(),
+	)
 }
 
 func SendEmail(email, fromMail, formNmae, subject, text string) error {
 	if mail == nil {
 		linkService()
 	}
-
 	m := gomail.NewMessage()
 	m.SetAddressHeader("From", fromMail, formNmae)
 	m.SetHeader("To", email)

@@ -3,7 +3,7 @@ package aliyunmq
 import (
 	"errors"
 
-	viper2 "github.com/sunmi-OS/gocore/v2/conf/viper"
+	"github.com/sunmi-OS/gocore/v2/conf/viper"
 )
 
 // RocketMQConfig 基础配置
@@ -22,10 +22,10 @@ type RocketMQConfig struct {
 func initConfig(configName string) RocketMQConfig {
 
 	mqConfig := RocketMQConfig{
-		NameServer: viper2.GetEnvConfig(configName + ".NameServer"),
-		AccessKey:  viper2.GetEnvConfig(configName + ".AccessKey"),
-		SecretKey:  viper2.GetEnvConfig(configName + ".SecretKey"),
-		Namespace:  viper2.GetEnvConfig(configName + ".Namespace"),
+		NameServer: viper.GetEnvConfig(configName + ".NameServer").String(),
+		AccessKey:  viper.GetEnvConfig(configName + ".AccessKey").String(),
+		SecretKey:  viper.GetEnvConfig(configName + ".SecretKey").String(),
+		Namespace:  viper.GetEnvConfig(configName + ".Namespace").String(),
 	}
 	err := checkConfig(mqConfig)
 	if err != nil {

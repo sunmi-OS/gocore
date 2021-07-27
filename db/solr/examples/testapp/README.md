@@ -1,1 +1,0 @@
-Would be nice with a small application that uses solr. Provide prefilled data for insert, delete and search document
