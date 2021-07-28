@@ -9,13 +9,11 @@ import (
 	"runtime"
 	"time"
 
-	"github.com/sunmi-OS/gocore/v2/glog/xlog"
-
-	"github.com/sunmi-OS/gocore/v2/api/ecode"
-
 	"github.com/gin-gonic/gin"
 	"github.com/labstack/echo/v4"
 	"github.com/labstack/echo/v4/middleware"
+	"github.com/sunmi-OS/gocore/v2/api/ecode"
+	"github.com/sunmi-OS/gocore/v2/glog"
 )
 
 // CORS gin middleware cors
@@ -59,7 +57,7 @@ func (g *GinEngine) Recovery() gin.HandlerFunc {
 				if c.Request != nil {
 					rawReq, _ = httputil.DumpRequest(c.Request, false)
 				}
-				xlog.Errorf("[GinPanic] %s \n[Error] %v \n[Stack] %s", string(rawReq), err, string(stack))
+				glog.ErrorF("[GinPanic] %s \n[Error] %v \n[Stack] %s", string(rawReq), err, string(stack))
 				_ = c.AbortWithError(http.StatusInternalServerError, ecode.ServerErr)
 			}
 		}()

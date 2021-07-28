@@ -6,7 +6,7 @@ import (
 	"testing"
 	"time"
 
-	"github.com/sunmi-OS/gocore/v2/glog/xlog"
+	"github.com/sunmi-OS/gocore/v2/glog"
 )
 
 func TestRetry(t *testing.T) {
@@ -20,6 +20,6 @@ func TestRetry(t *testing.T) {
 		return nil
 	}, 5, 2*time.Second)
 	if err != nil {
-		xlog.Error(err)
+		glog.Error(err)
 	}
 }

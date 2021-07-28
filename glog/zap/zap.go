@@ -1,22 +1,26 @@
 package zap
 
 import (
-	"fmt"
+	"log"
 	"os"
 	"path/filepath"
 	"strings"
 	"time"
 
-	"github.com/google/martian/log"
 	"github.com/sunmi-OS/gocore/v2/conf/viper"
 	"github.com/sunmi-OS/gocore/v2/utils/file"
-
 	"go.uber.org/zap"
 	"go.uber.org/zap/zapcore"
 )
 
+const (
+	LogLevelInfo  = "info"
+	LogLevelDebug = "debug"
+	LogLevelWarn  = "warn"
+	LogLevelError = "error"
+)
+
 var (
-	Logger  *zap.Logger
 	Sugar   *zap.SugaredLogger
 	logfile *os.File
 	cfg     zap.Config
@@ -27,24 +31,23 @@ func init() {
 	cfg = zap.NewProductionConfig()
 	cfg.Level = zap.NewAtomicLevelAt(zap.DebugLevel)
 	cfg.EncoderConfig.EncodeTime = zapcore.ISO8601TimeEncoder
-	Logger, err = cfg.Build(zap.AddCallerSkip(1))
+	l, err := cfg.Build(zap.AddCallerSkip(1))
 	if err != nil {
-		log.Errorf("l.initZap(),err:%+v", err)
+		log.Printf("l.initZap(),err:%+v", err)
 		return
 	}
-	Sugar = Logger.Sugar()
+	Sugar = l.Sugar()
 }
 
-func SetLocLevel(logLevel string) {
-
+func SetLogLevel(logLevel string) {
 	switch logLevel {
-	case "debug":
+	case LogLevelDebug:
 		cfg.Level = zap.NewAtomicLevelAt(zap.DebugLevel)
-	case "info":
+	case LogLevelInfo:
 		cfg.Level = zap.NewAtomicLevelAt(zap.InfoLevel)
-	case "warn":
+	case LogLevelWarn:
 		cfg.Level = zap.NewAtomicLevelAt(zap.WarnLevel)
-	case "error":
+	case LogLevelError:
 		cfg.Level = zap.NewAtomicLevelAt(zap.ErrorLevel)
 	default:
 		cfg.Level = zap.NewAtomicLevelAt(zap.DebugLevel)
@@ -52,41 +55,49 @@ func SetLocLevel(logLevel string) {
 
 	Logger, err := cfg.Build(zap.AddCallerSkip(1))
 	if err != nil {
-		log.Errorf("l.initZap(),err:%+v", err)
+		log.Printf("l.initZap(),err:%+v.\n", err)
 		return
 	}
 	Sugar = Logger.Sugar()
 }
 
-func InitFileLog() {
-	var err error
+func InitFileLog(logPath ...string) {
+	var (
+		err  error
+		path = file.GetPath() + "/Runtime"
+	)
+	if len(logPath) == 1 {
+		path = logPath[0]
+	}
 
-	fmt.Println(file.GetPath())
-	if !file.CheckDir(file.GetPath() + "/Runtime") {
-		if err := file.MkdirDir(file.GetPath() + "/Runtime"); err != nil {
-			log.Errorf("l.initZap(),err:%+v", err)
+	if !file.CheckDir(path) {
+		if err := file.MkdirDir(path); err != nil {
+			log.Printf("l.initZap(),err:%+v.\n", err)
 		}
 	}
-	filename := file.GetPath() + "/Runtime/" + time.Now().Format("2006-01-02") + ".log"
+
+	filename := path + "/" + time.Now().Format("2006-01-02") + ".log"
 	logfile, err = os.OpenFile(filename, os.O_RDWR|os.O_APPEND, 0666)
 	if err != nil {
 		logfile, err = os.Create(filename)
 		if err != nil {
-			fmt.Println(err)
+			log.Println(err)
 		}
 	}
 	cfg.OutputPaths = []string{filename, "stdout"}
 	cfg.ErrorOutputPaths = []string{filename, "stderr"}
-	SetLocLevel(viper.GetEnvConfig("log.level").String())
-	go updateLogFile()
+	SetLogLevel(viper.GetEnvConfig("log.level").String())
+	go updateLogFile(path)
 }
 
 // updateLogFile 检测是否跨天了,把记录记录到新的文件目录中
-func updateLogFile() {
+func updateLogFile(logPath string) {
 	var err error
 	viper.C.SetDefault("log.saveDays", "7")
 	saveDays := viper.GetEnvConfig("system.saveDays").Float64()
-	logPath := file.GetPath() + "/Runtime/"
+	if logPath == "" {
+		logPath = file.GetPath() + "/Runtime/"
+	}
 	for {
 		now := time.Now()
 		// 计算下一个零点
@@ -100,16 +111,16 @@ func updateLogFile() {
 		filename := logPath + time.Now().Format("2006-01-02") + ".log"
 		logfile, err = os.Create(logPath + time.Now().Format("2006-01-02") + ".log")
 		if err != nil {
-			fmt.Println(err)
+			log.Println(err)
 		}
 		cfg.ErrorOutputPaths = []string{filename, "stderr"}
 		cfg.OutputPaths = []string{filename, "stdout"}
-		Logger, err = cfg.Build()
+		l, err := cfg.Build()
 		if err != nil {
-			fmt.Println(err)
+			log.Println(err)
 			continue
 		}
-		Sugar = Logger.Sugar()
+		Sugar = l.Sugar()
 	}
 }
 
@@ -126,7 +137,7 @@ func deleteLog(source string, saveDays float64) {
 		if t >= (saveDays-1)*24 {
 			e := os.Remove(path)
 			if e != nil {
-				fmt.Println(e)
+				log.Println(e)
 			}
 		}
 		return err
