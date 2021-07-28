@@ -5,32 +5,20 @@ import (
 	"strings"
 
 	"github.com/gin-gonic/gin"
-	"github.com/sunmi-OS/gocore/v2/utils/limit"
-	"github.com/sunmi-OS/gocore/v2/utils/trace"
 )
 
 type GinEngine struct {
-	Gin    *gin.Engine
-	Tracer *trace.Tracer
-	addr   string
+	Gin       *gin.Engine
+	isRelease bool
+	addr      string
 }
 
 func InitGin(c *Config) *GinEngine {
 	g := gin.Default()
-
-	if c.Limit != nil && c.Limit.Rate != 0 {
-		g.Use(limit.NewLimiter(c.Limit).GinLimit())
-	}
-
 	if !strings.Contains(strings.TrimSpace(c.Port), ":") {
 		c.Port = ":" + c.Port
 	}
-
 	engine := &GinEngine{Gin: g, addr: c.Host + c.Port}
-	if c.Trace != nil {
-		engine.Tracer = trace.NewTracer(c.Trace)
-		g.Use(engine.Tracer.GinTrace())
-	}
 	return engine
 }
 
@@ -46,10 +34,4 @@ func (g *GinEngine) Start() {
 			panic(fmt.Sprintf("web server port(%s) run error(%+v).", g.addr, err))
 		}
 	}()
-}
-
-func (g *GinEngine) Close() {
-	if g.Tracer != nil {
-		g.Tracer.Close()
-	}
 }
