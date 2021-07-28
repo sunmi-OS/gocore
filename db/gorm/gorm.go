@@ -7,7 +7,7 @@ import (
 	"sync"
 	"time"
 
-	xlog2 "github.com/sunmi-OS/gocore/v2/glog/xlog"
+	"github.com/sunmi-OS/gocore/v2/glog/xlog"
 
 	"github.com/sunmi-OS/gocore/v2/utils"
 
@@ -26,7 +26,10 @@ var _Gorm *Client
 
 // 初始化Gorm
 func NewDB(dbname string) (g *Client) {
-	NewOrUpdateDB(dbname)
+	err := NewOrUpdateDB(dbname)
+	if err != nil {
+		return nil
+	}
 	return _Gorm
 }
 
@@ -53,7 +56,7 @@ func NewOrUpdateDB(dbname string) error {
 	err = utils.Retry(func() error {
 		orm, err = openORM(dbname)
 		if err != nil {
-			xlog2.Errorf("UpdateDB(%s) error:%+v", dbname, err)
+			xlog.Errorf("UpdateDB(%s) error:%+v", dbname, err)
 			return err
 		}
 		return nil
@@ -98,7 +101,7 @@ func GetORM(dbname ...string) *gorm.DB {
 
 func Close() {
 	_Gorm.gormMaps.Range(func(dbName, orm interface{}) bool {
-		xlog2.Warnf("close db %s", dbName)
+		xlog.Warnf("close db %s", dbName)
 		_Gorm.gormMaps.Delete(dbName)
 		db, _ := orm.(*gorm.DB).DB()
 		if db != nil {

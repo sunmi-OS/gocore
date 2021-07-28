@@ -40,7 +40,7 @@ func SetLocalConfig(configs string) {
 }
 
 // NewNacos 注入Nacos配置文件
-func NewNacos(ccConfig constant.ClientConfig, csConfigs []constant.ServerConfig) error {
+func NewNacos(ccConfig constant.ClientConfig, csConfigs ...constant.ServerConfig) error {
 	defaultClientConfig(&ccConfig)
 	configClient, err := clients.CreateConfigClient(map[string]interface{}{
 		"serverConfigs": csConfigs,
@@ -63,7 +63,7 @@ func NewAcmEnv() {
 	if Endpoint == "" || NamespaceId == "" || AccessKey == "" || SecretKey == "" {
 		panic("The configuration file cannot be empty.")
 	}
-	err := NewAcmConfig(constant.ClientConfig{
+	err := NewAcmConfig(&constant.ClientConfig{
 		Endpoint:    Endpoint,
 		NamespaceId: NamespaceId,
 		AccessKey:   AccessKey,
@@ -75,10 +75,11 @@ func NewAcmEnv() {
 }
 
 // NewAcmConfig 注入ACM配置文件
-func NewAcmConfig(ccConfig constant.ClientConfig) error {
-	defaultClientConfig(&ccConfig)
-	configClient, err := clients.CreateConfigClient(map[string]interface{}{
-		"clientConfig": ccConfig,
+func NewAcmConfig(ccConfig *constant.ClientConfig) error {
+	defaultClientConfig(ccConfig)
+	configClient, err := clients.NewConfigClient(vo.NacosClientParam{
+		ClientConfig:  ccConfig,
+		ServerConfigs: nil,
 	})
 	if err != nil {
 		return err

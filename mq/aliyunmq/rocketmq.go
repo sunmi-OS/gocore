@@ -33,7 +33,6 @@ func initConfig(configName string) RocketMQConfig {
 	}
 	// 默认日志等级 Error
 	LogError()
-
 	return mqConfig
 }
 

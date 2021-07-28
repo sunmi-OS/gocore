@@ -1,8 +1,7 @@
-package aliyunlog
+package sls
 
 import (
 	"errors"
-	"fmt"
 	"os"
 	"time"
 
@@ -42,18 +41,15 @@ func InitLog(configName, LogStore string) {
 		panic(err)
 	}
 
-	fmt.Println("test")
-
 	producerConfig := producer.GetDefaultProducerConfig()
 	producerConfig.Endpoint = LogClient.Endpoint
 	producerConfig.AccessKeyID = LogClient.AccessKey
 	producerConfig.AccessKeySecret = LogClient.SecretKey
 	LogClient.Log = producer.InitProducer(producerConfig)
-
 	LogClient.Log.Start()
 
-	logmsg := producer.GenerateLog(uint32(time.Now().Unix()), map[string]string{"content": "log-start"})
-	err = LogClient.Log.SendLog(LogClient.Project, LogClient.LogStore, "start", LogClient.HostName, logmsg)
+	logMsg := producer.GenerateLog(uint32(time.Now().Unix()), map[string]string{"content": "log-start"})
+	err = LogClient.Log.SendLog(LogClient.Project, LogClient.LogStore, "start", LogClient.HostName, logMsg)
 	if err != nil {
 		panic(err)
 	}
@@ -62,15 +58,15 @@ func InitLog(configName, LogStore string) {
 // Info 记录info日志
 func Info(topic string, logs map[string]string) error {
 	logs["level"] = "info"
-	logmsg := producer.GenerateLog(uint32(time.Now().Unix()), logs)
-	return LogClient.Log.SendLog(LogClient.Project, LogClient.LogStore, topic, LogClient.HostName, logmsg)
+	logMsg := producer.GenerateLog(uint32(time.Now().Unix()), logs)
+	return LogClient.Log.SendLog(LogClient.Project, LogClient.LogStore, topic, LogClient.HostName, logMsg)
 }
 
 // Error 记录异常日志
 func Error(topic string, logs map[string]string) error {
 	logs["level"] = "error"
-	logmsg := producer.GenerateLog(uint32(time.Now().Unix()), logs)
-	return LogClient.Log.SendLog(LogClient.Project, LogClient.LogStore, topic, LogClient.HostName, logmsg)
+	logMsg := producer.GenerateLog(uint32(time.Now().Unix()), logs)
+	return LogClient.Log.SendLog(LogClient.Project, LogClient.LogStore, topic, LogClient.HostName, logMsg)
 }
 
 // Close 关闭日志服务
@@ -83,7 +79,7 @@ func Close() {
 // checkConfig 验证配置是否缺少 自动创建LogStore
 func checkConfig(conf AliyunLog) (err error) {
 	if conf.AccessKey == "" || conf.Endpoint == "" || conf.Project == "" || conf.LogStore == "" || conf.SecretKey == "" {
-		err = errors.New("config Missing parameter")
+		return errors.New("config Missing parameter")
 	}
 
 	// 创建 LogStore 默认存储30天，2个分片自动扩容最大64片
