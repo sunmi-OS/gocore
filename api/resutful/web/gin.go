@@ -10,10 +10,9 @@ import (
 )
 
 type GinEngine struct {
-	Gin       *gin.Engine
-	Tracer    *trace.Tracer
-	isRelease bool
-	addr      string
+	Gin    *gin.Engine
+	Tracer *trace.Tracer
+	addr   string
 }
 
 func InitGin(c *Config) *GinEngine {

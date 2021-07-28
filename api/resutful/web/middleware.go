@@ -9,8 +9,9 @@ import (
 	"runtime"
 	"time"
 
+	"github.com/sunmi-OS/gocore/v2/glog/xlog"
+
 	"github.com/sunmi-OS/gocore/v2/api/ecode"
-	"github.com/sunmi-OS/gocore/v2/utils/xlog"
 
 	"github.com/gin-gonic/gin"
 	"github.com/labstack/echo/v4"
@@ -85,7 +86,7 @@ func (e *EchoEngine) recoverWithConfig(config middleware.RecoverConfig) echo.Mid
 			if config.Skipper(c) {
 				return next(c)
 			}
-			defer func() error {
+			defer func() {
 				if r := recover(); r != nil {
 					err, ok := r.(error)
 					if !ok {
@@ -98,9 +99,6 @@ func (e *EchoEngine) recoverWithConfig(config middleware.RecoverConfig) echo.Mid
 						stackStr = string(stack[:length])
 					}
 
-					//c.Response().Header().Set("Content-Type", "application/json;charset=UTF-8")
-					//c.Response().Write([]byte(returnMsg))
-
 					param := &RecoverInfo{
 						Time:  time.Now().Format("2006-01-02 15:04:05"),
 						Url:   c.Request().URL.Path,
@@ -111,14 +109,15 @@ func (e *EchoEngine) recoverWithConfig(config middleware.RecoverConfig) echo.Mid
 					data, _ := json.Marshal(param)
 					log.Println("[EchoPanic] >> ", string(data))
 
-					return c.JSON(http.StatusOK, CommonRsp{
+					err = c.JSON(http.StatusOK, CommonRsp{
 						Code:    11503,
 						Message: "服务异常,请稍后再试。",
 						Data:    nil,
 					})
-
+					if err != nil {
+						return
+					}
 				}
-				return nil
 			}()
 			return next(c)
 		}

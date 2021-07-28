@@ -12,19 +12,10 @@ require (
 	github.com/go-redis/redis/v8 v8.11.0
 	github.com/go-resty/resty/v2 v2.6.0
 	github.com/google/uuid v1.2.0
-<<<<<<< HEAD
-=======
-	github.com/hashicorp/go-multierror v1.1.1
-	github.com/jinzhu/gorm v1.9.16
->>>>>>> a11cd4e962ed3e4eb61b9edc750e28885dc8b98f
 	github.com/labstack/echo/v4 v4.3.0
 	github.com/nacos-group/nacos-sdk-go v1.0.7
-<<<<<<< HEAD
-	github.com/pelletier/go-toml v1.9.1
-=======
 	github.com/opentracing/opentracing-go v1.2.0
 	github.com/pelletier/go-toml v1.9.3
->>>>>>> a11cd4e962ed3e4eb61b9edc750e28885dc8b98f
 	github.com/segmentio/kafka-go v0.4.16
 	github.com/shiyanhui/hero v0.0.2
 	github.com/spf13/cast v1.3.1
@@ -35,22 +26,11 @@ require (
 	github.com/uber/jaeger-client-go v2.29.1+incompatible
 	github.com/uber/jaeger-lib v2.4.1+incompatible // indirect
 	github.com/urfave/cli v1.22.5
-<<<<<<< HEAD
-	go.uber.org/zap v1.16.0
-	google.golang.org/grpc v1.38.0
-	gopkg.in/alexcesaro/quotedprintable.v3 v3.0.0-20150716171945-2caba252f4dc // indirect
-	gopkg.in/gomail.v2 v2.0.0-20160411212932-81ebce5c23df
-	gopkg.in/yaml.v2 v2.4.0
-	gorm.io/driver/mysql v1.1.0
-	gorm.io/gorm v1.21.10
-=======
 	go.uber.org/zap v1.17.0
-	gobot.io/x/gobot v1.15.0
 	google.golang.org/grpc v1.38.0
 	gopkg.in/alexcesaro/quotedprintable.v3 v3.0.0-20150716171945-2caba252f4dc // indirect
 	gopkg.in/gomail.v2 v2.0.0-20160411212932-81ebce5c23df
 	gopkg.in/yaml.v3 v3.0.0-20210107192922-496545a6307b
 	gorm.io/driver/mysql v1.1.1
 	gorm.io/gorm v1.21.11
->>>>>>> a11cd4e962ed3e4eb61b9edc750e28885dc8b98f
 )

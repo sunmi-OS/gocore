@@ -2,8 +2,6 @@ package web
 
 import (
 	"testing"
-
-	"github.com/labstack/echo/v4"
 )
 
 func TestInitEcho(t *testing.T) {
@@ -32,16 +30,17 @@ func TestInitEcho(t *testing.T) {
 	//}
 }
 
-func initRouteE(e *echo.Echo) {
-	e.GET("/echo/ping", func(c echo.Context) error {
-		//err := ecode.New(2323, "asdsda")
-		JSON(c, "echo data", nil)
-		return nil
-	})
-
-	e.GET("/echo/file", func(c echo.Context) error {
-		//err := ecode.New(2323, "asdsda")
-		File(c, "echo_test.go", "echo.go")
-		return nil
-	})
-}
+//
+//func initRouteE(e *echo.Echo) {
+//	e.GET("/echo/ping", func(c echo.Context) error {
+//		//err := ecode.New(2323, "asdsda")
+//		JSON(c, "echo data", nil)
+//		return nil
+//	})
+//
+//	e.GET("/echo/file", func(c echo.Context) error {
+//		//err := ecode.New(2323, "asdsda")
+//		File(c, "echo_test.go", "echo.go")
+//		return nil
+//	})
+//}
