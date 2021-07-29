@@ -18,8 +18,6 @@ import (
 	"`)
 	hero.EscapeHTML(name, buffer)
 	buffer.WriteString(`/app/cronjob"
-	"`)
-	buffer.WriteString(`
 	"os"
 	"os/signal"
 	"syscall"
@@ -27,15 +25,15 @@ import (
 	"github.com/robfig/cron"
 	"github.com/sunmi-OS/gocore/v2/utils/aliyunlog"
 	"github.com/sunmi-OS/gocore/v2/db/gorm"
-	"github.com/urfave/cli"
+	"github.com/urfave/cli/v2"
 )
 
 // Cronjob cmd 定时任务相关
-var Cronjob = cli.Command{
+var Cronjob = &cli.Command{
 	Name:    "cron",
 	Aliases: []string{"c"},
 	Usage:   "run",
-	Subcommands: []cli.Command{
+	Subcommands: []*cli.Command{
 		{
 			Name:   "start",
 			Usage:  "开启运行api服务",

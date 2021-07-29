@@ -26,7 +26,7 @@ require (
 	github.com/streadway/amqp v1.0.0
 	github.com/stretchr/testify v1.7.0
 	github.com/tidwall/gjson v1.8.0
-	github.com/urfave/cli v1.22.5
+	github.com/urfave/cli/v2 v2.3.0 // indirect
 	go.uber.org/zap v1.17.0
 	google.golang.org/grpc v1.38.0
 	gopkg.in/alexcesaro/quotedprintable.v3 v3.0.0-20150716171945-2caba252f4dc // indirect

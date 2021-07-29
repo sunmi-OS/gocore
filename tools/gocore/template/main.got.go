@@ -24,7 +24,7 @@ import (
 	hero.EscapeHTML(projectName, buffer)
 	buffer.WriteString(`/common"
 
-    "github.com/urfave/cli"
+    "github.com/urfave/cli/v2"
 	gocoreLog "github.com/sunmi-OS/gocore/v2/utils/log"
 )
 
@@ -33,11 +33,10 @@ func main() {
 	app := cli.NewApp()
 	app.Name = common.PROJECT_NAME
 	app.Usage = common.PROJECT_NAME
-	app.Email = ""
 	app.Version = common.PROJECT_VERSION
 
 	// 指定命令运行的函数
-	app.Commands = []cli.Command{
+	app.Commands = []*cli.Command{
         `)
 	for _, cmd := range cmdList {
 		hero.EscapeHTML(cmd, buffer)

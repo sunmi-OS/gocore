@@ -8,18 +8,18 @@ import (
 
 	"github.com/tidwall/gjson"
 
-	"github.com/urfave/cli"
+	"github.com/urfave/cli/v2"
 )
 
 // 创建服务
-var CreatService = cli.Command{
+var CreatService = &cli.Command{
 	Name:  "create",
 	Usage: "create cmd",
-	Subcommands: []cli.Command{
+	Subcommands: []*cli.Command{
 		{
 			Name: "service",
 			Flags: []cli.Flag{
-				cli.StringFlag{
+				&cli.StringFlag{
 					Name:  "config, c",
 					Usage: "Load configuration from toml file",
 				}},
@@ -29,7 +29,7 @@ var CreatService = cli.Command{
 		{
 			Name: "toml",
 			Flags: []cli.Flag{
-				cli.StringFlag{
+				&cli.StringFlag{
 					Name:  "dir",
 					Usage: "dir path",
 				}},

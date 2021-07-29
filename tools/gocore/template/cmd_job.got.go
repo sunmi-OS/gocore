@@ -21,15 +21,15 @@ import (
 	hero.EscapeHTML(name, buffer)
 	buffer.WriteString(`/common"
 
-	"github.com/urfave/cli"
+	"github.com/urfave/cli/2"
 )
 
 // Job cmd 任务相关
-var Job = cli.Command{
+var Job = &cli.Command{
 	Name:    "job",
 	Aliases: []string{"j"},
 	Usage:   "job",
-	Subcommands: []cli.Command{
+	Subcommands: []*cli.Command{
 		`)
 	hero.EscapeHTML(jobCmd, buffer)
 	buffer.WriteString(`

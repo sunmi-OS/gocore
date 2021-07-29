@@ -6,7 +6,7 @@ import (
 
 	cmd "github.com/sunmi-OS/gocore/v2/tools/gocore/cmd"
 	"github.com/sunmi-OS/gocore/v2/tools/gocore/conf"
-	"github.com/urfave/cli"
+	"github.com/urfave/cli/v2"
 )
 
 const banner string = `
@@ -26,10 +26,9 @@ func main() {
 	app := cli.NewApp()
 	app.Name = conf.PROJECT_NAME
 	app.Usage = conf.PROJECT_NAME
-	app.Email = ""
 	app.Version = conf.PROJECT_VERSION
 	// 指定命令运行的函数
-	app.Commands = []cli.Command{
+	app.Commands = []*cli.Command{
 		cmd.CreatService,
 	}
 

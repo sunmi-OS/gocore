@@ -85,7 +85,10 @@ func (c *Client) Close() {
 	c.redisMaps.Range(func(dbName, rc interface{}) bool {
 		glog.WarnF("close db %s", dbName)
 		c.redisMaps.Delete(dbName)
-		rc.(*redis.Client).Close()
+		err := rc.(*redis.Client).Close()
+		if err != nil {
+			return false
+		}
 		return true
 	})
 }

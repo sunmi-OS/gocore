@@ -87,7 +87,7 @@ func checkConfig(conf AliyunLog) (err error) {
 	err = Client.CreateLogStore(conf.Project, conf.LogStore, 30, 2, true, 64)
 	if err != nil {
 		if gjson.Parse(err.Error()).Get("errorCode").String() == "LogStoreAlreadyExist" {
-			err = nil
+			return nil
 		}
 	}
 

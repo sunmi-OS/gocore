@@ -22,22 +22,19 @@ import (
 	"`)
 	hero.EscapeHTML(projectName, buffer)
 	buffer.WriteString(`/app/routes"
-	"`)
-	hero.EscapeHTML(projectName, buffer)
-	buffer.WriteString(`/common"
 
 	"github.com/sunmi-OS/gocore/v2/utils/aliyunlog"
 	"github.com/sunmi-OS/gocore/v2/db/gorm"
 	"github.com/sunmi-OS/gocore/v2/conf/viper"
 	"github.com/sunmi-OS/gocore/v2/api/resutful/web"
-	"github.com/urfave/cli"
+	"github.com/urfave/cli/v2"
 )
 
-var Api = cli.Command{
+var Api = &cli.Command{
 	Name:    "api",
 	Aliases: []string{"a"},
 	Usage:   "api start",
-	Subcommands: []cli.Command{
+	Subcommands: []*cli.Command{
 		{
 			Name:   "start",
 			Usage:  "开启运行api服务",

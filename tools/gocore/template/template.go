@@ -21,6 +21,8 @@ var localConf string
 
 var configJson gjson.Result
 
+// hero -source=./tools/gocore/template -extensions=.got,.md,.docker
+
 func CreateCode(root, name string, j gjson.Result) {
 	configJson = j
 	mkdir(root)

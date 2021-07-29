@@ -7,7 +7,7 @@ import (
 
 	"github.com/sunmi-OS/gocore/v2/tools/gocore/template"
 
-	"github.com/urfave/cli"
+	"github.com/urfave/cli/v2"
 )
 
 func creatToml(c *cli.Context) error {
