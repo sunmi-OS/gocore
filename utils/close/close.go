@@ -3,9 +3,7 @@ package close
 import (
 	"fmt"
 	"os"
-	"os/signal"
 	"sort"
-	"syscall"
 )
 
 type (
@@ -28,9 +26,9 @@ func AddShutdown(c ...Close) {
 }
 
 func SignalClose() {
-	c := make(chan os.Signal, 1)
-	signal.Notify(c, syscall.SIGINT, syscall.SIGTERM, syscall.SIGQUIT, syscall.SIGTSTP)
-	sig := <-c
+	//c := make(chan os.Signal, 1)
+	//signal.Notify(c, syscall.SIGINT, syscall.SIGTERM, syscall.SIGQUIT, syscall.SIGTSTP)
+	//sig := <-c
 	sort.Sort(closeHandler)
 	if len(closeHandler) > 0 {
 		for _, f := range closeHandler {
@@ -38,6 +36,6 @@ func SignalClose() {
 			f.Func()
 		}
 	}
-	fmt.Printf("Got %s signal. Aborting...\n", sig)
+	//fmt.Printf("Got %s signal. Aborting...\n", sig)
 	os.Exit(0)
 }
