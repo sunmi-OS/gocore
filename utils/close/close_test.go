@@ -11,7 +11,7 @@ import (
 
 func TestName(t *testing.T) {
 
-	AddShutdown(Close{
+	AddShutdown(ModuleClose{
 		Name:     "http",
 		Priority: 0,
 		Func: func() {
@@ -25,13 +25,13 @@ func TestName(t *testing.T) {
 
 func TestSort(t *testing.T) {
 
-	closeHandler = append(closeHandler, Close{
+	closeHandler = append(closeHandler, ModuleClose{
 		Name:     "grom",
 		Priority: 100,
 		Func: func() {
 			fmt.Println("close http")
 		},
-	}, Close{
+	}, ModuleClose{
 		Name:     "http",
 		Priority: 0,
 		Func: func() {

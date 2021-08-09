@@ -76,7 +76,10 @@ func NewOrUpdateDB(dbname string) error {
 	if oldGorm != nil {
 		db, _ := oldGorm.(*gorm.DB).DB()
 		if db != nil {
-			db.Close()
+			err := db.Close()
+			if err != nil {
+				return err
+			}
 		}
 	}
 	return nil
@@ -89,7 +92,6 @@ func GetORM(dbname ...string) *gorm.DB {
 	if len(dbname) == 1 {
 		name = dbname[0]
 	}
-
 	v, ok := _Gorm.gormMaps.Load(name)
 	if ok {
 		return v.(*gorm.DB)
@@ -115,23 +117,23 @@ func Close() {
 func openORM(dbname string) (*gorm.DB, error) {
 	//默认配置
 	viper.C.SetDefault(dbname, map[string]interface{}{
-		"dbHost":          "127.0.0.1",
-		"dbName":          "phalgo",
-		"dbUser":          "root",
-		"dbPasswd":        "",
-		"dbPort":          3306,
-		"dbIdleconns_max": 20,
-		"dbOpenconns_max": 20,
-		"dbType":          "mysql",
-		"dbDebug":         false,
+		"Host":         "127.0.0.1",
+		"Name":         "gocore",
+		"User":         "root",
+		"Passwd":       "",
+		"Port":         3306,
+		"MaxIdleConns": 20,
+		"MaxOpenConns": 20,
+		"Type":         "mysql",
+		"Debug":        false,
 	})
-	dbHost := viper.GetEnvConfig(dbname + ".dbHost").String()
-	dbName := viper.GetEnvConfig(dbname + ".dbName").String()
-	dbUser := viper.GetEnvConfig(dbname + ".dbUser").String()
-	dbPasswd := viper.GetEnvConfig(dbname + ".dbPasswd").String()
-	dbPort := viper.GetEnvConfig(dbname + ".dbPort").String()
-	dbType := viper.GetEnvConfig(dbname + ".dbType").String()
-	dbDebug := viper.GetEnvConfig(dbname + ".dbDebug").Bool()
+	dbHost := viper.GetEnvConfig(dbname + ".Host").String()
+	dbName := viper.GetEnvConfig(dbname + ".Name").String()
+	dbUser := viper.GetEnvConfig(dbname + ".User").String()
+	dbPasswd := viper.GetEnvConfig(dbname + ".Passwd").String()
+	dbPort := viper.GetEnvConfig(dbname + ".Port").String()
+	dbType := viper.GetEnvConfig(dbname + ".Type").String()
+	dbDebug := viper.GetEnvConfig(dbname + ".Debug").Bool()
 
 	dsn := dbUser + ":" + dbPasswd + "@tcp(" + dbHost + ":" + dbPort + ")/" + dbName + "?charset=utf8mb4&parseTime=true&loc=Local"
 	lc := logger.Config{
@@ -157,9 +159,9 @@ func openORM(dbname string) (*gorm.DB, error) {
 			return nil, err
 		}
 		// 连接池的空闲数大小
-		db.SetMaxIdleConns(viper.C.GetInt(dbname + ".dbIdleconns_max"))
+		db.SetMaxIdleConns(viper.C.GetInt(dbname + ".MaxIdleConns"))
 		// 最大打开连接数
-		db.SetMaxOpenConns(viper.C.GetInt(dbname + ".dbOpenconns_max"))
+		db.SetMaxOpenConns(viper.C.GetInt(dbname + ".MaxOpenConns"))
 		return orm, nil
 	default:
 		return nil, fmt.Errorf("not support sql driver [%s]", dbType)

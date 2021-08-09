@@ -44,12 +44,12 @@ var configJson gjson.Result
 func creatService(c *cli.Context) error {
 	config := c.String("config")
 	if config == "" {
-		return cli.NewExitError("config not found", 86)
+		return cli.Exit("config not found", 86)
 	}
 	template.ParseToml(config)
 	name := configJson.Get("service.name").String()
 	if name == "" {
-		return cli.NewExitError("service name  not found", 86)
+		return cli.Exit("service name  not found", 86)
 	}
 	root := "."
 

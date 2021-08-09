@@ -44,17 +44,17 @@ func New() *HttpClient {
 }
 
 func (h *HttpClient) SetTrace(header interface{}) *HttpClient {
-	trace := SetHeader(header)
+	trace := utils.SetHeader(header)
 
-	h.Request.SetHeader(X_REQUEST_ID, trace.Http_Header.Get(X_REQUEST_ID))
-	h.Request.SetHeader(X_B3_TRACEID, trace.Http_Header.Get(X_B3_TRACEID))
-	h.Request.SetHeader(X_B3_SPANID, trace.Http_Header.Get(X_B3_SPANID))
-	h.Request.SetHeader(X_B3_PARENTSPANID, trace.Http_Header.Get(X_B3_PARENTSPANID))
-	h.Request.SetHeader(X_B3_SAMPLED, trace.Http_Header.Get(X_B3_SAMPLED))
-	h.Request.SetHeader(X_B3_FLAGS, trace.Http_Header.Get(X_B3_FLAGS))
-	h.Request.SetHeader(B3, trace.Http_Header.Get(B3))
-	h.Request.SetHeader(X_OT_SPAN_CONTEXT, trace.Http_Header.Get(X_OT_SPAN_CONTEXT))
+	h.Request.SetHeader(utils.XRequestId, trace.HttpHeader.Get(utils.XRequestId))
+	h.Request.SetHeader(utils.XB3TraceId, trace.HttpHeader.Get(utils.XB3TraceId))
+	h.Request.SetHeader(utils.XB3SpanId, trace.HttpHeader.Get(utils.XB3SpanId))
+	h.Request.SetHeader(utils.XB3ParentSpanId, trace.HttpHeader.Get(utils.XB3ParentSpanId))
+	h.Request.SetHeader(utils.XB3Sampled, trace.HttpHeader.Get(utils.XB3Sampled))
+	h.Request.SetHeader(utils.XB3Flags, trace.HttpHeader.Get(utils.XB3Flags))
+	h.Request.SetHeader(utils.B3, trace.HttpHeader.Get(utils.B3))
+	h.Request.SetHeader(utils.XOtSpanContext, trace.HttpHeader.Get(utils.XOtSpanContext))
 
-	h.Request.Header = trace.Http_Header
+	h.Request.Header = trace.HttpHeader
 	return h
 }

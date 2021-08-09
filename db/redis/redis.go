@@ -68,7 +68,10 @@ func (c *Client) NewOrUpdateRedis(dbName string) error {
 	c.redisMaps.Store(dbName, rc)
 
 	if v != nil {
-		v.(*redis.Client).Close()
+		err := v.(*redis.Client).Close()
+		if err != nil {
+			return err
+		}
 	}
 	return nil
 }
@@ -86,10 +89,7 @@ func (c *Client) Close() {
 		glog.WarnF("close db %s", dbName)
 		c.redisMaps.Delete(dbName)
 		err := rc.(*redis.Client).Close()
-		if err != nil {
-			return false
-		}
-		return true
+		return err == nil
 	})
 }
 

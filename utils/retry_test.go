@@ -2,11 +2,10 @@ package utils
 
 import (
 	"fmt"
+	"log"
 	"sync/atomic"
 	"testing"
 	"time"
-
-	"github.com/sunmi-OS/gocore/v2/glog"
 )
 
 func TestRetry(t *testing.T) {
@@ -20,6 +19,6 @@ func TestRetry(t *testing.T) {
 		return nil
 	}, 5, 2*time.Second)
 	if err != nil {
-		glog.Error(err)
+		log.Println(err)
 	}
 }

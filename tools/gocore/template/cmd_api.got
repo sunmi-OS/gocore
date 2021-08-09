@@ -33,6 +33,9 @@ func RunApi(c *cli.Context) error {
 	// 如何确定哪些需要加载
 	initConf()
 	initDB()
+	g := gin.New()
+    g.Use(gin.Logger())
+    g.Use(gin.Recovery())
 	e := web.InitEcho(&web.Config{
 		Port: viper.C.GetString("network.ApiServicePort"),
 	})

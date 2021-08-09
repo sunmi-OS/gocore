@@ -56,6 +56,9 @@ func Parse(group, dataId, localConfig string, confPtr interface{}) (err error) {
 	}
 	// 获取config信息
 	config, err := c.GetConfig(vo.ConfigParam{DataId: dataId, Group: group})
+	if err != nil {
+		return err
+	}
 	_, err = toml.Decode(config, confPtr)
 	if err != nil {
 		return err
