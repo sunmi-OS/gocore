@@ -1,6 +1,8 @@
 package nacos
 
 import (
+	"io/ioutil"
+
 	"github.com/nacos-group/nacos-sdk-go/clients/config_client"
 	"github.com/nacos-group/nacos-sdk-go/vo"
 )
@@ -8,6 +10,22 @@ import (
 type LocalNacos struct {
 	configs string
 	config_client.IConfigClient
+}
+
+// SetLocalConfigFile 注入本地配置 指定目录
+func SetLocalConfigFile(filePath string) {
+	bytes, err := ioutil.ReadFile(filePath)
+	if err != nil {
+		panic(err)
+	}
+	SetLocalConfig(string(bytes))
+}
+
+// SetLocalConfig 注入本地配置
+func SetLocalConfig(configs string) {
+	localNacos := NewLocalNacos(configs)
+	nacosHarder.icc = localNacos
+	nacosHarder.local = true
 }
 
 func NewLocalNacos(configs string) config_client.IConfigClient {

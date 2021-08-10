@@ -1,7 +1,6 @@
 package nacos
 
 import (
-	"io/ioutil"
 	"os"
 
 	"github.com/nacos-group/nacos-sdk-go/clients"
@@ -12,74 +11,62 @@ import (
 
 type nacos struct {
 	icc   config_client.IConfigClient
+	vt    *ViperToml
 	local bool
-	vt    ViperToml
 }
+
+const (
+	LogDebug = "debug"
+	LogWarn  = "warn"
+	LogError = "error"
+	LogInfo  = "info"
+
+	_NamespaceId     = "NAMESPACE_ID"
+	_Endpoint        = "ENDPOINT"
+	_AccessKey       = "ACCESS_KEY"
+	_SecretKey       = "SECRET_KEY"
+	_RegionId        = "REGION_ID"
+	_DefaultRegionId = "cn-hangzhou"
+)
 
 var nacosHarder = &nacos{
-	vt: ViperToml{
+	vt: &ViperToml{
 		callbackList: make(map[string]func(namespace, group, dataId, data string)),
-		callbackRun:  false,
 	},
-}
-
-// SetLocalConfigFile 注入本地配置
-func SetLocalConfigFile(filePath string) {
-	bytes, err := ioutil.ReadFile(filePath)
-	if err != nil {
-		panic(err)
-	}
-	SetLocalConfig(string(bytes))
-}
-
-// SetLocalConfig 注入本地配置
-func SetLocalConfig(configs string) {
-	localNacos := NewLocalNacos(configs)
-	nacosHarder.icc = localNacos
-	nacosHarder.local = true
-}
-
-// NewNacos 注入Nacos配置文件
-func NewNacos(ccConfig constant.ClientConfig, csConfigs ...constant.ServerConfig) error {
-	defaultClientConfig(&ccConfig)
-	configClient, err := clients.CreateConfigClient(map[string]interface{}{
-		"serverConfigs": csConfigs,
-		"clientConfig":  ccConfig,
-	})
-	if err != nil {
-		return err
-	}
-	nacosHarder.icc = configClient
-	return nil
 }
 
 // NewAcmEnv 注入ACM配置文件
 func NewAcmEnv() {
-	Endpoint := os.Getenv("ENDPOINT")
-	NamespaceId := os.Getenv("NAMESPACE_ID")
-	AccessKey := os.Getenv("ACCESS_KEY")
-	SecretKey := os.Getenv("SECRET_KEY")
-
-	if Endpoint == "" || NamespaceId == "" || AccessKey == "" || SecretKey == "" {
+	namespaceId := os.Getenv(_NamespaceId)
+	endpoint := os.Getenv(_Endpoint)
+	accessKey := os.Getenv(_AccessKey)
+	secretKey := os.Getenv(_SecretKey)
+	regionID := os.Getenv(_RegionId)
+	if endpoint == "" || namespaceId == "" || accessKey == "" || secretKey == "" {
 		panic("The configuration file cannot be empty.")
 	}
-	err := NewAcmConfig(&constant.ClientConfig{
-		Endpoint:    Endpoint,
-		NamespaceId: NamespaceId,
-		AccessKey:   AccessKey,
-		SecretKey:   SecretKey,
+	if regionID == "" {
+		regionID = _DefaultRegionId
+	}
+	err := NewNacos(&constant.ClientConfig{
+		Endpoint:    endpoint,
+		NamespaceId: namespaceId,
+		AccessKey:   accessKey,
+		SecretKey:   secretKey,
+		RegionId:    regionID,
+		LogLevel:    LogError,
 	})
 	if err != nil {
 		panic(err)
 	}
 }
 
-// NewAcmConfig 注入ACM配置文件
-func NewAcmConfig(ccConfig *constant.ClientConfig) error {
+// NewNacos 注入Nacos配置文件
+func NewNacos(ccConfig *constant.ClientConfig, scConfigs ...constant.ServerConfig) error {
 	defaultClientConfig(ccConfig)
 	configClient, err := clients.NewConfigClient(vo.NacosClientParam{
 		ClientConfig:  ccConfig,
-		ServerConfigs: nil,
+		ServerConfigs: scConfigs,
 	})
 	if err != nil {
 		return err
@@ -116,11 +103,11 @@ func GetConfig(group string, dataIds string) string {
 }
 
 // CallBackFunc 参数更新回调方法
-func CallBackFunc(group, dataId string, callbark func(namespace, group, dataId, data string)) error {
+func CallBackFunc(group, dataId string, callback func(namespace, group, dataId, data string)) error {
 	err := nacosHarder.icc.ListenConfig(vo.ConfigParam{
 		DataId:   dataId,
 		Group:    group,
-		OnChange: callbark,
+		OnChange: callback,
 	})
 	if err != nil {
 		return err
