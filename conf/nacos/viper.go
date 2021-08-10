@@ -90,7 +90,7 @@ func (vt *ViperToml) SetDataIds(group string, dataIds ...string) {
 	for _, v := range dataIds {
 		vt.callbackList[group+v] = func(namespace, group, dataId, data string) {
 			vt.NacosToViper()
-			glog.Error(errors.New(namespace + "\r\n" + group + "\r\n" + dataId + "\r\n" + data + "\r\n Update Config"))
+			glog.Warn(errors.New(namespace + "\r\n" + group + "\r\n" + dataId + "\r\n" + data + "\r\n Update Config"))
 		}
 	}
 }

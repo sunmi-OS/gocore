@@ -10,7 +10,10 @@ import (
 // MD5 加密字符串
 func MD5(plainText string) string {
 	h := md5.New()
-	h.Write([]byte(plainText))
+	_, err := h.Write([]byte(plainText))
+	if err != nil {
+		return ""
+	}
 	return hex.EncodeToString(h.Sum(nil))
 }
 

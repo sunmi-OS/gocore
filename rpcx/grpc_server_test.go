@@ -4,10 +4,6 @@ import (
 	"testing"
 )
 
-const (
-	MaxMessageSize = 1024 * 1024 * 64 // 64MB
-)
-
 func TestNewGrpcServer(t *testing.T) {
 	//addr := ""
 	//xlog.Info("Grpc Server:", addr)
