@@ -52,14 +52,11 @@ func NewOrUpdateDB(dbname string) error {
 		orm *gorm.DB
 		err error
 	)
-
 	if _Gorm == nil {
 		_Gorm = &Client{defaultDbName: defaultName}
 	}
-
 	// second: load gorm client
 	oldGorm, _ := _Gorm.gormMaps.Load(dbname)
-
 	// first: open new gorm client
 	err = utils.Retry(func() error {
 		orm, err = openORM(dbname)
@@ -69,7 +66,6 @@ func NewOrUpdateDB(dbname string) error {
 		}
 		return nil
 	}, 5, 3*time.Second)
-
 	// 如果NEW异常直接panic如果是Update返回error
 	if err != nil {
 		if oldGorm == nil {
@@ -77,11 +73,9 @@ func NewOrUpdateDB(dbname string) error {
 		}
 		return err
 	}
-
 	// third: delete old gorm client and store the new gorm client
 	_Gorm.gormMaps.Delete(dbname)
 	_Gorm.gormMaps.Store(dbname, orm)
-
 	// fourth: if old client is not nil, delete and close connection
 	if oldGorm != nil {
 		db, _ := oldGorm.(*gorm.DB).DB()
@@ -99,7 +93,7 @@ func NewOrUpdateDB(dbname string) error {
 // 目前仅支持 不传 或者仅传一个 dbname
 func GetORM(dbname ...string) *gorm.DB {
 	name := _Gorm.defaultDbName
-	if len(dbname) == 1 {
+	if len(dbname) > 1 {
 		name = dbname[0]
 	}
 	v, ok := _Gorm.gormMaps.Load(name)
