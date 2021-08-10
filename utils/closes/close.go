@@ -1,4 +1,4 @@
-package close
+package closes
 
 import (
 	"fmt"
@@ -18,6 +18,13 @@ type (
 )
 
 var closeHandler closes
+
+const (
+	MQPriority     = 100
+	GormPriority   = 500
+	RedisPriority  = 500
+	AliLogPriority = 2000
+)
 
 func (c closes) Len() int           { return len(c) }
 func (c closes) Less(i, j int) bool { return c[i].Priority < c[j].Priority }

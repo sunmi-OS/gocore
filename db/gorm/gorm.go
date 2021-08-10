@@ -7,6 +7,8 @@ import (
 	"sync"
 	"time"
 
+	"github.com/sunmi-OS/gocore/v2/utils/closes"
+
 	"github.com/sunmi-OS/gocore/v2/conf/viper"
 	"github.com/sunmi-OS/gocore/v2/glog"
 	"github.com/sunmi-OS/gocore/v2/utils"
@@ -21,6 +23,7 @@ type Client struct {
 }
 
 var _Gorm *Client
+var closeOnce sync.Once
 
 // 初始化Gorm
 func NewDB(dbname string) (g *Client) {
@@ -28,6 +31,13 @@ func NewDB(dbname string) (g *Client) {
 	if err != nil {
 		return nil
 	}
+	closeOnce.Do(func() {
+		closes.AddShutdown(closes.ModuleClose{
+			Name:     "Gorm Close",
+			Priority: closes.GormPriority,
+			Func:     Close,
+		})
+	})
 	return _Gorm
 }
 

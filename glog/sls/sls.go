@@ -5,6 +5,8 @@ import (
 	"os"
 	"time"
 
+	"github.com/sunmi-OS/gocore/v2/utils/closes"
+
 	sls "github.com/aliyun/aliyun-log-go-sdk"
 	"github.com/aliyun/aliyun-log-go-sdk/producer"
 	"github.com/sunmi-OS/gocore/v2/conf/viper"
@@ -50,6 +52,13 @@ func InitLog(configName, LogStore string) {
 
 	logMsg := producer.GenerateLog(uint32(time.Now().Unix()), map[string]string{"content": "log-start"})
 	err = LogClient.Log.SendLog(LogClient.Project, LogClient.LogStore, "start", LogClient.HostName, logMsg)
+
+	closes.AddShutdown(closes.ModuleClose{
+		Name:     "AliLog Close",
+		Priority: closes.AliLogPriority,
+		Func:     Close,
+	})
+
 	if err != nil {
 		panic(err)
 	}

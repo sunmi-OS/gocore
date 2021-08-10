@@ -5,25 +5,31 @@ import (
 	"strings"
 	"sync"
 
+	"github.com/sunmi-OS/gocore/v2/utils/closes"
+
 	"github.com/go-redis/redis/v8"
 	"github.com/sunmi-OS/gocore/v2/conf/viper"
 	"github.com/sunmi-OS/gocore/v2/glog"
 	"github.com/sunmi-OS/gocore/v2/utils/hash"
 )
 
-type Client struct {
-	redisMaps sync.Map
-}
+var Map sync.Map
+var closeOnce sync.Once
 
 // NewRedis new Redis Client
-func NewRedis(dbName string) (c *Client) {
-	c = new(Client)
+func NewRedis(dbName string) {
 	rc, err := newRedis(dbName)
 	if err != nil {
 		panic(err)
 	}
-	c.redisMaps.Store(dbName, rc)
-	return c
+	Map.Store(dbName, rc)
+	closeOnce.Do(func() {
+		closes.AddShutdown(closes.ModuleClose{
+			Name:     "Redis Close",
+			Priority: closes.RedisPriority,
+			Func:     Close,
+		})
+	})
 }
 
 func newRedis(db string) (rc *redis.Client, err error) {
@@ -57,15 +63,15 @@ func newRedis(db string) (rc *redis.Client, err error) {
 }
 
 // NewOrUpdateRedis 新建或更新redis客户端
-func (c *Client) NewOrUpdateRedis(dbName string) error {
+func NewOrUpdateRedis(dbName string) error {
 	rc, err := newRedis(dbName)
 	if err != nil {
 		return err
 	}
 
-	v, _ := c.redisMaps.Load(dbName)
-	c.redisMaps.Delete(dbName)
-	c.redisMaps.Store(dbName, rc)
+	v, _ := Map.Load(dbName)
+	Map.Delete(dbName)
+	Map.Store(dbName, rc)
 
 	if v != nil {
 		err := v.(*redis.Client).Close()
@@ -77,17 +83,17 @@ func (c *Client) NewOrUpdateRedis(dbName string) error {
 }
 
 // GetRedis 获取 RedisClient
-func (c *Client) GetRedis(dbName string) *redis.Client {
-	if v, ok := c.redisMaps.Load(dbName); ok {
+func GetRedis(dbName string) *redis.Client {
+	if v, ok := Map.Load(dbName); ok {
 		return v.(*redis.Client)
 	}
 	return nil
 }
 
-func (c *Client) Close() {
-	c.redisMaps.Range(func(dbName, rc interface{}) bool {
+func Close() {
+	Map.Range(func(dbName, rc interface{}) bool {
 		glog.WarnF("close db %s", dbName)
-		c.redisMaps.Delete(dbName)
+		Map.Delete(dbName)
 		err := rc.(*redis.Client).Close()
 		return err == nil
 	})

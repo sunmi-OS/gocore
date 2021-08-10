@@ -3,6 +3,10 @@ package aliyunmq
 import (
 	"sync"
 
+	"github.com/sunmi-OS/gocore/v2/glog"
+
+	"github.com/sunmi-OS/gocore/v2/utils/closes"
+
 	"github.com/apache/rocketmq-client-go/v2"
 	"github.com/apache/rocketmq-client-go/v2/primitive"
 	"github.com/apache/rocketmq-client-go/v2/producer"
@@ -39,6 +43,18 @@ func NewProducer(configName string, option ...producer.Option) rocketmq.Producer
 	}
 
 	ProducerPool.LoadOrStore(configName, conn)
+	closes.AddShutdown(closes.ModuleClose{
+		Name:     "RocketMQ Producer Close",
+		Priority: closes.MQPriority,
+		Func: func() {
+			err := conn.Shutdown()
+			if err != nil {
+				glog.Error(err)
+				return
+			}
+		},
+	})
+
 	return conn
 }
 
