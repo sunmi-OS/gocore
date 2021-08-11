@@ -6,6 +6,10 @@ import (
 	"time"
 )
 
+const (
+	ReleaseEnv = "onl"
+)
+
 // GetDate 返回当前时间
 func GetDate() string {
 	timestamp := time.Now().Unix()
@@ -20,4 +24,8 @@ func GetRunTime() string {
 		fmt.Println("No RUN_TIME Can't start")
 	}
 	return RunTime
+}
+
+func IsRelease() bool {
+	return GetRunTime() == ReleaseEnv
 }

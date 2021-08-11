@@ -1,7 +1,10 @@
 package api
 
 import (
+	"errors"
 	"net/http"
+
+	"github.com/go-playground/validator/v10"
 
 	"github.com/sunmi-OS/gocore/v2/utils"
 
@@ -16,6 +19,16 @@ type Context struct {
 	C context.Context
 	R Response
 	T *utils.TraceHeader
+}
+
+var (
+	Validator      *validator.Validate
+	ErrorBind      = errors.New("Missing required parameters")
+	ErrorValidator = errors.New("Parameter verification incident")
+)
+
+func init() {
+	Validator = validator.New()
 }
 
 // NewContext 初始化上下文包含context.Context
@@ -45,4 +58,22 @@ func (c *Context) Error(err error) {
 	c.R.Code = ecode.Transform(err)
 	c.R.Msg = err.Error()
 	c.JSON(http.StatusOK, c.R)
+}
+
+func (c *Context) BindValidator(obj interface{}) error {
+	err := c.Bind(obj)
+	if err != nil {
+		if utils.IsRelease() {
+			return ErrorBind
+		}
+		return err
+	}
+	err = Validator.Struct(obj)
+	if err != nil {
+		if utils.IsRelease() {
+			return ErrorValidator
+		}
+		return err
+	}
+	return nil
 }
