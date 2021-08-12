@@ -61,7 +61,7 @@ func (c *Context) Error(err error) {
 }
 
 func (c *Context) BindValidator(obj interface{}) error {
-	err := c.Bind(obj)
+	err := c.ShouldBind(obj)
 	if err != nil {
 		if utils.IsRelease() {
 			return ErrorBind
