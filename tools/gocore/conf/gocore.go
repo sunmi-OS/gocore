@@ -43,6 +43,7 @@ type Param struct {
 	Type     string
 	Title    string
 	Params   []Param
+	Validate string
 }
 
 type CronJob struct {
@@ -62,8 +63,8 @@ type Config struct {
 }
 
 type Nacos struct {
-	Env         bool
-	EmailConfig bool
+	Env            bool
+	RocketMQConfig bool
 }
 
 type Mysql struct {
@@ -99,11 +100,11 @@ func GetGocoreConfig() *GoCore {
 		},
 		Config: Config{
 			CNacos: Nacos{
-				EmailConfig: false,
+				RocketMQConfig: false,
 			},
 			CMysql: []Mysql{
 				{
-					Name: "default",
+					Name: "app",
 					Models: []Model{
 						{
 							Name: "user",
@@ -111,12 +112,12 @@ func GetGocoreConfig() *GoCore {
 							Fields: []Field{
 								{
 									Name:     "Id",
-									GormRule: "primary_key;type:BIGINT AUTO_INCREMENT",
+									GormRule: "primary_key;type:int(11) AUTO_INCREMENT",
 									Index:    false,
 								},
 								{
 									Name:     "Name",
-									GormRule: "type:varchar(55) NOT NULL;default:'';comment:'用户名'",
+									GormRule: "type:varchar(55) NOT NULL;default:'';uniqueIndex;comment:'用户名'",
 									Index:    false,
 								},
 							},
@@ -154,43 +155,22 @@ func GetGocoreConfig() *GoCore {
 									Type:     "int",
 									Title:    "用户ID",
 									Params:   nil,
+									Validate: "required,min=1,max=100000",
 								},
 							},
 							ResponseParams: []Param{
 								{
-									Name:     "code",
+									Name:     "uid",
 									Required: true,
 									Type:     "int",
-									Title:    "响应名",
+									Title:    "用户ID",
 									Params:   nil,
 								},
 								{
-									Name:     "data",
-									Required: true,
-									Type:     "object",
-									Title:    "返回内容",
-									Params: []Param{
-										{
-											Name:     "uid",
-											Required: true,
-											Type:     "int",
-											Title:    "用户ID",
-											Params:   nil,
-										},
-										{
-											Name:     "name",
-											Required: true,
-											Type:     "string",
-											Title:    "用户名",
-											Params:   nil,
-										},
-									},
-								},
-								{
-									Name:     "msg",
+									Name:     "name",
 									Required: true,
 									Type:     "string",
-									Title:    "返回异常文本描述",
+									Title:    "用户名",
 									Params:   nil,
 								},
 							},
