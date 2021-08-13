@@ -93,7 +93,7 @@ func NewOrUpdateDB(dbname string) error {
 // 目前仅支持 不传 或者仅传一个 dbname
 func GetORM(dbname ...string) *gorm.DB {
 	name := _Gorm.defaultDbName
-	if len(dbname) > 1 {
+	if len(dbname) != 0 {
 		name = dbname[0]
 	}
 	v, ok := _Gorm.gormMaps.Load(name)
