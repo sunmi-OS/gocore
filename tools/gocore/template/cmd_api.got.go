@@ -14,19 +14,22 @@ func FromCmdApi(projectName string, buffer *bytes.Buffer) {
 package cmd
 
 import (
-	"log"
-	"os"
-	"os/signal"
-	"syscall"
-
+	_ "`)
+	hero.EscapeHTML(projectName, buffer)
+	buffer.WriteString(`/app/errcode"
 	"`)
 	hero.EscapeHTML(projectName, buffer)
 	buffer.WriteString(`/app/routes"
 
-	"github.com/sunmi-OS/gocore/v2/utils/aliyunlog"
-	"github.com/sunmi-OS/gocore/v2/db/gorm"
+
+
+	"github.com/gin-contrib/gzip"
+
+	"github.com/fvbock/endless"
+	"github.com/gin-gonic/gin"
 	"github.com/sunmi-OS/gocore/v2/conf/viper"
-	"github.com/sunmi-OS/gocore/v2/api/resutful/web"
+	"github.com/sunmi-OS/gocore/v2/utils"
+	"github.com/sunmi-OS/gocore/v2/utils/closes"
 	"github.com/urfave/cli/v2"
 )
 
@@ -44,33 +47,28 @@ var Api = &cli.Command{
 }
 
 func RunApi(c *cli.Context) error {
-	// 如何确定哪些需要加载
+	defer closes.Close()
+
 	initConf()
 	initDB()
-	e := web.InitEcho(&web.Config{
-		Port: viper.C.GetString("network.ApiServicePort"),
-	})
-	routes.Router(e.Echo)
 
-	e.Start()
-	// 监听信号
-	ch := make(chan os.Signal, 1)
-	signal.Notify(ch, syscall.SIGHUP, syscall.SIGQUIT, syscall.SIGTERM, syscall.SIGINT)
-	for {
-		si := <-ch
-		switch si {
-		case syscall.SIGQUIT, syscall.SIGTERM, syscall.SIGINT:
-			log.Fatalf("get a signal %s, stop the process", si.String())
-			// Close相关服务
-			e.Echo.Close()
-			gorm.Close()
-			aliyunlog.Close()
-			return nil
-		case syscall.SIGHUP:
-		default:
-			return nil
-		}
+	if utils.IsRelease() {
+		gin.SetMode(gin.ReleaseMode)
 	}
-}`)
+
+	r := gin.New()
+	r.Use(gin.Logger())
+	r.Use(gin.Recovery())
+	r.Use(gzip.Gzip(gzip.DefaultCompression))
+	// 注册路由
+	routes.Routes(r)
+
+	err := endless.ListenAndServe(viper.C.GetString("network.ApiServiceHost")+":"+viper.C.GetString("network.ApiServicePort"), r)
+	if err != nil {
+		return err
+	}
+	return nil
+}
+`)
 
 }

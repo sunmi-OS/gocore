@@ -14,7 +14,6 @@ func FromMain(projectName string, cmdList []string, buffer *bytes.Buffer) {
 package main
 
 import (
-	"log"
 	"os"
 
 	"`)
@@ -22,34 +21,35 @@ import (
 	buffer.WriteString(`/cmd"
 	"`)
 	hero.EscapeHTML(projectName, buffer)
-	buffer.WriteString(`/common"
+	buffer.WriteString(`/conf"
 
-    "github.com/urfave/cli/v2"
-	gocoreLog "github.com/sunmi-OS/gocore/v2/utils/log"
+	"github.com/sunmi-OS/gocore/v2/glog"
+	"github.com/sunmi-OS/gocore/v2/utils"
+	"github.com/urfave/cli/v2"
 )
 
 func main() {
+    // 打印Banner
+	utils.PrintBanner(conf.ProjectName`)
+	buffer.WriteString(`)
 	// 配置cli参数
 	app := cli.NewApp()
-	app.Name = common.PROJECT_NAME
-	app.Usage = common.PROJECT_NAME
-	app.Version = common.PROJECT_VERSION
+	app.Name = conf.ProjectName
+	app.Usage = conf.ProjectName
+	app.Version = conf.ProjectVersion
 
 	// 指定命令运行的函数
 	app.Commands = []*cli.Command{
         `)
 	for _, cmd := range cmdList {
-		hero.EscapeHTML(cmd, buffer)
+		buffer.WriteString(cmd)
 	}
 	buffer.WriteString(`
 	}
 
-	//初始化log
-	gocoreLog.InitLogger(common.PROJECT_NAME)
-
 	// 启动cli
 	if err := app.Run(os.Args); err != nil {
-		log.Fatalf("Failed to start application: %v", err)
+		glog.ErrorF("Failed to start application: %v", err)
 	}
 }`)
 

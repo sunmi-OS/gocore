@@ -5,46 +5,36 @@ package template
 
 import (
 	"bytes"
-
-	"github.com/shiyanhui/hero"
 )
 
 func FromModelTable(dbName, tableStruct, tableName, fields string, buffer *bytes.Buffer) {
 	buffer.WriteString(`
 package `)
-	hero.EscapeHTML(dbName, buffer)
+	buffer.WriteString(dbName)
 	buffer.WriteString(`
 
 import (
-	gormx "github.com/jinzhu/gorm"
+	gormx "gorm.io/gorm"
 )
 
 var `)
-	hero.EscapeHTML(tableStruct, buffer)
+	buffer.WriteString(tableStruct)
 	buffer.WriteString(`Handler = &`)
-	hero.EscapeHTML(tableStruct, buffer)
+	buffer.WriteString(tableStruct)
 	buffer.WriteString(`{}
 
 type `)
-	hero.EscapeHTML(tableStruct, buffer)
+	buffer.WriteString(tableStruct)
 	buffer.WriteString(` struct {
 	`)
-	hero.EscapeHTML(fields, buffer)
+	buffer.WriteString(fields)
 	buffer.WriteString(`
 }
 
 func (* `)
-	hero.EscapeHTML(tableStruct, buffer)
-	buffer.WriteString(`) TableName() string {
-	return "`)
-	hero.EscapeHTML(tableName, buffer)
-	buffer.WriteString(`
-}
-
-func (* `)
-	hero.EscapeHTML(tableStruct, buffer)
+	buffer.WriteString(tableStruct)
 	buffer.WriteString(`) Insert(db *gormx.DB, data * `)
-	hero.EscapeHTML(tableStruct, buffer)
+	buffer.WriteString(tableStruct)
 	buffer.WriteString(`) error {
 	if db == nil {
 		db = Orm()
@@ -53,58 +43,57 @@ func (* `)
 }
 
 func (* `)
-	hero.EscapeHTML(tableStruct, buffer)
+	buffer.WriteString(tableStruct)
 	buffer.WriteString(`) GetOne(where string, args ...interface{}) (* `)
-	hero.EscapeHTML(tableStruct, buffer)
+	buffer.WriteString(tableStruct)
 	buffer.WriteString(`, error) {
 	var obj `)
-	hero.EscapeHTML(tableStruct, buffer)
+	buffer.WriteString(tableStruct)
 	buffer.WriteString(`
 	return &obj, Orm().Where(where, args...).Take(&obj).Error
 }
 
 func (* `)
-	hero.EscapeHTML(tableStruct, buffer)
+	buffer.WriteString(tableStruct)
 	buffer.WriteString(`) GetList(where string, args ...interface{}) ([]* `)
-	hero.EscapeHTML(tableStruct, buffer)
+	buffer.WriteString(tableStruct)
 	buffer.WriteString(`, error) {
 	var list []*`)
-	hero.EscapeHTML(tableStruct, buffer)
+	buffer.WriteString(tableStruct)
 	buffer.WriteString(`
 	db := Orm()
 	return list, db.Where(where, args...).Find(&list).Error
 }
 
 func (* `)
-	hero.EscapeHTML(tableStruct, buffer)
-	buffer.WriteString(`) GetCount(where string, args ...interface{}) (int, error) {
-	var number int
+	buffer.WriteString(tableStruct)
+	buffer.WriteString(`) GetCount(where string, args ...interface{}) (int64, error) {
+	var number int64
 	err := Orm().Model(&`)
-	hero.EscapeHTML(tableStruct, buffer)
+	buffer.WriteString(tableStruct)
 	buffer.WriteString(`{}).Where(where, args...).Count(&number).Error
 	return number, err
 }
 
 func (* `)
-	hero.EscapeHTML(tableStruct, buffer)
+	buffer.WriteString(tableStruct)
 	buffer.WriteString(`) Delete(db *gormx.DB, where string, args ...interface{}) error {
 	if db == nil {
 		db = Orm()
 	}
 	return db.Where(where, args...).Delete(&`)
-	hero.EscapeHTML(dbName, buffer)
-	buffer.WriteString(`` + "`" + ` + tableStruct + ` + "`" + `{}).Error
+	buffer.WriteString(tableStruct + `{}).Error
 }
 
 func (*`)
-	hero.EscapeHTML(tableStruct, buffer)
+	buffer.WriteString(tableStruct)
 	buffer.WriteString(`) Update(db *gormx.DB, data map[string]interface{}, where string, args ...interface{}) (int64, error) {
 	if db == nil {
 		db = Orm()
 	}
 	db = db.Model(&`)
-	hero.EscapeHTML(tableStruct, buffer)
-	buffer.WriteString(`{}).Where(where, args...).Update(data)
+	buffer.WriteString(tableStruct)
+	buffer.WriteString(`{}).Where(where, args...).Updates(data)
 	return db.RowsAffected, db.Error
 }`)
 

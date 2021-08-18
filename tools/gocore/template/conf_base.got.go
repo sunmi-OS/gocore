@@ -9,10 +9,10 @@ func FromConfBase(buffer *bytes.Buffer) {
 	buffer.WriteString(`
 package conf
 
-var baseConfig = ` + "`" + `
+var BaseConfig = ` + "`" + `
 [network]
-ApiServiceHost = ""
-ApiServicePort = "80"
+ApiServiceHost = "` + goCoreConfig.HttpApis.Host + `"
+ApiServicePort = "` + goCoreConfig.HttpApis.Port + `"
 ` + "`" + ``)
 
 }

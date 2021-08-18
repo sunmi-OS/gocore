@@ -7,7 +7,7 @@ import (
 	"strings"
 
 	"github.com/pelletier/go-toml"
-	"github.com/spf13/cast"
+	"github.com/sunmi-OS/gocore/v2/tools/gocore/conf"
 	"github.com/sunmi-OS/gocore/v2/tools/gocore/def"
 	"github.com/sunmi-OS/gocore/v2/tools/gocore/file"
 	"github.com/tidwall/gjson"
@@ -21,10 +21,12 @@ var localConf string
 
 var configJson gjson.Result
 
+var goCoreConfig *conf.GoCore
+
 // hero -source=./tools/gocore/template -extensions=.got,.md,.docker
 
-func CreateCode(root, name string, j gjson.Result) {
-	configJson = j
+func CreateCode(root, name string, config *conf.GoCore) {
+	goCoreConfig = config
 	mkdir(root)
 	createConf(root, name)
 	createMain(root, name)
@@ -136,13 +138,13 @@ func CreateField(field string) string {
 
 func createMain(root, name string) {
 	var cmdList []string
-	if configJson.Get("api").Exists() {
+	if goCoreConfig.HttpApiEnable {
 		cmdList = append(cmdList, "cmd.Api,")
 	}
-	if configJson.Get("cronjob").Exists() {
-		cmdList = append(cmdList, "cmd.Cronjob,")
+	if goCoreConfig.CronJobEnable {
+		cmdList = append(cmdList, "cmd.Cron,")
 	}
-	if configJson.Get("job").Exists() {
+	if goCoreConfig.JobEnable {
 		cmdList = append(cmdList, "cmd.Job,")
 	}
 	FromMain(name, cmdList, fileBuffer)
@@ -155,8 +157,8 @@ func createConf(root string, name string) {
 	FromConfBase(fileBuffer)
 	fileWriter(fileBuffer, root+"/conf/base.go")
 
-	FromConfNacos(fileBuffer)
-	fileWriter(fileBuffer, root+"/conf/nacos.go")
+	// FromConfNacos(fileBuffer)
+	// fileWriter(fileBuffer, root+"/conf/nacos.go")
 
 	FromConfConst(name, fileBuffer)
 	fileWriter(fileBuffer, root+"/conf/const.go")
@@ -178,7 +180,7 @@ func createErrCode(root string) {
 }
 
 func createModel(root, name string) {
-	mysqlMap := configJson.Get("mysql").Map()
+	mysqlMap := goCoreConfig.Config.CMysql
 	if len(mysqlMap) == 0 {
 		return
 	}
@@ -188,44 +190,45 @@ func createModel(root, name string) {
 		dbUpdate = "var err error"
 	}
 	initDb := ""
-	for k1, v1 := range mysqlMap {
-		pkgs += `"` + name + `/app/model/` + k1 + `"` + "\n"
-		dir := root + "/app/model/" + k1
+	for _, v1 := range mysqlMap {
+		pkgs += `"` + name + `/app/model/` + v1.Name + `"` + "\n"
+		dir := root + "/app/model/" + v1.Name
 		dbUpdate += `
-				err = gorm.NewOrUpdateDB("db` + strings.Title(k1) + `")
+				err = orm.NewOrUpdateDB(conf.DB` + strings.Title(v1.Name) + `)
 				if err != nil {
-					log.Fatalln(err)
+					glog.Error(err)
 				}
 		`
-		initDb += `gorm.NewDB("db` + strings.Title(k1) + `")
-			` + k1 + `.CreateTable()` + "\n"
+		initDb += `orm.NewDB(conf.DB` + strings.Title(v1.Name) + `)
+			` + v1.Name + `.SchemaMigrate()` + "\n"
 		err := file.MkdirIfNotExist(dir)
 		if err != nil {
 			panic(err)
 		}
-		tables := v1.Map()
+		tables := v1.Models
 		tableStr := ""
 
-		for k2, v2 := range tables {
-			tableName := cast.ToString(k2)
-			tableStruct := file.UnderlineToCamel(tableName)
-			tableStr += "Orm().Set(\"gorm:table_options\", \"CHARSET=utf8mb4 comment='中台订单记录表' AUTO_INCREMENT=1;\").AutoMigrate(&" + tableStruct + "{})\n"
+		for _, v2 := range tables {
+			tableName := v2.Name
+			tableStruct := file.UnderlineToCamel(v2.Name)
+			tableStr += "Orm().Set(\"gorm:table_options\", \"CHARSET=utf8mb4 comment='' AUTO_INCREMENT=1;\").AutoMigrate(&" + tableStruct + "{})\n"
 			tabelPath := dir + "/" + tableName + ".go"
 			fieldStr := ""
-			fields := v2.Array()
+			fields := v2.Fields
 			for _, v3 := range fields {
-				fieldStr += CreateField(v3.String())
+				fieldStr += CreateField(v3.GormRule)
 			}
-			FromModelTable(k1, tableStruct, tableName, fieldStr, fileBuffer)
+			FromModelTable(v1.Name, tableStruct, tableName, fieldStr, fileBuffer)
 			fileWriter(fileBuffer, tabelPath)
 
 		}
 
-		FromModel(k1, tableStr, fileBuffer)
+		FromModel(v1.Name, tableStr, fileBuffer)
 		fileWriter(fileBuffer, dir+"/mysql_client.go")
 
-		FromConfMysql(k1, fileBuffer)
-		localConf += fileBuffer.String()
+		buff := new(bytes.Buffer)
+		FromConfMysql(v1.Name, buff)
+		localConf += buff.String()
 		FromConfLocal(localConf, fileBuffer)
 		fileWriter(fileBuffer, root+"/conf/local.go")
 
@@ -235,8 +238,8 @@ func createModel(root, name string) {
 }
 
 func createCronjob(name, root string) {
-	jobs := configJson.Get("cronjob").Map()
-	if len(jobs) == 0 {
+	jobs := goCoreConfig.CronJobs
+	if !goCoreConfig.CronJobEnable {
 		return
 	}
 
@@ -246,21 +249,21 @@ func createCronjob(name, root string) {
 		panic(err)
 	}
 	cronjobs := ""
-	for k1, v1 := range jobs {
-		jobPath := dir + file.CamelToUnderline(k1) + ".go"
-		FromCronJob(k1, fileBuffer)
+	for _, v1 := range jobs {
+		jobPath := dir + file.CamelToUnderline(v1.Job.Name) + ".go"
+		FromCronJob(v1.Job.Name, fileBuffer)
 		fileWriter(fileBuffer, jobPath)
-		cronjobs += "_ = cronObj.AddFunc(\"" + v1.String() + "\", cronjob." + k1 + ")\n"
+		cronjobs += "_,_ = cronJob.AddFunc(\"" + v1.Spec + "\", cronjob." + v1.Job.Name + ")\n"
 	}
 
 	FromCmdCronJob(name, cronjobs, fileBuffer)
-	fileWriter(fileBuffer, root+"/cmd/cronjob.go")
+	fileWriter(fileBuffer, root+"/cmd/cron.go")
 }
 
 func createJob(name, root string) {
 
-	jobs := configJson.Get("job").Map()
-	if len(jobs) == 0 {
+	jobs := goCoreConfig.Jobs
+	if len(jobs) == 0 || !goCoreConfig.JobEnable {
 		return
 	}
 
@@ -271,20 +274,21 @@ func createJob(name, root string) {
 	}
 	jobCmd := ""
 	jobFunctions := ""
-	for k1, v1 := range jobs {
-		FromCronJob(k1, fileBuffer)
-		fileWriter(fileBuffer, dir+file.CamelToUnderline(k1)+".go")
+	for _, v1 := range jobs {
+		FromJob(v1.Name, fileBuffer)
+		fileWriter(fileBuffer, dir+file.CamelToUnderline(v1.Name)+".go")
 		jobCmd += `		{
-			Name:   "` + v1.String() + `",
-			Usage:  "开启运行api服务",
-			Action: ` + k1 + `,
+			Name:   "` + v1.Name + `",
+			Usage:  "` + v1.Usage + `",
+			Action: ` + v1.Name + `,
 		},`
 		jobFunctions += `
-func ` + k1 + `(c *cli.Context) error {
+func ` + v1.Name + `(c *cli.Context) error {
+	defer closes.Close()
 	// 初始化必要内容
 	initConf()
 	initDB()
-	job.` + k1 + `()
+	job.` + v1.Name + `()
 	return nil
 }
 `
@@ -295,12 +299,10 @@ func ` + k1 + `(c *cli.Context) error {
 }
 
 func createApi(root, name string) {
-
-	apiMap := configJson.Get("api").Map()
-	if len(apiMap) == 0 {
+	if !goCoreConfig.HttpApiEnable {
 		return
 	}
-	handlersList := apiMap["handlers"].Array()
+	handlersList := goCoreConfig.HttpApis.Apis
 	if len(handlersList) == 0 {
 		return
 	}
@@ -321,14 +323,14 @@ func createApi(root, name string) {
 	}
 
 	routesStr := ""
-	pkg := ""
+
 	handlers := make([]string, 0)
 
 	for _, v1 := range handlersList {
-		handlerName := v1.Get("name").String()
-		routesStr += "\n" + handlerName + ":=e.Group(\"" + v1.Get("prefix").String() + "\")\n"
+		handlerName := v1.ModuleName
+		routesStr += "\n" + handlerName + ":=router.Group(\"" + v1.Prefix + "\")\n"
 		apiPath := apiDir + file.CamelToUnderline(handlerName) + ".go"
-		routes := v1.Get("routes").Array()
+		routes := v1.Handle
 		if len(routes) == 0 {
 			continue
 		}
@@ -338,37 +340,30 @@ func createApi(root, name string) {
 		functions := make([]string, 0)
 		reqs := make([]string, 0)
 		for _, v2 := range routes {
-			routesObj := strings.Split(v2.String(), ";")
-			if len(routesObj) < 3 {
-				continue
-			}
-			pkg = "\"" + name + "/app/api\"\n"
-			route := routesObj[0]
-			req := strings.Title(routesObj[1])
+
+			route := v2.Name
+			req := strings.Title(v2.Name)
 			reqs = append(reqs, req)
 			function := strings.Title(route)
 			functions = append(functions, function)
-			routesStr += handlerName + ".POST(\"/" + handlerName + "/" + route + "\",api." + handler + "Handler." + function + ")\n"
+			routesStr += handlerName + "." + v2.Method + "(\"/" + file.CamelToUnderline(route) + "\",api." + function + ")\n"
 			FromDomain(name, handler, function, req, fileBuffer)
 			fileWriter(fileBuffer, domainDir+file.CamelToUnderline(route)+".go")
 
 		}
 
 		FromApi(name, handler, functions, reqs, fileBuffer)
-		writer.Add(fileBuffer.Bytes())
+		// writer.Add(fileBuffer.Bytes())
 		fileWriter(fileBuffer, apiPath)
 	}
-
-	FromApiRoutes(pkg, routesStr, fileBuffer)
+	FromApiRoutes(name, routesStr, fileBuffer)
 	fileWriter(fileBuffer, root+"/app/routes/routers.go")
 
-	FromDomainHandler(handlers, fileBuffer)
-	fileWriter(fileBuffer, domainDir+"handler.go")
 }
 
 func createDef(root string) {
-	structs := configJson.Get("api.structs").Map()
-	if len(structs) == 0 {
+	modules := goCoreConfig.HttpApis.Apis
+	if len(modules) == 0 {
 		return
 	}
 	dir := root + "/app/def"
@@ -378,17 +373,27 @@ func createDef(root string) {
 	}
 
 	writer.Add([]byte(`package def` + "\n"))
-	for k1, v1 := range structs {
-		params := ""
-		fields := v1.Array()
-		for _, v2 := range fields {
-			field := strings.Split(v2.String(), ";")
-			if len(field) < 3 {
-				continue
+	for _, v1 := range modules {
+		for _, v2 := range v1.Handle {
+
+			params := ""
+			fields := v2.RequestParams
+			for _, v3 := range fields {
+				// field := strings.Split(v2.String(), ";")
+				// if len(field) < 3 {
+				// 	continue
+				// }
+				params += file.UnderlineToCamel(v3.Name) + " " + v3.Type + " `json:\"" + v3.Name + "\" validate:\"" + v3.Validate + "\"`\n"
 			}
-			params += file.UnderlineToCamel(field[0]) + " " + field[1] + " `json:\"" + field[0] + "\"`\n"
+			FromApiRequest(v2.Name+"Request", params, fileBuffer)
+
+			params = ""
+			fields = v2.ResponseParams
+			for _, v3 := range fields {
+				params += file.UnderlineToCamel(v3.Name) + " " + v3.Type + " `json:\"" + v3.Name + "\" " + v3.Validate + "`\n"
+			}
+			FromApiRequest(v2.Name+"Response", params, fileBuffer)
 		}
-		FromApiRequest(k1, params, fileBuffer)
 	}
 	fileWriter(fileBuffer, dir+"/def.go")
 }

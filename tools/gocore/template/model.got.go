@@ -18,27 +18,27 @@ package `)
 
 import (
 	"fmt"
-
-	"github.com/jinzhu/gorm"
-	g "github.com/sunmi-OS/gocore/v2/db/gorm"
+"` + goCoreConfig.Service.ProjectName + `/conf"
+	"gorm.io/gorm"
+	g "github.com/sunmi-OS/gocore/v2/db/orm"
 	"github.com/sunmi-OS/gocore/v2/utils"
 )
 
 func Orm() *gorm.DB {
-	db := g.GetORM("db`)
+	db := g.GetORM(conf.DB`)
 	hero.EscapeHTML(strings.Title(dbName), buffer)
-	buffer.WriteString(`")
+	buffer.WriteString(`)
 	if utils.GetRunTime() != "onl" {
 		db = db.Debug()
 	}
 	return db
 }
 
-func CreateTable() {
-	fmt.Println("开始初始化` + "`" + ` + dbName + ` + "`" + `数据库")
+func SchemaMigrate() {
+	fmt.Println("开始初始化` + dbName + `数据库")
 	//自动建表，数据迁移
     `)
-	hero.EscapeHTML(tabels, buffer)
+	buffer.WriteString(tabels)
 	buffer.WriteString(`
 	fmt.Println("数据库` + "`" + ` + dbName + ` + "`" + `初始化完成")
 }`)

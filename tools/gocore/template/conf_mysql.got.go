@@ -18,7 +18,7 @@ func FromConfMysql(dbName string, buffer *bytes.Buffer) {
 dbHost = ""           #数据库连接地址
 dbName = "`)
 	hero.EscapeHTML(dbName, buffer)
-	buffer.WriteString(`` + "`" + ` + dbName + ` + "`" + `"           #数据库名称
+	buffer.WriteString(`"           #数据库名称
 dbUser = ""           #数据库用户名
 dbPasswd = ""         #数据库密码
 dbPort = "3306"       #数据库端口号

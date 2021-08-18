@@ -9,11 +9,14 @@ func FromErrCode(buffer *bytes.Buffer) {
 	buffer.WriteString(`
 package errcode
 
-const (
-	Code0001 = iota + 500 //系统异常（参考）
-	Code0002              //参数错误（参考）
+import (
+	"github.com/sunmi-OS/gocore/v2/api/ecode"
+	"gorm.io/gorm"
 )
 
-const CodeSuccess int64 = 1 //返回成功`)
+var (
+	ErrorNotFound = ecode.New(50001, gorm.ErrRecordNotFound)
+)
+`)
 
 }
