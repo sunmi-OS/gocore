@@ -22,6 +22,7 @@ import (
 
 	"github.com/sunmi-OS/gocore/v2/conf/nacos"
 	"github.com/sunmi-OS/gocore/v2/db/orm"
+	"github.com/sunmi-OS/gocore/v2/db/redis"
 	"github.com/sunmi-OS/gocore/v2/glog"
 	"github.com/sunmi-OS/gocore/v2/utils"
 )
@@ -48,12 +49,8 @@ func initConf() {
 func initDB() {
 	`)
 	buffer.WriteString(initDb)
+
 	buffer.WriteString(`
-		closes.AddShutdown(closes.ModuleClose{
-		Name:     "mysql",
-		Priority: 0,
-		Func:     orm.Close,
-	})
 }`)
 
 }

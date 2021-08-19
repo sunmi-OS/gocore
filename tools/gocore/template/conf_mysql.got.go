@@ -24,6 +24,8 @@ dbPasswd = ""         #数据库密码
 dbPort = "3306"       #数据库端口号
 dbOpenconns_max = 20  #最大连接数
 dbIdleconns_max = 20  #最大空闲连接
-dbType = "mysql"`)
+dbType = "mysql"
+
+`)
 
 }

@@ -26,6 +26,12 @@ const (
 		`)
 	}
 
+	for _, v1 := range goCoreConfig.Config.CRedis {
+		for k2 := range v1.Index {
+			buffer.WriteString(strings.Title(v1.Name) + strings.Title(k2) + "Redis = \"" + v1.Name + "." + k2 + "\"\n")
+		}
+	}
+
 	buffer.WriteString(`)`)
 
 }

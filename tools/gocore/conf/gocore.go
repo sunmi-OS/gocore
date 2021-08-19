@@ -101,7 +101,7 @@ func GetGocoreConfig() *GoCore {
 		},
 		Config: Config{
 			CNacos: Nacos{
-				RocketMQConfig: false,
+				RocketMQConfig: true,
 			},
 			CMysql: []Mysql{
 				{
@@ -126,7 +126,7 @@ func GetGocoreConfig() *GoCore {
 				{
 					Name: "default",
 					Index: map[string]int{
-						"default": 0,
+						"db0": 0,
 					},
 				},
 			},

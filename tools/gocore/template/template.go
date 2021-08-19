@@ -7,6 +7,7 @@ import (
 	"strings"
 
 	"github.com/pelletier/go-toml"
+	"github.com/spf13/cast"
 	"github.com/sunmi-OS/gocore/v2/tools/gocore/conf"
 	"github.com/sunmi-OS/gocore/v2/tools/gocore/def"
 	"github.com/sunmi-OS/gocore/v2/tools/gocore/file"
@@ -229,10 +230,42 @@ func createModel(root, name string) {
 		buff := new(bytes.Buffer)
 		FromConfMysql(v1.Name, buff)
 		localConf += buff.String()
+
+		initRedis := ""
+		for _, v1 := range goCoreConfig.Config.CRedis {
+			for k2 := range v1.Index {
+				localConf += `
+[` + v1.Name + `]
+host = "" 
+port = ":6379"
+auth = ""
+prefix = ""
+encryption = 0
+
+[` + v1.Name + `.redisDB]
+` + k2 + ` = ` + cast.ToString(v1.Index[k2])
+				initRedis += "redis.NewRedis(conf." + strings.Title(v1.Name) + strings.Title(k2) + "Redis)\n"
+				dbUpdate += `		
+				err = redis.NewOrUpdateRedis(conf.` + strings.Title(v1.Name) + strings.Title(k2) + `Redis)
+				if err != nil {
+					glog.Error(err)
+				}
+		`
+			}
+		}
+		if goCoreConfig.Config.CNacos.RocketMQConfig == true {
+			localConf += `
+[aliyunmq]
+NameServer = ""
+AccessKey = ""
+SecretKey = ""
+Namespace = ""
+
+			`
+		}
 		FromConfLocal(localConf, fileBuffer)
 		fileWriter(fileBuffer, root+"/conf/local.go")
-
-		FromCmdInit(name, pkgs, dbUpdate, initDb, fileBuffer)
+		FromCmdInit(name, pkgs, dbUpdate, initDb+initRedis, fileBuffer)
 		fileWriter(fileBuffer, root+"/cmd/init.go")
 	}
 }
