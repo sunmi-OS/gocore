@@ -20,9 +20,18 @@ type Service struct {
 // HttpApi 路由拼接规则 /public/v1/项目名/模块名/接口名
 // TODO: swagger.json导入
 type HttpApi struct {
-	Host string // 地址
-	Port string // 端口
-	Apis []Api
+	Host   string // 地址
+	Port   string // 端口
+	Apis   []Api
+	Models map[string][]Models
+}
+
+type Models struct {
+	Name     string
+	Required bool
+	Type     string
+	Title    string
+	Validate string
 }
 
 type Api struct {
@@ -141,6 +150,16 @@ func GetGocoreConfig() *GoCore {
 		HttpApis: HttpApi{
 			Host: "0.0.0.0",
 			Port: "80",
+			Models: map[string][]Models{
+				"User": {
+					{
+						Name:     "Name",
+						Required: false,
+						Type:     "string",
+						Title:    "用户名",
+					},
+				},
+			},
 			Apis: []Api{
 				{
 					ModuleName: "User",
@@ -154,7 +173,6 @@ func GetGocoreConfig() *GoCore {
 									Required: true,
 									Type:     "int",
 									Title:    "用户ID",
-									Params:   nil,
 									Validate: "required,min=1,max=100000",
 								},
 							},
@@ -164,14 +182,12 @@ func GetGocoreConfig() *GoCore {
 									Required: true,
 									Type:     "int",
 									Title:    "用户ID",
-									Params:   nil,
 								},
 								{
 									Name:     "name",
 									Required: true,
 									Type:     "string",
 									Title:    "用户名",
-									Params:   nil,
 								},
 							},
 						},
