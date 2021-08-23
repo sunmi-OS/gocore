@@ -37,7 +37,17 @@ func initConf() {
 
 	vt := nacos.GetViper()
 	vt.SetBaseConfig(conf.BaseConfig)
-	vt.SetDataIds(conf.ProjectName, "mysql", "redis", "rocketmq", "config")
+	vt.SetDataIds(conf.ProjectName`)
+	if len(goCoreConfig.Config.CMysql) > 0 {
+		buffer.WriteString(`, "mysql"`)
+	}
+	if len(goCoreConfig.Config.CRedis) > 0 {
+		buffer.WriteString(`, "redis"`)
+	}
+	if goCoreConfig.Config.CNacos.RocketMQConfig {
+		buffer.WriteString(`, "rocketmq"`)
+	}
+	buffer.WriteString(`)
  	vt.SetCallBackFunc(conf.ProjectName, "mysql", func(namespace, group, dataId, data string) {`)
 	buffer.WriteString(dbUpdate)
 	buffer.WriteString(`
