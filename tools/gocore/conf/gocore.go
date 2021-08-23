@@ -23,15 +23,7 @@ type HttpApi struct {
 	Host   string // 地址
 	Port   string // 端口
 	Apis   []Api
-	Models map[string][]Models
-}
-
-type Models struct {
-	Name     string
-	Required bool
-	Type     string
-	Title    string
-	Validate string
+	Params map[string][]Param
 }
 
 type Api struct {
@@ -146,13 +138,19 @@ func GetGocoreConfig() *GoCore {
 		HttpApis: HttpApi{
 			Host: "0.0.0.0",
 			Port: "80",
-			Models: map[string][]Models{
+			Params: map[string][]Param{
 				"User": {
 					{
-						Name:     "Name",
-						Required: false,
+						Name:     "uid",
+						Required: true,
+						Type:     "int",
+						Comment:  "用户ID",
+					},
+					{
+						Name:     "name",
+						Required: true,
 						Type:     "string",
-						Title:    "用户名",
+						Comment:  "用户名",
 					},
 				},
 			},
@@ -175,16 +173,16 @@ func GetGocoreConfig() *GoCore {
 							},
 							ResponseParams: []Param{
 								{
-									Name:     "uid",
+									Name:     "detail",
 									Required: true,
-									Type:     "int",
-									Comment:  "用户ID",
+									Type:     "*User",
+									Comment:  "用户详情",
 								},
 								{
-									Name:     "name",
+									Name:     "list",
 									Required: true,
-									Type:     "string",
-									Comment:  "用户名",
+									Type:     "[]*User",
+									Comment:  "用户列表",
 								},
 							},
 						},

@@ -255,6 +255,7 @@ encryption = 0
 		}
 		if goCoreConfig.Config.CNacos.RocketMQConfig == true {
 			localConf += `
+			
 [aliyunmq]
 NameServer = ""
 AccessKey = ""
@@ -427,6 +428,14 @@ func createDef(root string) {
 			}
 			FromApiRequest(v2.Name+"Response", params, fileBuffer)
 		}
+	}
+	for k1, v1 := range goCoreConfig.HttpApis.Params {
+		params := ""
+		fields := v1
+		for _, v2 := range fields {
+			params += file.UnderlineToCamel(v2.Name) + " " + v2.Type + " `json:\"" + v2.Name + "\" " + v2.Validate + "`\n"
+		}
+		FromApiRequest(k1, params, fileBuffer)
 	}
 	fileWriter(fileBuffer, dir+"/def.go")
 }
