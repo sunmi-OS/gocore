@@ -4,9 +4,8 @@ import (
 	"log"
 	"os/exec"
 
+	"github.com/sunmi-OS/gocore/v2/tools/gocore/conf"
 	"github.com/sunmi-OS/gocore/v2/tools/gocore/template"
-
-	"github.com/tidwall/gjson"
 
 	"github.com/urfave/cli/v2"
 )
@@ -39,37 +38,18 @@ var CreatService = &cli.Command{
 	},
 }
 
-var configJson gjson.Result
-
 func creatService(c *cli.Context) error {
-	config := c.String("config")
-	if config == "" {
-		return cli.Exit("config not found", 86)
-	}
-	template.ParseToml(config)
-	name := configJson.Get("service.name").String()
-	if name == "" {
-		return cli.Exit("service name  not found", 86)
-	}
+	config := conf.GetGocoreConfig()
 	root := "."
-
-	template.CreateCode(root, name, configJson)
-
-	cmd := exec.Command("go", "mod", "init", name)
+	template.CreateCode(root, config.Service.ProjectName, config)
+	cmd := exec.Command("go", "mod", "init", config.Service.ProjectName)
 	cmd.Dir = root
 	_, err := cmd.Output()
 	if err != nil {
 		panic(err)
 	}
 
-	cmd = exec.Command("goimports", "-l", "-w", "./...")
-	cmd.Dir = root
-	_, err = cmd.Output()
-	if err != nil {
-		panic(err)
-	}
-
-	cmd = exec.Command("go", "test", "./...")
+	cmd = exec.Command("go", "mod", "tidy")
 	cmd.Dir = root
 	_, err = cmd.Output()
 	if err != nil {
@@ -83,6 +63,6 @@ func creatService(c *cli.Context) error {
 		panic(err)
 	}
 
-	log.Println(name + " 已生成...")
+	log.Println(config.Service.ProjectName + " 已生成...")
 	return nil
 }

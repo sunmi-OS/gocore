@@ -5,6 +5,7 @@ package template
 
 import (
 	"bytes"
+	"strings"
 
 	"github.com/shiyanhui/hero"
 )
@@ -14,10 +15,23 @@ func FromConfConst(projectName string, buffer *bytes.Buffer) {
 package conf
 
 const (
-	PROJECT_NAME      = "`)
+	ProjectName    = "`)
 	hero.EscapeHTML(projectName, buffer)
 	buffer.WriteString(`"
-	PROJECT_VERSION   = "v1.0.0"
-)`)
+	ProjectVersion = "v1.0.0"
+`)
+	mysqlMap := goCoreConfig.Config.CMysql
+	for _, v1 := range mysqlMap {
+		buffer.WriteString(`DB` + strings.Title(v1.Name) + `          = "` + `db` + strings.Title(v1.Name) + `"
+		`)
+	}
+
+	for _, v1 := range goCoreConfig.Config.CRedis {
+		for k2 := range v1.Index {
+			buffer.WriteString(strings.Title(v1.Name) + strings.Title(k2) + "Redis = \"" + v1.Name + "." + k2 + "\"\n")
+		}
+	}
+
+	buffer.WriteString(`)`)
 
 }

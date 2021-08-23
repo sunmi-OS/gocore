@@ -5,8 +5,6 @@ package template
 
 import (
 	"bytes"
-
-	"github.com/shiyanhui/hero"
 )
 
 func FromCmdInit(name, pkgs, dbUpdate, initDb string, buffer *bytes.Buffer) {
@@ -14,44 +12,44 @@ func FromCmdInit(name, pkgs, dbUpdate, initDb string, buffer *bytes.Buffer) {
 package cmd
 
 import (
-	"log"
 
 	`)
-	hero.EscapeHTML(pkgs, buffer)
+	buffer.WriteString(pkgs)
 	buffer.WriteString(`
 	"`)
-	hero.EscapeHTML(name, buffer)
+	buffer.WriteString(name)
 	buffer.WriteString(`/conf"
 
-	"github.com/sunmi-OS/gocore/v2/db/gorm"
 	"github.com/sunmi-OS/gocore/v2/conf/nacos"
+	"github.com/sunmi-OS/gocore/v2/db/orm"
+	"github.com/sunmi-OS/gocore/v2/db/redis"
+	"github.com/sunmi-OS/gocore/v2/glog"
 	"github.com/sunmi-OS/gocore/v2/utils"
 )
 
-// initConf 初始化配置服务 （内部方法）
 func initConf() {
-	// 初始化Nacos配置
-	conf.InitNacos(utils.GetRunTime())
-	// 注册需要的配置
-	nacos.ViperTomlHarder.SetDataIds("`)
-	hero.EscapeHTML(name, buffer)
-	buffer.WriteString(`", "mysql", "config", "redis")
-	// 注册配置更新回调
-	nacos.ViperTomlHarder.SetCallBackFunc("`)
-	hero.EscapeHTML(name, buffer)
-	buffer.WriteString(`", "mysql", func(namespace, group, dataId, data string) {
-		`)
-	hero.EscapeHTML(dbUpdate, buffer)
+	switch utils.GetRunTime() {
+	case "local":
+		nacos.SetLocalConfig(conf.LocalConfig)
+	default:
+		nacos.NewAcmEnv()
+	}
+
+	vt := nacos.GetViper()
+	vt.SetBaseConfig(conf.BaseConfig)
+	vt.SetDataIds(conf.ProjectName, "mysql", "redis", "rocketmq", "config")
+ 	vt.SetCallBackFunc(conf.ProjectName, "mysql", func(namespace, group, dataId, data string) {`)
+	buffer.WriteString(dbUpdate)
 	buffer.WriteString(`
 	})
-	// 把Nacos的配置注册到Viper
-	nacos.ViperTomlHarder.NacosToViper()
+	vt.NacosToViper()
 }
 
 // initDB 初始化DB服务 （内部方法）
 func initDB() {
 	`)
-	hero.EscapeHTML(initDb, buffer)
+	buffer.WriteString(initDb)
+
 	buffer.WriteString(`
 }`)
 

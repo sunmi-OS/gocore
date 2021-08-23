@@ -17,11 +17,10 @@ import (
 	"`)
 	hero.EscapeHTML(name, buffer)
 	buffer.WriteString(`/app/job"
-	"`)
-	hero.EscapeHTML(name, buffer)
-	buffer.WriteString(`/common"
-
-	"github.com/urfave/cli/2"
+	`)
+	buffer.WriteString(`
+	"github.com/urfave/cli/v2"
+	"github.com/sunmi-OS/gocore/v2/utils/closes"
 )
 
 // Job cmd 任务相关
@@ -31,7 +30,7 @@ var Job = &cli.Command{
 	Usage:   "job",
 	Subcommands: []*cli.Command{
 		`)
-	hero.EscapeHTML(jobCmd, buffer)
+	buffer.WriteString(jobCmd)
 	buffer.WriteString(`
 	},
 }

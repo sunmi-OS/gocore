@@ -35,6 +35,7 @@ type Models struct {
 }
 
 type Api struct {
+	Prefix     string //路由前缀
 	ModuleName string // 模块名
 	Handle     []Handle
 }
@@ -50,8 +51,7 @@ type Param struct {
 	Name     string
 	Required bool
 	Type     string
-	Title    string
-	Params   []Param
+	Comment  string
 	Validate string
 }
 
@@ -104,12 +104,12 @@ type Redis struct {
 func GetGocoreConfig() *GoCore {
 	return &GoCore{
 		Service: Service{
-			ProjectName: "app",
+			ProjectName: "demo",
 			Version:     "v1.0.0",
 		},
 		Config: Config{
 			CNacos: Nacos{
-				RocketMQConfig: false,
+				RocketMQConfig: true,
 			},
 			CMysql: []Mysql{
 				{
@@ -120,14 +120,10 @@ func GetGocoreConfig() *GoCore {
 							Auto: false,
 							Fields: []Field{
 								{
-									Name:     "Id",
-									GormRule: "primary_key;type:int(11) AUTO_INCREMENT",
-									Index:    false,
+									GormRule: "column:id;primary_key;type:int AUTO_INCREMENT",
 								},
 								{
-									Name:     "Name",
-									GormRule: "type:varchar(55) NOT NULL;default:'';uniqueIndex;comment:'用户名'",
-									Index:    false,
+									GormRule: "column:name;type:varchar(100) NOT NULL;default:'';comment:'用户名';unique_index",
 								},
 							},
 						},
@@ -138,15 +134,15 @@ func GetGocoreConfig() *GoCore {
 				{
 					Name: "default",
 					Index: map[string]int{
-						"default": 0,
+						"db0": 0,
 					},
 				},
 			},
 		},
 		NacosEnable:   true,
 		HttpApiEnable: true,
-		CronJobEnable: false,
-		JobEnable:     false,
+		CronJobEnable: true,
+		JobEnable:     true,
 		HttpApis: HttpApi{
 			Host: "0.0.0.0",
 			Port: "80",
@@ -162,7 +158,8 @@ func GetGocoreConfig() *GoCore {
 			},
 			Apis: []Api{
 				{
-					ModuleName: "User",
+					ModuleName: "user",
+					Prefix:     "/app/user",
 					Handle: []Handle{
 						{
 							Name:   "GetUserInfo",
@@ -172,7 +169,7 @@ func GetGocoreConfig() *GoCore {
 									Name:     "uid",
 									Required: true,
 									Type:     "int",
-									Title:    "用户ID",
+									Comment:  "用户ID",
 									Validate: "required,min=1,max=100000",
 								},
 							},
@@ -181,13 +178,13 @@ func GetGocoreConfig() *GoCore {
 									Name:     "uid",
 									Required: true,
 									Type:     "int",
-									Title:    "用户ID",
+									Comment:  "用户ID",
 								},
 								{
 									Name:     "name",
 									Required: true,
 									Type:     "string",
-									Title:    "用户名",
+									Comment:  "用户名",
 								},
 							},
 						},

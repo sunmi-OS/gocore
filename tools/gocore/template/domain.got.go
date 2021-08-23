@@ -14,6 +14,7 @@ func FromDomain(name, handler, function, req string, buffer *bytes.Buffer) {
 package domain
 
 import (
+	"github.com/sunmi-OS/gocore/v2/api"
 	"`)
 	hero.EscapeHTML(name, buffer)
 	buffer.WriteString(`/app/def"
@@ -22,14 +23,12 @@ import (
 // `)
 	hero.EscapeHTML(function, buffer)
 	buffer.WriteString(`
-func (this *`)
-	hero.EscapeHTML(handler, buffer)
-	buffer.WriteString(`) `)
+func `)
 	hero.EscapeHTML(function, buffer)
 	buffer.WriteString(`(req * def.`)
-	hero.EscapeHTML(req, buffer)
-	buffer.WriteString(`) (map[string]interface{}, int, error) {
-	return map[string]interface{}{}, 1, nil
+	hero.EscapeHTML(function, buffer)
+	buffer.WriteString(`Request,ctx api.Context) (*def.` + function + `Response, error) {
+	return &def.` + function + `Response{}, nil
 }`)
 
 }

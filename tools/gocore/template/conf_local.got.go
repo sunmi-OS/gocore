@@ -5,16 +5,14 @@ package template
 
 import (
 	"bytes"
-
-	"github.com/shiyanhui/hero"
 )
 
 func FromConfLocal(content string, buffer *bytes.Buffer) {
 	buffer.WriteString(`
 package conf
 
-var localConfig = ` + "`" + ``)
-	hero.EscapeHTML(content, buffer)
+var LocalConfig = ` + "`" + ``)
+	buffer.WriteString(content)
 	buffer.WriteString(`` + "`" + ``)
 
 }

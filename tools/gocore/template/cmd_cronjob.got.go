@@ -5,8 +5,6 @@ package template
 
 import (
 	"bytes"
-
-	"github.com/shiyanhui/hero"
 )
 
 func FromCmdCronJob(name, cronjobs string, buffer *bytes.Buffer) {
@@ -14,67 +12,52 @@ func FromCmdCronJob(name, cronjobs string, buffer *bytes.Buffer) {
 package cmd
 
 import (
-	"log"
 	"`)
-	hero.EscapeHTML(name, buffer)
+	buffer.WriteString(name)
 	buffer.WriteString(`/app/cronjob"
-	"os"
-	"os/signal"
-	"syscall"
 
-	"github.com/robfig/cron"
-	"github.com/sunmi-OS/gocore/v2/utils/aliyunlog"
-	"github.com/sunmi-OS/gocore/v2/db/gorm"
+	"github.com/robfig/cron/v3"
+	"github.com/sunmi-OS/gocore/v2/utils/closes"
 	"github.com/urfave/cli/v2"
 )
 
-// Cronjob cmd 定时任务相关
-var Cronjob = &cli.Command{
+var Cron = &cli.Command{
 	Name:    "cron",
 	Aliases: []string{"c"},
-	Usage:   "run",
+	Usage:   "cron start",
 	Subcommands: []*cli.Command{
 		{
 			Name:   "start",
 			Usage:  "开启运行api服务",
-			Action: runCron,
+			Action: CronTable,
 		},
 	},
 }
 
-// runCron 运行定时任务
-func runCron(c *cli.Context) error {
-
+func CronTable(c *cli.Context) error {
+	defer closes.Close()
 	// 初始化必要内容
 	initConf()
 	initDB()
-	cronObj := cron.New()
+
+	cronJob := cron.New()
 
     `)
-	hero.EscapeHTML(cronjobs, buffer)
+	buffer.WriteString(cronjobs)
 	buffer.WriteString(`
 
-	// 同步阻塞运行
-	cronObj.Start()
+	cronJob.Start()
 
-	// 监听信号
-	ch := make(chan os.Signal, 1)
-	signal.Notify(ch, syscall.SIGHUP, syscall.SIGQUIT, syscall.SIGTERM, syscall.SIGINT)
-	for {
-		si := <-ch
-		switch si {
-		case syscall.SIGQUIT, syscall.SIGTERM, syscall.SIGINT:
-			log.Fatalf("get a signal %s, stop the process", si.String())
-			// Close相关服务
-			cronObj.Stop()
-			gorm.Close()
-			aliyunlog.Close()
-			return nil
-		case syscall.SIGHUP:
-		default:
-			return nil
-		}
-	}
-}`)
+	closes.AddShutdown(closes.ModuleClose{
+		Name:     "CronTable",
+		Priority: 0,
+		Func: func() {
+			cronJob.Stop()
+		},
+	})
+	closes.SignalClose()
+	return nil
+}
+`)
 
 }

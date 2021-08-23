@@ -19,54 +19,35 @@ import (
 	buffer.WriteString(`/app/domain"
 	"`)
 	hero.EscapeHTML(name, buffer)
-	buffer.WriteString(`/app/errcode"
-	"`)
-	hero.EscapeHTML(name, buffer)
-	buffer.WriteString(`/pkg/parse"
-	"`)
-	hero.EscapeHTML(name, buffer)
 	buffer.WriteString(`/app/def"
 
-	"github.com/labstack/echo/v4"
-)
+	"github.com/gin-gonic/gin"
+	"github.com/sunmi-OS/gocore/v2/api"
+)`)
 
-var `)
-	hero.EscapeHTML(handler, buffer)
-	buffer.WriteString(`Handler = ` + "`" + ` + handler + ` + "`" + `{}
-type `)
-	hero.EscapeHTML(handler, buffer)
-	buffer.WriteString(` struct{}
-
-`)
 	for k1, v1 := range functions {
 		buffer.WriteString(`
-    // `)
+    func `)
 		hero.EscapeHTML(v1, buffer)
-		buffer.WriteString(`
-    func (*`)
-		hero.EscapeHTML(handler, buffer)
-		buffer.WriteString(`) `)
-		hero.EscapeHTML(v1, buffer)
-		buffer.WriteString(`(c echo.Context) error {
-        params := new(def.`)
+		buffer.WriteString(`(g *gin.Context) {
+    ctx := api.NewContext(g)
+	req := &def.`)
 		hero.EscapeHTML(req[k1], buffer)
-		buffer.WriteString(`)
-        //参数验证绑定
-        _, response, err := parse.ParseJson(c, params)
-        if err != nil {
-            return response.RetError(err, errcode.Code0002)
-        }
-        resp, code, err := domain.`)
-		hero.EscapeHTML(handler, buffer)
-		buffer.WriteString(`Handler.`)
+		buffer.WriteString(`Request{}
+		err := ctx.BindValidator(req)
+		if err != nil {
+			ctx.Error(err)
+			return
+		}
+        response, err := domain.`)
 		hero.EscapeHTML(v1, buffer)
-		buffer.WriteString(`(params)
-        if err != nil {
-            return response.RetError(err, code)
-        }
-        return response.RetSuccess(resp)
-    }
-
+		buffer.WriteString(`(req,ctx)
+		if err != nil {
+			ctx.Error(err)
+			return
+		}
+		ctx.Success(response)
+}
 `)
 	}
 
