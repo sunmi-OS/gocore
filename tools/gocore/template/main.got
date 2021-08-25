@@ -2,22 +2,24 @@
 package main
 
 import (
-	"log"
 	"os"
 
 	"<%= projectName %>/cmd"
-	"<%= projectName %>/common"
+	"<%= projectName %>/conf"
 
-    "github.com/urfave/cli/v2"
-	gocoreLog "github.com/sunmi-OS/gocore/v2/utils/log"
+	"github.com/sunmi-OS/gocore/v2/glog"
+	"github.com/sunmi-OS/gocore/v2/utils"
+	"github.com/urfave/cli/v2"
 )
 
 func main() {
+	// 打印Banner
+	utils.PrintBanner(conf.ProjectName`)
 	// 配置cli参数
 	app := cli.NewApp()
-	app.Name = common.PROJECT_NAME
-	app.Usage = common.PROJECT_NAME
-	app.Version = common.PROJECT_VERSION
+	app.Name = conf.ProjectName
+	app.Usage = conf.ProjectName
+	app.Version = conf.ProjectVersion
 
 	// 指定命令运行的函数
 	app.Commands = []*cli.Command{
@@ -26,11 +28,8 @@ func main() {
         <% } %>
 	}
 
-	//初始化log
-	gocoreLog.InitLogger(common.PROJECT_NAME)
-
 	// 启动cli
 	if err := app.Run(os.Args); err != nil {
-		log.Fatalf("Failed to start application: %v", err)
+		glog.ErrorF("Failed to start application: %v", err)
 	}
 }

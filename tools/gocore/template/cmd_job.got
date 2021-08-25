@@ -3,9 +3,8 @@ package cmd
 
 import (
 	"<%= name %>/app/job"
-	"<%= name %>/common"
-
-	"github.com/urfave/cli/2"
+	"github.com/urfave/cli/v2"
+	"github.com/sunmi-OS/gocore/v2/utils/closes"
 )
 
 // Job cmd 任务相关

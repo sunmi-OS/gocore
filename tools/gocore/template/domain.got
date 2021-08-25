@@ -3,9 +3,10 @@ package domain
 
 import (
 	"<%= name %>/app/def"
+	"github.com/sunmi-OS/gocore/v2/api"
 )
 
 // <%= function %>
-func (this *<%= handler %>) <%= function %>(req * def.<%= req %>) (map[string]interface{}, int, error) {
-	return map[string]interface{}{}, 1, nil
+func <%= function %>(req * def.<%= function %>Request,,ctx api.Context) (&def.<%= function %>Response, error) {
+	return &def.<%= function %>Response{}, nil
 }

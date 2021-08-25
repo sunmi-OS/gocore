@@ -2,17 +2,13 @@
 package <%= dbName %>
 
 import (
-	gormx "github.com/jinzhu/gorm"
+	gormx "gorm.io/gorm"
 )
 
 var <%= tableStruct %>Handler = &<%= tableStruct %>{}
 
 type <%= tableStruct %> struct {
 	<%= fields %>
-}
-
-func (* <%= tableStruct %>) TableName() string {
-	return "<%= tableName %>
 }
 
 func (* <%= tableStruct %>) Insert(db *gormx.DB, data * <%= tableStruct %>) error {
@@ -50,6 +46,6 @@ func (*<%= tableStruct %>) Update(db *gormx.DB, data map[string]interface{}, whe
 	if db == nil {
 		db = Orm()
 	}
-	db = db.Model(&<%= tableStruct %>{}).Where(where, args...).Update(data)
+	db = db.Model(&<%= tableStruct %>{}).Where(where, args...).Updates(data)
 	return db.RowsAffected, db.Error
 }

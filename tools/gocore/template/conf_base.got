@@ -3,6 +3,6 @@ package conf
 
 var baseConfig = `
 [network]
-ApiServiceHost = ""
-ApiServicePort = "80"
+ApiServiceHost = "<%=  goCoreConfig.HttpApis.Host %>"
+ApiServicePort = "<%=  goCoreConfig.HttpApis.Port %>"
 `

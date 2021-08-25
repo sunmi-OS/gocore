@@ -6,7 +6,7 @@ import (
 	"io/ioutil"
 	"strings"
 
-	"github.com/pelletier/go-toml"
+	toml "github.com/pelletier/go-toml"
 	"github.com/spf13/cast"
 	"github.com/sunmi-OS/gocore/v2/tools/gocore/conf"
 	"github.com/sunmi-OS/gocore/v2/tools/gocore/def"
@@ -240,7 +240,6 @@ host = ""
 port = ":6379"
 auth = ""
 prefix = ""
-encryption = 0
 
 [` + v1.Name + `.redisDB]
 ` + k2 + ` = ` + cast.ToString(v1.Index[k2])
