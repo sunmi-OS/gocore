@@ -3,11 +3,7 @@
 // DO NOT EDIT!
 package template
 
-import (
-	"bytes"
-
-	"github.com/shiyanhui/hero"
-)
+import "bytes"
 
 func FromApi(name, handler string, functions []string, req []string, buffer *bytes.Buffer) {
 	buffer.WriteString(`
@@ -15,10 +11,7 @@ package api
 
 import (
 	"`)
-	hero.EscapeHTML(name, buffer)
-	buffer.WriteString(`/app/domain"
-	"`)
-	hero.EscapeHTML(name, buffer)
+	buffer.WriteString(name)
 	buffer.WriteString(`/app/def"
 
 	"github.com/gin-gonic/gin"
@@ -29,25 +22,20 @@ import (
 	for k1, v1 := range functions {
 		buffer.WriteString(`
     func `)
-		hero.EscapeHTML(v1, buffer)
+		buffer.WriteString(v1)
 		buffer.WriteString(`(g *gin.Context) {
         ctx := api.NewContext(g)
         req := new(def.`)
-		hero.EscapeHTML(req[k1], buffer)
+		buffer.WriteString(req[k1])
 		buffer.WriteString(`Request)
         err := ctx.BindValidator(req)
 		if err != nil {
 			ctx.Error(err)
 			return
 		}
-        response, err := domain.`)
-		hero.EscapeHTML(v1, buffer)
-		buffer.WriteString(`(req,ctx)
-		if err != nil {
-			ctx.Error(err)
-			return
-		}
-		ctx.Success(response)
+		ctx.Success(def.`)
+		buffer.WriteString(req[k1])
+		buffer.WriteString(`Response{})
     }
 `)
 	}

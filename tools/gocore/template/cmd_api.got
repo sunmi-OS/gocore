@@ -2,8 +2,8 @@
 package cmd
 
 import (
-	"_ <%= projectName %>/app/errcode"
-	"<%= projectName %>/app/routes"
+	_ "<%== projectName %>/app/errcode"
+	"<%== projectName %>/app/routes"
 
 	"github.com/gin-contrib/gzip"
 	"github.com/fvbock/endless"

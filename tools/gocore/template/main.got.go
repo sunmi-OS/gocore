@@ -3,11 +3,7 @@
 // DO NOT EDIT!
 package template
 
-import (
-	"bytes"
-
-	"github.com/shiyanhui/hero"
-)
+import "bytes"
 
 func FromMain(projectName string, cmdList []string, buffer *bytes.Buffer) {
 	buffer.WriteString(`
@@ -17,10 +13,10 @@ import (
 	"os"
 
 	"`)
-	hero.EscapeHTML(projectName, buffer)
+	buffer.WriteString(projectName)
 	buffer.WriteString(`/cmd"
 	"`)
-	hero.EscapeHTML(projectName, buffer)
+	buffer.WriteString(projectName)
 	buffer.WriteString(`/conf"
 
 	"github.com/sunmi-OS/gocore/v2/glog"
@@ -30,7 +26,7 @@ import (
 
 func main() {
 	// 打印Banner
-	utils.PrintBanner(conf.ProjectName` + "`" + `)
+	utils.PrintBanner(conf.ProjectName)
 	// 配置cli参数
 	app := cli.NewApp()
 	app.Name = conf.ProjectName
@@ -41,7 +37,7 @@ func main() {
 	app.Commands = []*cli.Command{
         `)
 	for _, cmd := range cmdList {
-		hero.EscapeHTML(cmd, buffer)
+		buffer.WriteString(cmd)
 	}
 	buffer.WriteString(`
 	}

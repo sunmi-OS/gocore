@@ -4,8 +4,8 @@ package main
 import (
 	"os"
 
-	"<%= projectName %>/cmd"
-	"<%= projectName %>/conf"
+	"<%== projectName %>/cmd"
+	"<%== projectName %>/conf"
 
 	"github.com/sunmi-OS/gocore/v2/glog"
 	"github.com/sunmi-OS/gocore/v2/utils"
@@ -14,7 +14,7 @@ import (
 
 func main() {
 	// 打印Banner
-	utils.PrintBanner(conf.ProjectName`)
+	utils.PrintBanner(conf.ProjectName)
 	// 配置cli参数
 	app := cli.NewApp()
 	app.Name = conf.ProjectName
@@ -24,7 +24,7 @@ func main() {
 	// 指定命令运行的函数
 	app.Commands = []*cli.Command{
         <% for _, cmd := range cmdList { %>
-            <%= cmd %>
+            <%== cmd %>
         <% } %>
 	}
 

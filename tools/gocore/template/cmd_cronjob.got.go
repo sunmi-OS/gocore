@@ -3,11 +3,7 @@
 // DO NOT EDIT!
 package template
 
-import (
-	"bytes"
-
-	"github.com/shiyanhui/hero"
-)
+import "bytes"
 
 func FromCmdCronJob(name, cronjobs string, buffer *bytes.Buffer) {
 	buffer.WriteString(`
@@ -15,7 +11,7 @@ package cmd
 
 import (
 	"`)
-	hero.EscapeHTML(name, buffer)
+	buffer.WriteString(name)
 	buffer.WriteString(`/app/cronjob"
 	"github.com/robfig/cron/v3"
 	"github.com/sunmi-OS/gocore/v2/utils/closes"
@@ -44,7 +40,7 @@ func CronTable(c *cli.Context) error {
 	cronJob := cron.New()
 
     `)
-	hero.EscapeHTML(cronjobs, buffer)
+	buffer.WriteString(cronjobs)
 	buffer.WriteString(`
 
 	cronJob.Start()

@@ -3,22 +3,18 @@
 // DO NOT EDIT!
 package template
 
-import (
-	"bytes"
-
-	"github.com/shiyanhui/hero"
-)
+import "bytes"
 
 func FromCmdApi(projectName string, buffer *bytes.Buffer) {
 	buffer.WriteString(`
 package cmd
 
 import (
-	"_ `)
-	hero.EscapeHTML(projectName, buffer)
+	_ "`)
+	buffer.WriteString(projectName)
 	buffer.WriteString(`/app/errcode"
 	"`)
-	hero.EscapeHTML(projectName, buffer)
+	buffer.WriteString(projectName)
 	buffer.WriteString(`/app/routes"
 
 	"github.com/gin-contrib/gzip"

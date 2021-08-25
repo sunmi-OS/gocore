@@ -3,20 +3,16 @@
 // DO NOT EDIT!
 package template
 
-import (
-	"bytes"
-
-	"github.com/shiyanhui/hero"
-)
+import "bytes"
 
 func FromApiRequest(request, params string, buffer *bytes.Buffer) {
 	buffer.WriteString(`
 
 type `)
-	hero.EscapeHTML(request, buffer)
+	buffer.WriteString(request)
 	buffer.WriteString(` struct {
     `)
-	hero.EscapeHTML(params, buffer)
+	buffer.WriteString(params)
 	buffer.WriteString(`
 }`)
 

@@ -3,20 +3,16 @@
 // DO NOT EDIT!
 package template
 
-import (
-	"bytes"
-
-	"github.com/shiyanhui/hero"
-)
+import "bytes"
 
 func FromJob(job string, buffer *bytes.Buffer) {
 	buffer.WriteString(`
 package job
 // `)
-	hero.EscapeHTML(job, buffer)
+	buffer.WriteString(job)
 	buffer.WriteString(`
 func `)
-	hero.EscapeHTML(job, buffer)
+	buffer.WriteString(job)
 	buffer.WriteString(`() {
 }
 `)

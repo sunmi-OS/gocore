@@ -364,6 +364,8 @@ func createApi(root, name string) {
 		routesStr += "\n" + handlerName + ":=router.Group(\"" + v1.Prefix + "\")\n"
 		apiPath := apiDir + file.CamelToUnderline(handlerName) + ".go"
 		routes := v1.Handle
+		FromDomain(fileBuffer)
+		fileWriter(fileBuffer, domainDir+file.CamelToUnderline(handlerName)+".go")
 		if len(routes) == 0 {
 			continue
 		}
@@ -380,8 +382,8 @@ func createApi(root, name string) {
 			function := strings.Title(route)
 			functions = append(functions, function)
 			routesStr += handlerName + "." + v2.Method + "(\"/" + file.CamelToUnderline(route) + "\",api." + function + ")\n"
-			FromDomain(name, handler, function, req, fileBuffer)
-			fileWriter(fileBuffer, domainDir+file.CamelToUnderline(route)+".go")
+			// FromDomain(name, handler, function, req, fileBuffer)
+			// fileWriter(fileBuffer, domainDir+file.CamelToUnderline(route)+".go")
 
 		}
 

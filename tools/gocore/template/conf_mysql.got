@@ -1,7 +1,7 @@
 <%: func FromConfMysql(dbName string, buffer *bytes.Buffer) %>
-[db<%= strings.Title(dbName) %>]
+[db<%== strings.Title(dbName) %>]
 Host = ""           #数据库连接地址
-Name = "<%= dbName %>"           #数据库名称
+Name = "<%== dbName %>"           #数据库名称
 User = ""           #数据库用户名
 Passwd = ""         #数据库密码
 Port = "3306"       #数据库端口号

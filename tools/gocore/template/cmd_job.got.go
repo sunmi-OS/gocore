@@ -3,11 +3,7 @@
 // DO NOT EDIT!
 package template
 
-import (
-	"bytes"
-
-	"github.com/shiyanhui/hero"
-)
+import "bytes"
 
 func FromCmdJob(name, jobCmd, jobFunctions string, buffer *bytes.Buffer) {
 	buffer.WriteString(`
@@ -15,7 +11,7 @@ package cmd
 
 import (
 	"`)
-	hero.EscapeHTML(name, buffer)
+	buffer.WriteString(name)
 	buffer.WriteString(`/app/job"
 	"github.com/urfave/cli/v2"
 	"github.com/sunmi-OS/gocore/v2/utils/closes"
@@ -28,11 +24,11 @@ var Job = &cli.Command{
 	Usage:   "job",
 	Subcommands: []*cli.Command{
 		`)
-	hero.EscapeHTML(jobCmd, buffer)
+	buffer.WriteString(jobCmd)
 	buffer.WriteString(`
 	},
 }
 `)
-	hero.EscapeHTML(jobFunctions, buffer)
+	buffer.WriteString(jobFunctions)
 
 }

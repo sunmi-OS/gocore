@@ -6,8 +6,6 @@ package template
 import (
 	"bytes"
 	"strings"
-
-	"github.com/shiyanhui/hero"
 )
 
 func FromConfConst(projectName string, buffer *bytes.Buffer) {
@@ -16,14 +14,14 @@ package conf
 
 const (
 	ProjectName    = "`)
-	hero.EscapeHTML(projectName, buffer)
+	buffer.WriteString(projectName)
 	buffer.WriteString(`"
 	ProjectVersion = "v1.0.0"
 	`)
 	for _, v1 := range goCoreConfig.Config.CMysql {
 		buffer.WriteString(`
 		DB`)
-		strings.Title(v1.Name)
+		buffer.WriteString(strings.Title(v1.Name))
 		buffer.WriteString(` = "db`)
 		strings.Title(v1.Name)
 		buffer.WriteString(`"
@@ -31,13 +29,11 @@ const (
 	}
 	for _, v1 := range goCoreConfig.Config.CRedis {
 		for k2 := range v1.Index {
-			buffer.WriteString(`
-		DB`)
-			hero.EscapeHTML(strings.Title(v1.Name)+strings.Title(k2), buffer)
+			buffer.WriteString(strings.Title(v1.Name) + strings.Title(k2))
 			buffer.WriteString(`Redis = "`)
-			hero.EscapeHTML(v1.Name, buffer)
+			buffer.WriteString(v1.Name)
 			buffer.WriteString(`.`)
-			hero.EscapeHTML(k2, buffer)
+			buffer.WriteString(k2)
 			buffer.WriteString(`"
 	  `)
 		}

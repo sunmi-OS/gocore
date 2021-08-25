@@ -1,12 +1,2 @@
-<%: func FromDomain(name, handler, function, req  string, buffer *bytes.Buffer) %>
+<%: func FromDomain(buffer *bytes.Buffer) %>
 package domain
-
-import (
-	"<%= name %>/app/def"
-	"github.com/sunmi-OS/gocore/v2/api"
-)
-
-// <%= function %>
-func <%= function %>(req * def.<%= function %>Request,,ctx api.Context) (&def.<%= function %>Response, error) {
-	return &def.<%= function %>Response{}, nil
-}

@@ -406,7 +406,7 @@ func InitNacos(runtime string) {
 	nacos.ViperTomlHarder.SetviperBase(baseConfig)
 	switch runtime {
 	case "local":
-		nacos.AddLocalConfig(runtime, localConfig)
+		nacos.AddLocalConfig(runtime, LocalConfig)
 	default:
 		Endpoint := os.Getenv("ENDPOINT")
 		NamespaceId := os.Getenv("NAMESPACE_ID")

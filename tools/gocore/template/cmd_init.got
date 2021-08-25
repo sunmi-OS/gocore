@@ -2,8 +2,8 @@
 package cmd
 
 import (
-	<%= pkgs %>
-	"<%= name %>/conf"
+	<%== pkgs %>
+	"<%== name %>/conf"
 
 	"github.com/sunmi-OS/gocore/v2/conf/nacos"
 	"github.com/sunmi-OS/gocore/v2/db/orm"
@@ -22,15 +22,15 @@ func initConf() {
 
 	vt := nacos.GetViper()
 	vt.SetBaseConfig(conf.BaseConfig)
-	vt.SetDataIds(conf.ProjectName, "config", "mysql", "redis")
+	vt.SetDataIds(conf.ProjectName, "config" <% if len(goCoreConfig.Config.CMysql) > 0 {%>, "mysql" <% }%><% if len(goCoreConfig.Config.CRedis) > 0 {%>, "redis"<% } %><%if goCoreConfig.Config.CNacos.RocketMQConfig {%>, "rocketmq"<% } %>)
 	// 注册配置更新回调
  	vt.SetCallBackFunc(conf.ProjectName, "mysql", func(namespace, group, dataId, data string) {
-		<%= dbUpdate %>
+		<%== dbUpdate %>
 	})
 	vt.NacosToViper()
 }
 
 // initDB 初始化DB服务 （内部方法）
 func initDB() {
-	<%= initDb %>
+	<%== initDb %>
 }

@@ -11,10 +11,10 @@ import (
 // InitNacos  通过环境变量初始化配置中心，从环境变量获取连接配置中心的必要配置
 func InitNacos(runtime string) {
 	nacos.SetRunTime(runtime)
-	nacos.ViperTomlHarder.SetviperBase(baseConfig)
+	nacos.ViperTomlHarder.SetviperBase(BaseConfig)
 	switch runtime {
 	case "local":
-		nacos.AddLocalConfig(runtime, localConfig)
+		nacos.AddLocalConfig(runtime, LocalConfig)
 	default:
 		Endpoint := os.Getenv("ENDPOINT")
 		NamespaceId := os.Getenv("NAMESPACE_ID")

@@ -1,51 +1,58 @@
 <%: func FromModelTable(dbName, tableStruct, tableName, fields string, buffer *bytes.Buffer) %>
-package <%= dbName %>
+package <%== dbName %>
 
 import (
 	gormx "gorm.io/gorm"
 )
 
-var <%= tableStruct %>Handler = &<%= tableStruct %>{}
+var <%== tableStruct %>Handler = &<%== tableStruct %>{}
 
-type <%= tableStruct %> struct {
-	<%= fields %>
+type <%== tableStruct %> struct {
+	<%== fields %>
 }
 
-func (* <%= tableStruct %>) Insert(db *gormx.DB, data * <%= tableStruct %>) error {
+func (* <%== tableStruct %>) Insert(db *gormx.DB, data * <%== tableStruct %>) error {
 	if db == nil {
 		db = Orm()
 	}
 	return db.Create(data).Error
 }
 
-func (* <%= tableStruct %>) GetOne(where string, args ...interface{}) (* <%= tableStruct %>, error) {
-	var obj <%= tableStruct %>
+func (* <%== tableStruct %>) ButchInsert(db *gormx.DB, data []* <%== tableStruct %>) error {
+	if db == nil {
+		db = Orm()
+	}
+	return db.Create(&data).Error
+}
+
+func (* <%== tableStruct %>) GetOne(where string, args ...interface{}) (* <%== tableStruct %>, error) {
+	var obj <%== tableStruct %>
 	return &obj, Orm().Where(where, args...).Take(&obj).Error
 }
 
-func (* <%= tableStruct %>) GetList(where string, args ...interface{}) ([]* <%= tableStruct %>, error) {
-	var list []*<%= tableStruct %>
+func (* <%== tableStruct %>) GetList(where string, args ...interface{}) ([]* <%== tableStruct %>, error) {
+	var list []*<%== tableStruct %>
 	db := Orm()
 	return list, db.Where(where, args...).Find(&list).Error
 }
 
-func (* <%= tableStruct %>) GetCount(where string, args ...interface{}) (int, error) {
-	var number int
-	err := Orm().Model(&<%= tableStruct %>{}).Where(where, args...).Count(&number).Error
+func (* <%== tableStruct %>) GetCount(where string, args ...interface{}) (int64, error) {
+	var number int64
+	err := Orm().Model(&<%== tableStruct %>{}).Where(where, args...).Count(&number).Error
 	return number, err
 }
 
-func (* <%= tableStruct %>) Delete(db *gormx.DB, where string, args ...interface{}) error {
+func (* <%== tableStruct %>) Delete(db *gormx.DB, where string, args ...interface{}) error {
 	if db == nil {
 		db = Orm()
 	}
-	return db.Where(where, args...).Delete(&<%= dbName %>` + tableStruct + `{}).Error
+	return db.Where(where, args...).Delete(&<%== tableStruct %>{}).Error
 }
 
-func (*<%= tableStruct %>) Update(db *gormx.DB, data map[string]interface{}, where string, args ...interface{}) (int64, error) {
+func (*<%== tableStruct %>) Update(db *gormx.DB, data map[string]interface{}, where string, args ...interface{}) (int64, error) {
 	if db == nil {
 		db = Orm()
 	}
-	db = db.Model(&<%= tableStruct %>{}).Where(where, args...).Updates(data)
+	db = db.Model(&<%== tableStruct %>{}).Where(where, args...).Updates(data)
 	return db.RowsAffected, db.Error
 }

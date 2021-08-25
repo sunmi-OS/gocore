@@ -1,17 +1,17 @@
 <%: func FromModel(dbName , tabels string, buffer *bytes.Buffer) %>
-package <%= dbName %>
+package <%== dbName %>
 
 import (
 	"fmt"
 
-	"<%= goCoreConfig.Service.ProjectName%>/conf"
+	"<%== goCoreConfig.Service.ProjectName%>/conf"
 	"gorm.io/gorm"
 	g "github.com/sunmi-OS/gocore/v2/db/orm"
 	"github.com/sunmi-OS/gocore/v2/utils"
 )
 
 func Orm() *gorm.DB {
-	db := g.GetORM(conf.DB<%= strings.Title(dbName) %>)
+	db := g.GetORM(conf.DB<%== strings.Title(dbName) %>)
 	if utils.GetRunTime() != "onl" {
 		db = db.Debug()
 	}
@@ -19,8 +19,8 @@ func Orm() *gorm.DB {
 }
 
 func SchemaMigrate() {
-	fmt.Println("开始初始化<%= dbName %>数据库")
+	fmt.Println("开始初始化<%== dbName %>数据库")
 	//自动建表，数据迁移
-    <%= tabels %>
-	fmt.Println("数据库<%= dbName %>初始化完成")
+    <%== tabels %>
+	fmt.Println("数据库<%== dbName %>初始化完成")
 }

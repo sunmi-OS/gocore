@@ -3,11 +3,7 @@
 // DO NOT EDIT!
 package template
 
-import (
-	"bytes"
-
-	"github.com/shiyanhui/hero"
-)
+import "bytes"
 
 func FromCmdInit(name, pkgs, dbUpdate, initDb string, buffer *bytes.Buffer) {
 	buffer.WriteString(`
@@ -15,10 +11,10 @@ package cmd
 
 import (
 	`)
-	hero.EscapeHTML(pkgs, buffer)
+	buffer.WriteString(pkgs)
 	buffer.WriteString(`
 	"`)
-	hero.EscapeHTML(name, buffer)
+	buffer.WriteString(name)
 	buffer.WriteString(`/conf"
 
 	"github.com/sunmi-OS/gocore/v2/conf/nacos"
@@ -38,11 +34,21 @@ func initConf() {
 
 	vt := nacos.GetViper()
 	vt.SetBaseConfig(conf.BaseConfig)
-	vt.SetDataIds(conf.ProjectName, "config", "mysql", "redis")
+	vt.SetDataIds(conf.ProjectName, "config" `)
+	if len(goCoreConfig.Config.CMysql) > 0 {
+		buffer.WriteString(`, "mysql" `)
+	}
+	if len(goCoreConfig.Config.CRedis) > 0 {
+		buffer.WriteString(`, "redis"`)
+	}
+	if goCoreConfig.Config.CNacos.RocketMQConfig {
+		buffer.WriteString(`, "rocketmq"`)
+	}
+	buffer.WriteString(`)
 	// 注册配置更新回调
  	vt.SetCallBackFunc(conf.ProjectName, "mysql", func(namespace, group, dataId, data string) {
 		`)
-	hero.EscapeHTML(dbUpdate, buffer)
+	buffer.WriteString(dbUpdate)
 	buffer.WriteString(`
 	})
 	vt.NacosToViper()
@@ -51,7 +57,7 @@ func initConf() {
 // initDB 初始化DB服务 （内部方法）
 func initDB() {
 	`)
-	hero.EscapeHTML(initDb, buffer)
+	buffer.WriteString(initDb)
 	buffer.WriteString(`
 }`)
 

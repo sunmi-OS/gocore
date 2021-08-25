@@ -3,36 +3,11 @@
 // DO NOT EDIT!
 package template
 
-import (
-	"bytes"
+import "bytes"
 
-	"github.com/shiyanhui/hero"
-)
-
-func FromDomain(name, handler, function, req string, buffer *bytes.Buffer) {
+func FromDomain(buffer *bytes.Buffer) {
 	buffer.WriteString(`
 package domain
-
-import (
-	"`)
-	hero.EscapeHTML(name, buffer)
-	buffer.WriteString(`/app/def"
-	"github.com/sunmi-OS/gocore/v2/api"
-)
-
-// `)
-	hero.EscapeHTML(function, buffer)
-	buffer.WriteString(`
-func `)
-	hero.EscapeHTML(function, buffer)
-	buffer.WriteString(`(req * def.`)
-	hero.EscapeHTML(function, buffer)
-	buffer.WriteString(`Request,,ctx api.Context) (&def.`)
-	hero.EscapeHTML(function, buffer)
-	buffer.WriteString(`Response, error) {
-	return &def.`)
-	hero.EscapeHTML(function, buffer)
-	buffer.WriteString(`Response{}, nil
-}`)
+`)
 
 }

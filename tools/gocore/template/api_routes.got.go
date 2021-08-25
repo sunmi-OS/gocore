@@ -3,11 +3,7 @@
 // DO NOT EDIT!
 package template
 
-import (
-	"bytes"
-
-	"github.com/shiyanhui/hero"
-)
+import "bytes"
 
 func FromApiRoutes(name, routes string, buffer *bytes.Buffer) {
 	buffer.WriteString(`
@@ -19,7 +15,7 @@ import (
 	_ "net/http/pprof"
 
 	"`)
-	hero.EscapeHTML(name, buffer)
+	buffer.WriteString(name)
 	buffer.WriteString(`/app/api"
 )
 
@@ -31,7 +27,7 @@ func Routes(router *gin.Engine) {
 	})
 
     `)
-	hero.EscapeHTML(routes, buffer)
+	buffer.WriteString(routes)
 	buffer.WriteString(`
 }
 `)

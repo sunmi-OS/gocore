@@ -3,20 +3,16 @@
 // DO NOT EDIT!
 package template
 
-import (
-	"bytes"
-
-	"github.com/shiyanhui/hero"
-)
+import "bytes"
 
 func FromCronJob(cron string, buffer *bytes.Buffer) {
 	buffer.WriteString(`
 package cronjob
 // `)
-	hero.EscapeHTML(cron, buffer)
+	buffer.WriteString(cron)
 	buffer.WriteString(`
 func `)
-	hero.EscapeHTML(cron, buffer)
+	buffer.WriteString(cron)
 	buffer.WriteString(`() {
 }`)
 

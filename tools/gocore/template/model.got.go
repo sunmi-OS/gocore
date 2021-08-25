@@ -6,21 +6,19 @@ package template
 import (
 	"bytes"
 	"strings"
-
-	"github.com/shiyanhui/hero"
 )
 
 func FromModel(dbName, tabels string, buffer *bytes.Buffer) {
 	buffer.WriteString(`
 package `)
-	hero.EscapeHTML(dbName, buffer)
+	buffer.WriteString(dbName)
 	buffer.WriteString(`
 
 import (
 	"fmt"
 
 	"`)
-	hero.EscapeHTML(goCoreConfig.Service.ProjectName, buffer)
+	buffer.WriteString(goCoreConfig.Service.ProjectName)
 	buffer.WriteString(`/conf"
 	"gorm.io/gorm"
 	g "github.com/sunmi-OS/gocore/v2/db/orm"
@@ -29,7 +27,7 @@ import (
 
 func Orm() *gorm.DB {
 	db := g.GetORM(conf.DB`)
-	hero.EscapeHTML(strings.Title(dbName), buffer)
+	buffer.WriteString(strings.Title(dbName))
 	buffer.WriteString(`)
 	if utils.GetRunTime() != "onl" {
 		db = db.Debug()
@@ -39,14 +37,14 @@ func Orm() *gorm.DB {
 
 func SchemaMigrate() {
 	fmt.Println("开始初始化`)
-	hero.EscapeHTML(dbName, buffer)
+	buffer.WriteString(dbName)
 	buffer.WriteString(`数据库")
 	//自动建表，数据迁移
     `)
-	hero.EscapeHTML(tabels, buffer)
+	buffer.WriteString(tabels)
 	buffer.WriteString(`
 	fmt.Println("数据库`)
-	hero.EscapeHTML(dbName, buffer)
+	buffer.WriteString(dbName)
 	buffer.WriteString(`初始化完成")
 }`)
 

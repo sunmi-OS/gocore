@@ -3,23 +3,19 @@
 // DO NOT EDIT!
 package template
 
-import (
-	"bytes"
-
-	"github.com/shiyanhui/hero"
-)
+import "bytes"
 
 func FromConfBase(buffer *bytes.Buffer) {
 	buffer.WriteString(`
 package conf
 
-var baseConfig = ` + "`" + `
+var BaseConfig = ` + "`" + `
 [network]
 ApiServiceHost = "`)
-	hero.EscapeHTML(goCoreConfig.HttpApis.Host, buffer)
+	buffer.WriteString(goCoreConfig.HttpApis.Host)
 	buffer.WriteString(`"
 ApiServicePort = "`)
-	hero.EscapeHTML(goCoreConfig.HttpApis.Port, buffer)
+	buffer.WriteString(goCoreConfig.HttpApis.Port)
 	buffer.WriteString(`"
 ` + "`" + ``)
 

@@ -2,7 +2,7 @@
 package cmd
 
 import (
-	"<%= name %>/app/job"
+	"<%== name %>/app/job"
 	"github.com/urfave/cli/v2"
 	"github.com/sunmi-OS/gocore/v2/utils/closes"
 )
@@ -13,7 +13,7 @@ var Job = &cli.Command{
 	Aliases: []string{"j"},
 	Usage:   "job",
 	Subcommands: []*cli.Command{
-		<%= jobCmd %>
+		<%== jobCmd %>
 	},
 }
-<%= jobFunctions %>
+<%== jobFunctions %>

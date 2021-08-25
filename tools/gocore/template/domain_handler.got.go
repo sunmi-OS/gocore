@@ -3,11 +3,7 @@
 // DO NOT EDIT!
 package template
 
-import (
-	"bytes"
-
-	"github.com/shiyanhui/hero"
-)
+import "bytes"
 
 func FromDomainHandler(handlers []string, buffer *bytes.Buffer) {
 	buffer.WriteString(`
@@ -16,12 +12,12 @@ package domain
 	for _, v1 := range handlers {
 		buffer.WriteString(`
     var `)
-		hero.EscapeHTML(v1, buffer)
+		buffer.WriteString(v1)
 		buffer.WriteString(`Handler = &`)
-		hero.EscapeHTML(v1, buffer)
+		buffer.WriteString(v1)
 		buffer.WriteString(`{}
     type `)
-		hero.EscapeHTML(v1, buffer)
+		buffer.WriteString(v1)
 		buffer.WriteString(` struct{}
 `)
 	}

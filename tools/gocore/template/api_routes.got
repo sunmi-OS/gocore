@@ -6,7 +6,7 @@ import (
 	"net/http"
 	_ "net/http/pprof"
 
-	"<%= name %>/app/api"
+	"<%== name %>/app/api"
 )
 
 func Routes(router *gin.Engine) {
@@ -16,5 +16,5 @@ func Routes(router *gin.Engine) {
 		c.String(http.StatusOK, "Welcome GoCore Service")
 	})
 
-    <%= routes %>
+    <%== routes %>
 }

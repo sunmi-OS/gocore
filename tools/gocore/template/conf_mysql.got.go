@@ -6,22 +6,20 @@ package template
 import (
 	"bytes"
 	"strings"
-
-	"github.com/shiyanhui/hero"
 )
 
 func FromConfMysql(dbName string, buffer *bytes.Buffer) {
 	buffer.WriteString(`
 [db`)
-	hero.EscapeHTML(strings.Title(dbName), buffer)
+	buffer.WriteString(strings.Title(dbName))
 	buffer.WriteString(`]
-dbHost = ""           #数据库连接地址
-dbName = "`)
-	hero.EscapeHTML(dbName, buffer)
+Host = ""           #数据库连接地址
+Name = "`)
+	buffer.WriteString(dbName)
 	buffer.WriteString(`"           #数据库名称
-dbUser = ""           #数据库用户名
-dbPasswd = ""         #数据库密码
-dbPort = "3306"       #数据库端口号
+User = ""           #数据库用户名
+Passwd = ""         #数据库密码
+Port = "3306"       #数据库端口号
 `)
 
 }

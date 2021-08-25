@@ -12,6 +12,7 @@ require (
 	github.com/go-redis/redis/v8 v8.11.1
 	github.com/go-resty/resty/v2 v2.6.0
 	github.com/google/uuid v1.3.0
+	github.com/howeyc/fsnotify v0.9.0 // indirect
 	github.com/nacos-group/nacos-sdk-go v1.0.8
 	github.com/pelletier/go-toml v1.9.3
 	github.com/segmentio/kafka-go v0.4.17

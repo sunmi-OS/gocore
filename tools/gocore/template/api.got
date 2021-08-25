@@ -2,27 +2,21 @@
 package api
 
 import (
-	"<%= name %>/app/domain"
-	"<%= name %>/app/def"
+	"<%== name %>/app/def"
 
 	"github.com/gin-gonic/gin"
     "github.com/sunmi-OS/gocore/v2/api"
 )
 
 <% for k1, v1 := range functions { %>
-    func <%= v1 %>(g *gin.Context) {
+    func <%== v1 %>(g *gin.Context) {
         ctx := api.NewContext(g)
-        req := new(def.<%= req[k1] %>Request)
+        req := new(def.<%== req[k1] %>Request)
         err := ctx.BindValidator(req)
 		if err != nil {
 			ctx.Error(err)
 			return
 		}
-        response, err := domain.<%= v1 %>(req,ctx)
-		if err != nil {
-			ctx.Error(err)
-			return
-		}
-		ctx.Success(response)
+		ctx.Success(def.<%== req[k1] %>Response{})
     }
 <% } %>

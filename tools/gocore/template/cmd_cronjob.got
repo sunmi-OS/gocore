@@ -2,7 +2,7 @@
 package cmd
 
 import (
-	"<%= name %>/app/cronjob"
+	"<%== name %>/app/cronjob"
 	"github.com/robfig/cron/v3"
 	"github.com/sunmi-OS/gocore/v2/utils/closes"
 	"github.com/urfave/cli/v2"
@@ -29,7 +29,7 @@ func CronTable(c *cli.Context) error {
 
 	cronJob := cron.New()
 
-    <%= cronjobs %>
+    <%== cronjobs %>
 
 	cronJob.Start()
 
