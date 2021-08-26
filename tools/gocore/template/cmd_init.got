@@ -1,4 +1,4 @@
-<%: func FromCmdInit(name, pkgs, dbUpdate, initDb string, buffer *bytes.Buffer) %>
+<%: func FromCmdInit(name, pkgs, dbUpdate, initDb,initCache string, buffer *bytes.Buffer) %>
 package cmd
 
 import (
@@ -33,4 +33,9 @@ func initConf() {
 // initDB 初始化DB服务 （内部方法）
 func initDB() {
 	<%== initDb %>
+}
+
+// initCache 初始化redis服务 （内部方法）
+func initCache() {
+	<%== initCache %>
 }

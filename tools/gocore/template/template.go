@@ -4,6 +4,7 @@ import (
 	"bytes"
 	"encoding/json"
 	"io/ioutil"
+	"os"
 	"strings"
 
 	toml "github.com/pelletier/go-toml"
@@ -212,7 +213,7 @@ func createModel(root, name string) {
 		for _, v2 := range tables {
 			tableName := v2.Name
 			tableStruct := file.UnderlineToCamel(v2.Name)
-			tableStr += "Orm().Set(\"gorm:table_options\", \"CHARSET=utf8mb4 comment='' AUTO_INCREMENT=1;\").AutoMigrate(&" + tableStruct + "{})\n"
+			tableStr += "_ = Orm().Set(\"gorm:table_options\", \"CHARSET=utf8mb4 comment='" + v2.Comment + "' AUTO_INCREMENT=1;\").AutoMigrate(&" + tableStruct + "{})\n"
 			tabelPath := dir + "/" + tableName + ".go"
 			fieldStr := ""
 			fields := v2.Fields
@@ -265,7 +266,7 @@ Namespace = ""
 		}
 		FromConfLocal(localConf, fileBuffer)
 		fileWriter(fileBuffer, root+"/conf/local.go")
-		FromCmdInit(name, pkgs, dbUpdate, initDb+initRedis, fileBuffer)
+		FromCmdInit(name, pkgs, dbUpdate, initDb, initRedis, fileBuffer)
 		fileWriter(fileBuffer, root+"/cmd/init.go")
 	}
 }
@@ -284,7 +285,7 @@ func createCronjob(name, root string) {
 	cronjobs := ""
 	for _, v1 := range jobs {
 		jobPath := dir + file.CamelToUnderline(v1.Job.Name) + ".go"
-		FromCronJob(v1.Job.Name, fileBuffer)
+		FromCronJob(v1.Job.Name, v1.Job.Comment, fileBuffer)
 		fileWriter(fileBuffer, jobPath)
 		cronjobs += "_,_ = cronJob.AddFunc(\"" + v1.Spec + "\", cronjob." + v1.Job.Name + ")\n"
 	}
@@ -308,11 +309,11 @@ func createJob(name, root string) {
 	jobCmd := ""
 	jobFunctions := ""
 	for _, v1 := range jobs {
-		FromJob(v1.Name, fileBuffer)
+		FromJob(v1.Name, v1.Comment, fileBuffer)
 		fileWriter(fileBuffer, dir+file.CamelToUnderline(v1.Name)+".go")
 		jobCmd += `		{
 			Name:   "` + v1.Name + `",
-			Usage:  "` + v1.Usage + `",
+			Usage:  "` + v1.Comment + `",
 			Action: ` + v1.Name + `,
 		},`
 		jobFunctions += `
@@ -373,21 +374,37 @@ func createApi(root, name string) {
 		handler := strings.Title(handlerName)
 		handlers = append(handlers, handler)
 		functions := make([]string, 0)
+		comments := make([]string, 0)
 		reqs := make([]string, 0)
-		for _, v2 := range routes {
 
+		apiContent := ""
+		apiFile, err := os.Open(apiPath)
+		if err == nil {
+			content, err := ioutil.ReadAll(apiFile)
+			if err != nil {
+				panic(err)
+			}
+			apiContent = string(content)
+		}
+		for _, v2 := range routes {
 			route := v2.Name
+			function := strings.Title(route)
+			if strings.Contains(apiContent, "func "+function+"(g *gin.Context)") {
+				continue
+			}
+			functions = append(functions, function)
+
 			req := strings.Title(v2.Name)
 			reqs = append(reqs, req)
-			function := strings.Title(route)
-			functions = append(functions, function)
-			routesStr += handlerName + "." + v2.Method + "(\"/" + file.CamelToUnderline(route) + "\",api." + function + ")\n"
+
+			comments = append(comments, v2.Comment)
+			routesStr += handlerName + "." + v2.Method + "(\"/" + file.CamelToUnderline(route) + "\",api." + function + ") //" + v2.Comment + "\n"
 			// FromDomain(name, handler, function, req, fileBuffer)
 			// fileWriter(fileBuffer, domainDir+file.CamelToUnderline(route)+".go")
 
 		}
 
-		FromApi(name, handler, functions, reqs, fileBuffer)
+		FromApi(name, handler, apiContent, comments, functions, reqs, fileBuffer)
 		// writer.Add(fileBuffer.Bytes())
 		fileWriter(fileBuffer, apiPath)
 	}

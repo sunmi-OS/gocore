@@ -5,21 +5,28 @@ package template
 
 import "bytes"
 
-func FromApi(name, handler string, functions []string, req []string, buffer *bytes.Buffer) {
-	buffer.WriteString(`
+func FromApi(name, handler, apiContent string, comments []string, functions []string, req []string, buffer *bytes.Buffer) {
+	if apiContent == "" {
+		buffer.WriteString(`
 package api
 
 import (
 	"`)
-	buffer.WriteString(name)
-	buffer.WriteString(`/app/def"
+		buffer.WriteString(name)
+		buffer.WriteString(`/app/def"
 
 	"github.com/gin-gonic/gin"
     "github.com/sunmi-OS/gocore/v2/api"
 )
-
 `)
+	} else {
+		buffer.WriteString(apiContent)
+	}
 	for k1, v1 := range functions {
+		buffer.WriteString(`
+	// `)
+		buffer.WriteString(v1)
+		buffer.WriteString(comments[k1])
 		buffer.WriteString(`
     func `)
 		buffer.WriteString(v1)

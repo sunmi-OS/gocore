@@ -44,7 +44,8 @@ func RunApi(c *cli.Context) error {
 
 	initConf()
 	initDB()
-
+	initCache()
+	
 	if utils.IsRelease() {
 		gin.SetMode(gin.ReleaseMode)
 	}

@@ -5,7 +5,7 @@ package template
 
 import "bytes"
 
-func FromCmdInit(name, pkgs, dbUpdate, initDb string, buffer *bytes.Buffer) {
+func FromCmdInit(name, pkgs, dbUpdate, initDb, initCache string, buffer *bytes.Buffer) {
 	buffer.WriteString(`
 package cmd
 
@@ -58,6 +58,13 @@ func initConf() {
 func initDB() {
 	`)
 	buffer.WriteString(initDb)
+	buffer.WriteString(`
+}
+
+// initCache 初始化redis服务 （内部方法）
+func initCache() {
+	`)
+	buffer.WriteString(initCache)
 	buffer.WriteString(`
 }`)
 

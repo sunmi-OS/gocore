@@ -1,96 +1,97 @@
 package conf
 
 type GoCore struct {
-	Service       Service
-	Config        Config
-	NacosEnable   bool // 是否开启 Nacos 默认开启
-	HttpApiEnable bool // 是否开启HttpApi
-	CronJobEnable bool // 是否开启 CronJob 默认不开启
-	JobEnable     bool // 是否开启 Job 任务
-	HttpApis      HttpApi
-	CronJobs      []CronJob
-	Jobs          []Job
+	Service       Service   `yaml:"service"`
+	Config        Config    `yaml:"config"`
+	NacosEnable   bool      `yaml:"nacosEnable"`   // 是否开启 Nacos 默认开启
+	HttpApiEnable bool      `yaml:"httpApiEnable"` // 是否开启HttpApi
+	CronJobEnable bool      `yaml:"cronJobEnable"` // 是否开启 CronJob 默认不开启
+	JobEnable     bool      `yaml:"jobEnable"`     // 是否开启 Job 任务
+	HttpApis      HttpApi   `yaml:"httpApis"`
+	CronJobs      []CronJob `yaml:"cronJobs"`
+	Jobs          []Job     `yaml:"jobs"`
 }
 
 type Service struct {
-	ProjectName string // 项目名称
-	Version     string // 项目版本
+	ProjectName string `yaml:"projectName"` // 项目名称
+	Version     string `yaml:"version"`     // 项目版本
 }
 
 // HttpApi 路由拼接规则 /public/v1/项目名/模块名/接口名
 // TODO: swagger.json导入
 type HttpApi struct {
-	Host   string // 地址
-	Port   string // 端口
-	Apis   []Api
-	Params map[string][]Param
+	Host   string             `yaml:"host"` // 地址
+	Port   string             `yaml:"port"` // 端口
+	Apis   []Api              `yaml:"apis"`
+	Params map[string][]Param `yaml:"params"`
 }
 
 type Api struct {
-	Prefix     string //路由前缀
-	ModuleName string // 模块名
-	Handle     []Handle
+	Prefix     string   `yaml:"prefix"`     //路由前缀
+	ModuleName string   `yaml:"moduleName"` // 模块名
+	Handle     []Handle `yaml:"handle"`
 }
 
 type Handle struct {
-	Name           string  // 接口名
-	Method         string  // Get Post Any
-	RequestParams  []Param // 请求参数列表
-	ResponseParams []Param // 返回参数列表
+	Name           string  `yaml:"name"`           // 接口名
+	Method         string  `yaml:"method"`         // Get Post Any
+	RequestParams  []Param `yaml:"requestParams"`  // 请求参数列表
+	ResponseParams []Param `yaml:"responseParams"` // 返回参数列表
+	Comment        string  `yaml:"comment"`        //接口描述
 }
 
 type Param struct {
-	Name     string
-	Required bool
-	Type     string
-	Comment  string
-	Validate string
+	Name     string `yaml:"name"`
+	Required bool   `yaml:"required"`
+	Type     string `yaml:"type"`
+	Comment  string `yaml:"comment"`
+	Validate string `yaml:"validate"`
 }
 
 type CronJob struct {
-	Spec string // 定时规则
-	Job  Job
+	Spec string `yaml:"spec"` // 定时规则
+	Job  Job    `yaml:"job"`
 }
 
 type Job struct {
-	Name  string // 任务名称
-	Usage string // 任务描述
+	Name    string `yaml:"name"` // 任务名称
+	Comment string `yaml:"comment"`
 }
 
 type Config struct {
-	CNacos Nacos
-	CMysql []Mysql
-	CRedis []Redis
+	CNacos Nacos   `yaml:"cNacos"`
+	CMysql []Mysql `yaml:"cMysql"`
+	CRedis []Redis `yaml:"cRedis"`
 }
 
 type Nacos struct {
-	Env            bool
-	RocketMQConfig bool
+	Env            bool `yaml:"env"`
+	RocketMQConfig bool `yaml:"rocketMQConfig"`
 }
 
 type Mysql struct {
-	Name      string // Mysql名称，默认default
-	HotUpdate bool
-	Models    []Model
+	Name      string  `yaml:"name"` // Mysql名称，默认default
+	HotUpdate bool    `yaml:"hotUpdate"`
+	Models    []Model `yaml:"models"`
 }
 
 // Model TODO：支持建表SQL导入
 type Model struct {
-	Name   string  // 表名
-	Auto   bool    // 是否自动创建表结构
-	Fields []Field // 字段列表
+	Name    string  `yaml:"name"`   // 表名
+	Auto    bool    `yaml:"auto"`   // 是否自动创建表结构
+	Fields  []Field `yaml:"fields"` // 字段列表
+	Comment string  `yaml:"comment"`
 }
 
 type Field struct {
-	Name     string // 字段名
-	GormRule string // Gorm规则
-	Index    bool   // 是否开启索引
+	Name     string `yaml:"name"`     // 字段名
+	GormRule string `yaml:"gormRule"` // Gorm规则
 }
 
 type Redis struct {
-	Name      string // Redis名称，默认default
-	HotUpdate bool
-	Index     map[string]int // index和Key的映射关系
+	Name      string         `yaml:"name"` // Redis名称，默认default
+	HotUpdate bool           `yaml:"hotUpdate"`
+	Index     map[string]int `yaml:"index"` // index和Key的映射关系
 }
 
 func GetGocoreConfig() *GoCore {
@@ -118,6 +119,7 @@ func GetGocoreConfig() *GoCore {
 									GormRule: "column:name;type:varchar(100) NOT NULL;default:'';comment:'用户名';unique_index",
 								},
 							},
+							Comment: "用户表",
 						},
 					},
 				},
@@ -160,8 +162,9 @@ func GetGocoreConfig() *GoCore {
 					Prefix:     "/app/user",
 					Handle: []Handle{
 						{
-							Name:   "GetUserInfo",
-							Method: "Any",
+							Name:    "GetUserInfo",
+							Method:  "Any",
+							Comment: "获取用户信息",
 							RequestParams: []Param{
 								{
 									Name:     "uid",
@@ -194,15 +197,15 @@ func GetGocoreConfig() *GoCore {
 			{
 				Spec: "@every 30m",
 				Job: Job{
-					Name:  "SyncUser",
-					Usage: "同步用户",
+					Name:    "SyncUser",
+					Comment: "同步用户",
 				},
 			},
 		},
 		Jobs: []Job{
 			{
-				Name:  "InitUser",
-				Usage: "初始化默认用户",
+				Name:    "InitUser",
+				Comment: "初始化默认用户",
 			},
 		},
 	}

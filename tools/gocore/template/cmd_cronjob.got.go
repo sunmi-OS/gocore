@@ -36,6 +36,7 @@ func CronTable(c *cli.Context) error {
 	// 初始化必要内容
 	initConf()
 	initDB()
+	initCache()
 
 	cronJob := cron.New()
 

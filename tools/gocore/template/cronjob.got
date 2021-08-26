@@ -1,5 +1,5 @@
-<%: func FromCronJob(cron string, buffer *bytes.Buffer) %>
+<%: func FromCronJob(cron,comment string, buffer *bytes.Buffer) %>
 package cronjob
-// <%== cron %>
+// <%== cron %> <%== comment %>
 func <%== cron %>() {
 }
