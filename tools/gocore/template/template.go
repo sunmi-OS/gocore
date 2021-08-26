@@ -2,17 +2,14 @@ package template
 
 import (
 	"bytes"
-	"encoding/json"
 	"io/ioutil"
 	"os"
 	"strings"
 
-	toml "github.com/pelletier/go-toml"
 	"github.com/spf13/cast"
 	"github.com/sunmi-OS/gocore/v2/tools/gocore/conf"
 	"github.com/sunmi-OS/gocore/v2/tools/gocore/def"
 	"github.com/sunmi-OS/gocore/v2/tools/gocore/file"
-	"github.com/tidwall/gjson"
 )
 
 var writer = file.NewWriter()
@@ -20,8 +17,6 @@ var writer = file.NewWriter()
 var fileBuffer = new(bytes.Buffer)
 
 var localConf string
-
-var configJson gjson.Result
 
 var goCoreConfig *conf.GoCore
 
@@ -40,82 +35,6 @@ func CreateCode(root, name string, config *conf.GoCore) {
 	createJob(name, root)
 	createApi(root, name)
 	createDef(root)
-}
-
-func CreateToml() string {
-	return `
-[service]
-name = "gen"
-
-[api]
-[api.structs]
-GetPreOrderRequest = [
-    "name;string;用户姓名",
-    "dId;int64;用户dId",
-]
-CreatePreOrderRequest = [
-    "name;string;用户姓名",
-    "dId;int64;用户dId",
-    "create_pre_order_content;struct:CreatePreOrderContent:详情"
-]
-CreatePreOrderContent = [
-    "get_pre_order_content;*GetPreOrderContent;用户姓名",
-    "list;[]*GetPreOrderContent;用户dId",
-]
-GetPreOrderContent = [
-    "name;string;用户姓名",
-    "dId;int64;用户dId",
-]
-
-[[api.handlers]]
-name = "PublicOrder"
-prefix = "/public/v1/order"
-routes = [
-    "createPreOrder;CreatePreOrderRequest;创建订单",
-    "getPreOrder;GetPreOrderRequest;获取订单详情",
-]
-
-[[api.handlers]]
-name = "PrivateOrder"
-prefix = "/private/v1/order"
-routes = [
-    "createPrivatePreOrder;CreatePreOrderRequest;创建私有订单",
-    "getPrivatePreOrder;GetPreOrderRequest;获取私有订单"
-    ]
- 
-[cronjob]
-StatisticDataByDay = "30 1 0 * * *"
-LoopCSync = "30 1 0 * * *"
-
-[job]
-LoopOrder = "loopOrder"
-LoopInvoice = "loopOrder"
-
-[mysql]
-[mysql.order]
-order = [
-    "column:id;primary_key;type:int AUTO_INCREMENT",
-    "column:order_no;type:varchar(100) NOT NULL;default:'';comment:'订单号';unique_index",
-    "column:uId;type:int NOT NULL;default:0;comment:'用户ID号';index",
-    ]
-goods = [
-    "column:id;primary_key;type:int AUTO_INCREMENT",
-    "column:order_no;type:varchar(100) NOT NULL;default:'';comment:'订单号';unique_index",
-    "column:uId;type:int NOT NULL;default:0;comment:'用户ID号';index",
-    "column:goods_id;type:varchar(50) NOT NULL;default:'';comment:'商品id';index",
-    ]
-[mysql.wallet]
-record = [
-    "column:id;primary_key;type:int AUTO_INCREMENT",
-    "column:order_no;type:varchar(100) NOT NULL;default:'';comment:'订单号';unique_index",
-    "column:uId;type:int NOT NULL;default:0;comment:'用户ID号';index",
-    "column:goods_id;type:varchar(50) NOT NULL;default:'';comment:'商品id';index",
-    "column:goods_num;type:int NOT NULL;default:'0';comment:'数量(sku属性)'",
-    ]
-
-[redis]
-[redis.order]
-`
 }
 
 func CreateField(field string) string {
@@ -459,24 +378,6 @@ func createDef(root string) {
 }
 
 // ------------------------------------------------------------------------------
-
-func ParseToml(path string) {
-	buf, err := ioutil.ReadFile(path)
-	if err != nil {
-		panic(err)
-	}
-
-	tree, err := toml.LoadReader(bytes.NewBuffer(buf))
-	if err != nil {
-		panic(err)
-	}
-	cMap := tree.ToMap()
-	cMapBytes, err := json.Marshal(cMap)
-	if err != nil {
-		panic(err)
-	}
-	configJson = gjson.ParseBytes(cMapBytes)
-}
 
 func fileWriter(buffer *bytes.Buffer, path string) {
 	writer.Add(buffer.Bytes())

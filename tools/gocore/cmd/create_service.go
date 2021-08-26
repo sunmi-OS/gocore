@@ -30,14 +30,14 @@ var CreatService = &cli.Command{
 			Action: creatService,
 		},
 		{
-			Name: "toml",
+			Name: "conf",
 			Flags: []cli.Flag{
 				&cli.StringFlag{
 					Name:  "dir",
 					Usage: "dir path",
 				}},
-			Usage:  "create toml [dir]",
-			Action: creatToml,
+			Usage:  "create conf [dir]",
+			Action: creatYaml,
 		},
 	},
 }
