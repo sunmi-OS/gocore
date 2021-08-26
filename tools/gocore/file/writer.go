@@ -35,7 +35,7 @@ func (w *Writer) Bytes() []byte {
 
 func (w *Writer) WriteToFile(path string) {
 	defer w.Clear()
-	if checkFileIsExist(path) {
+	if CheckFileIsExist(path) {
 		return
 	}
 	f, err := os.OpenFile(path, os.O_WRONLY|os.O_TRUNC|os.O_CREATE, 0o644)

@@ -1,7 +1,9 @@
 package cmd
 
 import (
+	"io/ioutil"
 	"log"
+	"os"
 	"os/exec"
 
 	"github.com/sunmi-OS/gocore/v2/tools/gocore/conf"
@@ -40,20 +42,35 @@ var CreatService = &cli.Command{
 	},
 }
 
-func CreatYoml(dir string, config *conf.GoCore) error {
+func CreatYoml(dir string, config *conf.GoCore) (*conf.GoCore, error) {
 	yamlPath := "gocore.yaml"
 	if dir != "" {
 		yamlPath = dir + "/gocore.yaml"
 	}
-
+	if file.CheckFileIsExist(yamlPath) {
+		apiFile, err := os.Open(yamlPath)
+		if err == nil {
+			content, err := ioutil.ReadAll(apiFile)
+			if err != nil {
+				panic(err)
+			}
+			cfg := conf.GoCore{}
+			err = yaml.Unmarshal(content, &cfg)
+			if err != nil {
+				panic(err)
+			}
+			return &cfg, nil
+		}
+		panic(err)
+	}
 	var writer = file.NewWriter()
 	yamlByte, err := yaml.Marshal(config)
 	if err != nil {
-		return err
+		return config, err
 	}
 	writer.Add(yamlByte)
 	writer.WriteToFile(yamlPath)
-	return nil
+	return config, nil
 }
 
 func creatService(c *cli.Context) error {
@@ -67,7 +84,10 @@ func creatService(c *cli.Context) error {
 		panic(err)
 	}
 
-	CreatYoml(root, config)
+	config, err = CreatYoml(root, config)
+	if err != nil {
+		panic(err)
+	}
 	template.CreateCode(root, config.Service.ProjectName, config)
 	cmd = exec.Command("go", "mod", "init", config.Service.ProjectName)
 	cmd.Dir = root
