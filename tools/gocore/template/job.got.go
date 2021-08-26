@@ -10,7 +10,7 @@ func FromJob(job, comment string, buffer *bytes.Buffer) {
 package job
 // `)
 	buffer.WriteString(job)
-	buffer.WriteString(comment)
+	buffer.WriteString(" " + comment)
 	buffer.WriteString(`
 func `)
 	buffer.WriteString(job)

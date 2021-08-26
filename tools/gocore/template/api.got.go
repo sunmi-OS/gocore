@@ -26,7 +26,7 @@ import (
 		buffer.WriteString(`
 	// `)
 		buffer.WriteString(v1)
-		buffer.WriteString(comments[k1])
+		buffer.WriteString(" " + comments[k1])
 		buffer.WriteString(`
     func `)
 		buffer.WriteString(v1)

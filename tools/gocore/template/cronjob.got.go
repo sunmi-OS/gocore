@@ -10,7 +10,7 @@ func FromCronJob(cron, comment string, buffer *bytes.Buffer) {
 package cronjob
 // `)
 	buffer.WriteString(cron)
-	buffer.WriteString(comment)
+	buffer.WriteString(" " + comment)
 	buffer.WriteString(`
 func `)
 	buffer.WriteString(cron)

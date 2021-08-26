@@ -13,7 +13,7 @@ import (
 <% } %>
 
 <% for k1, v1 := range functions { %>
-	// <%== v1 %> <%== comments[k1] %>
+	// <%== v1 %> <%== " "+comments[k1] %>
     func <%== v1 %>(g *gin.Context) {
         ctx := api.NewContext(g)
         req := new(def.<%== req[k1] %>Request)

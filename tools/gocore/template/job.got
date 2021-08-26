@@ -1,5 +1,5 @@
 <%: func FromJob(job,comment string, buffer *bytes.Buffer) %>
 package job
-// <%== job %> <%== comment %>
+// <%== job %> <%== " "+comment %>
 func <%== job %>() {
 }
