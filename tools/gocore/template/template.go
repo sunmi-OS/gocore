@@ -2,9 +2,11 @@ package template
 
 import (
 	"bytes"
+	"fmt"
 	"io/ioutil"
 	"os"
 	"strings"
+	"time"
 
 	"github.com/spf13/cast"
 	"github.com/sunmi-OS/gocore/v2/tools/gocore/conf"
@@ -20,23 +22,39 @@ var localConf string
 
 var goCoreConfig *conf.GoCore
 
-// hero -source=./tools/gocore/template -extensions=.got,.md,.docker
-
+// CreateCode 更具配置文件生成项目
+// 模板引擎生成语句 hero -source=./tools/gocore/template -extensions=.got,.md,.docker
 func CreateCode(root, name string, config *conf.GoCore) {
+
 	goCoreConfig = config
+	newProgress(11, "start preparing...")
+	time.Sleep(time.Second)
+	progressNext("Initialize the directory structure...")
 	mkdir(root)
+	progressNext("Initialize the configuration file...")
 	createConf(root, name)
+	progressNext("Initialize the main program...")
 	createMain(root, name)
+	progressNext("Initialize the Dockerfile...")
 	createDockerfile(root)
+	progressNext("Initialize the Readme...")
 	createReadme(root)
+	progressNext("Initialize the ErrCode...")
 	createErrCode(root)
+	progressNext("Initialize the DB Model...")
 	createModel(root, name)
+	progressNext("Initialize the Cronjob...")
 	createCronjob(name, root)
+	progressNext("Initialize the Job...")
 	createJob(name, root)
+	progressNext("Initialize the Api...")
 	createApi(root, name)
+	progressNext("Initialize the Request return parameters...")
 	createDef(root)
+	fmt.Println()
 }
 
+// CreateField 创建gorm对应的字段
 func CreateField(field string) string {
 	tags := strings.Split(field, ";")
 	if len(tags) == 0 {
@@ -78,9 +96,6 @@ func createConf(root string, name string) {
 	FromConfBase(fileBuffer)
 	fileWriter(fileBuffer, root+"/conf/base.go")
 
-	// FromConfNacos(fileBuffer)
-	// fileWriter(fileBuffer, root+"/conf/nacos.go")
-
 	FromConfConst(name, fileBuffer)
 	fileWriter(fileBuffer, root+"/conf/const.go")
 }
@@ -120,8 +135,7 @@ func createModel(root, name string) {
 					glog.Error(err)
 				}
 		`
-		initDb += `orm.NewDB(conf.DB` + strings.Title(v1.Name) + `)
-			` + v1.Name + `.SchemaMigrate()` + "\n"
+		initDb += `orm.NewDB(conf.DB` + strings.Title(v1.Name) + `)` + v1.Name + `.SchemaMigrate()` + "\n"
 		err := file.MkdirIfNotExist(dir)
 		if err != nil {
 			panic(err)
@@ -172,7 +186,7 @@ prefix = ""
 		`
 			}
 		}
-		if goCoreConfig.Config.CNacos.RocketMQConfig == true {
+		if goCoreConfig.Config.CNacos.RocketMQConfig {
 			localConf += `
 			
 [aliyunmq]
@@ -277,7 +291,7 @@ func createApi(root, name string) {
 
 	routesStr := ""
 
-	handlers := make([]string, 0)
+	//handlers := make([]string, 0)
 
 	for _, v1 := range handlersList {
 		handlerName := v1.ModuleName
@@ -291,7 +305,7 @@ func createApi(root, name string) {
 		}
 		// 首字母大写
 		handler := strings.Title(handlerName)
-		handlers = append(handlers, handler)
+		//handlers = append(handlers, handler)
 		functions := make([]string, 0)
 		comments := make([]string, 0)
 		reqs := make([]string, 0)
@@ -312,10 +326,8 @@ func createApi(root, name string) {
 				continue
 			}
 			functions = append(functions, function)
-
 			req := strings.Title(v2.Name)
 			reqs = append(reqs, req)
-
 			comments = append(comments, v2.Comment)
 			routesStr += handlerName + "." + v2.Method + "(\"/" + file.CamelToUnderline(route) + "\",api." + function + ") //" + v2.Comment + "\n"
 			// FromDomain(name, handler, function, req, fileBuffer)

@@ -2,9 +2,10 @@ package cmd
 
 import (
 	"io/ioutil"
-	"log"
 	"os"
 	"os/exec"
+
+	"github.com/fatih/color"
 
 	"github.com/sunmi-OS/gocore/v2/tools/gocore/conf"
 	"github.com/sunmi-OS/gocore/v2/tools/gocore/file"
@@ -89,6 +90,7 @@ func creatService(c *cli.Context) error {
 		panic(err)
 	}
 	template.CreateCode(root, config.Service.ProjectName, config)
+	printHint("Run go mod init.")
 	cmd = exec.Command("go", "mod", "init", config.Service.ProjectName)
 	cmd.Dir = root
 	_, err = cmd.Output()
@@ -96,6 +98,7 @@ func creatService(c *cli.Context) error {
 		panic(err)
 	}
 
+	printHint("Run go mod tidy.")
 	cmd = exec.Command("go", "mod", "tidy")
 	cmd.Dir = root
 	_, err = cmd.Output()
@@ -103,6 +106,7 @@ func creatService(c *cli.Context) error {
 		panic(err)
 	}
 
+	printHint("Run go fmt.")
 	cmd = exec.Command("go", "fmt", "./...")
 	cmd.Dir = root
 	_, err = cmd.Output()
@@ -110,6 +114,7 @@ func creatService(c *cli.Context) error {
 		panic(err)
 	}
 
+	printHint("Run golangci-lint.")
 	cmd = exec.Command("golangci-lint", "run", "--exclude-use-default ")
 	cmd.Dir = root
 	_, err = cmd.Output()
@@ -117,6 +122,14 @@ func creatService(c *cli.Context) error {
 		panic(err)
 	}
 
-	log.Println(config.Service.ProjectName + " 已生成...")
+	printHint("Welcome to GoCore, the project has been initialized.")
+
 	return nil
+}
+
+func printHint(str string) {
+	_, err := color.New(color.FgCyan, color.Bold).Print(str + "\n")
+	if err != nil {
+		return
+	}
 }
