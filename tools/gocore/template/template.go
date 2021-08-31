@@ -135,7 +135,7 @@ func createModel(root, name string) {
 					glog.Error(err)
 				}
 		`
-		initDb += `orm.NewDB(conf.DB` + strings.Title(v1.Name) + `)` + v1.Name + `.SchemaMigrate()` + "\n"
+		initDb += `orm.NewDB(conf.DB` + strings.Title(v1.Name) + `)` + "\n" + v1.Name + `.SchemaMigrate()` + "\n"
 		err := file.MkdirIfNotExist(dir)
 		if err != nil {
 			panic(err)

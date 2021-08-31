@@ -4,24 +4,18 @@ import (
 	"log"
 	"os"
 
-	cmd "github.com/sunmi-OS/gocore/v2/tools/gocore/cmd"
+	"github.com/sunmi-OS/gocore/v2/tools/gocore/cmd"
+
+	"github.com/sunmi-OS/gocore/v2/utils"
+
 	"github.com/sunmi-OS/gocore/v2/tools/gocore/conf"
 	"github.com/urfave/cli/v2"
 )
 
-const banner string = `
-   ____   ____             ____  ___________   ____  
-  / ___\ /  _ \   ______ _/ ___\/  _ \_  __ \_/ __ \ 
- / /_/  >  <_> ) /_____/ \  \__(  <_> )  | \/\  ___/ 
- \___  / \____/           \___  >____/|__|    \___  >
-/_____/                       \/                  \/
-`
-
 func main() {
 
 	// 打印banner
-	log.Println(banner)
-
+	utils.PrintBanner(conf.PROJECT_NAME)
 	// 配置cli参数
 	app := cli.NewApp()
 	app.Name = conf.PROJECT_NAME
@@ -30,6 +24,7 @@ func main() {
 	// 指定命令运行的函数
 	app.Commands = []*cli.Command{
 		cmd.CreatService,
+		cmd.CreatYaml,
 	}
 
 	// 启动cli

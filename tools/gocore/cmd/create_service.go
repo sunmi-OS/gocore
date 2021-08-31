@@ -1,79 +1,31 @@
 package cmd
 
 import (
-	"io/ioutil"
-	"os"
+	"fmt"
 	"os/exec"
 
 	"github.com/fatih/color"
 
 	"github.com/sunmi-OS/gocore/v2/tools/gocore/conf"
-	"github.com/sunmi-OS/gocore/v2/tools/gocore/file"
 	"github.com/sunmi-OS/gocore/v2/tools/gocore/template"
-	"gopkg.in/yaml.v2"
 
 	"github.com/urfave/cli/v2"
 )
 
-// 创建服务
+// CreatService 创建服务
 var CreatService = &cli.Command{
-	Name:  "create",
-	Usage: "create cmd",
-	Subcommands: []*cli.Command{
-		{
-			Name: "service",
-			Flags: []cli.Flag{
-				&cli.StringFlag{
-					Name:  "config, c",
-					Usage: "Load configuration from toml file",
-				}},
-			Usage:  "create service [config]",
-			Action: creatService,
-		},
-		{
-			Name: "conf",
-			Flags: []cli.Flag{
-				&cli.StringFlag{
-					Name:  "dir",
-					Usage: "dir path",
-				}},
-			Usage:  "create conf [dir]",
-			Action: creatYaml,
-		},
-	},
+	Name: "service",
+	Flags: []cli.Flag{
+		&cli.StringFlag{
+			Name:  "config, c",
+			Usage: "Load configuration from yaml file",
+		}},
+	Usage:  "create service [config]",
+	Action: creatService,
 }
 
-func CreatYoml(dir string, config *conf.GoCore) (*conf.GoCore, error) {
-	yamlPath := "gocore.yaml"
-	if dir != "" {
-		yamlPath = dir + "/gocore.yaml"
-	}
-	if file.CheckFileIsExist(yamlPath) {
-		apiFile, err := os.Open(yamlPath)
-		if err == nil {
-			content, err := ioutil.ReadAll(apiFile)
-			if err != nil {
-				panic(err)
-			}
-			cfg := conf.GoCore{}
-			err = yaml.Unmarshal(content, &cfg)
-			if err != nil {
-				panic(err)
-			}
-			return &cfg, nil
-		}
-		panic(err)
-	}
-	var writer = file.NewWriter()
-	yamlByte, err := yaml.Marshal(config)
-	if err != nil {
-		return config, err
-	}
-	writer.Add(yamlByte)
-	writer.WriteToFile(yamlPath)
-	return config, nil
-}
-
+// creatService 创建服务并创建初始化配置
+// TODO 更具传入的conf来判断文件是否存在，不存在报错存在读取
 func creatService(c *cli.Context) error {
 	config := conf.GetGocoreConfig()
 	root := "."
@@ -85,16 +37,19 @@ func creatService(c *cli.Context) error {
 		panic(err)
 	}
 
-	config, err = CreatYoml(root, config)
+	// 创建配置&读取配置
+	config, err = InitYaml(root, config)
 	if err != nil {
 		panic(err)
 	}
+
 	template.CreateCode(root, config.Service.ProjectName, config)
 	printHint("Run go mod init.")
 	cmd = exec.Command("go", "mod", "init", config.Service.ProjectName)
 	cmd.Dir = root
 	_, err = cmd.Output()
 	if err != nil {
+		fmt.Println(err)
 		panic(err)
 	}
 
@@ -103,6 +58,7 @@ func creatService(c *cli.Context) error {
 	cmd.Dir = root
 	_, err = cmd.Output()
 	if err != nil {
+		fmt.Println(err)
 		panic(err)
 	}
 
@@ -113,20 +69,11 @@ func creatService(c *cli.Context) error {
 	if err != nil {
 		panic(err)
 	}
-
-	printHint("Run golangci-lint.")
-	cmd = exec.Command("golangci-lint", "run", "--exclude-use-default ")
-	cmd.Dir = root
-	_, err = cmd.Output()
-	if err != nil {
-		panic(err)
-	}
-
 	printHint("Welcome to GoCore, the project has been initialized.")
-
 	return nil
 }
 
+// printHint 打印提示
 func printHint(str string) {
 	_, err := color.New(color.FgCyan, color.Bold).Print(str + "\n")
 	if err != nil {
