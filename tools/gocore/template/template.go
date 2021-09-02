@@ -87,27 +87,27 @@ func createMain(root, name string) {
 		cmdList = append(cmdList, "cmd.Job,")
 	}
 	FromMain(name, cmdList, fileBuffer)
-	fileWriter(fileBuffer, root+"/main.go")
+	fileForceWriter(fileBuffer, root+"/main.go")
 }
 
 func createConf(root string, name string) {
 
 	// TODO: 如果用户不适用nacos就不应该初始化
 	FromConfBase(fileBuffer)
-	fileWriter(fileBuffer, root+"/conf/base.go")
+	fileForceWriter(fileBuffer, root+"/conf/base.go")
 
 	FromConfConst(name, fileBuffer)
-	fileWriter(fileBuffer, root+"/conf/const.go")
+	fileForceWriter(fileBuffer, root+"/conf/const.go")
 }
 
 func createDockerfile(root string) {
 	FromDockerfile(fileBuffer)
-	fileWriter(fileBuffer, root+"/Dockerfile")
+	fileForceWriter(fileBuffer, root+"/Dockerfile")
 }
 
 func createReadme(root string) {
 	FromREADME(fileBuffer)
-	fileWriter(fileBuffer, root+"/README.md")
+	fileForceWriter(fileBuffer, root+"/README.md")
 }
 
 func createErrCode(root string) {
@@ -154,12 +154,12 @@ func createModel(root, name string) {
 				fieldStr += CreateField(v3.GormRule)
 			}
 			FromModelTable(v1.Name, tableStruct, tableName, fieldStr, fileBuffer)
-			fileWriter(fileBuffer, tabelPath)
+			fileForceWriter(fileBuffer, tabelPath)
 
 		}
 
 		FromModel(v1.Name, tableStr, fileBuffer)
-		fileWriter(fileBuffer, dir+"/mysql_client.go")
+		fileForceWriter(fileBuffer, dir+"/mysql_client.go")
 
 		buff := new(bytes.Buffer)
 		FromConfMysql(v1.Name, buff)
@@ -200,7 +200,7 @@ Namespace = ""
 		FromConfLocal(localConf, fileBuffer)
 		fileWriter(fileBuffer, root+"/conf/local.go")
 		FromCmdInit(name, pkgs, dbUpdate, initDb, initRedis, fileBuffer)
-		fileWriter(fileBuffer, root+"/cmd/init.go")
+		fileForceWriter(fileBuffer, root+"/cmd/init.go")
 	}
 }
 
@@ -219,12 +219,12 @@ func createCronjob(name, root string) {
 	for _, v1 := range jobs {
 		jobPath := dir + file.CamelToUnderline(v1.Job.Name) + ".go"
 		FromCronJob(v1.Job.Name, v1.Job.Comment, fileBuffer)
-		fileWriter(fileBuffer, jobPath)
+		fileForceWriter(fileBuffer, jobPath)
 		cronjobs += "_,_ = cronJob.AddFunc(\"" + v1.Spec + "\", cronjob." + v1.Job.Name + ")\n"
 	}
 
 	FromCmdCronJob(name, cronjobs, fileBuffer)
-	fileWriter(fileBuffer, root+"/cmd/cron.go")
+	fileForceWriter(fileBuffer, root+"/cmd/cron.go")
 }
 
 func createJob(name, root string) {
@@ -243,7 +243,7 @@ func createJob(name, root string) {
 	jobFunctions := ""
 	for _, v1 := range jobs {
 		FromJob(v1.Name, v1.Comment, fileBuffer)
-		fileWriter(fileBuffer, dir+file.CamelToUnderline(v1.Name)+".go")
+		fileForceWriter(fileBuffer, dir+file.CamelToUnderline(v1.Name)+".go")
 		jobCmd += `		{
 			Name:   "` + v1.Name + `",
 			Usage:  "` + v1.Comment + `",
@@ -262,7 +262,7 @@ func ` + v1.Name + `(c *cli.Context) error {
 	}
 
 	FromCmdJob(name, jobCmd, jobFunctions, fileBuffer)
-	fileWriter(fileBuffer, root+"/cmd/job.go")
+	fileForceWriter(fileBuffer, root+"/cmd/job.go")
 }
 
 func createApi(root, name string) {
@@ -275,7 +275,7 @@ func createApi(root, name string) {
 	}
 
 	FromCmdApi(name, fileBuffer)
-	fileWriter(fileBuffer, root+"/cmd/api.go")
+	fileForceWriter(fileBuffer, root+"/cmd/api.go")
 
 	apiDir := root + "/app/api/"
 	err := file.MkdirIfNotExist(apiDir)
@@ -299,7 +299,7 @@ func createApi(root, name string) {
 		apiPath := apiDir + file.CamelToUnderline(handlerName) + ".go"
 		routes := v1.Handle
 		FromDomain(fileBuffer)
-		fileWriter(fileBuffer, domainDir+file.CamelToUnderline(handlerName)+".go")
+		fileForceWriter(fileBuffer, domainDir+file.CamelToUnderline(handlerName)+".go")
 		if len(routes) == 0 {
 			continue
 		}
@@ -331,16 +331,16 @@ func createApi(root, name string) {
 			comments = append(comments, v2.Comment)
 			routesStr += handlerName + "." + v2.Method + "(\"/" + file.CamelToUnderline(route) + "\",api." + function + ") //" + v2.Comment + "\n"
 			// FromDomain(name, handler, function, req, fileBuffer)
-			// fileWriter(fileBuffer, domainDir+file.CamelToUnderline(route)+".go")
+			// fileForceWriter(fileBuffer, domainDir+file.CamelToUnderline(route)+".go")
 
 		}
 
 		FromApi(name, handler, apiContent, comments, functions, reqs, fileBuffer)
 		// writer.Add(fileBuffer.Bytes())
-		fileWriter(fileBuffer, apiPath)
+		fileForceWriter(fileBuffer, apiPath)
 	}
 	FromApiRoutes(name, routesStr, fileBuffer)
-	fileWriter(fileBuffer, root+"/app/routes/routers.go")
+	fileForceWriter(fileBuffer, root+"/app/routes/routers.go")
 
 }
 
@@ -386,14 +386,20 @@ func createDef(root string) {
 		}
 		FromApiRequest(k1, params, fileBuffer)
 	}
-	fileWriter(fileBuffer, dir+"/def.go")
+	fileForceWriter(fileBuffer, dir+"/def.go")
 }
 
 // ------------------------------------------------------------------------------
 
-func fileWriter(buffer *bytes.Buffer, path string) {
+func fileForceWriter(buffer *bytes.Buffer, path string) {
 	writer.Add(buffer.Bytes())
 	writer.ForceWriteToFile(path)
+	buffer.Reset()
+}
+
+func fileWriter(buffer *bytes.Buffer, path string) {
+	writer.Add(buffer.Bytes())
+	writer.WriteToFile(path)
 	buffer.Reset()
 }
 
