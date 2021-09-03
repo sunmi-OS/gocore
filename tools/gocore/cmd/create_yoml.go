@@ -34,8 +34,7 @@ func creatYaml(c *cli.Context) error {
 	return nil
 }
 
-// InitYaml 生成Yaml配置文件
-// TODO 命名和实际操作有二义性，拆开成不同独立的操作
+// InitYaml 初始化Yaml配置文件
 func InitYaml(dir string, config *conf.GoCore) (*conf.GoCore, error) {
 	yamlPath := "gocore.yaml"
 	if dir != "" {
@@ -57,6 +56,12 @@ func InitYaml(dir string, config *conf.GoCore) (*conf.GoCore, error) {
 		}
 		panic(err)
 	}
+
+	return CreateYaml(yamlPath, config)
+}
+
+// CreateYaml 创建Yaml文件
+func CreateYaml(yamlPath string, config *conf.GoCore) (*conf.GoCore, error) {
 	var writer = file.NewWriter()
 	yamlByte, err := yaml.Marshal(config)
 	if err != nil {
