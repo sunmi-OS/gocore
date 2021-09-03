@@ -77,15 +77,10 @@ type Mysql struct {
 
 // Model TODO：支持建表SQL导入
 type Model struct {
-	Name    string  `yaml:"name"`   // 表名
-	Auto    bool    `yaml:"auto"`   // 是否自动创建表结构
-	Fields  []Field `yaml:"fields"` // 字段列表
-	Comment string  `yaml:"comment"`
-}
-
-type Field struct {
-	Name     string `yaml:"name"`     // 字段名
-	GormRule string `yaml:"gormRule"` // Gorm规则
+	Name    string   `yaml:"name"`   // 表名
+	Auto    bool     `yaml:"auto"`   // 是否自动创建表结构
+	Fields  []string `yaml:"fields"` // 字段列表
+	Comment string   `yaml:"comment"`
 }
 
 type Redis struct {
@@ -111,13 +106,9 @@ func GetGocoreConfig() *GoCore {
 						{
 							Name: "user",
 							Auto: false,
-							Fields: []Field{
-								{
-									GormRule: "column:id;primary_key;type:int AUTO_INCREMENT",
-								},
-								{
-									GormRule: "column:name;type:varchar(100) NOT NULL;default:'';comment:'用户名';unique_index",
-								},
+							Fields: []string{
+								"column:id;primary_key;type:int AUTO_INCREMENT",
+								"column:name;type:varchar(100) NOT NULL;default:'';comment:'用户名';unique_index",
 							},
 							Comment: "用户表",
 						},

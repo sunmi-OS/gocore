@@ -151,7 +151,7 @@ func createModel(root, name string) {
 			fieldStr := ""
 			fields := v2.Fields
 			for _, v3 := range fields {
-				fieldStr += CreateField(v3.GormRule)
+				fieldStr += CreateField(v3)
 			}
 			FromModelTable(v1.Name, tableStruct, tableName, fieldStr, fileBuffer)
 			fileForceWriter(fileBuffer, tabelPath)
