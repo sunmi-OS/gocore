@@ -25,6 +25,7 @@ func main() {
 	app.Commands = []*cli.Command{
 		cmd.CreatService,
 		cmd.CreatYaml,
+		cmd.AddMysql,
 	}
 
 	// 启动cli

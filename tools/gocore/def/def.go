@@ -57,6 +57,25 @@ var TypeMysqlMatchMp = map[string]string{
 	`^(double)[(]\d+,\d+[)]`:  "float64",
 	`^(float)[(]\d+,\d+[)]`:   "float64",
 	`^(datetime)[(]\d+[)]`:    "time.Time",
+	`^(timestamp)`:            "time.Time",
+	`^(text)`:                 "string",
+	`^(date )`:                "time.Time",
+}
+
+type Table struct {
+	Name    string `gorm:"column:Name"`
+	Comment string `gorm:"column:Comment"`
+}
+
+type Field struct {
+	Field      string `gorm:"column:Field"`
+	Type       string `gorm:"column:Type"`
+	Null       string `gorm:"column:Null"`
+	Key        string `gorm:"column:Key"`
+	Default    string `gorm:"column:Default"`
+	Extra      string `gorm:"column:Extra"`
+	Privileges string `gorm:"column:Privileges"`
+	Comment    string `gorm:"column:Comment"`
 }
 
 // getTypeName Type acquisition filtering.类型获取过滤

@@ -17,8 +17,9 @@ var CreatYaml = &cli.Command{
 	Name: "conf",
 	Flags: []cli.Flag{
 		&cli.StringFlag{
-			Name:  "dir",
-			Usage: "dir path",
+			Name:        "dir",
+			Usage:       "dir path",
+			DefaultText: ".",
 		}},
 	Usage:  "create conf [dir]",
 	Action: creatYaml,
@@ -26,7 +27,8 @@ var CreatYaml = &cli.Command{
 
 // creatYaml 创建配置文件
 func creatYaml(c *cli.Context) error {
-	_, err := InitYaml(".", conf.GetGocoreConfig())
+	root := c.String("dir")
+	_, err := InitYaml(root, conf.GetGocoreConfig())
 	if err != nil {
 		return err
 	}
@@ -40,6 +42,7 @@ func InitYaml(dir string, config *conf.GoCore) (*conf.GoCore, error) {
 	if dir != "" {
 		yamlPath = dir + "/gocore.yaml"
 	}
+
 	if file.CheckFileIsExist(yamlPath) {
 		apiFile, err := os.Open(yamlPath)
 		if err == nil {
@@ -68,6 +71,6 @@ func CreateYaml(yamlPath string, config *conf.GoCore) (*conf.GoCore, error) {
 		return config, err
 	}
 	writer.Add(yamlByte)
-	writer.WriteToFile(yamlPath)
+	writer.ForceWriteToFile(yamlPath)
 	return config, nil
 }

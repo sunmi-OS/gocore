@@ -77,7 +77,18 @@ func creatService(c *cli.Context) error {
 		fmt.Println(string(resp))
 		panic(err)
 	}
+	printHint("Welcome to GoCore, the project has been format.")
+
+	printHint("goimports -l -w .")
+	cmd = exec.Command("goimports", "-l", "-w", ".")
+	cmd.Dir = root
+	resp, err = cmd.Output()
+	if err != nil {
+		fmt.Println(string(resp))
+		panic(err)
+	}
 	printHint("Welcome to GoCore, the project has been initialized.")
+
 	return nil
 }
 
