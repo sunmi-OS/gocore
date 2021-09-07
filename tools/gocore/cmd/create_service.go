@@ -20,7 +20,7 @@ var CreatService = &cli.Command{
 			Name:  "config, c",
 			Usage: "Load configuration from yaml file",
 		}},
-	Usage:  "create service [config]",
+	Usage:  "create update service [config]",
 	Action: creatService,
 }
 
