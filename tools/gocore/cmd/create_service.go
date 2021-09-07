@@ -7,6 +7,7 @@ import (
 	"github.com/fatih/color"
 
 	"github.com/sunmi-OS/gocore/v2/tools/gocore/conf"
+	"github.com/sunmi-OS/gocore/v2/tools/gocore/file"
 	"github.com/sunmi-OS/gocore/v2/tools/gocore/template"
 
 	"github.com/urfave/cli/v2"
@@ -30,46 +31,64 @@ func creatService(c *cli.Context) error {
 	config := conf.GetGocoreConfig()
 	root := "."
 
-	cmd := exec.Command("go", "fmt", "./...")
-	cmd.Dir = root
-	_, err := cmd.Output()
+	// 创建配置&读取配置
+	config, err := InitYaml(root, config)
 	if err != nil {
 		panic(err)
 	}
 
-	// 创建配置&读取配置
-	config, err = InitYaml(root, config)
-	if err != nil {
-		panic(err)
+	modPath := root + "/go.mod"
+	if file.CheckFileIsExist(modPath) {
+		cmd := exec.Command("go", "fmt", "./...")
+		cmd.Dir = root
+		resp, err := cmd.Output()
+		if err != nil {
+			fmt.Println(string(resp))
+			panic(err)
+		}
+	} else {
+		printHint("Run go mod init.")
+		cmd := exec.Command("go", "mod", "init", config.Service.ProjectName)
+		cmd.Dir = root
+		resp, err := cmd.Output()
+		if err != nil {
+			fmt.Println(string(resp))
+			panic(err)
+		}
 	}
 
 	template.CreateCode(root, config.Service.ProjectName, config)
-	printHint("Run go mod init.")
-	cmd = exec.Command("go", "mod", "init", config.Service.ProjectName)
-	cmd.Dir = root
-	_, err = cmd.Output()
-	if err != nil {
-		fmt.Println(err)
-		panic(err)
-	}
 
 	printHint("Run go mod tidy.")
-	cmd = exec.Command("go", "mod", "tidy")
+	cmd := exec.Command("go", "mod", "tidy")
+	cmd.Wait()
 	cmd.Dir = root
-	_, err = cmd.Output()
+	resp, err := cmd.Output()
 	if err != nil {
-		fmt.Println(err)
+		fmt.Println(string(resp))
 		panic(err)
 	}
 
 	printHint("Run go fmt.")
 	cmd = exec.Command("go", "fmt", "./...")
 	cmd.Dir = root
-	_, err = cmd.Output()
+	resp, err = cmd.Output()
 	if err != nil {
+		fmt.Println(string(resp))
+		panic(err)
+	}
+	printHint("Welcome to GoCore, the project has been format.")
+
+	printHint("goimports -l -w .")
+	cmd = exec.Command("goimports", "-l", "-w", ".")
+	cmd.Dir = root
+	resp, err = cmd.Output()
+	if err != nil {
+		fmt.Println(string(resp))
 		panic(err)
 	}
 	printHint("Welcome to GoCore, the project has been initialized.")
+
 	return nil
 }
 
