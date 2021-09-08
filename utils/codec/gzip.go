@@ -6,19 +6,7 @@ import (
 	"io/ioutil"
 )
 
-func GzipDecode(msg string) string {
-	bf := new(bytes.Buffer)
-	bf.Write([]byte(msg))
-
-	r, err := gzip.NewReader(bf)
-	if err != nil {
-		return ""
-	}
-	defer r.Close()
-	undatas, _ := ioutil.ReadAll(r)
-	return string(undatas)
-}
-
+// GzipEncode 字符串转gzip
 func GzipEncode(msg string) (string, error) {
 	b := new(bytes.Buffer)
 	w := gzip.NewWriter(b)
@@ -33,4 +21,18 @@ func GzipEncode(msg string) (string, error) {
 		return "", err
 	}
 	return b.String(), nil
+}
+
+// GzipDecode Gzip转字符串
+func GzipDecode(msg string) string {
+	bf := new(bytes.Buffer)
+	bf.Write([]byte(msg))
+
+	r, err := gzip.NewReader(bf)
+	if err != nil {
+		return ""
+	}
+	defer r.Close()
+	undatas, _ := ioutil.ReadAll(r)
+	return string(undatas)
 }
