@@ -28,7 +28,11 @@ var CreatYaml = &cli.Command{
 // creatYaml 创建配置文件
 func creatYaml(c *cli.Context) error {
 	root := c.String("dir")
-	_, err := InitYaml(root, conf.GetGocoreConfig())
+	if root == "" {
+		root = "."
+	}
+	yamlPath := root + "/gocore.yaml"
+	_, err := InitYaml(yamlPath, conf.GetGocoreConfig())
 	if err != nil {
 		return err
 	}
@@ -37,12 +41,7 @@ func creatYaml(c *cli.Context) error {
 }
 
 // InitYaml 初始化Yaml配置文件
-func InitYaml(dir string, config *conf.GoCore) (*conf.GoCore, error) {
-	yamlPath := "gocore.yaml"
-	if dir != "" {
-		yamlPath = dir + "/gocore.yaml"
-	}
-
+func InitYaml(yamlPath string, config *conf.GoCore) (*conf.GoCore, error) {
 	if file.CheckFileIsExist(yamlPath) {
 		apiFile, err := os.Open(yamlPath)
 		if err == nil {

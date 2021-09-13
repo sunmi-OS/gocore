@@ -18,21 +18,26 @@ var CreatService = &cli.Command{
 	Name: "service",
 	Flags: []cli.Flag{
 		&cli.StringFlag{
-			Name:  "config, c",
-			Usage: "Load configuration from yaml file",
+			Name:        "config, c",
+			Usage:       "Load configuration from yaml file",
+			DefaultText: "",
 		}},
 	Usage:  "create update service [config]",
 	Action: creatService,
 }
 
 // creatService 创建服务并创建初始化配置
-// TODO 更具传入的conf来判断文件是否存在，不存在报错存在读取
 func creatService(c *cli.Context) error {
 	config := conf.GetGocoreConfig()
+	yamlPath := c.String("config")
 	root := "."
-
+	if yamlPath == "" {
+		yamlPath = root + "/gocore.yaml"
+	} else if !file.CheckFileIsExist(yamlPath) {
+		return fmt.Errorf("%s is not found", yamlPath)
+	}
 	// 创建配置&读取配置
-	config, err := InitYaml(root, config)
+	config, err := InitYaml(yamlPath, config)
 	if err != nil {
 		panic(err)
 	}
