@@ -61,7 +61,10 @@ func creatService(c *cli.Context) error {
 
 	printHint("Run go mod tidy.")
 	cmd := exec.Command("go", "mod", "tidy")
-	cmd.Wait()
+	err = cmd.Wait()
+	if err != nil {
+		return err
+	}
 	cmd.Dir = root
 	resp, err := cmd.Output()
 	if err != nil {
