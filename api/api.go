@@ -42,8 +42,8 @@ func NewContext(g *gin.Context) Context {
 	if g.GetHeader(utils.XB3TraceId) != "" {
 		g.Header(utils.XB3TraceId, g.GetHeader(utils.XB3TraceId))
 		c.T = utils.SetHttp(g.Request.Header)
+		c.C = context.WithValue(c.C, &utils.TraceHeader{}, c.T)
 	}
-
 	return c
 }
 
@@ -60,6 +60,22 @@ func (c *Context) Error(err error) {
 	c.JSON(http.StatusOK, c.R)
 }
 
+// ErrorCodeMsg 直接指定code和msg
+func (c *Context) ErrorCodeMsg(code int, msg string) {
+	c.R.Code = code
+	c.R.Msg = msg
+	c.JSON(http.StatusOK, c.R)
+}
+
+// Response 直接指定code和msg和data
+func (c *Context) Response(code int, msg string, data interface{}) {
+	c.R.Code = code
+	c.R.Msg = msg
+	c.R.Data = data
+	c.JSON(http.StatusOK, c.R)
+}
+
+// BindValidator 参数绑定结构体，并且按照tag进行校验返回校验结果
 func (c *Context) BindValidator(obj interface{}) error {
 	err := c.ShouldBind(obj)
 	if err != nil {

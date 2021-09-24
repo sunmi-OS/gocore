@@ -14,11 +14,12 @@ import (
 
 // CreatYaml 创建配置文件
 var CreatYaml = &cli.Command{
-	Name: "conf",
+	Name: "yaml",
 	Flags: []cli.Flag{
 		&cli.StringFlag{
-			Name:  "dir",
-			Usage: "dir path",
+			Name:        "dir",
+			Usage:       "dir path",
+			DefaultText: ".",
 		}},
 	Usage:  "create conf [dir]",
 	Action: creatYaml,
@@ -26,7 +27,12 @@ var CreatYaml = &cli.Command{
 
 // creatYaml 创建配置文件
 func creatYaml(c *cli.Context) error {
-	_, err := InitYaml(".", conf.GetGocoreConfig())
+	root := c.String("dir")
+	if root == "" {
+		root = "."
+	}
+	yamlPath := root + "/gocore.yaml"
+	_, err := InitYaml(yamlPath, conf.GetGocoreConfig())
 	if err != nil {
 		return err
 	}
@@ -34,13 +40,8 @@ func creatYaml(c *cli.Context) error {
 	return nil
 }
 
-// InitYaml 生成Yaml配置文件
-// TODO 命名和实际操作有二义性，拆开成不同独立的操作
-func InitYaml(dir string, config *conf.GoCore) (*conf.GoCore, error) {
-	yamlPath := "gocore.yaml"
-	if dir != "" {
-		yamlPath = dir + "/gocore.yaml"
-	}
+// InitYaml 初始化Yaml配置文件
+func InitYaml(yamlPath string, config *conf.GoCore) (*conf.GoCore, error) {
 	if file.CheckFileIsExist(yamlPath) {
 		apiFile, err := os.Open(yamlPath)
 		if err == nil {
@@ -57,12 +58,18 @@ func InitYaml(dir string, config *conf.GoCore) (*conf.GoCore, error) {
 		}
 		panic(err)
 	}
+
+	return CreateYaml(yamlPath, config)
+}
+
+// CreateYaml 创建Yaml文件
+func CreateYaml(yamlPath string, config *conf.GoCore) (*conf.GoCore, error) {
 	var writer = file.NewWriter()
 	yamlByte, err := yaml.Marshal(config)
 	if err != nil {
 		return config, err
 	}
 	writer.Add(yamlByte)
-	writer.WriteToFile(yamlPath)
+	writer.ForceWriteToFile(yamlPath)
 	return config, nil
 }

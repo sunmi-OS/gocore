@@ -8,7 +8,7 @@ import (
 	"strings"
 )
 
-// Zip 压缩
+// Zip 文件压缩
 func Zip(srcFile string, destZip string) error {
 	zipFile, err := os.Create(destZip)
 	if err != nil {
@@ -58,7 +58,7 @@ func Zip(srcFile string, destZip string) error {
 	return err
 }
 
-// Unzip 解压
+// Unzip 文件解压
 func Unzip(zipFile, destDir string) error {
 	zipReader, err := zip.OpenReader(zipFile)
 	if err != nil {

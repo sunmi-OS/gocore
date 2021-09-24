@@ -23,7 +23,7 @@ const (
 		DB`)
 		buffer.WriteString(strings.Title(v1.Name))
 		buffer.WriteString(` = "db`)
-		strings.Title(v1.Name)
+		buffer.WriteString(strings.Title(v1.Name))
 		buffer.WriteString(`"
 	`)
 	}

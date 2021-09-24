@@ -5,7 +5,7 @@ const (
 	ProjectName    = "<%== projectName %>"
 	ProjectVersion = "v1.0.0"
 	<% for _, v1 := range goCoreConfig.Config.CMysql { %>
-		DB<%== strings.Title(v1.Name) %> = "db<% strings.Title(v1.Name) %>"
+		DB<%== strings.Title(v1.Name) %> = "db<%== strings.Title(v1.Name) %>"
 	<% } %>
 	<% for _, v1 := range goCoreConfig.Config.CRedis { %>
 	  <%for k2 := range v1.Index { %>

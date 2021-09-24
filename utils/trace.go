@@ -44,12 +44,13 @@ func SetGrpc(ctx context.Context) *TraceHeader {
 }
 
 func SetHeader(header interface{}) *TraceHeader {
-
 	switch header := header.(type) {
 	case http.Header:
 		return SetHttp(header)
 	case context.Context:
 		return SetGrpc(header)
+	case *TraceHeader:
+		return header
 	default:
 		return &TraceHeader{}
 	}
