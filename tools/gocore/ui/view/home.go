@@ -8,13 +8,13 @@ type Home struct {
 
 func (h *Home) Render() app.UI {
 
-	return app.Div().Body(
-		app.Div().Body(
-			app.Button().Body(
+	return app.Div().Class("layui-layout layui-layout-admin").Body(
+		&Navigate{},
+		app.Div().Class("layui-body").Body(
+			app.Button().Class("layui-btn layui-btn-normal").Body(
 				app.Text("Go2"),
 			).OnClick(func(ctx app.Context, e app.Event) {
-				ctx.Navigate("https://baidu.com")
+				//ctx.Navigate("https://baidu.com")
 			}),
-		),
-	)
+		))
 }

@@ -28,7 +28,6 @@ func main() {
 		cmd.AddMysql,
 		cmd.Ui,
 	}
-
 	// 启动cli
 	if err := app.Run(os.Args); err != nil {
 		log.Fatalf("Failed to start application: %v", err)

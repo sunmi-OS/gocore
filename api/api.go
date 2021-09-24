@@ -42,7 +42,7 @@ func NewContext(g *gin.Context) Context {
 	if g.GetHeader(utils.XB3TraceId) != "" {
 		g.Header(utils.XB3TraceId, g.GetHeader(utils.XB3TraceId))
 		c.T = utils.SetHttp(g.Request.Header)
-		c.C = context.WithValue(c.C, utils.TraceHeader{}, c.T)
+		c.C = context.WithValue(c.C, &utils.TraceHeader{}, c.T)
 	}
 	return c
 }
