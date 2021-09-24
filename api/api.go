@@ -25,6 +25,7 @@ var (
 	Validator      *validator.Validate
 	ErrorBind      = errors.New("Missing required parameters")
 	ErrorValidator = errors.New("Parameter verification incident")
+	TraceHeaderKey struct{}
 )
 
 func init() {
@@ -42,7 +43,7 @@ func NewContext(g *gin.Context) Context {
 	if g.GetHeader(utils.XB3TraceId) != "" {
 		g.Header(utils.XB3TraceId, g.GetHeader(utils.XB3TraceId))
 		c.T = utils.SetHttp(g.Request.Header)
-		c.C = context.WithValue(c.C, &utils.TraceHeader{}, c.T)
+		c.C = context.WithValue(c.C, TraceHeaderKey, c.T)
 	}
 	return c
 }
