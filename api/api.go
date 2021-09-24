@@ -1,8 +1,3 @@
-/*
- * @Descripttion: 
- * @Author: jiangmenglin@sunmi.com
- * @Date: 2021-09-24 11:55:12
- */
 package api
 
 import (
