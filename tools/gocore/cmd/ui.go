@@ -6,7 +6,7 @@ import (
 	"os/exec"
 	"runtime"
 
-	_ "github.com/sunmi-OS/gocore/v2/tools/gocore/ui/statik"
+	//_ "github.com/sunmi-OS/gocore/v2/tools/gocore/ui/statik"
 
 	"github.com/maxence-charriere/go-app/v8/pkg/app"
 	"github.com/rakyll/statik/fs"
