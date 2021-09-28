@@ -4,14 +4,13 @@ import (
 	"errors"
 	"net/http"
 
-	"github.com/go-playground/validator/v10"
-
 	"github.com/sunmi-OS/gocore/v2/utils"
 
 	"github.com/sunmi-OS/gocore/v2/api/ecode"
 
+	"context"
+
 	"github.com/gin-gonic/gin"
-	"golang.org/x/net/context"
 )
 
 type Context struct {
@@ -22,15 +21,11 @@ type Context struct {
 }
 
 var (
-	Validator      *validator.Validate
-	ErrorBind      = errors.New("Missing required parameters")
-	ErrorValidator = errors.New("Parameter verification incident")
+	ErrorBind      = errors.New("missing required parameters")
 	TraceHeaderKey struct{}
 )
 
-func init() {
-	Validator = validator.New()
-}
+//const TraceHeaderKey = "TraceHeaderKey"
 
 // NewContext 初始化上下文包含context.Context
 // 对链路信息进行判断并且在Response时返回TraceId信息
@@ -40,9 +35,11 @@ func NewContext(g *gin.Context) Context {
 		C:       context.Background(),
 		R:       NewResponse(),
 	}
+
 	if g.GetHeader(utils.XB3TraceId) != "" {
 		g.Header(utils.XB3TraceId, g.GetHeader(utils.XB3TraceId))
 		c.T = utils.SetHttp(g.Request.Header)
+		//g.Set(TraceHeaderKey, c.T)
 		c.C = context.WithValue(c.C, TraceHeaderKey, c.T)
 	}
 	return c
@@ -82,13 +79,6 @@ func (c *Context) BindValidator(obj interface{}) error {
 	if err != nil {
 		if utils.IsRelease() {
 			return ErrorBind
-		}
-		return err
-	}
-	err = Validator.Struct(obj)
-	if err != nil {
-		if utils.IsRelease() {
-			return ErrorValidator
 		}
 		return err
 	}

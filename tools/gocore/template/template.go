@@ -366,14 +366,14 @@ func createDef(root string) {
 				// if len(field) < 3 {
 				// 	continue
 				// }
-				params += file.UnderlineToCamel(v3.Name) + " " + v3.Type + " `json:\"" + v3.Name + "\" validate:\"" + v3.Validate + "\"` // " + v3.Comment + "\n"
+				params += file.UnderlineToCamel(v3.Name) + " " + v3.Type + " `json:\"" + v3.Name + "\" binding:\"" + v3.Validate + "\"` // " + v3.Comment + "\n"
 			}
 			FromApiRequest(v2.Name+"Request", params, fileBuffer)
 
 			params = ""
 			fields = v2.ResponseParams
 			for _, v3 := range fields {
-				params += file.UnderlineToCamel(v3.Name) + " " + v3.Type + " `json:\"" + v3.Name + "\" validate:\"" + v3.Validate + "\"` // " + v3.Comment + "\n"
+				params += file.UnderlineToCamel(v3.Name) + " " + v3.Type + " `json:\"" + v3.Name + "\" binding:\"" + v3.Validate + "\"` // " + v3.Comment + "\n"
 			}
 			FromApiRequest(v2.Name+"Response", params, fileBuffer)
 		}
@@ -382,7 +382,7 @@ func createDef(root string) {
 		params := ""
 		fields := v1
 		for _, v2 := range fields {
-			params += file.UnderlineToCamel(v2.Name) + " " + v2.Type + " `json:\"" + v2.Name + "\" validate:\"" + v2.Validate + "\"` // " + v2.Comment + "\n"
+			params += file.UnderlineToCamel(v2.Name) + " " + v2.Type + " `json:\"" + v2.Name + "\" binding:\"" + v2.Validate + "\"` // " + v2.Comment + "\n"
 		}
 		FromApiRequest(k1, params, fileBuffer)
 	}
