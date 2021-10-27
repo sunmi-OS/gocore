@@ -24,7 +24,7 @@ require (
 	github.com/spf13/viper v1.8.1
 	github.com/streadway/amqp v1.0.0
 	github.com/stretchr/testify v1.7.0
-	github.com/tidwall/gjson v1.9.0
+	github.com/tidwall/gjson v1.9.3
 	github.com/urfave/cli/v2 v2.3.0
 	github.com/zserge/lorca v0.1.10
 	go.uber.org/zap v1.19.1
