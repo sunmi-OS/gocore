@@ -9,7 +9,7 @@
 ## Installation && Usage
 
 ```bash
-go get github.com/sunmi-OS/gocore
+go get github.com/sunmi-OS/gocor/v2
 ```
 
 ```go
