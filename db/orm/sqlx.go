@@ -7,10 +7,7 @@ import (
 	"gorm.io/gorm"
 )
 
-// @desc 批量插入 不对唯一索引做更新
-// @auth liuguoqiang 2020-11-27
-// @param
-// @return
+// BulkInsert 批量插入 不对唯一索引做更新
 func BulkInsert(db *gorm.DB, table string, fields []string, params []map[string]interface{}) error {
 	if len(params) == 0 {
 		return nil
@@ -37,10 +34,7 @@ func BulkInsert(db *gorm.DB, table string, fields []string, params []map[string]
 	return err
 }
 
-// @desc 批量插入 如果唯一索引重复则更新，唯一索引不重复或者不存在唯一索引则插入
-// @auth liuguoqiang 2020-11-27
-// @param
-// @return
+// BulkSave 批量插入 如果唯一索引重复则更新，唯一索引不重复或者不存在唯一索引则插入
 func BulkSave(db *gorm.DB, table string, fields []string, params []map[string]interface{}) error {
 	if len(params) == 0 {
 		return nil
