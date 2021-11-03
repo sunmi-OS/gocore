@@ -1,22 +1,38 @@
+- [项目介绍](zh-cn/README.md)
 - 入门
-  - [目录结构](zh-cn/dir.md)
-  - [快速开始](zh-cn/quickstart.md)
-  - [下载](https://github.com/sunmi-OS/gocore/releases)
+  - [快速开始](zh-cn/nav/quickstart.md)
+  - [目录结构](zh-cn/nav/dir.md)
 
-- 指南
-  - [本地联调测试](zh-cn/guide/localdev.md)
-  - [Mesh最佳实践](zh-cn/guide/mesh.md)
-  - [使用DNS服务](zh-cn/guide/how-to-use-dns.md)
-  - [在IDEA中联调](zh-cn/guide/how-to-use-in-idea.md)
-  - [Windows支持](zh-cn/guide/windows-support.md)
-  - [可视化](zh-cn/guide/dashboard.md)
-
-- 问题排查：
-  - [connect](zh-cn/troubleshoot.md)
-  - [FAQ](zh-cn/faq.md)
-
-- [版本日志](zh-cn/changelog.md)
-- [升级说明](zh-cn/update.md)
-- [开发计划](zh-cn/todo.md)
+- 示例
+  - [API接口开发](zh-cn/nav/api.md)
+    - [ADM模型](zh-cn/nav/adm.md)
+    - [异常code](zh-cn/nav/code.md)
+  - log库
+    - [zap](zh-cn/nav/zap.md)
+    - [sls](zh-cn/nav/sls.md)
+  - [配置文件](zh-cn/nav/configfile.md)
+  - [配置中心](zh-cn/nav/config.md)
+  - [orm](zh-cn/nav/orm.md)
+  - [redis](zh-cn/nav/redis.md)
+  - 队列
+    - [rocketmq](zh-cn/nav/rocketmq.md)
+    - [kafka](zh-cn/nav/kafka.md)
+    - [rabbitmq](zh-cn/nav/rabbitmq.md)
+    - [mqtt](zh-cn/nav/mqtt.md)
+  - [grpc](zh-cn/nav/grpc.md)
+  - 基础工具库
+    - [加密库](zh-cn/nav/encrypt.md)
+    - [签名库](zh-cn/nav/sign.md)
+    - [字符串处理](zh-cn/nav/string.md)
+    - [文件处理](zh-cn/nav/file.md)
+    - [邮件发送](zh-cn/nav/email.md)
+    - [http请求库](zh-cn/nav/http.md)
+    - [链路追踪](zh-cn/nav/trace.md)
+    - [基础工具](zh-cn/nav/common.md)
+- 最佳实践
+  - [容器化](zh-cn/nav/container.md)
+  - [k8s](zh-cn/nav/k8s.md)
+  - [配置中心](zh-cn/nav/config_center.md)
+  - [服务网格](zh-cn/nav/service_mesh.md)
 
 <!-- - [Need Help](es-us/needhelp.md) -->
