@@ -1,7 +1,7 @@
 - 入门
   - [目录结构](zh-cn/dir.md)
   - [快速开始](zh-cn/quickstart.md)
-  - [下载](zh-cn/downloads.md)
+  - [下载](https://github.com/sunmi-OS/gocore/releases)
 
 - 指南
   - [本地联调测试](zh-cn/guide/localdev.md)
