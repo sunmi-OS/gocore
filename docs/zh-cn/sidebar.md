@@ -34,5 +34,8 @@
   - [k8s](zh-cn/nav/k8s.md)
   - [配置中心](zh-cn/nav/config_center.md)
   - [服务网格](zh-cn/nav/service_mesh.md)
+- [FAQ](zh-cn/faq.md)
+- [版本日志](zh-cn/changelog.md)
+- [开发计划](zh-cn/nav/todo.md)
 
 <!-- - [Need Help](es-us/needhelp.md) -->
