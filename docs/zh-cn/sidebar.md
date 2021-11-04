@@ -2,16 +2,16 @@
 - 入门
   - [快速开始](zh-cn/nav/quickstart.md)
   - [目录结构](zh-cn/nav/dir.md)
-
 - 示例
   - [API接口开发](zh-cn/nav/api.md)
     - [ADM模型](zh-cn/nav/adm.md)
     - [异常code](zh-cn/nav/code.md)
-  - log库
+  - [log库](zh-cn/nav/log.md)
     - [zap](zh-cn/nav/zap.md)
     - [sls](zh-cn/nav/sls.md)
-  - [配置文件](zh-cn/nav/configfile.md)
-  - [配置中心](zh-cn/nav/config.md)
+  - [配置管理文件](zh-cn/nav/config.md)
+    - [viper](zh-cn/nav/viper.md)
+    - [nacos配置中心](zh-cn/nav/nacos.md)
   - [orm](zh-cn/nav/orm.md)
   - [redis](zh-cn/nav/redis.md)
   - 队列
@@ -29,7 +29,7 @@
     - [http请求库](zh-cn/nav/http.md)
     - [链路追踪](zh-cn/nav/trace.md)
     - [基础工具](zh-cn/nav/common.md)
-- 最佳实践
+- [最佳实践](zh-cn/nav/practices.md)
   - [容器化](zh-cn/nav/container.md)
   - [k8s](zh-cn/nav/k8s.md)
   - [配置中心](zh-cn/nav/config_center.md)
