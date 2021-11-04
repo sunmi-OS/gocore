@@ -1,4 +1,4 @@
-![logo](https://file.cdn.sunmi.com/logo.png)
+![logo](https://file.cdn.sunmi.com/logo.png?x-oss-process=image/resize,h_200)
 
 # GoCore<small>v2</small>
 
