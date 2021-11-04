@@ -1,7 +1,8 @@
 介绍
 ---
 
-kt-connect是一款能让开发者在本地运行的服务与Kubernetes集群中的服务双向互通的工具。
+![logo](https://file.cdn.sunmi.com/logo.png?x-oss-process=image/resize,h_200)
+gocore是一款高度集成的开发框架和脚手架，支持api、rpc、job、task等开发方式，并且集成各类主流开源库和中间件融入最佳实践，最终实现简化流程、提高效率、统一规范。
 
 ## 特性
 
@@ -27,6 +28,6 @@ kt-connect是一款能让开发者在本地运行的服务与Kubernetes集群中
 
 ## 联系我们
 
-请加入`kt-dev`钉钉群：
+请加入`gocore`QQ群：1004023331
 
-<img src="https://virtual-environment.oss-cn-zhangjiakou.aliyuncs.com/image/dingtalk-group-zh-cn.jpg" width="40%"></img>
+![logo](media/qq.png)
