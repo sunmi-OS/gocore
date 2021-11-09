@@ -8,8 +8,12 @@ gocore是一款高度集成的开发框架和脚手架，支持api、rpc、job�
 
 ## 安装
 
+- 环境要求
+  - Golang > 1.16
+  - [Go module](https://github.com/golang/go/wiki/Modules)
+  
 
-* 获取项目包
+### 获取项目包
 
 ```bash
 > go get -u github.com/sunmi-OS/gocore/v2
@@ -34,9 +38,123 @@ gocore version v1.0.0
 
 ## 快速开始
 
+创建一个示例项目
 ```bash
+# 创建工程文件夹
+> mkdir test
+> cd test
+
+# 创建yaml配置文件模板gocore.yaml
+> gocore conf create 
+...
+Welcome to GoCore, Configuration file has been generated.
+
+# 修改gocore.yaml模板之后,根据yaml文件创建工程项目
+> gocroe service create 
+
+# 下次迭代增加新的接口的数据表更新代码
+> gocroe service create 
+
+```
+
+工程创建时导入已有数据库
+```bash
+# 创建工程文件夹
+> mkdir test 
+> cd test
+
+# 创建yaml配置文件模板gocore.yaml
+> gocore conf create 
+
+# 创建连接数据库的配置文件模板mysql.yaml
+> gocore mysql create_yaml 
+
+# 修改mysql.yaml之后,连接数据库将字段合并到gocore.yaml
+> gocroe mysql add 
+
+# 修改gocore.yaml模板之后,根据yaml文件创建工程项目
+> gocroe service create 
+```
 
 
+## 配置文件
+
+```yaml
+service:
+  projectName: demo
+  version: v1.0.0
+config:
+  cNacos:
+    env: false
+    rocketMQConfig: true
+  cMysql:
+  - name: app
+    hotUpdate: false
+    models:
+    - name: user
+      auto: false
+      fields:
+      - name: ""
+        gormRule: column:id;primary_key;type:int AUTO_INCREMENT
+      - name: ""
+        gormRule: column:name;type:varchar(100) NOT NULL;default:'';comment:'用户名';unique_index
+      comment: 用户表
+  cRedis:
+  - name: default
+    hotUpdate: false
+    index:
+      db0: 0
+nacosEnable: true
+httpApiEnable: true
+cronJobEnable: true
+jobEnable: true
+httpApis:
+  host: 0.0.0.0
+  port: "80"
+  apis:
+  - prefix: /app/user
+    moduleName: user
+    handle:
+    - name: GetUserInfo
+      method: Any
+      requestParams:
+      - name: uid
+        required: true
+        type: int
+        comment: 用户ID
+        validate: required,min=1,max=100000
+      responseParams:
+      - name: detail
+        required: true
+        type: '*User'
+        comment: 用户详情
+        validate: ""
+      - name: list
+        required: true
+        type: '[]*User'
+        comment: 用户列表
+        validate: ""
+      comment: 获取用户信息
+  params:
+    User:
+    - name: uid
+      required: true
+      type: int
+      comment: 用户ID
+      validate: ""
+    - name: name
+      required: true
+      type: string
+      comment: 用户名
+      validate: ""
+cronJobs:
+- spec: '@every 30m'
+  job:
+    name: SyncUser
+    comment: 同步用户
+jobs:
+- name: InitUser
+  comment: 初始化默认用户
 ```
 
 
