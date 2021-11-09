@@ -34,6 +34,7 @@
   - [k8s](zh-cn/practices/k8s.md)
   - [配置中心](zh-cn/practices/config_center.md)
   - [服务网格](zh-cn/practices/service_mesh.md)
+  - [单元测试](zh-cn/practices/unit_test.md)
 - [FAQ](zh-cn/faq.md)
 - [版本日志](zh-cn/changelog.md)
 - [开发计划](zh-cn/nav/todo.md)
