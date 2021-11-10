@@ -5,7 +5,6 @@
 
 gocore是一款高度集成的开发框架和脚手架，支持api、rpc、job、task等开发方式，并且集成各类主流开源库和中间件融入最佳实践，最终实现简化流程、提高效率、统一规范。
 
-
 ## 特性
 
 - 底层基于主流框架gin、gorm、viper、zap等进行封装整合
@@ -20,9 +19,9 @@ gocore是一款高度集成的开发框架和脚手架，支持api、rpc、job�
 ## 安装
 
 - 环境要求
-    - Golang > 1.16
-    - [Go module](https://github.com/golang/go/wiki/Modules)
-
+  - Golang > 1.16
+  - [Go module](https://github.com/golang/go/wiki/Modules)
+  
 
 ### 获取项目包
 
@@ -48,48 +47,6 @@ gocore是一款高度集成的开发框架和脚手架，支持api、rpc、job�
 gocore version v1.0.0
 
 ```
-
-
-## 快速开始
-
-创建一个示例项目
-```bash
-# 创建工程文件夹
-> mkdir test
-> cd test
-
-# 创建yaml配置文件模板gocore.yaml
-> gocore conf create 
-...
-Welcome to GoCore, Configuration file has been generated.
-
-# 修改gocore.yaml模板之后,根据yaml文件创建工程项目
-> gocore service create 
-
-# 下次迭代增加新的接口或数据表更新代码
-> gocore service create 
-
-```
-
-工程创建时导入已有数据库
-```bash
-# 创建工程文件夹
-> mkdir test 
-> cd test
-
-# 创建yaml配置文件模板gocore.yaml
-> gocore conf create 
-
-# 创建连接数据库的配置文件模板mysql.yaml
-> gocore mysql create_yaml 
-
-# 修改mysql.yaml之后,连接数据库将字段合并到gocore.yaml
-> gocore mysql add 
-
-# 修改gocore.yaml模板之后,根据yaml文件创建工程项目
-> gocore service create 
-```
-
 
 ## 配置文件
 
@@ -169,9 +126,8 @@ jobs:
     comment: 初始化默认用户 #一次性任务,常驻任务备注
 ```
 
-
 ## 联系我们
 
-欢迎加入`gocore`QQ群：1004023331 一起沟通讨论
+请加入`gocore`QQ群：1004023331
 
 ![qq](https://file.cdn.sunmi.com/qq.png?x-oss-process=image/resize,h_200)

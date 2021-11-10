@@ -53,6 +53,7 @@ func (p *Producer) newProducer(topic string) {
 	batchTimeout := viper.GetEnvConfig(topic + ".batchTimeout").Int()
 	brokers := viper.GetEnvConfig("kafkaClient.brokers").SliceString()
 
+	// @TODO 更新kafka使用方式
 	config := kafka.WriterConfig{
 		Brokers:      brokers,
 		Topic:        topic,
@@ -72,7 +73,7 @@ func (p *Producer) ProduceMsgs(msgs []kafka.Message) error {
 	return p.producer.WriteMessages(context.Background(), msgs...)
 }
 
-//produce message
+// ProduceWithKey produce message
 func (p *Producer) ProduceWithKey(key []byte, value []byte) error {
 	return p.producer.WriteMessages(context.Background(), kafka.Message{
 		Key:   key,
@@ -80,14 +81,14 @@ func (p *Producer) ProduceWithKey(key []byte, value []byte) error {
 	})
 }
 
-//produce message
+// Produce produce message
 func (p *Producer) Produce(msg []byte) error {
 	return p.producer.WriteMessages(context.Background(), kafka.Message{
 		Value: msg,
 	})
 }
 
-//close the producer
+// CloseProducer close the producer
 func (p *Producer) CloseProducer() error {
 	if p.producer != nil {
 		return p.producer.Close()
@@ -99,7 +100,7 @@ func (p *Producer) CloseProducer() error {
 var consumer *kafka.Reader
 var EveryPartitionLastMessage sync.Map
 
-//construct the consumer
+// NewConsumer construct the consumer
 func NewConsumer() {
 	consumer = kafka.NewReader(kafka.ReaderConfig{
 		Brokers:  viper.GetEnvConfig("kafkaClient.brokers").SliceString(),
@@ -110,7 +111,7 @@ func NewConsumer() {
 	})
 }
 
-//consume message
+// Consume consume message
 func Consume() (kafka.Message, error) {
 	lastMessage, err := consumer.FetchMessage(context.Background())
 	if err == nil {
@@ -127,7 +128,7 @@ func ConsumeByCallback(consume func(kafka.Message, error) bool) {
 	}
 }
 
-// commit offset for all partitions
+// CommitOffsetForAllPartition commit offset for all partitions
 func CommitOffsetForAllPartition(onCommit func(message kafka.Message)) error {
 	var err error
 	background := context.Background()
@@ -149,7 +150,7 @@ func CommitOffsetForAllPartition(onCommit func(message kafka.Message)) error {
 	return err
 }
 
-//close the consumer
+// CloseConsumer close the consumer
 func CloseConsumer() error {
 	if consumer != nil {
 		return consumer.Close()
