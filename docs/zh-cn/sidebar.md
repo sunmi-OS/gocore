@@ -1,6 +1,7 @@
 - [项目介绍](zh-cn/README.md)
 - 入门
   - [快速开始](zh-cn/start/quickstart.md)
+  - [gocore.yaml配置文件](zh-cn/start/gocore.md)
   - [目录结构](zh-cn/start/dir.md)
 - 示例
   - [API接口开发](zh-cn/examples/api/api.md)
