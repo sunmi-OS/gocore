@@ -17,12 +17,12 @@ type PC struct {
 	shutdown      chan int
 }
 
-//获取当前队列堆积数量
+// BlockingQueueSize 获取当前队列堆积数量
 func (pc *PC) BlockingQueueSize() int {
 	return len(pc.blockingQueue)
 }
 
-// 设置阻塞队列的容量，批次大小，批次超时时间
+// Init 设置阻塞队列的容量，批次大小，批次超时时间
 // capacity     阻塞队列的容量，建议这个值设置为 batchSize 的 4 倍
 // batchSize    批次大小
 // batchTimeOut 批次超时时间
@@ -34,12 +34,12 @@ func (pc *PC) Init(capacity int, batchSize int, batchTimeOut time.Duration) {
 	pc.shutdown = make(chan int)
 }
 
-// 向阻塞队列中生产消息，当阻塞队列已经满时，会阻塞
+// Produce 向阻塞队列中生产消息，当阻塞队列已经满时，会阻塞
 func (pc *PC) Produce(object interface{}) {
 	pc.blockingQueue <- object
 }
 
-// 消费阻塞队列中的数据
+// Subscribe 消费阻塞队列中的数据
 // mapTo   由于向队列中写数据是一个 interface{} 对象，你需要在这个回调中实现你自己的序列方式，将其传换成 kafka.Message 对象
 // consume 每当有可消费的批次时，该方法就会被回调，你可以在这里实现你自己的消费逻辑，通常这里使用gokafka.Producer.ProduceMsgs 并将消息阻塞的写入kafka
 // 下面是一个使用例子
@@ -95,7 +95,7 @@ func (pc *PC) Subscribe(mapTo func(interface{}) kafka.Message, consume func([]ka
 	}
 }
 
-//cancel the produce, blocking until the kafka cache buffer is successfully refreshed
+// Cancel the produce, blocking until the kafka cache buffer is successfully refreshed
 func (pc *PC) Cancel() bool {
 	pc.shutdown <- 0       // send shutdown signal
 	_, ok := <-pc.shutdown // wait for shutdown
