@@ -6,6 +6,7 @@ service:
   projectName: demo #项目名称
   version: v1.0.0 #项目版本号
 config: 
+  # @TODO 需要修改
   cNacos:
     env: false #是否使用环境变量
     rocketMQConfig: true #是否使用rocketMQ

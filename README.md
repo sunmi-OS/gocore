@@ -35,7 +35,7 @@ gocore是一款高度集成的开发框架和脚手架，支持api、rpc、job�
 * 脚手架安装
 ```
 
-> go get -u github.com/sunmi-OS/gocore/v2/tool/gocore
+> go install github.com/sunmi-OS/gocore/v2/tools/gocore@latest
 
 > gocore --version
 
@@ -64,10 +64,10 @@ gocore version v1.0.0
 Welcome to GoCore, Configuration file has been generated.
 
 # 修改gocore.yaml模板之后,根据yaml文件创建工程项目
-> gocroe service create 
+> gocore service create 
 
 # 下次迭代增加新的接口或数据表更新代码
-> gocroe service create 
+> gocore service create 
 
 ```
 
@@ -84,10 +84,10 @@ Welcome to GoCore, Configuration file has been generated.
 > gocore mysql create_yaml 
 
 # 修改mysql.yaml之后,连接数据库将字段合并到gocore.yaml
-> gocroe mysql add 
+> gocore mysql add 
 
 # 修改gocore.yaml模板之后,根据yaml文件创建工程项目
-> gocroe service create 
+> gocore service create 
 ```
 
 

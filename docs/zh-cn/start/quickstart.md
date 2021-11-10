@@ -13,10 +13,10 @@
 Welcome to GoCore, Configuration file has been generated.
 
 # 修改gocore.yaml模板之后,根据yaml文件创建工程项目
-> gocroe service create 
+> gocore service create 
 
 # 下次迭代增加新的接口或数据表更新代码
-> gocroe service create 
+> gocore service create 
 
 ```
 
@@ -33,8 +33,8 @@ Welcome to GoCore, Configuration file has been generated.
 > gocore mysql create_yaml 
 
 # 修改mysql.yaml之后,连接数据库将字段合并到gocore.yaml
-> gocroe mysql add 
+> gocore mysql add 
 
 # 修改gocore.yaml模板之后,根据yaml文件创建工程项目
-> gocroe service create 
+> gocore service create 
 ```

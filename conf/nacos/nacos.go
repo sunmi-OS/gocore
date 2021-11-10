@@ -36,6 +36,7 @@ var nacosHarder = &nacos{
 }
 
 // NewAcmEnv 注入ACM配置文件
+// @TODO 需要兼容endpoint 和 service 两种方式
 func NewAcmEnv() {
 	namespaceId := os.Getenv(_NamespaceId)
 	endpoint := os.Getenv(_Endpoint)
