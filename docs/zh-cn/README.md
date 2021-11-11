@@ -27,13 +27,14 @@ gocore是一款高度集成的开发框架和脚手架，支持api、rpc、job�
 
 ```
 
+# 拉取依赖包
 > go get -u github.com/sunmi-OS/gocore/v2
 
 ```
 
-* 脚手架安装
 ```
 
+# 拉取脚手架工具
 > go install github.com/sunmi-OS/gocore/v2/tools/gocore@latest
 
 > gocore --version
