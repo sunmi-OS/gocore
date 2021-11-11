@@ -1,5 +1,11 @@
 package conf
 
+import (
+	"strings"
+
+	"github.com/sunmi-OS/gocore/v2/utils/file"
+)
+
 type GoCore struct {
 	Service       Service   `yaml:"service"`
 	Config        Config    `yaml:"config"`
@@ -90,9 +96,17 @@ type Redis struct {
 }
 
 func GetGocoreConfig() *GoCore {
+
+	projectName := "demo"
+	// 获取当前目录名称
+	path := file.GetPath()
+	arr := strings.Split(path, "/")
+	if len(arr) > 1 {
+		projectName = arr[len(arr)-1]
+	}
 	return &GoCore{
 		Service: Service{
-			ProjectName: "demo",
+			ProjectName: projectName,
 			Version:     "v1.0.0",
 		},
 		Config: Config{
