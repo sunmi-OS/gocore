@@ -1,6 +1,25 @@
 gocore.yaml配置文件介绍
 ---
 
+脚手架工具基于yaml配置文件生产代码，主要特性：
+- 支持Api、cronjob、job类型
+- 自动生成Api接口
+  - 路由
+  - 入口方法
+  - 参数结构
+  - bind参数验证
+- 自动生成cronjob和job入口方法
+- 配置文件
+  - 支持从nacos或本地读取配置
+  - 使用nacos支持热更新
+  - 配置文件多环境切换
+  - 配置文件融入bin包
+- 中间件
+  - mysql
+  - redis
+  - rocketMQ
+  - 
+
 ```yaml
 service:
   projectName: demo #项目名称
