@@ -16,7 +16,7 @@
 > cd PROJECT_NAME
 
 # 创建yaml配置文件模板gocore.yaml
-> gocore conf create 
+> gocore yaml create 
 ...
 Welcome to GoCore, Configuration file has been generated.
 
@@ -49,7 +49,7 @@ Welcome to GoCore, the project has been initialized.
 > cd test
 
 # 创建yaml配置文件模板gocore.yaml
-> gocore conf create 
+> gocore yaml create 
 
 # 创建连接数据库的配置文件模板mysql.yaml
 > gocore mysql create_yaml 
