@@ -5,6 +5,7 @@
 
 gocore是一款高度集成的开发框架和脚手架，支持api、rpc、job、task等开发方式，并且集成各类主流开源库和中间件融入最佳实践，最终实现简化流程、提高效率、统一规范。
 
+![cli](https://file.cdn.sunmi.com/gocore_cli.svg)
 
 ## 特性
 
