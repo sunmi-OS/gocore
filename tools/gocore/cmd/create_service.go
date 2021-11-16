@@ -2,9 +2,9 @@ package cmd
 
 import (
 	"fmt"
-	"os/exec"
 
 	"github.com/fatih/color"
+	"github.com/sunmi-OS/gocore/v2/utils"
 
 	"github.com/sunmi-OS/gocore/v2/tools/gocore/conf"
 	"github.com/sunmi-OS/gocore/v2/tools/gocore/file"
@@ -44,20 +44,16 @@ func creatService(c *cli.Context) error {
 
 	modPath := root + "/go.mod"
 	if file.CheckFileIsExist(modPath) {
-		cmd := exec.Command("go", "fmt", "./...")
-		cmd.Dir = root
-		resp, err := cmd.Output()
+		resp, err := utils.Cmd("go", []string{"fmt", "./..."})
 		if err != nil {
-			fmt.Println(string(resp))
+			fmt.Println(resp)
 			panic(err)
 		}
 	} else {
 		printHint("Run go mod init.")
-		cmd := exec.Command("go", "mod", "init", config.Service.ProjectName)
-		cmd.Dir = root
-		resp, err := cmd.Output()
+		resp, err := utils.Cmd("go", []string{"mod", "init", config.Service.ProjectName})
 		if err != nil {
-			fmt.Println(string(resp))
+			fmt.Println(resp)
 			panic(err)
 		}
 	}
@@ -65,34 +61,24 @@ func creatService(c *cli.Context) error {
 	template.CreateCode(root, config.Service.ProjectName, config)
 
 	printHint("Run go mod tidy.")
-	cmd := exec.Command("go", "mod", "tidy")
-	err = cmd.Wait()
+
+	resp, err := utils.Cmd("go", []string{"mod", "tidy"})
 	if err != nil {
-		return err
-	}
-	cmd.Dir = root
-	resp, err := cmd.Output()
-	if err != nil {
-		fmt.Println(string(resp))
+		fmt.Println(resp)
 		panic(err)
 	}
 
 	printHint("Run go fmt.")
-	cmd = exec.Command("go", "fmt", "./...")
-	cmd.Dir = root
-	resp, err = cmd.Output()
+	resp, err = utils.Cmd("go", []string{"fmt", "./..."})
 	if err != nil {
-		fmt.Println(string(resp))
+		fmt.Println(resp)
 		panic(err)
 	}
-	printHint("Welcome to GoCore, the project has been format.")
 
 	printHint("goimports -l -w .")
-	cmd = exec.Command("goimports", "-l", "-w", ".")
-	cmd.Dir = root
-	resp, err = cmd.Output()
+	resp, err = utils.Cmd("goimports", []string{"-l", "-w", "."})
 	if err != nil {
-		fmt.Println(string(resp))
+		fmt.Println(resp)
 		panic(err)
 	}
 	printHint("Welcome to GoCore, the project has been initialized.")

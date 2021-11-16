@@ -5,6 +5,8 @@
 
 gocore是一款高度集成的开发框架和脚手架，支持api、rpc、job、task等开发方式，并且集成各类主流开源库和中间件融入最佳实践，最终实现简化流程、提高效率、统一规范。
 
+![cli](https://file.cdn.sunmi.com/gocore_cli.svg)
+
 ## 特性
 
 - 底层基于主流框架gin、gorm、viper、zap等进行封装整合
@@ -25,15 +27,13 @@ gocore是一款高度集成的开发框架和脚手架，支持api、rpc、job�
 
 ### 获取项目包
 
-```
-
+```shell
+# 拉取依赖包
 > go get -u github.com/sunmi-OS/gocore/v2
-
 ```
 
-* 脚手架安装
-```
-
+```shell
+# 拉取脚手架工具
 > go install github.com/sunmi-OS/gocore/v2/tools/gocore@latest
 
 > gocore --version
@@ -45,7 +45,6 @@ gocore是一款高度集成的开发框架和脚手架，支持api、rpc、job�
   |___/
 
 gocore version v1.0.0
-
 ```
 
 ## 配置文件

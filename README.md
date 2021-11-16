@@ -5,6 +5,7 @@
 
 gocore是一款高度集成的开发框架和脚手架，支持api、rpc、job、task等开发方式，并且集成各类主流开源库和中间件融入最佳实践，最终实现简化流程、提高效率、统一规范。
 
+![cli](https://file.cdn.sunmi.com/gocore_cli.svg)
 
 ## 特性
 
@@ -26,15 +27,12 @@ gocore是一款高度集成的开发框架和脚手架，支持api、rpc、job�
 
 ### 获取项目包
 
-```
-
+```shell
 > go get -u github.com/sunmi-OS/gocore/v2
-
 ```
 
 * 脚手架安装
-```
-
+```shell
 > go install github.com/sunmi-OS/gocore/v2/tools/gocore@latest
 
 > gocore --version
@@ -46,14 +44,13 @@ gocore是一款高度集成的开发框架和脚手架，支持api、rpc、job�
   |___/
 
 gocore version v1.0.0
-
 ```
 
 
 ## 快速开始
 
 创建一个示例项目
-```bash
+```shell
 # 创建工程文件夹
 > mkdir test
 > cd test
@@ -66,13 +63,26 @@ Welcome to GoCore, Configuration file has been generated.
 # 修改gocore.yaml模板之后,根据yaml文件创建工程项目
 > gocore service create 
 
+   __ _    ___     ___    ___    _ __    ___
+  / _` |  / _ \   / __|  / _ \  | '__|  / _ \
+ | (_| | | (_) | | (__  | (_) | | |    |  __/
+  \__, |  \___/   \___|  \___/  |_|     \___|
+  |___/
+
+Run go mod init.
+[11/11] Initialize the Request return parameters... 100% [========================================]   
+Run go mod tidy .
+Run go fmt .
+goimports -l -w .
+Welcome to GoCore, the project has been initialized.
+
 # 下次迭代增加新的接口或数据表更新代码
 > gocore service create 
 
 ```
 
 工程创建时导入已有数据库
-```bash
+```shell
 # 创建工程文件夹
 > mkdir test 
 > cd test
