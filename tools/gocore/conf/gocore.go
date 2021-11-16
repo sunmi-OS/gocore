@@ -77,7 +77,6 @@ type Mysql struct {
 	Models    []Model `yaml:"models"`
 }
 
-// Model TODO：支持建表SQL导入
 type Model struct {
 	Name    string   `yaml:"name"`   // 表名
 	Auto    bool     `yaml:"auto"`   // 是否自动创建表结构

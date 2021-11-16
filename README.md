@@ -5,6 +5,7 @@
 
 gocore是一款高度集成的开发框架和脚手架，支持api、rpc、job、task等开发方式，并且集成各类主流开源库和中间件融入最佳实践，最终实现简化流程、提高效率、统一规范。
 
+![cli](https://file.cdn.sunmi.com/gocore_cli.svg)
 
 ## 特性
 
@@ -55,7 +56,7 @@ gocore version v1.0.0
 > cd test
 
 # 创建yaml配置文件模板gocore.yaml
-> gocore conf create 
+> gocore yaml create 
 ...
 Welcome to GoCore, Configuration file has been generated.
 
@@ -87,7 +88,7 @@ Welcome to GoCore, the project has been initialized.
 > cd test
 
 # 创建yaml配置文件模板gocore.yaml
-> gocore conf create 
+> gocore yaml create 
 
 # 创建连接数据库的配置文件模板mysql.yaml
 > gocore mysql create_yaml 

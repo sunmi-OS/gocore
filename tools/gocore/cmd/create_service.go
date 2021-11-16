@@ -16,14 +16,19 @@ import (
 // CreatService 创建服务
 var CreatService = &cli.Command{
 	Name: "service",
-	Flags: []cli.Flag{
-		&cli.StringFlag{
-			Name:        "config, c",
-			Usage:       "Load configuration from yaml file",
-			DefaultText: "",
-		}},
-	Usage:  "create update service [config]",
-	Action: creatService,
+	Subcommands: []*cli.Command{
+		{
+			Name: "create",
+			Flags: []cli.Flag{
+				&cli.StringFlag{
+					Name:        "config, c",
+					Usage:       "Load configuration from yaml file",
+					DefaultText: "",
+				}},
+			Usage:  "create update service [config]",
+			Action: creatService,
+		},
+	},
 }
 
 // creatService 创建服务并创建初始化配置

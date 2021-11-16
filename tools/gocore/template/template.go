@@ -92,7 +92,6 @@ func createMain(root, name string) {
 
 func createConf(root string, name string) {
 
-	// TODO: 如果用户不适用nacos就不应该初始化
 	FromConfBase(fileBuffer)
 	fileForceWriter(fileBuffer, root+"/conf/base.go")
 
