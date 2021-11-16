@@ -7,6 +7,7 @@ import (
 	"github.com/nacos-group/nacos-sdk-go/clients/config_client"
 	"github.com/nacos-group/nacos-sdk-go/common/constant"
 	"github.com/nacos-group/nacos-sdk-go/vo"
+	"github.com/spf13/cast"
 )
 
 type nacos struct {
@@ -27,6 +28,11 @@ const (
 	_SecretKey       = "SECRET_KEY"
 	_RegionId        = "REGION_ID"
 	_DefaultRegionId = "cn-hangzhou"
+
+	_NacosScheme      = "NACOS_SCHEME"
+	_NacosContextPath = "NACOS_CONTEXT_PATH"
+	_NacosIp          = "NACOS_IP"
+	_NacosPort        = "NACOS_PORT"
 )
 
 var nacosHarder = &nacos{
@@ -36,10 +42,25 @@ var nacosHarder = &nacos{
 }
 
 // NewNacosEnv 注入ACM配置文件
-// @TODO 需要兼容endpoint 和 service 两种方式
+// 需要兼容endpoint 和 service 两种方式
 func NewNacosEnv() {
-	namespaceId := os.Getenv(_NamespaceId)
 	// 读取service地址，如果有service优先使用service连接方式
+	nacosIp := os.Getenv(_NacosIp)
+	nacosPort := os.Getenv(_NacosPort)
+	if nacosIp != "" && _NacosPort != "" {
+		err := NewNacos(nil, constant.ServerConfig{
+			IpAddr:      nacosIp,
+			Port:        cast.ToUint64(nacosPort),
+			Scheme:      os.Getenv(_NacosScheme),
+			ContextPath: os.Getenv(_NacosContextPath),
+		})
+		if err != nil {
+			panic(err)
+		}
+		return
+	}
+
+	namespaceId := os.Getenv(_NamespaceId)
 	endpoint := os.Getenv(_Endpoint)
 	accessKey := os.Getenv(_AccessKey)
 	secretKey := os.Getenv(_SecretKey)

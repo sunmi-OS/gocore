@@ -22,36 +22,59 @@ import (
 	"github.com/sunmi-OS/gocore/v2/db/redis"
 	"github.com/sunmi-OS/gocore/v2/glog"
 	"github.com/sunmi-OS/gocore/v2/utils"
+	"github.com/sunmi-OS/gocore/v2/conf/viper"
 )
 
 func initConf() {
-	switch utils.GetRunTime() {
-	case "local":
-		nacos.SetLocalConfig(conf.LocalConfig)
-	default:
-		nacos.NewAcmEnv()
-	}
+	`)
+	if goCoreConfig.Config.CNacos {
+		buffer.WriteString(`
+		switch utils.GetRunTime() {
+		case "local":
+			nacos.SetLocalConfig(conf.LocalConfig)
+		default:
+			nacos.NewNacosEnv()
+		}
 
-	vt := nacos.GetViper()
-	vt.SetBaseConfig(conf.BaseConfig)
-	vt.SetDataIds(conf.ProjectName, "config" `)
-	if len(goCoreConfig.Config.CMysql) > 0 {
-		buffer.WriteString(`, "mysql" `)
+		vt := nacos.GetViper()
+		vt.SetBaseConfig(conf.BaseConfig)
+		vt.SetDataIds(conf.ProjectName, "config" `)
+		if len(goCoreConfig.Config.CMysql) > 0 {
+			buffer.WriteString(`, "mysql" `)
+		}
+		if len(goCoreConfig.Config.CRedis) > 0 {
+			buffer.WriteString(`, "redis"`)
+		}
+		if goCoreConfig.Config.CRocketMQConfig {
+			buffer.WriteString(`, "rocketmq"`)
+		}
+		buffer.WriteString(`)
+		// 注册配置更新回调
+		vt.SetCallBackFunc(conf.ProjectName, "mysql", func(namespace, group, dataId, data string) {
+			`)
+		buffer.WriteString(dbUpdate)
+		buffer.WriteString(`
+		})
+		vt.NacosToViper()
+	`)
+	} else {
+		buffer.WriteString(`
+		viper.MergeConfigToToml(conf.BaseConfig)
+	switch utils.GetRunTime() {
+	case "dev":
+		viper.MergeConfigToToml(conf.DevConfig)
+	case "test":
+		viper.MergeConfigToToml(conf.TestConfig)
+	case "uat":
+		viper.MergeConfigToToml(conf.UatConfig)
+	case "onl":
+		viper.MergeConfigToToml(conf.OnlConfig)
+	default:
+		viper.MergeConfigToToml(conf.LocalConfig)
 	}
-	if len(goCoreConfig.Config.CRedis) > 0 {
-		buffer.WriteString(`, "redis"`)
+	`)
 	}
-	if goCoreConfig.Config.CNacos.RocketMQConfig {
-		buffer.WriteString(`, "rocketmq"`)
-	}
-	buffer.WriteString(`)
-	// 注册配置更新回调
- 	vt.SetCallBackFunc(conf.ProjectName, "mysql", func(namespace, group, dataId, data string) {
-		`)
-	buffer.WriteString(dbUpdate)
 	buffer.WriteString(`
-	})
-	vt.NacosToViper()
 }
 
 // initDB 初始化DB服务 （内部方法）

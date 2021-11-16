@@ -186,7 +186,7 @@ prefix = ""
 		`
 			}
 		}
-		if goCoreConfig.Config.CNacos.RocketMQConfig {
+		if goCoreConfig.Config.CRocketMQConfig {
 			localConf += `
 			
 [aliyunmq]
@@ -197,7 +197,18 @@ Namespace = ""
 
 			`
 		}
-		FromConfLocal(localConf, fileBuffer)
+
+		if !goCoreConfig.Config.CNacos {
+			FromConfLocal("DevConfig", localConf, fileBuffer)
+			fileWriter(fileBuffer, root+"/conf/dev.go")
+			FromConfLocal("TestConfig", localConf, fileBuffer)
+			fileWriter(fileBuffer, root+"/conf/test.go")
+			FromConfLocal("UatConfig", localConf, fileBuffer)
+			fileWriter(fileBuffer, root+"/conf/uat.go")
+			FromConfLocal("OnlConfig", localConf, fileBuffer)
+			fileWriter(fileBuffer, root+"/conf/onl.go")
+		}
+		FromConfLocal("LocalConfig", localConf, fileBuffer)
 		fileWriter(fileBuffer, root+"/conf/local.go")
 		FromCmdInit(name, pkgs, dbUpdate, initDb, initRedis, fileBuffer)
 		fileForceWriter(fileBuffer, root+"/cmd/init.go")
@@ -401,6 +412,11 @@ func fileWriter(buffer *bytes.Buffer, path string) {
 	writer.Add(buffer.Bytes())
 	writer.WriteToFile(path)
 	buffer.Reset()
+}
+
+func unResetfileWriter(buffer *bytes.Buffer, path string) {
+	writer.Add(buffer.Bytes())
+	writer.WriteToFile(path)
 }
 
 func mkdir(root string) {

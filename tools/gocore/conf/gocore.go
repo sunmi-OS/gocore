@@ -65,14 +65,10 @@ type Job struct {
 }
 
 type Config struct {
-	CNacos Nacos   `yaml:"cNacos"`
-	CMysql []Mysql `yaml:"cMysql"`
-	CRedis []Redis `yaml:"cRedis"`
-}
-
-type Nacos struct {
-	Env            bool `yaml:"env"`
-	RocketMQConfig bool `yaml:"rocketMQConfig"`
+	CNacos          bool    `yaml:"cNacos"`
+	CRocketMQConfig bool    `yaml:"cRocketMQConfig"`
+	CMysql          []Mysql `yaml:"cMysql"`
+	CRedis          []Redis `yaml:"cRedis"`
 }
 
 type Mysql struct {
@@ -110,9 +106,8 @@ func GetGocoreConfig() *GoCore {
 			Version:     "v1.0.0",
 		},
 		Config: Config{
-			CNacos: Nacos{
-				RocketMQConfig: true,
-			},
+			CNacos:          true,
+			CRocketMQConfig: true,
 			CMysql: []Mysql{
 				{
 					Name: "app",
