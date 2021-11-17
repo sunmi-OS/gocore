@@ -11,7 +11,8 @@ import (
 
 var ch *amqp.Channel
 
-func connRbbitmq() error {
+// connRabbitmq 连接rabbitmq
+func connRabbitmq() error {
 
 	host := viper.GetEnvConfig("rabbitmq.host").String()
 	port := viper.GetEnvConfig("rabbitmq.port").String()
@@ -19,13 +20,13 @@ func connRbbitmq() error {
 	user := url.QueryEscape(viper.GetEnvConfig("rabbitmq.user").String())
 	password := url.QueryEscape(viper.GetEnvConfig("rabbitmq.password").String())
 
-	amqpcoinf := amqp.Config{
+	amqpConfig := amqp.Config{
 		Vhost:     vhost,
 		Heartbeat: 10 * time.Second,
 		Locale:    "en_US",
 	}
 
-	conn, err := amqp.DialConfig(fmt.Sprintf("amqp://%s:%s@%s:%s/", user, password, host, port), amqpcoinf)
+	conn, err := amqp.DialConfig(fmt.Sprintf("amqp://%s:%s@%s:%s/", user, password, host, port), amqpConfig)
 	if err != nil {
 		return err
 	}
@@ -34,10 +35,11 @@ func connRbbitmq() error {
 	return err
 }
 
+// UpdateRabbitmq 配置发生变动后调用更新实例
 func UpdateRabbitmq() error {
 
 	r1 := ch
-	err := connRbbitmq()
+	err := connRabbitmq()
 
 	if err != nil {
 		return err
@@ -51,11 +53,11 @@ func UpdateRabbitmq() error {
 	return nil
 }
 
-// 普通模式发布消息
+// Push 普通模式发布消息
 func Push(msg string, msgName string) error {
 
 	if ch == nil {
-		err := connRbbitmq()
+		err := connRabbitmq()
 		if err != nil {
 			return err
 		}
@@ -86,10 +88,10 @@ func Push(msg string, msgName string) error {
 	return err
 }
 
-// 普通模式消费消息
+// Consume 普通模式消费消息
 func Consume(queue string) (<-chan amqp.Delivery, error) {
 	if ch == nil {
-		err := connRbbitmq()
+		err := connRabbitmq()
 		if err != nil {
 			return nil, err
 		}
@@ -119,10 +121,10 @@ func Consume(queue string) (<-chan amqp.Delivery, error) {
 	return msgs, nil
 }
 
-// 发布订阅模式发布消息
+// Publish 发布订阅模式发布消息
 func Publish(exchange, msg string, durable bool) error {
 	if ch == nil {
-		err := connRbbitmq()
+		err := connRabbitmq()
 		if err != nil {
 			return err
 		}
@@ -154,10 +156,10 @@ func Publish(exchange, msg string, durable bool) error {
 	return err
 }
 
-// 发布订阅模式消费消息
+// SubScribe 发布订阅模式消费消息
 func SubScribe(exchange string, durable bool) (<-chan amqp.Delivery, error) {
 	if ch == nil {
-		err := connRbbitmq()
+		err := connRabbitmq()
 		if err != nil {
 			return nil, err
 		}

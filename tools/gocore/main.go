@@ -20,7 +20,7 @@ func main() {
 	app.Name = conf.PROJECT_NAME
 	app.Usage = conf.PROJECT_NAME
 	app.Version = conf.PROJECT_VERSION
-	app.Action = cmd.Ui.Action
+	//app.Action = cmd.Ui.Action
 	// 指定命令运行的函数
 	app.Commands = []*cli.Command{
 		cmd.CreatService,

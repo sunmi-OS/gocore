@@ -1,5 +1,11 @@
 package conf
 
+import (
+	"strings"
+
+	"github.com/sunmi-OS/gocore/v2/utils/file"
+)
+
 type GoCore struct {
 	Service       Service   `yaml:"service"`
 	Config        Config    `yaml:"config"`
@@ -75,7 +81,6 @@ type Mysql struct {
 	Models    []Model `yaml:"models"`
 }
 
-// Model TODO：支持建表SQL导入
 type Model struct {
 	Name    string   `yaml:"name"`   // 表名
 	Auto    bool     `yaml:"auto"`   // 是否自动创建表结构
@@ -90,9 +95,17 @@ type Redis struct {
 }
 
 func GetGocoreConfig() *GoCore {
+
+	projectName := "demo"
+	// 获取当前目录名称
+	path := file.GetPath()
+	arr := strings.Split(path, "/")
+	if len(arr) > 1 {
+		projectName = arr[len(arr)-1]
+	}
 	return &GoCore{
 		Service: Service{
-			ProjectName: "demo",
+			ProjectName: projectName,
 			Version:     "v1.0.0",
 		},
 		Config: Config{
