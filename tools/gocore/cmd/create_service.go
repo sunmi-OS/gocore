@@ -4,12 +4,10 @@ import (
 	"fmt"
 
 	"github.com/fatih/color"
-	"github.com/sunmi-OS/gocore/v2/utils"
-
 	"github.com/sunmi-OS/gocore/v2/tools/gocore/conf"
 	"github.com/sunmi-OS/gocore/v2/tools/gocore/file"
 	"github.com/sunmi-OS/gocore/v2/tools/gocore/template"
-
+	"github.com/sunmi-OS/gocore/v2/utils"
 	"github.com/urfave/cli/v2"
 )
 
@@ -31,11 +29,15 @@ func creatService(c *cli.Context) error {
 	config := conf.GetGocoreConfig()
 	yamlPath := c.String("config")
 	root := "."
+
 	if yamlPath == "" {
 		yamlPath = root + "/gocore.yaml"
-	} else if !file.CheckFileIsExist(yamlPath) {
+	}
+
+	if !file.CheckFileIsExist(yamlPath) {
 		return fmt.Errorf("%s is not found", yamlPath)
 	}
+
 	// 创建配置&读取配置
 	config, err := InitYaml(yamlPath, config)
 	if err != nil {

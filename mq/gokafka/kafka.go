@@ -5,10 +5,9 @@ import (
 	"sync"
 	"time"
 
-	"github.com/sunmi-OS/gocore/v2/conf/viper"
-
 	"github.com/segmentio/kafka-go"
 	"github.com/segmentio/kafka-go/snappy"
+	"github.com/sunmi-OS/gocore/v2/conf/viper"
 )
 
 type Producer struct {
