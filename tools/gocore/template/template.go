@@ -91,10 +91,6 @@ func createMain(root, name string) {
 }
 
 func createConf(root string, name string) {
-
-	FromConfBase(fileBuffer)
-	fileForceWriter(fileBuffer, root+"/conf/base.go")
-
 	FromConfConst(name, fileBuffer)
 	fileForceWriter(fileBuffer, root+"/conf/const.go")
 }
@@ -121,6 +117,11 @@ func createModel(root, name string) {
 	}
 	pkgs := ""
 	dbUpdate := ""
+	dbUpdateRedis := ""
+	baseConf := ""
+	if len(goCoreConfig.Config.CRedis) > 0 {
+		dbUpdateRedis = "var err error"
+	}
 	if len(mysqlMap) > 0 {
 		dbUpdate = "var err error"
 	}
@@ -173,11 +174,12 @@ host = ""
 port = ":6379"
 auth = ""
 prefix = ""
+`
 
-[` + v1.Name + `.redisDB]
+				baseConf += `[` + v1.Name + `.redisDB]
 ` + k2 + ` = ` + cast.ToString(v1.Index[k2])
 				initRedis += "redis.NewRedis(conf." + strings.Title(v1.Name) + strings.Title(k2) + "Redis)\n"
-				dbUpdate += `		
+				dbUpdateRedis += `		
 				err = redis.NewOrUpdateRedis(conf.` + strings.Title(v1.Name) + strings.Title(k2) + `Redis)
 				if err != nil {
 					glog.Error(err)
@@ -209,8 +211,11 @@ Namespace = ""
 		}
 		FromConfLocal("LocalConfig", localConf, fileBuffer)
 		fileWriter(fileBuffer, root+"/conf/local.go")
-		FromCmdInit(name, pkgs, dbUpdate, initDb, initRedis, fileBuffer)
+		FromCmdInit(name, pkgs, dbUpdate, initDb, initRedis, dbUpdateRedis, fileBuffer)
 		fileForceWriter(fileBuffer, root+"/cmd/init.go")
+
+		FromConfBase(baseConf, fileBuffer)
+		fileForceWriter(fileBuffer, root+"/conf/base.go")
 	}
 }
 
