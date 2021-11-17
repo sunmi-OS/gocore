@@ -6,11 +6,10 @@ import (
 	"github.com/sunmi-OS/gocore/v2/tools/gocore/conf"
 	"github.com/sunmi-OS/gocore/v2/tools/gocore/file"
 	"github.com/sunmi-OS/gocore/v2/tools/gocore/generate"
+	"github.com/urfave/cli/v2"
 	"gopkg.in/yaml.v2"
 	"gorm.io/driver/mysql"
 	"gorm.io/gorm"
-
-	"github.com/urfave/cli/v2"
 )
 
 // AddMysql 添加已有mysql
