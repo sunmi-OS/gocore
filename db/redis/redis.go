@@ -5,11 +5,10 @@ import (
 	"strings"
 	"sync"
 
-	"github.com/sunmi-OS/gocore/v2/utils/closes"
-
 	"github.com/go-redis/redis/v8"
 	"github.com/sunmi-OS/gocore/v2/conf/viper"
 	"github.com/sunmi-OS/gocore/v2/glog"
+	"github.com/sunmi-OS/gocore/v2/utils/closes"
 	"github.com/sunmi-OS/gocore/v2/utils/hash"
 )
 
