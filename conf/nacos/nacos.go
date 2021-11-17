@@ -3,6 +3,8 @@ package nacos
 import (
 	"os"
 
+	"github.com/sunmi-OS/gocore/v2/utils"
+
 	"github.com/nacos-group/nacos-sdk-go/clients"
 	"github.com/nacos-group/nacos-sdk-go/clients/config_client"
 	"github.com/nacos-group/nacos-sdk-go/common/constant"
@@ -27,6 +29,12 @@ const (
 	_NacosAccessKey   = "NACOS_ACCESS_KEY"
 	_NacosSecretKey   = "NACOS_SECRET_KEY"
 	_NacosRegionId    = "NACOS_REGION_ID"
+
+	_NamespaceId = "NAMESPACE_ID"
+	_Endpoint    = "ENDPOINT"
+	_AccessKey   = "ACCESS_KEY"
+	_SecretKey   = "SECRET_KEY"
+	_RegionId    = "REGION_ID"
 
 	_DefaultRegionId = "cn-hangzhou"
 
@@ -61,11 +69,11 @@ func NewNacosEnv() {
 		return
 	}
 
-	namespaceId := os.Getenv(_NacosNamespaceId)
-	endpoint := os.Getenv(_NacosEndpoint)
-	accessKey := os.Getenv(_NacosAccessKey)
-	secretKey := os.Getenv(_NacosSecretKey)
-	regionID := os.Getenv(_NacosRegionId)
+	namespaceId := utils.Either(os.Getenv(_NacosNamespaceId), os.Getenv(_NamespaceId))
+	endpoint := utils.Either(os.Getenv(_NacosEndpoint), os.Getenv(_Endpoint))
+	accessKey := utils.Either(os.Getenv(_NacosAccessKey), os.Getenv(_AccessKey))
+	secretKey := utils.Either(os.Getenv(_NacosSecretKey), os.Getenv(_SecretKey))
+	regionID := utils.Either(os.Getenv(_NacosRegionId), os.Getenv(_RegionId))
 	if endpoint == "" || namespaceId == "" || accessKey == "" || secretKey == "" {
 		panic("The configuration file cannot be empty.")
 	}

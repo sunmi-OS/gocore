@@ -29,3 +29,13 @@ func GetRunTime() string {
 func IsRelease() bool {
 	return GetRunTime() == ReleaseEnv
 }
+
+// Either 返回一个存在的字符串
+func Either(list ...string) string {
+	for _, v := range list {
+		if v != "" {
+			return v
+		}
+	}
+	return ""
+}
