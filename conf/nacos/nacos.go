@@ -3,6 +3,8 @@ package nacos
 import (
 	"os"
 
+	"github.com/sunmi-OS/gocore/v2/utils"
+
 	"github.com/nacos-group/nacos-sdk-go/clients"
 	"github.com/nacos-group/nacos-sdk-go/clients/config_client"
 	"github.com/nacos-group/nacos-sdk-go/common/constant"
@@ -22,11 +24,18 @@ const (
 	LogError = "error"
 	LogInfo  = "info"
 
-	_NamespaceId     = "NAMESPACE_ID"
-	_Endpoint        = "ENDPOINT"
-	_AccessKey       = "ACCESS_KEY"
-	_SecretKey       = "SECRET_KEY"
-	_RegionId        = "REGION_ID"
+	_NacosNamespaceId = "NACOS_NAMESPACE_ID"
+	_NacosEndpoint    = "NACOS_ENDPOINT"
+	_NacosAccessKey   = "NACOS_ACCESS_KEY"
+	_NacosSecretKey   = "NACOS_SECRET_KEY"
+	_NacosRegionId    = "NACOS_REGION_ID"
+
+	_NamespaceId = "NAMESPACE_ID"
+	_Endpoint    = "ENDPOINT"
+	_AccessKey   = "ACCESS_KEY"
+	_SecretKey   = "SECRET_KEY"
+	_RegionId    = "REGION_ID"
+
 	_DefaultRegionId = "cn-hangzhou"
 
 	_NacosScheme      = "NACOS_SCHEME"
@@ -41,13 +50,13 @@ var nacosHarder = &nacos{
 	},
 }
 
-// NewNacosEnv 注入ACM配置文件
-// 需要兼容endpoint 和 service 两种方式
+// NewNacosEnv 注入Nacos配置文件
+// 兼容endpoint 和 service 两种方式
 func NewNacosEnv() {
 	// 读取service地址，如果有service优先使用service连接方式
 	nacosIp := os.Getenv(_NacosIp)
 	nacosPort := os.Getenv(_NacosPort)
-	if nacosIp != "" && _NacosPort != "" {
+	if nacosIp != "" && nacosPort != "" {
 		err := NewNacos(nil, constant.ServerConfig{
 			IpAddr:      nacosIp,
 			Port:        cast.ToUint64(nacosPort),
@@ -60,11 +69,11 @@ func NewNacosEnv() {
 		return
 	}
 
-	namespaceId := os.Getenv(_NamespaceId)
-	endpoint := os.Getenv(_Endpoint)
-	accessKey := os.Getenv(_AccessKey)
-	secretKey := os.Getenv(_SecretKey)
-	regionID := os.Getenv(_RegionId)
+	namespaceId := utils.Either(os.Getenv(_NacosNamespaceId), os.Getenv(_NamespaceId))
+	endpoint := utils.Either(os.Getenv(_NacosEndpoint), os.Getenv(_Endpoint))
+	accessKey := utils.Either(os.Getenv(_NacosAccessKey), os.Getenv(_AccessKey))
+	secretKey := utils.Either(os.Getenv(_NacosSecretKey), os.Getenv(_SecretKey))
+	regionID := utils.Either(os.Getenv(_NacosRegionId), os.Getenv(_RegionId))
 	if endpoint == "" || namespaceId == "" || accessKey == "" || secretKey == "" {
 		panic("The configuration file cannot be empty.")
 	}
