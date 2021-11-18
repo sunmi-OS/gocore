@@ -13,14 +13,19 @@ import (
 // CreatYaml 创建配置文件
 var CreatYaml = &cli.Command{
 	Name: "yaml",
-	Flags: []cli.Flag{
-		&cli.StringFlag{
-			Name:        "dir",
-			Usage:       "dir path",
-			DefaultText: ".",
-		}},
-	Usage:  "create conf [dir]",
-	Action: creatYaml,
+	Subcommands: []*cli.Command{
+		{
+			Name: "create",
+			Flags: []cli.Flag{
+				&cli.StringFlag{
+					Name:        "dir",
+					Usage:       "dir path",
+					DefaultText: ".",
+				}},
+			Usage:  "create conf [dir]",
+			Action: creatYaml,
+		},
+	},
 }
 
 // creatYaml 创建配置文件

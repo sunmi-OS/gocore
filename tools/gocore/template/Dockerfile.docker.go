@@ -9,7 +9,7 @@ func FromDockerfile(buffer *bytes.Buffer) {
 	buffer.WriteString(`
 FROM sunmi-docker-images-registry.cn-hangzhou.cr.aliyuncs.com/public/golang As builder
 
-ENV GOPROXY https://mirrors.aliyun.com/goproxy/,direct
+ENV GOPROXY https://goproxy.cn,direct
 ENV GO111MODULE on
 
 #step 1 build go cache

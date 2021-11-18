@@ -1,4 +1,5 @@
-<%: func FromConfLocal(content string,buffer *bytes.Buffer) %>
+<%: func FromConfLocal(env,content string,buffer *bytes.Buffer) %>
 package conf
 
-var LocalConfig = `<%== content %>`
+var <%== env %> = `<%== content %>`
+
