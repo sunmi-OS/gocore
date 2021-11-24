@@ -21,7 +21,6 @@ var fileBuffer = new(bytes.Buffer)
 var localConf = `
 [base]
 debug = true
-
 `
 
 var goCoreConfig *conf.GoCore
