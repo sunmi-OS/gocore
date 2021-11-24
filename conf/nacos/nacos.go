@@ -40,7 +40,7 @@ const (
 
 	_NacosScheme      = "NACOS_SCHEME"
 	_NacosContextPath = "NACOS_CONTEXT_PATH"
-	_NacosIp          = "NACOS_IP"
+	_NacosHost        = "NACOS_HOST"
 	_NacosPort        = "NACOS_PORT"
 )
 
@@ -53,12 +53,31 @@ var nacosHarder = &nacos{
 // NewNacosEnv 注入Nacos配置文件
 // 兼容endpoint 和 service 两种方式
 func NewNacosEnv() {
+	// 获取nacos鉴权、地区、命名空间
+	namespaceId := utils.Either(os.Getenv(_NacosNamespaceId), os.Getenv(_NamespaceId))
+	accessKey := utils.Either(os.Getenv(_NacosAccessKey), os.Getenv(_AccessKey))
+	secretKey := utils.Either(os.Getenv(_NacosSecretKey), os.Getenv(_SecretKey))
+	regionID := utils.Either(os.Getenv(_NacosRegionId), os.Getenv(_RegionId))
+	if namespaceId == "" || accessKey == "" || secretKey == "" {
+		panic("The configuration file cannot be empty.")
+	}
+	if regionID == "" {
+		regionID = _DefaultRegionId
+	}
+	ccConfig := &constant.ClientConfig{
+		NamespaceId: namespaceId,
+		AccessKey:   accessKey,
+		SecretKey:   secretKey,
+		RegionId:    regionID,
+		LogLevel:    LogError,
+	}
+
 	// 读取service地址，如果有service优先使用service连接方式
-	nacosIp := os.Getenv(_NacosIp)
+	nacosHost := os.Getenv(_NacosHost)
 	nacosPort := os.Getenv(_NacosPort)
-	if nacosIp != "" && nacosPort != "" {
-		err := NewNacos(nil, constant.ServerConfig{
-			IpAddr:      nacosIp,
+	if nacosHost != "" && nacosPort != "" {
+		err := NewNacos(ccConfig, constant.ServerConfig{
+			IpAddr:      nacosHost,
 			Port:        cast.ToUint64(nacosPort),
 			Scheme:      os.Getenv(_NacosScheme),
 			ContextPath: os.Getenv(_NacosContextPath),
@@ -69,25 +88,13 @@ func NewNacosEnv() {
 		return
 	}
 
-	namespaceId := utils.Either(os.Getenv(_NacosNamespaceId), os.Getenv(_NamespaceId))
+	// 如果未使用service检查是否配置了endpoint兼容acm
 	endpoint := utils.Either(os.Getenv(_NacosEndpoint), os.Getenv(_Endpoint))
-	accessKey := utils.Either(os.Getenv(_NacosAccessKey), os.Getenv(_AccessKey))
-	secretKey := utils.Either(os.Getenv(_NacosSecretKey), os.Getenv(_SecretKey))
-	regionID := utils.Either(os.Getenv(_NacosRegionId), os.Getenv(_RegionId))
-	if endpoint == "" || namespaceId == "" || accessKey == "" || secretKey == "" {
+	if endpoint == "" {
 		panic("The configuration file cannot be empty.")
 	}
-	if regionID == "" {
-		regionID = _DefaultRegionId
-	}
-	err := NewNacos(&constant.ClientConfig{
-		Endpoint:    endpoint,
-		NamespaceId: namespaceId,
-		AccessKey:   accessKey,
-		SecretKey:   secretKey,
-		RegionId:    regionID,
-		LogLevel:    LogError,
-	})
+	ccConfig.Endpoint = endpoint
+	err := NewNacos(ccConfig)
 	if err != nil {
 		panic(err)
 	}
