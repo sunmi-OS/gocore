@@ -12,6 +12,7 @@ import (
 	"github.com/urfave/cli/v2"
 )
 
+// @TODO 命名不允许用关键字
 func main() {
 	// 打印banner
 	utils.PrintBanner(conf.PROJECT_NAME)
