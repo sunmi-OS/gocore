@@ -115,9 +115,6 @@ func createErrCode(root string) {
 
 func createModel(root, name string) {
 	mysqlMap := goCoreConfig.Config.CMysql
-	if len(mysqlMap) == 0 {
-		return
-	}
 	pkgs := ""
 	dbUpdate := ""
 	dbUpdateRedis := ""
@@ -129,6 +126,7 @@ func createModel(root, name string) {
 		dbUpdate = "var err error"
 	}
 	initDb := ""
+	initRedis := ""
 	for _, v1 := range mysqlMap {
 		pkgs += `"` + name + `/app/model/` + v1.Name + `"` + "\n"
 		dir := root + "/app/model/" + v1.Name
@@ -168,7 +166,6 @@ func createModel(root, name string) {
 		FromConfMysql(v1.Name, buff)
 		localConf += buff.String()
 
-		initRedis := ""
 		for _, v1 := range goCoreConfig.Config.CRedis {
 			for k2 := range v1.Index {
 				localConf += `
@@ -202,24 +199,24 @@ Namespace = ""
 			`
 		}
 
-		if !goCoreConfig.Config.CNacos {
-			FromConfLocal("DevConfig", localConf, fileBuffer)
-			fileWriter(fileBuffer, root+"/conf/dev.go")
-			FromConfLocal("TestConfig", localConf, fileBuffer)
-			fileWriter(fileBuffer, root+"/conf/test.go")
-			FromConfLocal("UatConfig", localConf, fileBuffer)
-			fileWriter(fileBuffer, root+"/conf/uat.go")
-			FromConfLocal("OnlConfig", localConf, fileBuffer)
-			fileWriter(fileBuffer, root+"/conf/onl.go")
-		}
-		FromConfLocal("LocalConfig", localConf, fileBuffer)
-		fileWriter(fileBuffer, root+"/conf/local.go")
-		FromCmdInit(name, pkgs, dbUpdate, initDb, initRedis, dbUpdateRedis, fileBuffer)
-		fileForceWriter(fileBuffer, root+"/cmd/init.go")
-
-		FromConfBase(baseConf, fileBuffer)
-		fileForceWriter(fileBuffer, root+"/conf/base.go")
 	}
+	if !goCoreConfig.Config.CNacos {
+		FromConfLocal("DevConfig", localConf, fileBuffer)
+		fileWriter(fileBuffer, root+"/conf/dev.go")
+		FromConfLocal("TestConfig", localConf, fileBuffer)
+		fileWriter(fileBuffer, root+"/conf/test.go")
+		FromConfLocal("UatConfig", localConf, fileBuffer)
+		fileWriter(fileBuffer, root+"/conf/uat.go")
+		FromConfLocal("OnlConfig", localConf, fileBuffer)
+		fileWriter(fileBuffer, root+"/conf/onl.go")
+	}
+	FromConfLocal("LocalConfig", localConf, fileBuffer)
+	fileWriter(fileBuffer, root+"/conf/local.go")
+	FromCmdInit(name, pkgs, dbUpdate, initDb, initRedis, dbUpdateRedis, fileBuffer)
+	fileForceWriter(fileBuffer, root+"/cmd/init.go")
+
+	FromConfBase(baseConf, fileBuffer)
+	fileForceWriter(fileBuffer, root+"/conf/base.go")
 }
 
 func createCronjob(name, root string) {
@@ -386,14 +383,14 @@ func createDef(root string) {
 				// }
 				params += file.UnderlineToCamel(v3.Name) + " " + v3.Type + " `json:\"" + v3.Name + "\" binding:\"" + v3.Validate + "\"` // " + v3.Comment + "\n"
 			}
-			FromApiRequest(v2.Name+"Request", params, fileBuffer)
+			FromApiRequest(strings.Title(v2.Name)+"Request", params, fileBuffer)
 
 			params = ""
 			fields = v2.ResponseParams
 			for _, v3 := range fields {
 				params += file.UnderlineToCamel(v3.Name) + " " + v3.Type + " `json:\"" + v3.Name + "\" binding:\"" + v3.Validate + "\"` // " + v3.Comment + "\n"
 			}
-			FromApiRequest(v2.Name+"Response", params, fileBuffer)
+			FromApiRequest(strings.Title(v2.Name)+"Response", params, fileBuffer)
 		}
 	}
 	for k1, v1 := range goCoreConfig.HttpApis.Params {

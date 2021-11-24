@@ -9,7 +9,6 @@ import (
 type GoCore struct {
 	Service       Service   `yaml:"service"`
 	Config        Config    `yaml:"config"`
-	NacosEnable   bool      `yaml:"nacosEnable"`   // 是否开启 Nacos 默认开启
 	HttpApiEnable bool      `yaml:"httpApiEnable"` // 是否开启HttpApi
 	CronJobEnable bool      `yaml:"cronJobEnable"` // 是否开启 CronJob 默认不开启
 	JobEnable     bool      `yaml:"jobEnable"`     // 是否开启 Job 任务
@@ -48,7 +47,6 @@ type Handle struct {
 
 type Param struct {
 	Name     string `yaml:"name"`
-	Required bool   `yaml:"required"`
 	Type     string `yaml:"type"`
 	Comment  string `yaml:"comment"`
 	Validate string `yaml:"validate"`
@@ -132,7 +130,6 @@ func GetGocoreConfig() *GoCore {
 				},
 			},
 		},
-		NacosEnable:   true,
 		HttpApiEnable: true,
 		CronJobEnable: true,
 		JobEnable:     true,
@@ -142,16 +139,14 @@ func GetGocoreConfig() *GoCore {
 			Params: map[string][]Param{
 				"User": {
 					{
-						Name:     "uid",
-						Required: true,
-						Type:     "int",
-						Comment:  "用户ID",
+						Name:    "uid",
+						Type:    "int",
+						Comment: "用户ID",
 					},
 					{
-						Name:     "name",
-						Required: true,
-						Type:     "string",
-						Comment:  "用户名",
+						Name:    "name",
+						Type:    "string",
+						Comment: "用户名",
 					},
 				},
 			},
@@ -167,7 +162,6 @@ func GetGocoreConfig() *GoCore {
 							RequestParams: []Param{
 								{
 									Name:     "uid",
-									Required: true,
 									Type:     "int",
 									Comment:  "用户ID",
 									Validate: "required,min=1,max=100000",
@@ -175,16 +169,14 @@ func GetGocoreConfig() *GoCore {
 							},
 							ResponseParams: []Param{
 								{
-									Name:     "detail",
-									Required: true,
-									Type:     "*User",
-									Comment:  "用户详情",
+									Name:    "detail",
+									Type:    "*User",
+									Comment: "用户详情",
 								},
 								{
-									Name:     "list",
-									Required: true,
-									Type:     "[]*User",
-									Comment:  "用户列表",
+									Name:    "list",
+									Type:    "[]*User",
+									Comment: "用户列表",
 								},
 							},
 						},
