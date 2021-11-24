@@ -1,4 +1,4 @@
-<%: func FromCmdInit(name, pkgs, dbUpdate, initDb,initCache string, buffer *bytes.Buffer) %>
+<%: func FromCmdInit(name, pkgs, dbUpdate, initDb,initCache,dbUpdateRedis string, buffer *bytes.Buffer) %>
 package cmd
 
 import (
@@ -26,9 +26,16 @@ func initConf() {
 		vt.SetBaseConfig(conf.BaseConfig)
 		vt.SetDataIds(conf.ProjectName, "config" <% if len(goCoreConfig.Config.CMysql) > 0 {%>, "mysql" <% }%><% if len(goCoreConfig.Config.CRedis) > 0 {%>, "redis"<% } %><%if goCoreConfig.Config.CRocketMQConfig {%>, "rocketmq"<% } %>)
 		// 注册配置更新回调
+		<% if len(goCoreConfig.Config.CMysql) > 0 {%>
 		vt.SetCallBackFunc(conf.ProjectName, "mysql", func(namespace, group, dataId, data string) {
 			<%== dbUpdate %>
 		})
+		<% } %>
+		<% if len(goCoreConfig.Config.CRedis) > 0 {%>
+		vt.SetCallBackFunc(conf.ProjectName, "redis", func(namespace, group, dataId, data string) {
+			<%== dbUpdateRedis %>
+		})
+		<% } %>
 		vt.NacosToViper()
 	<%}else{%>
 		viper.MergeConfigToToml(conf.BaseConfig)

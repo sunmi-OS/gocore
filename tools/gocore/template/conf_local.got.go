@@ -13,7 +13,8 @@ var `)
 	buffer.WriteString(env)
 	buffer.WriteString(` = ` + "`" + ``)
 	buffer.WriteString(content)
-	buffer.WriteString(`` + "`" + `
+	buffer.WriteString(`
+` + "`" + `
 
 `)
 

@@ -1,8 +1,10 @@
-<%: func FromConfBase(buffer *bytes.Buffer) %>
+<%: func FromConfBase(baseConf string,buffer *bytes.Buffer) %>
 package conf
 
 var BaseConfig = `
 [network]
 ApiServiceHost = "<%==  goCoreConfig.HttpApis.Host %>"
 ApiServicePort = "<%==  goCoreConfig.HttpApis.Port %>"
+
+<%== baseConf %>
 `
