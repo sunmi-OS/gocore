@@ -5,7 +5,7 @@ package template
 
 import "bytes"
 
-func FromConfBase(buffer *bytes.Buffer) {
+func FromConfBase(baseConf string, buffer *bytes.Buffer) {
 	buffer.WriteString(`
 package conf
 
@@ -17,6 +17,10 @@ ApiServiceHost = "`)
 ApiServicePort = "`)
 	buffer.WriteString(goCoreConfig.HttpApis.Port)
 	buffer.WriteString(`"
+
+`)
+	buffer.WriteString(baseConf)
+	buffer.WriteString(`
 ` + "`" + ``)
 
 }

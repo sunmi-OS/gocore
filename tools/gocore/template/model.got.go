@@ -21,15 +21,16 @@ import (
 	buffer.WriteString(goCoreConfig.Service.ProjectName)
 	buffer.WriteString(`/conf"
 	"gorm.io/gorm"
-	g "github.com/sunmi-OS/gocore/v2/db/orm"
+	"github.com/sunmi-OS/gocore/v2/db/orm"
+	"github.com/sunmi-OS/gocore/v2/conf/viper"
 	"github.com/sunmi-OS/gocore/v2/utils"
 )
 
 func Orm() *gorm.DB {
-	db := g.GetORM(conf.DB`)
+	db := orm.GetORM(conf.DB`)
 	buffer.WriteString(strings.Title(dbName))
 	buffer.WriteString(`)
-	if utils.GetRunTime() != "onl" {
+	if 	viper.C.GetBool("base.debug") {
 		db = db.Debug()
 	}
 	return db

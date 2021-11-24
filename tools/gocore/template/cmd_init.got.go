@@ -5,7 +5,7 @@ package template
 
 import "bytes"
 
-func FromCmdInit(name, pkgs, dbUpdate, initDb, initCache string, buffer *bytes.Buffer) {
+func FromCmdInit(name, pkgs, dbUpdate, initDb, initCache, dbUpdateRedis string, buffer *bytes.Buffer) {
 	buffer.WriteString(`
 package cmd
 
@@ -50,11 +50,26 @@ func initConf() {
 		}
 		buffer.WriteString(`)
 		// 注册配置更新回调
+		`)
+		if len(goCoreConfig.Config.CMysql) > 0 {
+			buffer.WriteString(`
 		vt.SetCallBackFunc(conf.ProjectName, "mysql", func(namespace, group, dataId, data string) {
 			`)
-		buffer.WriteString(dbUpdate)
-		buffer.WriteString(`
+			buffer.WriteString(dbUpdate)
+			buffer.WriteString(`
 		})
+		`)
+		}
+		if len(goCoreConfig.Config.CRedis) > 0 {
+			buffer.WriteString(`
+		vt.SetCallBackFunc(conf.ProjectName, "redis", func(namespace, group, dataId, data string) {
+			`)
+			buffer.WriteString(dbUpdateRedis)
+			buffer.WriteString(`
+		})
+		`)
+		}
+		buffer.WriteString(`
 		vt.NacosToViper()
 	`)
 	} else {

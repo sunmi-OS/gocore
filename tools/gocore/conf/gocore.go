@@ -162,7 +162,7 @@ func GetGocoreConfig() *GoCore {
 					Handle: []Handle{
 						{
 							Name:    "GetUserInfo",
-							Method:  "Any",
+							Method:  "POST",
 							Comment: "获取用户信息",
 							RequestParams: []Param{
 								{

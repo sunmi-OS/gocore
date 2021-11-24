@@ -6,13 +6,14 @@ import (
 
 	"<%== goCoreConfig.Service.ProjectName%>/conf"
 	"gorm.io/gorm"
-	g "github.com/sunmi-OS/gocore/v2/db/orm"
+	"github.com/sunmi-OS/gocore/v2/db/orm"
+	"github.com/sunmi-OS/gocore/v2/conf/viper"
 	"github.com/sunmi-OS/gocore/v2/utils"
 )
 
 func Orm() *gorm.DB {
-	db := g.GetORM(conf.DB<%== strings.Title(dbName) %>)
-	if utils.GetRunTime() != "onl" {
+	db := orm.GetORM(conf.DB<%== strings.Title(dbName) %>)
+	if 	viper.C.GetBool("base.debug") {
 		db = db.Debug()
 	}
 	return db
