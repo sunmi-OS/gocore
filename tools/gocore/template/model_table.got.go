@@ -11,10 +11,6 @@ package `)
 	buffer.WriteString(dbName)
 	buffer.WriteString(`
 
-import (
-	gormx "gorm.io/gorm"
-)
-
 var `)
 	buffer.WriteString(tableStruct)
 	buffer.WriteString(`Handler = &`)
@@ -31,80 +27,12 @@ type `)
 
 func (* `)
 	buffer.WriteString(tableStruct)
-	buffer.WriteString(`) Insert(db *gormx.DB, data * `)
-	buffer.WriteString(tableStruct)
-	buffer.WriteString(`) error {
-	if db == nil {
-		db = Orm()
-	}
-	return db.Create(data).Error
+	buffer.WriteString(`) TableName() string {
+	return "`)
+	buffer.WriteString(tableName)
+	buffer.WriteString(`"
 }
 
-func (* `)
-	buffer.WriteString(tableStruct)
-	buffer.WriteString(`) ButchInsert(db *gormx.DB, data []* `)
-	buffer.WriteString(tableStruct)
-	buffer.WriteString(`) error {
-	if db == nil {
-		db = Orm()
-	}
-	return db.Create(&data).Error
-}
-
-func (* `)
-	buffer.WriteString(tableStruct)
-	buffer.WriteString(`) GetOne(where string, args ...interface{}) (* `)
-	buffer.WriteString(tableStruct)
-	buffer.WriteString(`, error) {
-	var obj `)
-	buffer.WriteString(tableStruct)
-	buffer.WriteString(`
-	return &obj, Orm().Where(where, args...).Take(&obj).Error
-}
-
-func (* `)
-	buffer.WriteString(tableStruct)
-	buffer.WriteString(`) GetList(where string, args ...interface{}) ([]* `)
-	buffer.WriteString(tableStruct)
-	buffer.WriteString(`, error) {
-	var list []*`)
-	buffer.WriteString(tableStruct)
-	buffer.WriteString(`
-	db := Orm()
-	return list, db.Where(where, args...).Find(&list).Error
-}
-
-func (* `)
-	buffer.WriteString(tableStruct)
-	buffer.WriteString(`) GetCount(where string, args ...interface{}) (int64, error) {
-	var number int64
-	err := Orm().Model(&`)
-	buffer.WriteString(tableStruct)
-	buffer.WriteString(`{}).Where(where, args...).Count(&number).Error
-	return number, err
-}
-
-func (* `)
-	buffer.WriteString(tableStruct)
-	buffer.WriteString(`) Delete(db *gormx.DB, where string, args ...interface{}) error {
-	if db == nil {
-		db = Orm()
-	}
-	return db.Where(where, args...).Delete(&`)
-	buffer.WriteString(tableStruct)
-	buffer.WriteString(`{}).Error
-}
-
-func (*`)
-	buffer.WriteString(tableStruct)
-	buffer.WriteString(`) Update(db *gormx.DB, data map[string]interface{}, where string, args ...interface{}) (int64, error) {
-	if db == nil {
-		db = Orm()
-	}
-	db = db.Model(&`)
-	buffer.WriteString(tableStruct)
-	buffer.WriteString(`{}).Where(where, args...).Updates(data)
-	return db.RowsAffected, db.Error
-}`)
+`)
 
 }

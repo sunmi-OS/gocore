@@ -18,7 +18,11 @@ var writer = file.NewWriter()
 
 var fileBuffer = new(bytes.Buffer)
 
-var localConf string
+var localConf = `
+[base]
+debug = true
+
+`
 
 var goCoreConfig *conf.GoCore
 
@@ -154,7 +158,7 @@ func createModel(root, name string) {
 				fieldStr += CreateField(v3)
 			}
 			FromModelTable(v1.Name, tableStruct, tableName, fieldStr, fileBuffer)
-			fileForceWriter(fileBuffer, tabelPath)
+			fileWriter(fileBuffer, tabelPath)
 
 		}
 
