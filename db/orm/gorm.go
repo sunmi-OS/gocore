@@ -7,11 +7,10 @@ import (
 	"sync"
 	"time"
 
-	"github.com/sunmi-OS/gocore/v2/utils/closes"
-
 	"github.com/sunmi-OS/gocore/v2/conf/viper"
 	"github.com/sunmi-OS/gocore/v2/glog"
 	"github.com/sunmi-OS/gocore/v2/utils"
+	"github.com/sunmi-OS/gocore/v2/utils/closes"
 	"gorm.io/driver/mysql"
 	"gorm.io/gorm"
 	"gorm.io/gorm/logger"

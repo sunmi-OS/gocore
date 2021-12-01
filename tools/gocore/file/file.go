@@ -17,7 +17,7 @@ func MkdirIfNotExist(dir string) error {
 	return nil
 }
 
-//CheckFileIsExist 检查文件是否存在
+// CheckFileIsExist 检查文件是否存在
 func CheckFileIsExist(filename string) bool {
 	var exist = true
 	if _, err := os.Stat(filename); os.IsNotExist(err) {

@@ -3,13 +3,11 @@ package aliyunmq
 import (
 	"sync"
 
-	"github.com/sunmi-OS/gocore/v2/glog"
-
-	"github.com/sunmi-OS/gocore/v2/utils/closes"
-
 	"github.com/apache/rocketmq-client-go/v2"
 	"github.com/apache/rocketmq-client-go/v2/primitive"
 	"github.com/apache/rocketmq-client-go/v2/producer"
+	"github.com/sunmi-OS/gocore/v2/glog"
+	"github.com/sunmi-OS/gocore/v2/utils/closes"
 )
 
 var ProducerPool sync.Map

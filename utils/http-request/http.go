@@ -4,9 +4,8 @@ import (
 	"errors"
 	"time"
 
-	"github.com/sunmi-OS/gocore/v2/utils"
-
 	"github.com/go-resty/resty/v2"
+	"github.com/sunmi-OS/gocore/v2/utils"
 )
 
 type HttpClient struct {

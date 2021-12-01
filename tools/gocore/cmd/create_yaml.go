@@ -4,12 +4,10 @@ import (
 	"io/ioutil"
 	"os"
 
-	"github.com/sunmi-OS/gocore/v2/tools/gocore/file"
-	"gopkg.in/yaml.v2"
-
 	"github.com/sunmi-OS/gocore/v2/tools/gocore/conf"
-
+	"github.com/sunmi-OS/gocore/v2/tools/gocore/file"
 	"github.com/urfave/cli/v2"
+	"gopkg.in/yaml.v2"
 )
 
 // CreatYaml 创建配置文件

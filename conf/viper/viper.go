@@ -8,11 +8,10 @@ import (
 	"strings"
 	"sync"
 
-	"github.com/sunmi-OS/gocore/v2/utils/file"
-
 	"github.com/BurntSushi/toml"
 	"github.com/spf13/viper"
 	"github.com/sunmi-OS/gocore/v2/utils"
+	"github.com/sunmi-OS/gocore/v2/utils/file"
 )
 
 type Viper struct {
