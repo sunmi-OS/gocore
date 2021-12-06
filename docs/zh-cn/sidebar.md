@@ -38,6 +38,6 @@
   - [单元测试](zh-cn/practices/unit_test.md)
 - [FAQ](zh-cn/faq.md)
 - [版本日志](zh-cn/changelog.md)
-- [开发计划](zh-cn/nav/todo.md)
+- [开发计划](zh-cn/todo.md)
 
 <!-- - [Need Help](es-us/needhelp.md) -->
