@@ -114,9 +114,8 @@ service:
   projectName: demo #项目名称
   version: v1.0.0 #项目版本号
 config:
-  cNacos:
-    env: false #是否使用环境变量
-    rocketMQConfig: true #是否使用rocketMQ
+  cNacos: true #是否使用nacos
+  cRocketMQConfig: true #是否使用rocketMQ
   cMysql: #mysql配置
     - name: app #数据库名称
       hotUpdate: false #是否热更新
@@ -132,7 +131,6 @@ config:
       hotUpdate: false #是否热更新
       index:
         db0: 0 #选择第几个db
-nacosEnable: true #是否使用nacos
 httpApiEnable: true #是否生成接口程序
 cronJobEnable: true #是否生成定时任务
 jobEnable: true #是否生成常驻任务
@@ -147,18 +145,15 @@ httpApis:
           method: Any
           requestParams: #api接口请求参数
             - name: uid #字段名称
-              required: true #是否必填
               type: int #字段类型
               comment: 用户ID #字段备注
               validate: required,min=1,max=100000 #validate校验规则
           responseParams: #api响应参数
             - name: detail  #字段名称
-              required: true #是否必填
               type: '*User'  #字段类型,非基础字段类型,表示嵌套结构体,引用params中的结构体
               comment: 用户详情 #字段备注
               validate: ""
             - name: list
-              required: true
               type: '[]*User'
               comment: 用户列表
               validate: ""
@@ -166,12 +161,10 @@ httpApis:
   params:
     User:
       - name: uid
-        required: true
         type: int
         comment: 用户ID
         validate: ""
       - name: name
-        required: true
         type: string
         comment: 用户名
         validate: ""
