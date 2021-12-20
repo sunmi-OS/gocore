@@ -1,10 +1,10 @@
-# 初始化&路由
+# HTTP初始化&路由注册
 
-初始化默认开启项：
+基于实际使用场景，初始化默认开启项：
 - Gzip压缩：[gin-contrib/gzip](https://github.com/gin-contrib/gzip)
 - 优雅重启&关闭：[fvbock/endless](https://github.com/fvbock/endless)
 - 默认开启Recovery、Logger
-- 根据utils.IsRelease设置输出
+- 根据utils.IsRelease设置终端输出
 - 程序结束Close中间件连接
 
 ```go
@@ -46,7 +46,6 @@ func RunApi(c *cli.Context) error {
 > 增加根路由监听防止被扫异常以及启动监控检查
 
 ```go
-
 func Routes(router *gin.Engine) {
 
 	// 根目录健康检查
@@ -58,7 +57,6 @@ func Routes(router *gin.Engine) {
 	user.Post("/get_user_info", api.GetUserInfo) //获取用户信息
 
 }
-
 ```
 
 
