@@ -29,7 +29,7 @@ func GetRunTime() string {
 }
 
 // 开启线上环境
-func SetReleaseOn() error {
+func OnRelease() error {
 	releaseFlag = true
 	return nil
 }
