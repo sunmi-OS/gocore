@@ -29,9 +29,8 @@ func GetRunTime() string {
 }
 
 // 开启线上环境
-func OnRelease() error {
+func OnRelease() {
 	releaseFlag = true
-	return nil
 }
 
 // 如果是线上环境返回true
