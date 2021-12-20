@@ -1,35 +1,52 @@
 package glog
 
-import "github.com/sunmi-OS/gocore/v2/glog/zap"
+import (
+	"github.com/sunmi-OS/gocore/v2/glog/logx"
+	"github.com/sunmi-OS/gocore/v2/glog/zap"
+)
+
+var (
+	Logger logx.GLog
+)
+
+func init() {
+	// 默认使用zap打印日志
+	SetLogger(&zap.Zap{})
+}
+
+// 设置日志打印实例,选择输出到文件,终端,阿里云日志等
+func SetLogger(logger logx.GLog) {
+	Logger = logger
+}
 
 func Info(args ...interface{}) {
-	zap.Sugar.Info(args...)
+	Logger.Info(args...)
 }
 
 func InfoF(format string, args ...interface{}) {
-	zap.Sugar.Infof(format, args...)
+	Logger.InfoF(format, args...)
 }
 
 func Debug(args ...interface{}) {
-	zap.Sugar.Debug(args...)
+	Logger.Debug(args...)
 }
 
 func DebugF(format string, args ...interface{}) {
-	zap.Sugar.Debugf(format, args...)
+	Logger.DebugF(format, args...)
 }
 
 func Warn(args ...interface{}) {
-	zap.Sugar.Warn(args...)
+	Logger.Warn(args...)
 }
 
 func WarnF(format string, args ...interface{}) {
-	zap.Sugar.Warnf(format, args...)
+	Logger.WarnF(format, args...)
 }
 
 func Error(args ...interface{}) {
-	zap.Sugar.Error(args...)
+	Logger.Error(args...)
 }
 
 func ErrorF(format string, args ...interface{}) {
-	zap.Sugar.Errorf(format, args...)
+	Logger.ErrorF(format, args...)
 }

@@ -8,6 +8,7 @@ import (
 	"time"
 
 	"github.com/sunmi-OS/gocore/v2/conf/viper"
+	"github.com/sunmi-OS/gocore/v2/glog/logx"
 	"github.com/sunmi-OS/gocore/v2/utils/file"
 	"go.uber.org/zap"
 	"go.uber.org/zap/zapcore"
@@ -145,4 +146,41 @@ func deleteLog(source string, saveDays float64) {
 	if err != nil {
 		return
 	}
+}
+
+// 将文件输出到终端或者文件
+type Zap struct {
+	logx.GLog
+}
+
+func (*Zap) Info(args ...interface{}) {
+	Sugar.Info(args...)
+}
+
+func (*Zap) InfoF(format string, args ...interface{}) {
+	Sugar.Infof(format, args...)
+}
+
+func (*Zap) Debug(args ...interface{}) {
+	Sugar.Debug(args...)
+}
+
+func (*Zap) DebugF(format string, args ...interface{}) {
+	Sugar.Debugf(format, args...)
+}
+
+func (*Zap) Warn(args ...interface{}) {
+	Sugar.Warn(args...)
+}
+
+func (*Zap) WarnF(format string, args ...interface{}) {
+	Sugar.Warnf(format, args...)
+}
+
+func (*Zap) Error(args ...interface{}) {
+	Sugar.Error(args...)
+}
+
+func (*Zap) ErrorF(format string, args ...interface{}) {
+	Sugar.Errorf(format, args...)
 }
