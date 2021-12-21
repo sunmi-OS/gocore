@@ -52,6 +52,6 @@ SecretKey = ""
 ```go
 // 将glog新增输出到阿里云
 func SetGLog() {
-	glog.SetLogger("alilog", &LogClient)
+	glog.SetLogger("alilog", &sls.LogClient)
 }
 ```

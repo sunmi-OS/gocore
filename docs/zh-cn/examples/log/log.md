@@ -26,7 +26,12 @@ func init() {
 	Logger.Store("zap", &zap.Zap{})
 }
 ```
-
+- 使用示例
+```
+glog.Debug("zap debug")
+glog.Warn("zap warn")
+glog.Error("zap error", "呵呵")
+```
 
 
 
