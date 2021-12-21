@@ -1,6 +1,4 @@
 # GLog日志库
-- glog 默认使用zap作为底层输出端,
-- glog允许同时注册多个输出端
 - 只要实现logx中的GLog interface{}即可注册到glog的输出端
 ```go
 type GLog interface {
@@ -14,6 +12,22 @@ type GLog interface {
 	ErrorF(format string, args ...interface{})
 }
 ```
+- glog允许同时注册多个输出端
+```go
+// SetLogger设置日志打印实例,选择输出到文件,终端,阿里云日志等
+func SetLogger(name string, logger logx.GLog) {
+	Logger.Store(name, logger)
+}
+```
+- glog 默认使用zap作为底层输出端
+```go
+//  默认加入zap组件
+func init() {
+	Logger.Store("zap", &zap.Zap{})
+}
+```
+
+
 
 
 
