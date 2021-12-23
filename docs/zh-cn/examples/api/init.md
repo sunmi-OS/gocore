@@ -1,6 +1,6 @@
 # HTTP初始化&路由注册
 
-基于实际使用场景，初始化默认开启项：
+在HTTP接口开发过程中，考虑实际场景初始化默认开启：
 - Gzip压缩：[gin-contrib/gzip](https://github.com/gin-contrib/gzip)
 - 优雅重启&关闭：[fvbock/endless](https://github.com/fvbock/endless)
 - 默认开启Recovery、Logger
@@ -33,7 +33,6 @@ func RunApi(c *cli.Context) error {
 	return nil
 }
 ```
-
 
 默认路由
 - /项目名/模块名/接口名
