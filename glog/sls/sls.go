@@ -1,13 +1,17 @@
 package sls
 
 import (
+	"encoding/json"
 	"errors"
+	"fmt"
 	"os"
 	"time"
 
-	"github.com/aliyun/aliyun-log-go-sdk"
+	sls "github.com/aliyun/aliyun-log-go-sdk"
 	"github.com/aliyun/aliyun-log-go-sdk/producer"
 	"github.com/sunmi-OS/gocore/v2/conf/viper"
+	"github.com/sunmi-OS/gocore/v2/glog"
+	"github.com/sunmi-OS/gocore/v2/glog/logx"
 	"github.com/sunmi-OS/gocore/v2/utils/closes"
 	"github.com/tidwall/gjson"
 )
@@ -21,6 +25,7 @@ type AliyunLog struct {
 	LogStore  string
 	HostName  string
 	Log       *producer.Producer
+	logx.GLog
 }
 
 // LogClient 对外原生实例
@@ -49,8 +54,8 @@ func InitLog(configName, LogStore string) {
 	LogClient.Log = producer.InitProducer(producerConfig)
 	LogClient.Log.Start()
 
-	logMsg := producer.GenerateLog(uint32(time.Now().Unix()), map[string]string{"content": "log-start"})
-	err = LogClient.Log.SendLog(LogClient.Project, LogClient.LogStore, "start", LogClient.HostName, logMsg)
+	//logMsg := producer.GenerateLog(uint32(time.Now().Unix()), map[string]string{"content": "log-start"})
+	//err = LogClient.Log.SendLog(LogClient.Project, LogClient.LogStore, "start", LogClient.HostName, logMsg)
 
 	closes.AddShutdown(closes.ModuleClose{
 		Name:     "AliLog Close",
@@ -130,4 +135,88 @@ func checkConfig(conf AliyunLog) (err error) {
 		return err
 	}
 	return
+}
+
+// 将glog设置为输出到阿里云
+func SetGLog() {
+	glog.SetLogger("alilog", &LogClient)
+}
+
+func (aLog *AliyunLog) Info(args ...interface{}) {
+	paramByte, _ := json.Marshal(args)
+	logs := map[string]string{
+		"level":   "info",
+		"content": string(paramByte),
+	}
+	logMsg := producer.GenerateLog(uint32(time.Now().Unix()), logs)
+	_ = LogClient.Log.SendLog(LogClient.Project, LogClient.LogStore, LogClient.Project, LogClient.HostName, logMsg)
+}
+
+func (aLog *AliyunLog) InfoF(format string, args ...interface{}) {
+	logs := map[string]string{
+		"level":   "info",
+		"content": fmt.Sprintf(format, args...),
+	}
+	logMsg := producer.GenerateLog(uint32(time.Now().Unix()), logs)
+	_ = LogClient.Log.SendLog(LogClient.Project, LogClient.LogStore, LogClient.Project, LogClient.HostName, logMsg)
+}
+
+func (aLog *AliyunLog) Debug(args ...interface{}) {
+	paramByte, _ := json.Marshal(args)
+	logs := map[string]string{
+		"level":   "debug",
+		"content": string(paramByte),
+	}
+	logMsg := producer.GenerateLog(uint32(time.Now().Unix()), logs)
+	_ = LogClient.Log.SendLog(LogClient.Project, LogClient.LogStore, LogClient.Project, LogClient.HostName, logMsg)
+}
+
+func (aLog *AliyunLog) DebugF(format string, args ...interface{}) {
+	logs := map[string]string{
+		"level":   "debug",
+		"content": fmt.Sprintf(format, args...),
+	}
+	logMsg := producer.GenerateLog(uint32(time.Now().Unix()), logs)
+	_ = LogClient.Log.SendLog(LogClient.Project, LogClient.LogStore, LogClient.Project, LogClient.HostName, logMsg)
+
+}
+
+func (aLog *AliyunLog) Warn(args ...interface{}) {
+	paramByte, _ := json.Marshal(args)
+	logs := map[string]string{
+		"level":   "warn",
+		"content": string(paramByte),
+	}
+	logMsg := producer.GenerateLog(uint32(time.Now().Unix()), logs)
+	_ = LogClient.Log.SendLog(LogClient.Project, LogClient.LogStore, LogClient.Project, LogClient.HostName, logMsg)
+}
+
+func (aLog *AliyunLog) WarnF(format string, args ...interface{}) {
+	logs := map[string]string{
+		"level":   "warn",
+		"content": fmt.Sprintf(format, args...),
+	}
+	logMsg := producer.GenerateLog(uint32(time.Now().Unix()), logs)
+	_ = LogClient.Log.SendLog(LogClient.Project, LogClient.LogStore, LogClient.Project, LogClient.HostName, logMsg)
+
+}
+
+func (aLog *AliyunLog) Error(args ...interface{}) {
+	paramByte, _ := json.Marshal(args)
+	logs := map[string]string{
+		"level":   "error",
+		"content": string(paramByte),
+	}
+	logMsg := producer.GenerateLog(uint32(time.Now().Unix()), logs)
+	_ = LogClient.Log.SendLog(LogClient.Project, LogClient.LogStore, LogClient.Project, LogClient.HostName, logMsg)
+}
+
+func (aLog *AliyunLog) ErrorF(format string, args ...interface{}) {
+	logs := map[string]string{
+		"level":   "error",
+		"content": fmt.Sprintf(format, args...),
+	}
+	logMsg := producer.GenerateLog(uint32(time.Now().Unix()), logs)
+	_ = LogClient.Log.SendLog(LogClient.Project, LogClient.LogStore, LogClient.Project, LogClient.HostName, logMsg)
+
 }

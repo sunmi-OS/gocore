@@ -12,7 +12,7 @@ func BulkInsert(db *gorm.DB, table string, fields []string, params []map[string]
 	if len(params) == 0 {
 		return nil
 	}
-	sql := "INSERT INTO `" + table + "` (" + strings.Join(fields, ",") + ") VALUES "
+	sql := "INSERT INTO `" + table + "` (`" + strings.Join(fields, "`,`") + "`) VALUES "
 	args := make([]interface{}, 0)
 	valueArr := make([]string, 0)
 	varArr := make([]string, 0)
@@ -39,7 +39,7 @@ func BulkSave(db *gorm.DB, table string, fields []string, params []map[string]in
 	if len(params) == 0 {
 		return nil
 	}
-	sql := "INSERT INTO `" + table + "` (" + strings.Join(fields, ",") + ") VALUES "
+	sql := "INSERT INTO `" + table + "` (`" + strings.Join(fields, "`,`") + "`) VALUES "
 	updateArr := make([]string, 0)
 	args := make([]interface{}, 0)
 	valueArr := make([]string, 0)

@@ -1,6 +1,10 @@
 gocore.yaml配置文件介绍
 ---
 
+作为脚手架最重要的就是描述文件，通过描述文件来定义项目信息、接口模块路由、入参出参等，通过配置信息来生成项目骨架，可以大量减少重复机械式的工作。
+
+gocore使用yaml作为描述文件的格式，相对其他文件格式yaml能够比较好的表现出层次结构，尤其是在定义接口请求参数status时可以支持比较复杂的关系，比toml和json更加可读。
+
 脚手架工具基于yaml配置文件生产代码，主要特性：
 - 支持Api、cronjob、job类型
   - 自动生成Api接口
@@ -10,7 +14,7 @@ gocore.yaml配置文件介绍
     - bind参数验证
   - 自动生成cronjob和job入口cmd
 - 配置文件
-  - 集成配置中间nacos
+  - 集成配置中心nacos
     - 支持AK&SK秘钥鉴权
     - 支持从nacos或本地读取配置
     - 使用nacos支持热更新
@@ -27,10 +31,8 @@ service:
   projectName: demo #项目名称
   version: v1.0.0 #项目版本号
 config: 
-  # @TODO 需要修改
-  cNacos:
-    env: false #是否使用环境变量
-    rocketMQConfig: true #是否使用rocketMQ
+  cNacos: false #是否使用nacos
+  cRocketMQConfig: true #是否使用rocketMQ
   cMysql: #mysql配置
   - name: app #数据库名称
     hotUpdate: false #是否热更新

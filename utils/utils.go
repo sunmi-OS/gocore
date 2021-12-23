@@ -10,6 +10,8 @@ const (
 	ReleaseEnv = "onl"
 )
 
+var releaseFlag = false //为true时表示线上环境
+
 // GetDate 返回当前时间
 func GetDate() string {
 	timestamp := time.Now().Unix()
@@ -26,8 +28,14 @@ func GetRunTime() string {
 	return RunTime
 }
 
+// 开启线上环境
+func OnRelease() {
+	releaseFlag = true
+}
+
+// 如果是线上环境返回true
 func IsRelease() bool {
-	return GetRunTime() == ReleaseEnv
+	return releaseFlag || GetRunTime() == ReleaseEnv
 }
 
 // Either 返回一个存在的字符串

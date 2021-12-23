@@ -9,6 +9,7 @@
 - @TODO 未来将支持从swagger导入和导出swagger功能
 
 创建一个示例项目
+
 ```bash
 # 创建工程文件夹
 > export PROJECT_NAME=demo
@@ -39,10 +40,16 @@ Welcome to GoCore, the project has been initialized.
 
 # 下次迭代增加新的接口或数据表更新代码
 > gocore service create 
-
 ```
 
-工程创建时导入已有数据库
+
+
+对数据表创建有两种普遍的方式：
+- 使用orm特性同步status生成表结构
+- 先创建数据表，在创建statuss
+
+对于两类情况gocore都进行了支持，程序启动时默认会执行gorm的同步操作，或者使用以下当时同步当前数据库中已经定义的数据结构
+
 ```bash
 # 创建工程文件夹
 > mkdir test 
