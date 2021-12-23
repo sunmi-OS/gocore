@@ -28,12 +28,12 @@ func GetRunTime() string {
 	return RunTime
 }
 
-// 开启线上环境
+// OnRelease 开启线上环境
 func OnRelease() {
 	releaseFlag = true
 }
 
-// 如果是线上环境返回true
+// IsRelease 如果是线上环境返回true
 func IsRelease() bool {
 	return releaseFlag || GetRunTime() == ReleaseEnv
 }

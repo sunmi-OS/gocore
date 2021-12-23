@@ -9,6 +9,12 @@
 
 [参数验证逻辑使用：go-playground/validator](https://github.com/go-playground/validator)
 
+
+err := ctx.BindValidator(req)
+
+会判断环境，生产环境不提供具体细节提升安全
+
+
 ```go
 
 // GetUserInfo 获取用户信息
