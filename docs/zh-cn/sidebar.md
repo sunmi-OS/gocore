@@ -5,9 +5,9 @@
   - [目录结构](zh-cn/start/dir.md)
 - 示例
   - [API接口开发](zh-cn/examples/api/api.md)
+    - [ADM模型](zh-cn/examples/api/adm.md)
     - [初始化&路由](zh-cn/examples/api/init.md)
     - [请求入参](zh-cn/examples/api/request.md)
-    - [ADM模型](zh-cn/examples/api/adm.md)
     - [返回&异常code](zh-cn/examples/api/response.md)
   - [配置管理文件](zh-cn/examples/config/config.md)
     - [viper](zh-cn/examples/config/viper.md)

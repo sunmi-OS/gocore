@@ -148,7 +148,7 @@ func deleteLog(source string, saveDays float64) {
 	}
 }
 
-// 将文件输出到终端或者文件
+// Zap 将文件输出到终端或者文件
 type Zap struct {
 	logx.GLog
 }

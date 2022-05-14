@@ -16,12 +16,12 @@ func init() {
 	Logger.Store("zap", &zap.Zap{})
 }
 
-// SetLogger设置日志打印实例,选择输出到文件,终端,阿里云日志等
+// SetLogger 设置日志打印实例,选择输出到文件,终端,阿里云日志等
 func SetLogger(name string, logger logx.GLog) {
 	Logger.Store(name, logger)
 }
 
-// DelLogger删除日志插件
+// DelLogger 删除日志插件
 func DelLogger(name string) {
 	Logger.Delete(name)
 }
