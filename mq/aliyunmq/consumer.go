@@ -39,10 +39,5 @@ func NewConsumer(configName, groupID string, option ...consumer.Option) rocketmq
 		panic(err)
 	}
 
-	err = conn.Start()
-	if err != nil {
-		panic(err)
-	}
-
 	return conn
 }
