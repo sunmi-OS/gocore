@@ -2,6 +2,8 @@ package cmd
 
 import (
 	"fmt"
+	"os"
+	"os/exec"
 
 	"github.com/fatih/color"
 	"github.com/sunmi-OS/gocore/v2/tools/gocore/conf"
@@ -34,7 +36,11 @@ func creatService(c *cli.Context) error {
 	config := conf.GetGocoreConfig()
 	yamlPath := c.String("config")
 	root := "."
-
+	sourceCodeRoot := root + "/app"
+	err := os.Mkdir(sourceCodeRoot, os.ModePerm)
+	if err != nil {
+		panic("Failed to create sourceCodeRoot folder: " + err.Error())
+	}
 	if yamlPath == "" {
 		yamlPath = root + "/gocore.yaml"
 	}
@@ -44,12 +50,12 @@ func creatService(c *cli.Context) error {
 	}
 
 	// 创建配置&读取配置
-	config, err := InitYaml(yamlPath, config)
+	config, err = InitYaml(yamlPath, config)
 	if err != nil {
 		panic(err)
 	}
 
-	modPath := root + "/go.mod"
+	modPath := sourceCodeRoot + "/go.mod"
 	if file.CheckFileIsExist(modPath) {
 		resp, err := utils.Cmd("go", []string{"fmt", "./..."})
 		if err != nil {
@@ -57,38 +63,41 @@ func creatService(c *cli.Context) error {
 			panic(err)
 		}
 	} else {
-		printHint("Run go mod init.")
-		resp, err := utils.Cmd("go", []string{"mod", "init", config.Service.ProjectName})
+		printHint("Run go mod init")
+		goModInitCmd := exec.Command("go", []string{"mod", "init", config.Service.ProjectName}...)
+		goModInitCmd.Dir = sourceCodeRoot
+		out, err := goModInitCmd.Output()
 		if err != nil {
-			fmt.Println(resp)
+			fmt.Println(out)
 			panic(err)
 		}
 	}
 
-	template.CreateCode(root, config.Service.ProjectName, config)
+	template.CreateCode(root, sourceCodeRoot, config.Service.ProjectName, config)
 
-	printHint("Run go mod tidy.")
+	printHint("Run go mod tidy")
 
-	resp, err := utils.Cmd("go", []string{"mod", "tidy"})
+	goModTidyCmd := exec.Command("go", []string{"mod", "tidy"}...)
+	goModTidyCmd.Dir = sourceCodeRoot
+	goModTidyCmd.Stderr = os.Stderr
+	err = goModTidyCmd.Start()
 	if err != nil {
-		fmt.Println(resp)
-		panic(err)
+		panic("go mod tidy error: " + err.Error())
 	}
+	_ = goModTidyCmd.Wait()
 
-	printHint("Run go fmt.")
-	resp, err = utils.Cmd("go", []string{"fmt", "./..."})
-	if err != nil {
-		fmt.Println(resp)
-		panic(err)
-	}
+	printHint("Run go fmt")
 
-	printHint("goimports -l -w .")
-	resp, err = utils.Cmd("goimports", []string{"-l", "-w", "."})
+	goFmtCmd := exec.Command("go", []string{"mod", "tidy"}...)
+	goFmtCmd.Dir = sourceCodeRoot
+	goFmtCmd.Stderr = os.Stderr
+	err = goFmtCmd.Start()
 	if err != nil {
-		fmt.Println(resp)
-		panic(err)
+		panic("go fmt error: " + err.Error())
 	}
-	printHint("Welcome to GoCore, the project has been initialized.")
+	_ = goFmtCmd.Wait()
+
+	printHint("Welcome to GoCore, the project has been initialized")
 
 	return nil
 }
