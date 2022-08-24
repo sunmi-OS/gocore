@@ -16,3 +16,4 @@ go.mod
 go.sum
 .vscode/
 gocore
+tools/gocore/main

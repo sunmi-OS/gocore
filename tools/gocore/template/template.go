@@ -406,6 +406,7 @@ func mkdir(root string) {
 		"/errcode",
 		"/route",
 		"/conf",
+		"/middleware",
 		"/pkg",
 	}
 	for _, dir := range dirList {
