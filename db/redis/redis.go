@@ -2,6 +2,7 @@ package redis
 
 import (
 	"context"
+	"crypto/tls"
 	"strings"
 	"sync"
 
@@ -39,6 +40,7 @@ func newRedis(db string) (rc *redis.Client, err error) {
 	auth := viper.GetEnvConfig(redisName + ".auth").String()
 	encryption := viper.GetEnvConfig(redisName + ".encryption").Int64()
 	dbIndex := viper.GetEnvConfig(redisName + ".redisDB." + dbName).Int()
+	insecureSkipVerify := viper.GetEnvConfig(redisName + ".insecureSkipVerify").Bool()
 	if redisName == "redisServer" {
 		dbIndex = viper.GetEnvConfig("redisDB." + dbName).Int()
 	}
@@ -49,12 +51,15 @@ func newRedis(db string) (rc *redis.Client, err error) {
 	if !strings.Contains(addr, ":") {
 		addr = host + ":" + port
 	}
-
-	rc = redis.NewClient(&redis.Options{
+	ops := &redis.Options{
 		Addr:     addr,
 		Password: auth,
 		DB:       dbIndex,
-	})
+	}
+	if insecureSkipVerify {
+		ops.TLSConfig = &tls.Config{InsecureSkipVerify: true}
+	}
+	rc = redis.NewClient(ops)
 	if err := rc.Ping(context.Background()).Err(); err != nil {
 		return nil, err
 	}
