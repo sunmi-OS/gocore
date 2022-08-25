@@ -1,6 +1,7 @@
 package redis
 
 import (
+	"crypto/tls"
 	"strings"
 	"sync"
 
@@ -61,6 +62,7 @@ func openRedis(db string) (*redis.Client, error) {
 	port := viper.GetEnvConfig(redisName + ".port")
 	auth := viper.GetEnvConfig(redisName + ".auth")
 	encryption := viper.GetEnvConfigInt(redisName + ".encryption")
+	insecureSkipVerify := viper.GetEnvConfigBool(redisName + ".insecureSkipVerify")
 	dbIndex := viper.GetEnvConfigCastInt(redisName + ".redisDB." + dbName)
 	if redisName == "redisServer" {
 		dbIndex = viper.GetEnvConfigCastInt("redisDB." + dbName)
@@ -74,6 +76,9 @@ func openRedis(db string) (*redis.Client, error) {
 		addr = host + ":" + port
 	}
 	options := redis.Options{Addr: addr, Password: auth, DB: dbIndex}
+	if insecureSkipVerify {
+		options.TLSConfig = &tls.Config{InsecureSkipVerify: true}
+	}
 	client := redis.NewClient(&options)
 	_, err := client.Ping().Result()
 	if err != nil {
