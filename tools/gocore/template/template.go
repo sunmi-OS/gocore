@@ -28,9 +28,8 @@ var goCoreConfig *conf.GoCore
 // CreateCode 更具配置文件生成项目
 // 模板引擎生成语句 hero -source=./tools/gocore/template -extensions=.got,.md,.docker
 func CreateCode(root, sourceCodeRoot, name string, config *conf.GoCore) {
-
 	goCoreConfig = config
-	newProgress(10, "start preparing...")
+	newProgress(11, "start preparing...")
 	time.Sleep(time.Second)
 	progressNext("Initialize the directory structure...")
 	mkdir(sourceCodeRoot)
@@ -50,7 +49,9 @@ func CreateCode(root, sourceCodeRoot, name string, config *conf.GoCore) {
 	createJob(sourceCodeRoot, name)
 	progressNext("Initialize the api folder...")
 	createApi(sourceCodeRoot, name)
-	progressNext("Initialize the Request return parameters...")
+	progressNext("Initialize the rpc folder...")
+	createRpc(sourceCodeRoot, name)
+	progressNext("Initialize the request and response parameters...")
 	createDef(sourceCodeRoot)
 	fmt.Println()
 }
@@ -80,9 +81,6 @@ func createMain(root, name string) {
 	var cmdList []string
 	if goCoreConfig.HttpApiEnable {
 		cmdList = append(cmdList, "cmd.Api,")
-	}
-	if goCoreConfig.CronJobEnable {
-		cmdList = append(cmdList, "cmd.Cron,")
 	}
 	if goCoreConfig.JobEnable {
 		cmdList = append(cmdList, "cmd.Job,")
@@ -126,7 +124,7 @@ func createDal(root, name string) {
 	initDb := ""
 	initRedis := ""
 	for _, v1 := range mysqlMap {
-		pkgs += `"` + name + `/dal/` + v1.Name + `"` + "\n"
+		//pkgs += `"` + name + `/dal/` + v1.Name + `"` + "\n"
 		dir := root + "/dal/" + v1.Name
 		dbUpdate += `
 				err = orm.NewOrUpdateDB(conf.DB` + strings.Title(v1.Name) + `)
@@ -134,7 +132,7 @@ func createDal(root, name string) {
 					glog.Error(err)
 				}
 		`
-		initDb += `orm.NewDB(conf.DB` + strings.Title(v1.Name) + `)` + "\n" + v1.Name + `.SchemaMigrate()` + "\n"
+		initDb += `orm.NewDB(conf.DB` + strings.Title(v1.Name) + `)` + "\n"
 		err := file.MkdirIfNotExist(dir)
 		if err != nil {
 			panic(err)
@@ -334,18 +332,31 @@ func createApi(root, name string) {
 
 }
 
+//create rpc directory
+func createRpc(root, name string) {
+	if !goCoreConfig.RPCEnable {
+		return
+	}
+
+	rpcDir := root + "/rpc/"
+	err := file.MkdirIfNotExist(rpcDir)
+	if err != nil {
+		panic("failed to create the rpc directory " + err.Error())
+	}
+}
+
 func createDef(root string) {
 	modules := goCoreConfig.HttpApis.Apis
 	if len(modules) == 0 {
 		return
 	}
-	dir := root + "/app/def"
+	dir := root + "/param"
 	err := file.MkdirIfNotExist(dir)
 	if err != nil {
 		panic(err)
 	}
 
-	writer.Add([]byte(`package def` + "\n"))
+	writer.Add([]byte(`package param` + "\n"))
 	for _, v1 := range modules {
 		for _, v2 := range v1.Handle {
 
@@ -376,7 +387,7 @@ func createDef(root string) {
 		}
 		FromApiRequest(k1, params, fileBuffer)
 	}
-	fileForceWriter(fileBuffer, dir+"/def.go")
+	fileForceWriter(fileBuffer, dir+"/user.go")
 }
 
 // ------------------------------------------------------------------------------

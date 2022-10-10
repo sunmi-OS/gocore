@@ -2,7 +2,7 @@
 package cmd
 
 import (
-	"<%== name %>/app/job"
+	"<%== name %>/job"
 	"github.com/urfave/cli/v2"
 	"github.com/sunmi-OS/gocore/v2/utils/closes"
 )

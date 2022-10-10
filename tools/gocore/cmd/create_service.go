@@ -88,7 +88,7 @@ func creatService(c *cli.Context) error {
 
 	printHint("Run go fmt")
 
-	goFmtCmd := exec.Command("go", []string{"mod", "tidy"}...)
+	goFmtCmd := exec.Command("go", []string{"fmt", "./..."}...)
 	goFmtCmd.Dir = sourceCodeRoot
 	goFmtCmd.Stderr = os.Stderr
 	err = goFmtCmd.Start()

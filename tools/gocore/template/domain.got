@@ -1,2 +1,2 @@
 <%: func FromDomain(buffer *bytes.Buffer) %>
-package domain
+package biz

@@ -9,8 +9,6 @@
 
 gocore是一款高度集成的开发框架和脚手架，支持api、rpc、job、task等开发方式，并集成各类主流开源库和中间件融入最佳实践，简化研发流程、提高效率、统一规范。
 
-官网文档站首页：https://sunmi-os.github.io/gocore/
-
 ![cli](https://file.cdn.sunmi.com/gocore_cli.svg)
 
 ## 特性
@@ -131,8 +129,8 @@ config:
       hotUpdate: false #是否热更新
       index:
         db0: 0 #选择第几个db
+rpcEnable: false #是否生成rpc服务层
 httpApiEnable: true #是否生成接口程序
-cronJobEnable: true #是否生成定时任务
 jobEnable: true #是否生成常驻任务
 httpApis:
   host: 0.0.0.0 #api接口监听ip地址
@@ -168,19 +166,7 @@ httpApis:
         type: string
         comment: 用户名
         validate: ""
-cronJobs:
-  - spec: '@every 30m' #定时任务规则,参考:github.com/robfig/cron
-    job:
-      name: SyncUser #定时任务方法名称
-      comment: 同步用户 #定时任务备注
 jobs:
   - name: InitUser #一次性任务,常驻任务方法名称
     comment: 初始化默认用户 #一次性任务,常驻任务备注
 ```
-
-
-## 联系我们
-
-欢迎加入`gocore`QQ群：1004023331 一起沟通讨论
-
-![qq](https://file.cdn.sunmi.com/qq.png?x-oss-process=image/resize,h_200)
