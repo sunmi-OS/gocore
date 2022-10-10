@@ -18,10 +18,3 @@ func Orm() *gorm.DB {
 	}
 	return db
 }
-
-func SchemaMigrate() {
-	fmt.Println("开始初始化<%== dbName %>数据库")
-	//自动建表，数据迁移
-    <%== tabels %>
-	fmt.Println("数据库<%== dbName %>初始化完成")
-}

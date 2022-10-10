@@ -10,7 +10,6 @@ import (
 	"github.com/sunmi-OS/gocore/v2/db/redis"
 	"github.com/sunmi-OS/gocore/v2/glog"
 	"github.com/sunmi-OS/gocore/v2/utils"
-	"github.com/sunmi-OS/gocore/v2/conf/viper"
 )
 
 func initConf() {

@@ -6,7 +6,7 @@ import (
 	"net/http"
 	_ "net/http/pprof"
 
-	"<%== name %>/app/api"
+	"<%== name %>/api"
 )
 
 func Routes(router *gin.Engine) {

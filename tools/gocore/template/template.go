@@ -27,33 +27,32 @@ var goCoreConfig *conf.GoCore
 
 // CreateCode 更具配置文件生成项目
 // 模板引擎生成语句 hero -source=./tools/gocore/template -extensions=.got,.md,.docker
-func CreateCode(root, name string, config *conf.GoCore) {
-
+func CreateCode(root, sourceCodeRoot, name string, config *conf.GoCore) {
 	goCoreConfig = config
 	newProgress(11, "start preparing...")
 	time.Sleep(time.Second)
 	progressNext("Initialize the directory structure...")
-	mkdir(root)
+	mkdir(sourceCodeRoot)
 	progressNext("Initialize the configuration file...")
-	createConf(root, name)
+	createConf(sourceCodeRoot, name)
 	progressNext("Initialize the main program...")
-	createMain(root, name)
-	progressNext("Initialize the Dockerfile...")
+	createMain(sourceCodeRoot, name)
+	progressNext("Initialize the Dockerfile file...")
 	createDockerfile(root)
-	progressNext("Initialize the Readme...")
+	progressNext("Initialize the Readme file...")
 	createReadme(root)
-	progressNext("Initialize the ErrCode...")
-	createErrCode(root)
-	progressNext("Initialize the DB Model...")
-	createModel(root, name)
-	progressNext("Initialize the Cronjob...")
-	createCronjob(name, root)
-	progressNext("Initialize the Job...")
-	createJob(name, root)
-	progressNext("Initialize the Api...")
-	createApi(root, name)
-	progressNext("Initialize the Request return parameters...")
-	createDef(root)
+	progressNext("Initialize the errcode folder...")
+	createErrCode(sourceCodeRoot)
+	progressNext("Initialize the dal folder...")
+	createDal(sourceCodeRoot, name)
+	progressNext("Initialize the job folder...")
+	createJob(sourceCodeRoot, name)
+	progressNext("Initialize the api folder...")
+	createApi(sourceCodeRoot, name)
+	progressNext("Initialize the rpc folder...")
+	createRpc(sourceCodeRoot, name)
+	progressNext("Initialize the request and response parameters...")
+	createDef(sourceCodeRoot)
 	fmt.Println()
 }
 
@@ -83,9 +82,6 @@ func createMain(root, name string) {
 	if goCoreConfig.HttpApiEnable {
 		cmdList = append(cmdList, "cmd.Api,")
 	}
-	if goCoreConfig.CronJobEnable {
-		cmdList = append(cmdList, "cmd.Cron,")
-	}
 	if goCoreConfig.JobEnable {
 		cmdList = append(cmdList, "cmd.Job,")
 	}
@@ -110,10 +106,10 @@ func createReadme(root string) {
 
 func createErrCode(root string) {
 	FromErrCode(fileBuffer)
-	fileWriter(fileBuffer, root+"/app/errcode/errcode.go")
+	fileWriter(fileBuffer, root+"/errcode/errcode.go")
 }
 
-func createModel(root, name string) {
+func createDal(root, name string) {
 	mysqlMap := goCoreConfig.Config.CMysql
 	pkgs := ""
 	dbUpdate := ""
@@ -128,15 +124,15 @@ func createModel(root, name string) {
 	initDb := ""
 	initRedis := ""
 	for _, v1 := range mysqlMap {
-		pkgs += `"` + name + `/app/model/` + v1.Name + `"` + "\n"
-		dir := root + "/app/model/" + v1.Name
+		//pkgs += `"` + name + `/dal/` + v1.Name + `"` + "\n"
+		dir := root + "/dal/" + v1.Name
 		dbUpdate += `
 				err = orm.NewOrUpdateDB(conf.DB` + strings.Title(v1.Name) + `)
 				if err != nil {
 					glog.Error(err)
 				}
 		`
-		initDb += `orm.NewDB(conf.DB` + strings.Title(v1.Name) + `)` + "\n" + v1.Name + `.SchemaMigrate()` + "\n"
+		initDb += `orm.NewDB(conf.DB` + strings.Title(v1.Name) + `)` + "\n"
 		err := file.MkdirIfNotExist(dir)
 		if err != nil {
 			panic(err)
@@ -219,37 +215,14 @@ Namespace = ""
 	fileForceWriter(fileBuffer, root+"/conf/base.go")
 }
 
-func createCronjob(name, root string) {
-	jobs := goCoreConfig.CronJobs
-	if !goCoreConfig.CronJobEnable {
-		return
-	}
-
-	dir := root + "/app/cronjob/"
-	err := file.MkdirIfNotExist(dir)
-	if err != nil {
-		panic(err)
-	}
-	cronjobs := ""
-	for _, v1 := range jobs {
-		jobPath := dir + file.CamelToUnderline(v1.Job.Name) + ".go"
-		FromCronJob(v1.Job.Name, v1.Job.Comment, fileBuffer)
-		fileForceWriter(fileBuffer, jobPath)
-		cronjobs += "_,_ = cronJob.AddFunc(\"" + v1.Spec + "\", cronjob." + v1.Job.Name + ")\n"
-	}
-
-	FromCmdCronJob(name, cronjobs, fileBuffer)
-	fileForceWriter(fileBuffer, root+"/cmd/cron.go")
-}
-
-func createJob(name, root string) {
+func createJob(root, name string) {
 
 	jobs := goCoreConfig.Jobs
 	if len(jobs) == 0 || !goCoreConfig.JobEnable {
 		return
 	}
 
-	dir := root + "/app/job/"
+	dir := root + "/job/"
 	err := file.MkdirIfNotExist(dir)
 	if err != nil {
 		panic(err)
@@ -292,13 +265,13 @@ func createApi(root, name string) {
 	FromCmdApi(name, fileBuffer)
 	fileForceWriter(fileBuffer, root+"/cmd/api.go")
 
-	apiDir := root + "/app/api/"
+	apiDir := root + "/api/"
 	err := file.MkdirIfNotExist(apiDir)
 	if err != nil {
 		panic(err)
 	}
 
-	domainDir := root + "/app/domain/"
+	domainDir := root + "/biz/"
 	err = file.MkdirIfNotExist(domainDir)
 	if err != nil {
 		panic(err)
@@ -355,8 +328,21 @@ func createApi(root, name string) {
 		fileForceWriter(fileBuffer, apiPath)
 	}
 	FromApiRoutes(name, routesStr, fileBuffer)
-	fileForceWriter(fileBuffer, root+"/app/routes/routers.go")
+	fileForceWriter(fileBuffer, root+"/route/routers.go")
 
+}
+
+//create rpc directory
+func createRpc(root, name string) {
+	if !goCoreConfig.RPCEnable {
+		return
+	}
+
+	rpcDir := root + "/rpc/"
+	err := file.MkdirIfNotExist(rpcDir)
+	if err != nil {
+		panic("failed to create the rpc directory " + err.Error())
+	}
 }
 
 func createDef(root string) {
@@ -364,13 +350,13 @@ func createDef(root string) {
 	if len(modules) == 0 {
 		return
 	}
-	dir := root + "/app/def"
+	dir := root + "/param"
 	err := file.MkdirIfNotExist(dir)
 	if err != nil {
 		panic(err)
 	}
 
-	writer.Add([]byte(`package def` + "\n"))
+	writer.Add([]byte(`package param` + "\n"))
 	for _, v1 := range modules {
 		for _, v2 := range v1.Handle {
 
@@ -401,7 +387,7 @@ func createDef(root string) {
 		}
 		FromApiRequest(k1, params, fileBuffer)
 	}
-	fileForceWriter(fileBuffer, dir+"/def.go")
+	fileForceWriter(fileBuffer, dir+"/user.go")
 }
 
 // ------------------------------------------------------------------------------
@@ -425,13 +411,13 @@ func unResetfileWriter(buffer *bytes.Buffer, path string) {
 
 func mkdir(root string) {
 	var dirList = []string{
-		"/common",
 		"/cmd",
-		"/app/domain",
-		"/app/model",
-		"/app/errcode",
-		"/app/routes",
+		"/biz",
+		"/dal",
+		"/errcode",
+		"/route",
 		"/conf",
+		"/middleware",
 		"/pkg",
 	}
 	for _, dir := range dirList {

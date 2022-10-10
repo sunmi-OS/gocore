@@ -3,7 +3,7 @@
 package api
 
 import (
-	"<%== name %>/app/def"
+	"<%== name %>/param"
 
 	"github.com/gin-gonic/gin"
     "github.com/sunmi-OS/gocore/v2/api"
@@ -16,12 +16,12 @@ import (
 	// <%== v1 %> <%== " "+comments[k1] %>
     func <%== v1 %>(g *gin.Context) {
         ctx := api.NewContext(g)
-        req := new(def.<%== req[k1] %>Request)
+        req := new(param.<%== req[k1] %>Request)
         err := ctx.BindValidator(req)
 		if err != nil {
 			ctx.Error(err)
 			return
 		}
-		ctx.Success(def.<%== req[k1] %>Response{})
+		ctx.Success(param.<%== req[k1] %>Response{})
     }
 <% } %>
