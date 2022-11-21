@@ -74,10 +74,7 @@ var _ gorm.Plugin = &OpentracingPlugin{}
 func StartSpanWithCtx(ctx context.Context, db *gorm.DB, skip int) (opentracing.Span, *gorm.DB) {
 	_ = db.Use(&OpentracingPlugin{})
 	pc, _, _, _ := runtime.Caller(skip)
-	spanName := ""
-	if pc > 0 {
-		spanName = spanName + "/" + runtime.FuncForPC(pc).Name()
-	}
+	spanName := "/" + runtime.FuncForPC(pc).Name()
 	span, ctx := opentracing.StartSpanFromContext(ctx, spanName)
 	db = db.WithContext(ctx)
 	return span, db
