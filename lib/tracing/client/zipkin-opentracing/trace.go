@@ -14,7 +14,7 @@ import (
 
 // NewZipKinTracer 通过 http 直接上报
 // appName application name serviceName#env
-func NewZipKinTracer(appName string, endPointUrl string) {
+func NewZipKinTracer(appName string, endPointUrl string) opentracing.Tracer {
 	//zipkinreporter.Timeout 上报链路日志超时时间（http）
 	//zipkinreporter.BatchSize 每次推送数量
 	//zipkinreporter.BatchInterval 批量推送周期
@@ -33,6 +33,7 @@ func NewZipKinTracer(appName string, endPointUrl string) {
 	// use zipkin-go-opentracing to wrap our tracer
 	tracer := zipkinopentracing.Wrap(nativeTracer)
 	opentracing.SetGlobalTracer(tracer)
+	return tracer
 }
 
 // StartSpanWithCtx 生成上下文span
