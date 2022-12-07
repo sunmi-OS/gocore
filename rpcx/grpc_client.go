@@ -15,8 +15,34 @@ type GrpcClient struct {
 func NewGrpcClient(name, addr string, cfg *GrpcClientConfig) (gc *GrpcClient, err error) {
 
 	gc = &GrpcClient{cfg: cfg, addr: addr}
+	defaultCfg := defaultClientConfig(name)
 	if gc.cfg == nil {
-		gc.cfg = defaultClientConfig(name)
+		gc.cfg = defaultCfg
+	} else {
+		if cfg.Timeout == "" {
+			cfg.Timeout = defaultCfg.Timeout
+		}
+		if cfg.MaxAttempts == "" {
+			cfg.MaxAttempts = defaultCfg.MaxAttempts
+		}
+		if cfg.InitialBackoff == "" {
+			cfg.InitialBackoff = defaultCfg.InitialBackoff
+		}
+		if cfg.MaxBackoff == "" {
+			cfg.MaxBackoff = defaultCfg.MaxBackoff
+		}
+		if cfg.BackoffMultiplier == "" {
+			cfg.BackoffMultiplier = defaultCfg.BackoffMultiplier
+		}
+		if cfg.WaitForReady == "" {
+			cfg.WaitForReady = defaultCfg.WaitForReady
+		}
+		if cfg.MaxTokens == "" {
+			cfg.MaxTokens = defaultCfg.MaxTokens
+		}
+		if cfg.TokenRatio == "" {
+			cfg.TokenRatio = defaultCfg.TokenRatio
+		}
 	}
 
 	options := gc.cfg.buildDialOptions()

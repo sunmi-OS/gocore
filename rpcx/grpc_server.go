@@ -44,6 +44,8 @@ func (s *GrpcServer) RegisterService(register RegisterFn) *GrpcServer {
 	}
 	s.AddUnaryInterceptors(interceptor.UnaryCrash)
 	s.AddStreamInterceptors(interceptor.StreamCrash)
+	s.AddUnaryInterceptors(interceptor.UnaryAccessLog)
+	s.AddStreamInterceptors(interceptor.StreamAccessLog)
 
 	options := append(s.options, interceptor.WithUnaryServer(s.unaryInterceptors...), interceptor.WithStreamServer(s.streamInterceptors...))
 	s.server = grpc.NewServer(options...)
