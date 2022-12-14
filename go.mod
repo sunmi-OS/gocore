@@ -13,6 +13,7 @@ require (
 	github.com/go-redis/redis/v8 v8.11.4
 	github.com/go-resty/resty/v2 v2.6.0
 	github.com/google/uuid v1.3.0
+	github.com/json-iterator/go v1.1.11
 	github.com/k0kubun/go-ansi v0.0.0-20180517002512-3bf9e2903213
 	github.com/maxence-charriere/go-app/v8 v8.1.0
 	github.com/nacos-group/nacos-sdk-go v1.0.9
@@ -20,9 +21,11 @@ require (
 	github.com/opentracing/opentracing-go v1.2.0
 	github.com/openzipkin-contrib/zipkin-go-opentracing v0.4.5
 	github.com/openzipkin/zipkin-go v0.2.2
+	github.com/prometheus/client_golang v1.3.0
 	github.com/rakyll/statik v0.1.7
 	github.com/schollz/progressbar/v3 v3.8.3
 	github.com/segmentio/kafka-go v0.4.22
+	github.com/sirupsen/logrus v1.4.2
 	github.com/spf13/cast v1.4.1
 	github.com/spf13/viper v1.9.0
 	github.com/streadway/amqp v1.0.0
