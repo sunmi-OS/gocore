@@ -1,0 +1,10 @@
+syntax = "proto3";
+
+option go_package = ".;ecode";
+
+message Status {
+  int32 code = 1;
+  string reason = 2;
+  string message = 3;
+  map<string, string> metadata = 4;
+};
