@@ -14,6 +14,10 @@ func New(code int, err error) error {
 
 // Transform 通过error获取对应的code码
 func Transform(err error) int {
+	if err == nil {
+		return -1
+	}
+
 	v, ok := errorMap[err.Error()]
 	if !ok {
 		return -1
