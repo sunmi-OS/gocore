@@ -55,6 +55,15 @@ func (c *Context) Error(err error) {
 	c.JSON(http.StatusOK, c.R)
 }
 
+// RetJSON 针对 ecode v2
+func (c *Context) RetJSON(data interface{}, err error) {
+	e := ecode.FromError(err)
+	c.R.Code = e.Code()
+	c.R.Data = data
+	c.R.Msg = e.Message()
+	c.JSON(http.StatusOK, c.R)
+}
+
 // ErrorCodeMsg 直接指定code和msg
 func (c *Context) ErrorCodeMsg(code int, msg string) {
 	c.R.Code = code
