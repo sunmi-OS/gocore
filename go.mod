@@ -13,7 +13,6 @@ require (
 	github.com/go-redis/redis/v8 v8.11.4
 	github.com/go-resty/resty/v2 v2.6.0
 	github.com/google/uuid v1.3.0
-	github.com/json-iterator/go v1.1.11
 	github.com/k0kubun/go-ansi v0.0.0-20180517002512-3bf9e2903213
 	github.com/maxence-charriere/go-app/v8 v8.1.0
 	github.com/nacos-group/nacos-sdk-go v1.0.9
@@ -37,6 +36,7 @@ require (
 	google.golang.org/grpc v1.41.0
 	gopkg.in/alexcesaro/quotedprintable.v3 v3.0.0-20150716171945-2caba252f4dc // indirect
 	gopkg.in/gomail.v2 v2.0.0-20160411212932-81ebce5c23df
+	gopkg.in/natefinch/lumberjack.v2 v2.0.0
 	gopkg.in/yaml.v2 v2.4.0
 	gorm.io/driver/mysql v1.1.3
 	gorm.io/gorm v1.22.1

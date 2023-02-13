@@ -3,151 +3,101 @@ package interceptor
 import (
 	"context"
 	"fmt"
-	jsoniter "github.com/json-iterator/go"
-	"github.com/sunmi-OS/gocore/v2/utils/file"
+	"net"
+	"strings"
+	"time"
+
+	"go.uber.org/zap"
+	"go.uber.org/zap/zapcore"
 	"google.golang.org/grpc"
 	"google.golang.org/grpc/metadata"
 	"google.golang.org/grpc/peer"
 	"google.golang.org/grpc/status"
-	"io"
-	"net"
-	"os"
-	"strings"
-	"time"
+	"gopkg.in/natefinch/lumberjack.v2"
 )
 
-func UnaryAccessLog(
-	ctx context.Context,
-	req interface{},
-	info *grpc.UnaryServerInfo,
-	handler grpc.UnaryHandler,
-) (resp interface{}, err error) {
-	defer handleCrash(func(r interface{}) {
-		err = toPanicError(r)
-	})
-
-	start := time.Now()
-	requestDate := start.Format(time.RFC3339)
-
-	var res interface{}
-	defer func() {
-		md, _ := metadata.FromIncomingContext(ctx)
-		ua, clientForwardedIp, traceId := extractFromMD(md)
-		clientIp := getPeerAddr(ctx)
-
-		var accessLog = struct {
-			Metadata              interface{} `json:"metadata"`
-			RequestDate           interface{} `json:"request_date"`
-			ProcessTime           interface{} `json:"process_time"`
-			ClientIp              interface{} `json:"client_ip"`
-			ClientForwardedIp     interface{} `json:"client_forwarded_ip"`
-			TraceId               interface{} `json:"traceid"`
-			Ua                    interface{} `json:"ua"`
-			RequestMethod         interface{} `json:"request_method"`
-			RequestUrl            interface{} `json:"request_url"`
-			RequestParams         interface{} `json:"request_params"`
-			ResponseStatusCode    interface{} `json:"response_status_code"`
-			ResponseStatusMessage interface{} `json:"response_status_message"`
-			ResponseBody          interface{} `json:"response_body"`
-		}{
-			md,
-			requestDate,
-			time.Since(start).Milliseconds(),
-			clientIp,
-			clientForwardedIp,
-			traceId,
-			ua,
-			"gRPC Unary",
-			info.FullMethod,
-			req,
-			int64(status.Code(err)),
-			status.Code(err),
-			res,
-		}
-		d := file.GetPath()
-		logFile := d + "/access.log"
-		var f *os.File
-		defer func(f *os.File) {
-			_ = f.Close()
-		}(f)
-		if file.CheckFile(logFile) {
-			f, _ = os.OpenFile(logFile, os.O_APPEND|os.O_WRONLY, os.ModeAppend)
-		} else {
-			f, _ = os.Create(logFile)
-		}
-		b, _ := jsoniter.Marshal(accessLog)
-		//log.SetOutput(f)
-		_, _ = io.WriteString(f, string(b)+"\r\n")
-	}()
-
-	res, err = handler(ctx, req)
-	return res, err
+func UnaryAccessLog() grpc.UnaryServerInterceptor {
+	logger := initZap("./log/access.log")
+	defer func(logger *zap.Logger) {
+		_ = logger.Sync()
+	}(logger)
+	return func(ctx context.Context, req interface{}, info *grpc.UnaryServerInfo, handler grpc.UnaryHandler) (resp interface{}, err error) {
+		defer handleCrash(func(r interface{}) {
+			err = toPanicError(r)
+		})
+		start := time.Now()
+		requestDate := start.Format(time.RFC3339)
+		var res interface{}
+		defer func() {
+			md, _ := metadata.FromIncomingContext(ctx)
+			_, clientForwardedIp, _, host := extractFromMD(md)
+			clientIp := getPeerAddr(ctx)
+			fields := []zapcore.Field{
+				zap.String("r_time", requestDate),
+				zap.Int64("cost", time.Since(start).Milliseconds()),
+				zap.String("c_ip", clientIp),
+				zap.String("c_f_ip", clientForwardedIp),
+				zap.String("schema", "gRPC"),
+				zap.String("r_host", host),
+				zap.String("r_method", "gRPC/Unary"),
+				zap.String("r_q_path", info.FullMethod),
+				zap.String("r_path", info.FullMethod),
+				zap.Any("r_header", md),
+				zap.Any("r_body", req),
+				zap.Int("s_status", int(status.Code(err))),
+				zap.Any("s_code", int(status.Code(err))),
+				zap.Any("s_msg", status.Code(err)),
+				zap.Any("s_body", res),
+			}
+			logger.Info("accesslog", fields...)
+		}()
+		res, err = handler(ctx, req)
+		return res, err
+	}
 }
 
-func StreamAccessLog(
-	srv interface{},
-	stream grpc.ServerStream,
-	info *grpc.StreamServerInfo,
-	handler grpc.StreamHandler,
-) (err error) {
-	defer handleCrash(func(r interface{}) {
-		err = toPanicError(r)
-	})
-
-	start := time.Now()
-	requestDate := start.Format(time.RFC3339)
-	ctx := stream.Context()
-
-	defer func() {
-		md, _ := metadata.FromIncomingContext(ctx)
-		ua, clientForwardedIp, traceId := extractFromMD(md)
-		clientIp := getPeerAddr(ctx)
-
-		var accessLog = struct {
-			Metadata              interface{} `json:"metadata"`
-			RequestDate           interface{} `json:"request_date"`
-			ProcessTime           interface{} `json:"process_time"`
-			ClientIp              interface{} `json:"client_ip"`
-			ClientForwardedIp     interface{} `json:"client_forwarded_ip"`
-			TraceId               interface{} `json:"traceid"`
-			Ua                    interface{} `json:"ua"`
-			RequestMethod         interface{} `json:"request_method"`
-			RequestUrl            interface{} `json:"request_url"`
-			ResponseStatusCode    interface{} `json:"response_status_code"`
-			ResponseStatusMessage interface{} `json:"response_status_message"`
-		}{
-			md,
-			requestDate,
-			time.Since(start).Milliseconds(),
-			clientIp,
-			clientForwardedIp,
-			traceId,
-			ua,
-			"gRPC Stream",
-			info.FullMethod,
-			int64(status.Code(err)),
-			status.Code(err),
-		}
-		b, _ := jsoniter.Marshal(accessLog)
-		d := file.GetPath()
-		logFile := d + "/access.log"
-		var f *os.File
-		defer func(f *os.File) {
-			_ = f.Close()
-		}(f)
-		if file.CheckFile(logFile) {
-			f, _ = os.OpenFile(logFile, os.O_APPEND|os.O_WRONLY, os.ModeAppend)
-		} else {
-			f, _ = os.Create(logFile)
-		}
-		_, _ = io.WriteString(f, string(b)+"\r\n")
-	}()
-
-	err = handler(srv, stream)
-	return err
+func StreamAccessLog() grpc.StreamServerInterceptor {
+	logger := initZap("./log/access.log")
+	defer func(logger *zap.Logger) {
+		_ = logger.Sync()
+	}(logger)
+	return func(srv interface{}, stream grpc.ServerStream, info *grpc.StreamServerInfo, handler grpc.StreamHandler) (err error) {
+		defer handleCrash(func(r interface{}) {
+			err = toPanicError(r)
+		})
+		start := time.Now()
+		requestDate := start.Format(time.RFC3339)
+		ctx := stream.Context()
+		defer func() {
+			md, _ := metadata.FromIncomingContext(ctx)
+			_, clientForwardedIp, _, host := extractFromMD(md)
+			fmt.Println(host)
+			clientIp := getPeerAddr(ctx)
+			fields := []zapcore.Field{
+				zap.String("r_time", requestDate),
+				zap.Int64("cost", time.Since(start).Milliseconds()),
+				zap.String("c_ip", clientIp),
+				zap.String("c_f_ip", clientForwardedIp),
+				zap.String("schema", "gRPC"),
+				zap.String("r_host", host),
+				zap.String("r_method", "gRPC/Stream"),
+				zap.String("r_q_path", info.FullMethod),
+				zap.String("r_path", info.FullMethod),
+				zap.Any("r_header", md),
+				zap.Any("r_body", ""),
+				zap.Int("s_status", int(status.Code(err))),
+				zap.Any("s_code", int(status.Code(err))),
+				zap.Any("s_msg", status.Code(err)),
+				zap.Any("s_body", ""),
+			}
+			logger.Info("accesslog", fields...)
+		}()
+		err = handler(srv, stream)
+		return err
+	}
 }
 
-func extractFromMD(md metadata.MD) (ua string, ip string, traceId string) {
+func extractFromMD(md metadata.MD) (ua string, ip string, traceId, host string) {
 	if v, ok := md["x-forwarded-user-agent"]; ok {
 		ua = fmt.Sprintf("%v", v)
 	} else {
@@ -163,7 +113,11 @@ func extractFromMD(md metadata.MD) (ua string, ip string, traceId string) {
 		traceId = fmt.Sprintf("%v", v)
 	}
 
-	return ua, ip, traceId
+	if v, ok := md[":authority"]; ok && len(v) > 0 {
+		host = fmt.Sprintf("%v", v[0])
+	}
+
+	return ua, ip, traceId, host
 }
 
 func getPeerAddr(ctx context.Context) string {
@@ -176,4 +130,27 @@ func getPeerAddr(ctx context.Context) string {
 		}
 	}
 	return addr
+}
+
+// init zap
+// fileName log path ./access_log
+func initZap(fileName string) *zap.Logger {
+	config := zapcore.EncoderConfig{
+		MessageKey: "",
+		LevelKey:   "",
+		TimeKey:    "",
+		CallerKey:  "",
+	}
+	// io.Writer 使用 lumberjack
+	infoWriter := &lumberjack.Logger{
+		Filename:   fileName,
+		MaxSize:    1024, //最大体积，单位M，超过则切割
+		MaxBackups: 5,    //最大文件保留数，超过则删除最老的日志文件
+		MaxAge:     30,   //最长保存时间30天
+		Compress:   true, //是否压缩
+	}
+	core := zapcore.NewTee(
+		zapcore.NewCore(zapcore.NewConsoleEncoder(config), zapcore.AddSync(infoWriter), zap.InfoLevel), //将info及以下写入logPath，NewConsoleEncoder 是非结构化输出
+	)
+	return zap.New(core, zap.AddCaller(), zap.AddStacktrace(zap.InfoLevel))
 }
