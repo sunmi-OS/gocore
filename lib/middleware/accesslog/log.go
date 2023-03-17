@@ -7,6 +7,7 @@ import (
 	"time"
 
 	"github.com/gin-gonic/gin"
+	"github.com/sunmi-OS/gocore/v2/utils"
 	"go.uber.org/zap"
 	"go.uber.org/zap/zapcore"
 	"gopkg.in/natefinch/lumberjack.v2"
@@ -20,16 +21,17 @@ type responseWriter struct {
 
 // 重写 Write([]byte) (int, error) 方法
 func (w responseWriter) Write(b []byte) (int, error) {
-	//向一个bytes.buffer中写一份数据来为获取body使用
+	// 向一个bytes.buffer中写一份数据来为获取body使用
 	w.b.Write(b)
-	//完成gin.Context.Writer.Write()原有功能
+	// 完成gin.Context.Writer.Write()原有功能
 	return w.ResponseWriter.Write(b)
 }
 
 // AccessLog middleware for accesslog
 func AccessLog() gin.HandlerFunc {
-	//init zap
-	logger := initZap("./log/access.log")
+	// init zap
+	logFileName := utils.GetAccesslogPath()
+	logger := initZap(logFileName)
 	defer func(logger *zap.Logger) {
 		_ = logger.Sync()
 	}(logger)
@@ -105,13 +107,13 @@ func initZap(fileName string) *zap.Logger {
 	// io.Writer 使用 lumberjack
 	infoWriter := &lumberjack.Logger{
 		Filename:   fileName,
-		MaxSize:    1024, //最大体积，单位M，超过则切割
-		MaxBackups: 5,    //最大文件保留数，超过则删除最老的日志文件
-		MaxAge:     30,   //最长保存时间30天
-		Compress:   true, //是否压缩
+		MaxSize:    1024, // 最大体积，单位M，超过则切割
+		MaxBackups: 5,    // 最大文件保留数，超过则删除最老的日志文件
+		MaxAge:     30,   // 最长保存时间30天
+		Compress:   true, // 是否压缩
 	}
 	core := zapcore.NewTee(
-		zapcore.NewCore(zapcore.NewConsoleEncoder(config), zapcore.AddSync(infoWriter), zap.InfoLevel), //将info及以下写入logPath，NewConsoleEncoder 是非结构化输出
+		zapcore.NewCore(zapcore.NewConsoleEncoder(config), zapcore.AddSync(infoWriter), zap.InfoLevel), // 将info及以下写入logPath，NewConsoleEncoder 是非结构化输出
 	)
 	return zap.New(core, zap.AddCaller(), zap.AddStacktrace(zap.InfoLevel))
 }
