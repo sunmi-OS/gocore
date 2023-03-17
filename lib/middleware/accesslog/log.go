@@ -9,6 +9,7 @@ import (
 	"time"
 
 	"github.com/labstack/echo/v4"
+	"github.com/sunmi-OS/gocore/utils"
 	"go.uber.org/zap"
 	"go.uber.org/zap/zapcore"
 	"gopkg.in/natefinch/lumberjack.v2"
@@ -25,8 +26,9 @@ func (w *bodyDumpResponseWriter) Write(b []byte) (int, error) {
 
 // AccessLog middleware for accesslog
 func AccessLog() echo.MiddlewareFunc {
-	//init zap
-	logger := initZap("./log/access.log")
+	// init zap
+	logFilePath := utils.GetAccesslogPath()
+	logger := initZap(logFilePath)
 	defer func(logger *zap.Logger) {
 		_ = logger.Sync()
 	}(logger)
@@ -100,14 +102,14 @@ func initZap(fileName string) *zap.Logger {
 	// 获取io.Writer的实现
 	infoWriter := &lumberjack.Logger{
 		Filename:   fileName,
-		MaxSize:    1024, //最大体积，单位M，超过则切割
-		MaxBackups: 5,    //最大文件保留数，超过则删除最老的日志文件
-		MaxAge:     30,   //最长保存时间30天
-		Compress:   true, //是否压缩
+		MaxSize:    1024, // 最大体积，单位M，超过则切割
+		MaxBackups: 5,    // 最大文件保留数，超过则删除最老的日志文件
+		MaxAge:     30,   // 最长保存时间30天
+		Compress:   true, // 是否压缩
 	}
 	// 实现多个输出
 	core := zapcore.NewTee(
-		zapcore.NewCore(zapcore.NewConsoleEncoder(config), zapcore.AddSync(infoWriter), zap.InfoLevel), //将info及以下写入logPath，NewConsoleEncoder 是非结构化输出
+		zapcore.NewCore(zapcore.NewConsoleEncoder(config), zapcore.AddSync(infoWriter), zap.InfoLevel), // 将info及以下写入logPath，NewConsoleEncoder 是非结构化输出
 	)
 	return zap.New(core, zap.AddCaller(), zap.AddStacktrace(zap.InfoLevel))
 }

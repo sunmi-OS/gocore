@@ -11,6 +11,7 @@ import (
 	"mime/multipart"
 	"os"
 	"reflect"
+	"runtime"
 	"strings"
 	"time"
 )
@@ -24,7 +25,7 @@ func GetDate() string {
 
 // 获取当前系统环境
 func GetRunTime() string {
-	//获取系统环境变量
+	// 获取系统环境变量
 	RUN_TIME := os.Getenv("RUN_TIME")
 	if RUN_TIME == "" {
 		fmt.Println("No RUN_TIME Can't start")
@@ -39,7 +40,7 @@ func GetMD5(plainText string) string {
 	return hex.EncodeToString(h.Sum(nil))
 }
 
-//计算文件的md5，适用于本地文件计算
+// 计算文件的md5，适用于本地文件计算
 func GetMd5(path string) (string, error) {
 	f, err := os.Open(path)
 	if err != nil {
@@ -53,8 +54,8 @@ func GetMd5(path string) (string, error) {
 	return hex.EncodeToString(md5hash.Sum(nil)), nil
 }
 
-//从流中直接读取数据计算md5 并返回流的副本，不能用于计算大文件流否则内存占用很大
-//@return io.Reader @params file的副本
+// 从流中直接读取数据计算md5 并返回流的副本，不能用于计算大文件流否则内存占用很大
+// @return io.Reader @params file的副本
 func GetMd52(file io.Reader) (io.Reader, string, error) {
 	var b bytes.Buffer
 	md5hash := md5.New()
@@ -64,7 +65,7 @@ func GetMd52(file io.Reader) (io.Reader, string, error) {
 	return &b, hex.EncodeToString(md5hash.Sum(nil)), nil
 }
 
-//解压
+// 解压
 func DeCompress(zipFile, dest string) error {
 	reader, err := zip.OpenReader(zipFile)
 	if err != nil {
@@ -154,18 +155,30 @@ func GetFileSize(filePath string) (int64, error) {
 	if err != nil {
 		return 0, err
 	}
-	//文件大小
+	// 文件大小
 	fsize := fileInfo.Size()
 	return fsize, nil
 }
 
-/**
- * 判断文件是否存在  存在返回 true 不存在返回false
- */
+// CheckFileIsExist 判断文件是否存在  存在返回 true 不存在返回false
 func CheckFileIsExist(filename string) bool {
 	var exist = true
 	if _, err := os.Stat(filename); os.IsNotExist(err) {
 		exist = false
 	}
 	return exist
+}
+
+// GetAccesslogPath accesslog路径
+func GetAccesslogPath() string {
+	var path string
+	switch runtime.GOOS {
+	case "windows":
+		path = "./logs/access.log"
+	case "darwin":
+		path = "./logs/access.log"
+	default: // "linux", "freebsd", "openbsd", "netbsd"
+		path = "/data/logs/access.log"
+	}
+	return path
 }
