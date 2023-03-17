@@ -59,7 +59,8 @@ func UnaryAccessLog() grpc.UnaryServerInterceptor {
 }
 
 func StreamAccessLog() grpc.StreamServerInterceptor {
-	logger := initZap("./log/access.log")
+	logFileName := utils.GetAccesslogPath()
+	logger := initZap(logFileName)
 	defer func(logger *zap.Logger) {
 		_ = logger.Sync()
 	}(logger)
