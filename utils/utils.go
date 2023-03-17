@@ -3,6 +3,7 @@ package utils
 import (
 	"fmt"
 	"os"
+	"runtime"
 	"time"
 )
 
@@ -10,7 +11,7 @@ const (
 	ReleaseEnv = "onl"
 )
 
-var releaseFlag = false //为true时表示线上环境
+var releaseFlag = false // 为true时表示线上环境
 
 // GetDate 返回当前时间
 func GetDate() string {
@@ -46,4 +47,18 @@ func Either(list ...string) string {
 		}
 	}
 	return ""
+}
+
+// GetAccesslogPath accesslog路径
+func GetAccesslogPath() string {
+	var path string
+	switch runtime.GOOS {
+	case "windows":
+		path = "./logs/access.log"
+	case "darwin":
+		path = "./logs/access.log"
+	default: // "linux", "freebsd", "openbsd", "netbsd"
+		path = "/data/logs/access.log"
+	}
+	return path
 }
