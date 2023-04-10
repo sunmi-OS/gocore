@@ -22,7 +22,8 @@ var closeHandler closes
 const (
 	MQPriority     = 100
 	GormPriority   = 500
-	RedisPriority  = 500
+	MongoPriority  = 501
+	RedisPriority  = 510
 	AliLogPriority = 2000
 )
 

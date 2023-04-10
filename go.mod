@@ -32,6 +32,7 @@ require (
 	github.com/tidwall/gjson v1.10.2
 	github.com/urfave/cli/v2 v2.3.0
 	github.com/zserge/lorca v0.1.10
+	go.mongodb.org/mongo-driver v1.11.4
 	go.uber.org/zap v1.19.1
 	google.golang.org/genproto v0.0.0-20210828152312-66f60bf46e71
 	google.golang.org/grpc v1.41.0
