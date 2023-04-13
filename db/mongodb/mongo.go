@@ -3,6 +3,7 @@ package mongodb
 import (
 	"context"
 	"fmt"
+	"strings"
 	"sync"
 	"time"
 
@@ -78,20 +79,30 @@ func Close() {
 }
 
 func openDB(dbname string) (*mongo.Database, error) {
-	dbHost := viper.GetEnvConfig(dbname + ".Host").String()
+	// ["host:port" ...]
+	dbEndpoint := viper.GetEnvConfig(dbname + ".Endpoint").SliceString()
 	dbName := viper.GetEnvConfig(dbname + ".Name").String()
 	dbUser := viper.GetEnvConfig(dbname + ".User").String()
 	dbPasswd := viper.GetEnvConfig(dbname + ".Passwd").String()
-	dbPort := viper.GetEnvConfig(dbname + ".Port").String()
+	replicaSet := viper.GetEnvConfig(dbname + ".ReplicaSet").String()
 	maxPoolSize := viper.GetEnvConfig(dbname + ".MaxPoolSize").Int64()
 	minPoolSize := viper.GetEnvConfig(dbname + ".MinPoolSize").Int64()
-	// "mongodb://"+dbUser+":"+dbPasswd+"@"+dbHost+":"+dbPort
-	uri := fmt.Sprintf("mongodb://%s:%s@%s:%s",
+	dbEndpointStr := ""
+	if len(dbEndpoint) > 1 {
+		dbEndpointStr = strings.Join(dbEndpoint, ",")
+	} else {
+		dbEndpointStr = dbEndpoint[0]
+	}
+	// single-node or sharded-clusters
+	uri := fmt.Sprintf("mongodb://%s:%s@%s/admin",
 		dbUser,
 		dbPasswd,
-		dbHost,
-		dbPort,
+		dbEndpointStr,
 	)
+	if replicaSet != "" {
+		// replica set instance
+		uri += "?replicaSet=" + replicaSet
+	}
 	opts := options.Client().ApplyURI(uri)
 	opts.SetMaxPoolSize(cast.ToUint64(maxPoolSize))
 	opts.SetMinPoolSize(cast.ToUint64(minPoolSize))
