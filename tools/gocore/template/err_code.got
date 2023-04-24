@@ -7,5 +7,5 @@ import (
 )
 
 var (
-	ErrorNotFound = ecode.New(50001, gorm.ErrRecordNotFound)
+	ErrorNotFound = ecode.NewV2(50001, "record not found")
 )
