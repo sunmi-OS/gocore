@@ -239,9 +239,10 @@ func createJob(root, name string) {
 		},`
 		jobFunctions += `
 func ` + v1.Name + `(c *cli.Context) error {
-	defer closes.Close()
-	// 初始化必要内容
+	// 初始化配置
 	initConf()
+
+	defer closes.Close()
 	initDB()
 	job.` + v1.Name + `()
 	return nil
