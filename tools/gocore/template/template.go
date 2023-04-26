@@ -124,7 +124,7 @@ func createDal(root, name string) {
 	initDb := ""
 	initRedis := ""
 	for _, v1 := range mysqlMap {
-		//pkgs += `"` + name + `/dal/` + v1.Name + `"` + "\n"
+		// pkgs += `"` + name + `/dal/` + v1.Name + `"` + "\n"
 		dir := root + "/dal/" + v1.Name
 		dbUpdate += `
 				err = orm.NewOrUpdateDB(conf.DB` + strings.Title(v1.Name) + `)
@@ -239,9 +239,10 @@ func createJob(root, name string) {
 		},`
 		jobFunctions += `
 func ` + v1.Name + `(c *cli.Context) error {
-	defer closes.Close()
-	// 初始化必要内容
+	// 初始化配置
 	initConf()
+
+	defer closes.Close()
 	initDB()
 	job.` + v1.Name + `()
 	return nil
@@ -279,7 +280,7 @@ func createApi(root, name string) {
 
 	routesStr := ""
 
-	//handlers := make([]string, 0)
+	// handlers := make([]string, 0)
 
 	for _, v1 := range handlersList {
 		handlerName := v1.ModuleName
@@ -293,7 +294,7 @@ func createApi(root, name string) {
 		}
 		// 首字母大写
 		handler := strings.Title(handlerName)
-		//handlers = append(handlers, handler)
+		// handlers = append(handlers, handler)
 		functions := make([]string, 0)
 		comments := make([]string, 0)
 		reqs := make([]string, 0)
@@ -317,7 +318,7 @@ func createApi(root, name string) {
 			req := strings.Title(v2.Name)
 			reqs = append(reqs, req)
 			comments = append(comments, v2.Comment)
-			routesStr += handlerName + "." + v2.Method + "(\"/" + file.CamelToUnderline(route) + "\",api." + function + ") //" + v2.Comment + "\n"
+			routesStr += handlerName + "." + v2.Method + "(\"/" + route + "\",api." + function + ") //" + v2.Comment + "\n"
 			// FromDomain(name, handler, function, req, fileBuffer)
 			// fileForceWriter(fileBuffer, domainDir+file.CamelToUnderline(route)+".go")
 
@@ -332,7 +333,7 @@ func createApi(root, name string) {
 
 }
 
-//create rpc directory
+// create rpc directory
 func createRpc(root, name string) {
 	if !goCoreConfig.RPCEnable {
 		return

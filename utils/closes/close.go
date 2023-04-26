@@ -54,5 +54,4 @@ func Close() {
 			f.Func()
 		}
 	}
-	os.Exit(0)
 }
