@@ -9,4 +9,6 @@ type GLog interface {
 	WarnF(format string, args ...interface{})
 	Error(args ...interface{})
 	ErrorF(format string, args ...interface{})
+	Fatal(args ...interface{})
+	FatalF(format string, args ...interface{})
 }

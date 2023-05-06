@@ -81,3 +81,17 @@ func ErrorF(format string, args ...interface{}) {
 		return true
 	})
 }
+
+func Fatal(args ...interface{}) {
+	Logger.Range(func(k, v interface{}) bool {
+		v.(logx.GLog).Error(args...)
+		return true
+	})
+}
+
+func FatalF(format string, args ...interface{}) {
+	Logger.Range(func(k, v interface{}) bool {
+		v.(logx.GLog).ErrorF(format, args...)
+		return true
+	})
+}
