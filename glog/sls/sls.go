@@ -82,7 +82,7 @@ func Error(topic string, logs map[string]string) error {
 	return LogClient.Log.SendLog(LogClient.Project, LogClient.LogStore, topic, LogClient.HostName, logMsg)
 }
 
-// Fatal 记录异常日志
+// Fatal 记录致命错误日志
 func Fatal(topic string, logs map[string]string) error {
 	logs["level"] = "fatal"
 	logMsg := producer.GenerateLog(uint32(time.Now().Unix()), logs)
