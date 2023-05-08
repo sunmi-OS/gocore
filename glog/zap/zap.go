@@ -19,6 +19,7 @@ const (
 	LogLevelDebug = "debug"
 	LogLevelWarn  = "warn"
 	LogLevelError = "error"
+	LogLevelFatal = "fatal"
 )
 
 var (
@@ -50,6 +51,8 @@ func SetLogLevel(logLevel string) {
 		cfg.Level = zap.NewAtomicLevelAt(zap.WarnLevel)
 	case LogLevelError:
 		cfg.Level = zap.NewAtomicLevelAt(zap.ErrorLevel)
+	case LogLevelFatal:
+		cfg.Level = zap.NewAtomicLevelAt(zap.FatalLevel)
 	default:
 		cfg.Level = zap.NewAtomicLevelAt(zap.DebugLevel)
 	}
@@ -182,5 +185,13 @@ func (*Zap) Error(args ...interface{}) {
 }
 
 func (*Zap) ErrorF(format string, args ...interface{}) {
+	Sugar.Errorf(format, args...)
+}
+
+func (*Zap) Fatal(args ...interface{}) {
+	Sugar.Error(args...)
+}
+
+func (*Zap) FatalF(format string, args ...interface{}) {
 	Sugar.Errorf(format, args...)
 }

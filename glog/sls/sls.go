@@ -82,6 +82,13 @@ func Error(topic string, logs map[string]string) error {
 	return LogClient.Log.SendLog(LogClient.Project, LogClient.LogStore, topic, LogClient.HostName, logMsg)
 }
 
+// Fatal 记录致命错误日志
+func Fatal(topic string, logs map[string]string) error {
+	logs["level"] = "fatal"
+	logMsg := producer.GenerateLog(uint32(time.Now().Unix()), logs)
+	return LogClient.Log.SendLog(LogClient.Project, LogClient.LogStore, topic, LogClient.HostName, logMsg)
+}
+
 // Close 关闭日志服务
 func Close() {
 	if LogClient.Log != nil {
@@ -214,6 +221,26 @@ func (aLog *AliyunLog) Error(args ...interface{}) {
 func (aLog *AliyunLog) ErrorF(format string, args ...interface{}) {
 	logs := map[string]string{
 		"level":   "error",
+		"content": fmt.Sprintf(format, args...),
+	}
+	logMsg := producer.GenerateLog(uint32(time.Now().Unix()), logs)
+	_ = LogClient.Log.SendLog(LogClient.Project, LogClient.LogStore, LogClient.Project, LogClient.HostName, logMsg)
+
+}
+
+func (aLog *AliyunLog) Fatal(args ...interface{}) {
+	paramByte, _ := json.Marshal(args)
+	logs := map[string]string{
+		"level":   "fatal",
+		"content": string(paramByte),
+	}
+	logMsg := producer.GenerateLog(uint32(time.Now().Unix()), logs)
+	_ = LogClient.Log.SendLog(LogClient.Project, LogClient.LogStore, LogClient.Project, LogClient.HostName, logMsg)
+}
+
+func (aLog *AliyunLog) FatalF(format string, args ...interface{}) {
+	logs := map[string]string{
+		"level":   "fatal",
 		"content": fmt.Sprintf(format, args...),
 	}
 	logMsg := producer.GenerateLog(uint32(time.Now().Unix()), logs)
