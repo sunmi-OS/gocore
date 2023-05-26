@@ -5,6 +5,7 @@ import (
 	"os"
 	"path/filepath"
 	"strings"
+	"sync"
 	"time"
 
 	"github.com/sunmi-OS/gocore/v2/conf/viper"
@@ -26,6 +27,7 @@ var (
 	Sugar   *zap.SugaredLogger
 	logfile *os.File
 	cfg     zap.Config
+	once    sync.Once
 )
 
 func init() {
@@ -33,7 +35,7 @@ func init() {
 	cfg = zap.NewProductionConfig()
 	cfg.Level = zap.NewAtomicLevelAt(zap.DebugLevel)
 	cfg.EncoderConfig.EncodeTime = zapcore.ISO8601TimeEncoder
-	l, err := cfg.Build(zap.AddCallerSkip(1))
+	l, err := cfg.Build(zap.AddCallerSkip(4))
 	if err != nil {
 		log.Printf("l.initZap(),err:%+v", err)
 		return
@@ -57,7 +59,7 @@ func SetLogLevel(logLevel string) {
 		cfg.Level = zap.NewAtomicLevelAt(zap.DebugLevel)
 	}
 
-	Logger, err := cfg.Build(zap.AddCallerSkip(1))
+	Logger, err := cfg.Build(zap.AddCallerSkip(4))
 	if err != nil {
 		log.Printf("l.initZap(),err:%+v.\n", err)
 		return
@@ -91,7 +93,9 @@ func InitFileLog(logPath ...string) {
 	cfg.OutputPaths = []string{filename, "stdout"}
 	cfg.ErrorOutputPaths = []string{filename, "stderr"}
 	SetLogLevel(viper.GetEnvConfig("log.level").String())
-	go updateLogFile(path)
+	once.Do(func() {
+		go updateLogFile(path)
+	})
 }
 
 // updateLogFile 检测是否跨天了,把记录记录到新的文件目录中
@@ -109,7 +113,7 @@ func updateLogFile(logPath string) {
 		next = time.Date(next.Year(), next.Month(), next.Day(), 0, 0, 0, 0, next.Location())
 		t := time.NewTimer(next.Sub(now))
 		<-t.C
-		//以下为定时执行的操作
+		// 以下为定时执行的操作
 		logfile.Close()
 		go deleteLog(logPath, saveDays)
 		filename := logPath + time.Now().Format("2006-01-02") + ".log"
