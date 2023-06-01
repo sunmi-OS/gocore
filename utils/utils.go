@@ -8,6 +8,11 @@ import (
 )
 
 const (
+	LocalEnv   = "local"
+	DevEnv     = "dev"
+	TestEnv    = "test"
+	UatEnv     = "uat"
+	PreEnv     = "pre"
 	ReleaseEnv = "onl"
 )
 
@@ -37,6 +42,26 @@ func OnRelease() {
 // IsRelease 如果是线上环境返回true
 func IsRelease() bool {
 	return releaseFlag || GetRunTime() == ReleaseEnv
+}
+
+func IsLocal() bool {
+	return GetRunTime() == LocalEnv
+}
+
+func IsDev() bool {
+	return GetRunTime() == DevEnv
+}
+
+func IsTest() bool {
+	return GetRunTime() == TestEnv
+}
+
+func IsUat() bool {
+	return GetRunTime() == UatEnv
+}
+
+func IsPre() bool {
+	return GetRunTime() == PreEnv
 }
 
 // Either 返回一个存在的字符串
