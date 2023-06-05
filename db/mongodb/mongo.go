@@ -94,10 +94,11 @@ func openDB(dbname string) (*mongo.Database, error) {
 		dbEndpointStr = dbEndpoint[0]
 	}
 	// single-node or sharded-clusters
-	uri := fmt.Sprintf("mongodb://%s:%s@%s/admin",
+	uri := fmt.Sprintf("mongodb://%s:%s@%s/%s",
 		dbUser,
 		dbPasswd,
 		dbEndpointStr,
+		dbName,
 	)
 	if replicaSet != "" {
 		// replica set instance
