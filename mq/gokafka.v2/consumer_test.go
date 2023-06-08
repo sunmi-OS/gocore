@@ -6,8 +6,10 @@ import (
 	"testing"
 	"time"
 
-	"github.com/segmentio/kafka-go"
 	"github.com/sunmi-OS/gocore/v2/glog"
+	"github.com/sunmi-OS/gocore/v2/utils/closes"
+
+	"github.com/segmentio/kafka-go"
 )
 
 func TestPrefix(t *testing.T) {
@@ -63,5 +65,5 @@ func TestConsumer(t *testing.T) {
 		}
 	}()
 	time.Sleep(time.Second * 10)
-	defer consumer.Close()
+	defer closes.Close()
 }
