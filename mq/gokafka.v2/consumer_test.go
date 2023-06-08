@@ -36,7 +36,7 @@ func TestPrefix(t *testing.T) {
 	}
 	err := os.Setenv("RUN_TIME", "pre")
 	if err != nil {
-		panic(err)
+		t.Errorf("set RUN_TIME failed err=%v", err)
 	}
 	result := PreTopicPrefix("hello")
 	if result != "Onl-hello" {

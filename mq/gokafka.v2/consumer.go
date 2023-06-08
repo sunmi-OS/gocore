@@ -47,9 +47,9 @@ func NewConsumerConfig(brokers []string, groupID string, topic string) kafka.Rea
 		Brokers:        brokers,
 		Topic:          topic,
 		GroupID:        groupID,
-		MinBytes:       1e3,  //1K
+		MinBytes:       10e3, //10K
 		MaxBytes:       10e6, //10MB
-		MaxWait:        1 * time.Second,
+		MaxWait:        time.Second,
 		CommitInterval: time.Second,
 		StartOffset:    kafka.LastOffset,
 	}
@@ -62,7 +62,7 @@ func NewVipConsumerConfig(brokerKey string, groupIDKey string, topicKey string) 
 		Topic:          viper.GetEnvConfig(topicKey).String(),
 		MinBytes:       10e3, //10K
 		MaxBytes:       10e6, //10MB
-		MaxWait:        1 * time.Second,
+		MaxWait:        time.Second,
 		CommitInterval: time.Second,
 		StartOffset:    kafka.LastOffset,
 	}
@@ -116,6 +116,7 @@ func (kr *Consumer) Handle(ctx context.Context, handle func(msg kafka.Message) e
 	}
 }
 
+// Close 别忘记调用该方法
 func (kr *Consumer) Close() error {
 	kr.cancel()
 	err := kr.Reader.Close()
