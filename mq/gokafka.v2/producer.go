@@ -2,18 +2,23 @@ package gokafka
 
 import (
 	"context"
+	"sync"
 	"time"
 
 	"github.com/sunmi-OS/gocore/v2/conf/viper"
 	"github.com/sunmi-OS/gocore/v2/glog"
+	"github.com/sunmi-OS/gocore/v2/utils/closes"
 
 	"github.com/segmentio/kafka-go"
 )
 
+var ProducerPool sync.Map
+
 type Producer struct {
-	Writer *kafka.Writer
-	ctx    context.Context
-	cancel context.CancelFunc
+	Writer     *kafka.Writer
+	ctx        context.Context
+	cancel     context.CancelFunc
+	configName string
 }
 
 func NewProducerConfig(brokers []string) *kafka.Writer {
@@ -23,22 +28,39 @@ func NewProducerConfig(brokers []string) *kafka.Writer {
 	}
 }
 
-func NewVipProducerConfig(brokerKey string) *kafka.Writer {
+func NewVipProducerConfig(configName string) *kafka.Writer {
 	return &kafka.Writer{
-		Addr:  kafka.TCP(viper.GetEnvConfig(brokerKey).SliceString()...),
+		Addr:  kafka.TCP(viper.GetEnvConfig(configName + ".Brokers").SliceString()...),
 		Async: true,
 	}
 }
 
 // NewProducer conf每次重新生成
-func NewProducer(conf *kafka.Writer) *Producer {
+func NewProducer(configName string, conf *kafka.Writer) *Producer {
 	glog.InfoF("start one kafka producer, conf:%#v", conf)
 	ctx, cancel := context.WithCancel(context.Background())
-	return &Producer{
-		ctx:    ctx,
-		cancel: cancel,
-		Writer: conf,
+	p := &Producer{
+		ctx:        ctx,
+		cancel:     cancel,
+		Writer:     conf,
+		configName: configName,
 	}
+	ProducerPool.LoadOrStore(configName, p)
+	closes.AddShutdown(closes.ModuleClose{
+		Name:     "Kafka Producer Close",
+		Priority: closes.MQPriority,
+		Func: func() {
+			_ = p.Close()
+		},
+	})
+	return p
+}
+
+func GetProducer(configName string) (conn *Producer) {
+	if conn, ok := ProducerPool.Load(configName); ok {
+		return conn.(*Producer)
+	}
+	return nil
 }
 
 func (w *Producer) Send(ctx context.Context, topic string, key string, value []byte) error {
@@ -82,5 +104,6 @@ func (w *Producer) Close() error {
 	} else {
 		glog.InfoF("Kafka Producer close success, conf:%#v", w.Writer)
 	}
+	ProducerPool.Delete(w.configName)
 	return err
 }

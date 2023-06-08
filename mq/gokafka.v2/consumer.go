@@ -6,9 +6,9 @@ import (
 	"time"
 
 	"github.com/sunmi-OS/gocore/v2/conf/viper"
-
 	"github.com/sunmi-OS/gocore/v2/glog"
 	"github.com/sunmi-OS/gocore/v2/utils"
+	"github.com/sunmi-OS/gocore/v2/utils/closes"
 
 	"github.com/segmentio/kafka-go"
 )
@@ -71,11 +71,19 @@ func NewVipConsumerConfig(brokerKey string, groupIDKey string, topicKey string) 
 // NewConsumer conf每次重新生成
 func NewConsumer(conf kafka.ReaderConfig) *Consumer {
 	ctx, cancel := context.WithCancel(context.Background())
-	return &Consumer{
+	c := &Consumer{
 		ctx:    ctx,
 		cancel: cancel,
 		Reader: kafka.NewReader(conf),
 	}
+	closes.AddShutdown(closes.ModuleClose{
+		Name:     "Kafka Consumer Close",
+		Priority: closes.MQPriority,
+		Func: func() {
+			_ = c.Close()
+		},
+	})
+	return c
 }
 
 func (kr *Consumer) Handle(ctx context.Context, handle func(msg kafka.Message) error) error {
@@ -116,7 +124,6 @@ func (kr *Consumer) Handle(ctx context.Context, handle func(msg kafka.Message) e
 	}
 }
 
-// Close 别忘记调用该方法
 func (kr *Consumer) Close() error {
 	kr.cancel()
 	err := kr.Reader.Close()
