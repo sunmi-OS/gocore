@@ -49,11 +49,12 @@ func TestPrefix(t *testing.T) {
 }
 
 func TestConsumer(t *testing.T) {
-	brokers := []string{} // TODO: add your brokers
-	groupID := ""         // TODO: add your groupID
-	topic := ""           // TODO: add your topic
-	rc := NewConsumerConfig(brokers, groupID, topic)
+	brokers := []string{}                            // TODO: add your brokers
+	groupID := ""                                    // TODO: add your groupID
+	topic := ""                                      // TODO: add your topic
+	rc := NewConsumerConfig(brokers, groupID, topic) // 注意：rc不要复用，每次NewConsumer时都需要重新生成
 	consumer := NewConsumer(rc)
+
 	go func() {
 		glog.InfoF("start consumer, %#v", rc)
 		err := consumer.Handle(context.Background(), func(msg kafka.Message) error {

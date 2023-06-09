@@ -9,11 +9,13 @@ import (
 )
 
 func TestProducer(t *testing.T) {
-	brokers := []string{} // TODO: add your brokers
-	topic := ""           // TODO: add your topic
-	rc := NewProducerConfig(brokers)
+	brokers := []string{}            // TODO: add your brokers
+	topic := ""                      // TODO: add your topic
+	rc := NewProducerConfig(brokers) // 注意：不能复用，每次NewProducer时都需要重新生成
 	producer := NewProducer("configName", rc)
-	// defer producer.Close()
+	// producer.Writer.Close()
+	rc = NewProducerConfig(brokers)
+	producer = NewProducer("configName", rc)
 	defer closes.Close()
 
 	for i := 0; i < 100; i++ {

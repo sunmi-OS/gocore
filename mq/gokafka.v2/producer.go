@@ -13,6 +13,7 @@ import (
 )
 
 var ProducerPool sync.Map
+var closeOnce sync.Once
 
 type Producer struct {
 	Writer     *kafka.Writer
@@ -21,6 +22,7 @@ type Producer struct {
 	configName string
 }
 
+// NewProducerConfig 该方法返回值不能复用，每次NewProducer时都需要调用一次
 func NewProducerConfig(brokers []string) *kafka.Writer {
 	return &kafka.Writer{
 		Addr:  kafka.TCP(brokers...),
@@ -28,6 +30,7 @@ func NewProducerConfig(brokers []string) *kafka.Writer {
 	}
 }
 
+// NewVipProducerConfig 该方法返回值不能复用，每次NewProducer时都需要调用一次
 func NewVipProducerConfig(configName string) *kafka.Writer {
 	return &kafka.Writer{
 		Addr:  kafka.TCP(viper.GetEnvConfig(configName + ".Brokers").SliceString()...),
@@ -37,7 +40,7 @@ func NewVipProducerConfig(configName string) *kafka.Writer {
 
 // NewProducer conf每次重新生成
 func NewProducer(configName string, conf *kafka.Writer) *Producer {
-	glog.InfoF("start one kafka producer, conf:%#v", conf)
+	glog.InfoF("Kafka start one producer, conf:%#v", conf)
 	ctx, cancel := context.WithCancel(context.Background())
 	p := &Producer{
 		ctx:        ctx,
@@ -45,13 +48,23 @@ func NewProducer(configName string, conf *kafka.Writer) *Producer {
 		Writer:     conf,
 		configName: configName,
 	}
-	ProducerPool.LoadOrStore(configName, p)
-	closes.AddShutdown(closes.ModuleClose{
-		Name:     "Kafka Producer Close",
-		Priority: closes.MQPriority,
-		Func: func() {
-			_ = p.Close()
-		},
+
+	oldProducer, _ := ProducerPool.Load(configName)
+	ProducerPool.Store(configName, p)
+	if oldProducer != nil {
+		if pd, _ := oldProducer.(*Producer); pd != nil {
+			glog.InfoF("Kafka has same configName producer, close it, configName:%v", configName)
+			pd.cancel()
+			pd.Writer.Close()
+		}
+	}
+
+	closeOnce.Do(func() {
+		closes.AddShutdown(closes.ModuleClose{
+			Name:     "Kafka Producer Close",
+			Priority: closes.MQPriority,
+			Func:     Close,
+		})
 	})
 	return p
 }
@@ -96,14 +109,19 @@ func (w *Producer) SendBatch(ctx context.Context, msgs ...kafka.Message) error {
 	return err
 }
 
-func (w *Producer) Close() error {
-	w.cancel()
-	err := w.Writer.Close()
-	if err != nil {
-		glog.ErrorF("Kafka Producer close error:%v, conf:%#v", err, w.Writer)
-	} else {
-		glog.InfoF("Kafka Producer close success, conf:%#v", w.Writer)
-	}
-	ProducerPool.Delete(w.configName)
-	return err
+func Close() {
+	ProducerPool.Range(func(key, value interface{}) bool {
+		glog.InfoF("Kafka Producer start close key: %s", key)
+		ProducerPool.Delete(key)
+		if p, _ := value.(*Producer); p != nil {
+			p.cancel()
+			err := p.Writer.Close()
+			if err != nil {
+				glog.ErrorF("Kafka Producer close error:%v, conf:%#v", err, p.Writer)
+			} else {
+				glog.InfoF("Kafka Producer close success, conf:%#v", p.Writer)
+			}
+		}
+		return true
+	})
 }
