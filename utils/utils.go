@@ -16,7 +16,12 @@ const (
 	ReleaseEnv = "onl"
 )
 
-var releaseFlag = false // 为true时表示线上环境
+var (
+	releaseFlag = false // 为true时表示线上环境
+	runTime     string
+	appName     string
+	zone        string
+)
 
 // GetDate 返回当前时间
 func GetDate() string {
@@ -27,11 +32,36 @@ func GetDate() string {
 
 // GetRunTime 获取当前系统环境
 func GetRunTime() string {
-	RunTime := os.Getenv("RUN_TIME")
-	if RunTime == "" {
+	if runTime != "" {
+		return runTime
+	}
+	runTime = os.Getenv("RUN_TIME")
+	if runTime == "" {
 		fmt.Println("No RUN_TIME Can't start")
 	}
-	return RunTime
+	return runTime
+}
+
+func GetAppName() string {
+	if appName != "" {
+		return appName
+	}
+	appName = os.Getenv("APP_NAME")
+	if appName == "" {
+		fmt.Println("No APP_NAME Set")
+	}
+	return appName
+}
+
+func GetZone() string {
+	if zone != "" {
+		return zone
+	}
+	zone = os.Getenv("ZONE")
+	if zone == "" {
+		fmt.Println("No ZONE Set")
+	}
+	return zone
 }
 
 // OnRelease 开启线上环境
