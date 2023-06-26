@@ -7,7 +7,7 @@ import "bytes"
 
 func FromApiRoutes(name, routes string, buffer *bytes.Buffer) {
 	buffer.WriteString(`
-package routes
+package route
 
 import (
 	"github.com/gin-gonic/gin"
@@ -21,7 +21,7 @@ import (
 
 func Routes(router *gin.Engine) {
 	// 根目录健康检查
-	router.Any("/", func(c *gin.Context) {
+	router.Any("/health", func(c *gin.Context) {
 		c.String(http.StatusOK, "Welcome GoCore Service")
 	})
 

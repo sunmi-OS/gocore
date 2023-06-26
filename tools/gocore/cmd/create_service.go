@@ -76,7 +76,6 @@ func creatService(c *cli.Context) error {
 	template.CreateCode(root, sourceCodeRoot, config.Service.ProjectName, config)
 
 	printHint("Run go mod tidy")
-
 	goModTidyCmd := exec.Command("go", []string{"mod", "tidy"}...)
 	goModTidyCmd.Dir = sourceCodeRoot
 	goModTidyCmd.Stderr = os.Stderr
@@ -86,8 +85,17 @@ func creatService(c *cli.Context) error {
 	}
 	_ = goModTidyCmd.Wait()
 
-	printHint("Run go fmt")
+	printHint("Run go get")
+	goGetCmd := exec.Command("go", []string{"get", "gorm.io/driver/mysql"}...)
+	goGetCmd.Dir = sourceCodeRoot
+	goGetCmd.Stderr = os.Stderr
+	err = goGetCmd.Start()
+	if err != nil {
+		panic("go get error: " + err.Error())
+	}
+	_ = goGetCmd.Wait()
 
+	printHint("Run go fmt")
 	goFmtCmd := exec.Command("go", []string{"fmt", "./..."}...)
 	goFmtCmd.Dir = sourceCodeRoot
 	goFmtCmd.Stderr = os.Stderr
