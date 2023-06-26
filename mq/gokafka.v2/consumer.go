@@ -86,7 +86,7 @@ func (kr *Consumer) Handle(ctx context.Context, handle func(msg kafka.Message) e
 			}
 			startTime := time.Now()
 			err = handle(m)
-			metricReqDuration.WithLabelValues(m.Topic, "sub").Observe(float64(time.Since(startTime) / time.Millisecond))
+			metricReqDuration.WithLabelValues(m.Topic, sub).Observe(float64(time.Since(startTime) / time.Millisecond))
 			result := "fail"
 			if err == nil {
 				result = "success"
@@ -95,7 +95,7 @@ func (kr *Consumer) Handle(ctx context.Context, handle func(msg kafka.Message) e
 					glog.ErrorF("Kafka Consumer.CommitMessages error:%+v", ackErr)
 				}
 			}
-			metricsResult.WithLabelValues(m.Topic, result).Inc()
+			metricsResult.WithLabelValues(m.Topic, pub, result).Inc()
 		}
 	}
 }

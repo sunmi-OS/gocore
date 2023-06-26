@@ -4,6 +4,8 @@ import "github.com/prometheus/client_golang/prometheus"
 
 const (
 	namespace = "kafka_client"
+	sub       = "sub"
+	pub       = "pub"
 )
 
 var (
@@ -21,7 +23,7 @@ var (
 			Namespace: namespace,
 			Name:      "process_result",
 			Help:      "kafka pub/sub result",
-		}, []string{"topic", "result"})
+		}, []string{"topic", "command", "result"})
 )
 
 func init() {

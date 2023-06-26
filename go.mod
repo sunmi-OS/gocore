@@ -7,7 +7,7 @@ require (
 	github.com/aliyun/aliyun-log-go-sdk v0.1.22
 	github.com/apache/rocketmq-client-go/v2 v2.1.0
 	github.com/common-nighthawk/go-figure v0.0.0-20210622060536-734e95fb86be
-	github.com/eclipse/paho.mqtt.golang v1.3.5
+	github.com/eclipse/paho.mqtt.golang v1.4.2
 	github.com/fatih/color v1.13.0
 	github.com/gin-gonic/gin v1.9.1
 	github.com/go-redis/redis/v8 v8.11.4
@@ -25,7 +25,7 @@ require (
 	github.com/rakyll/statik v0.1.7
 	github.com/rogpeppe/go-internal v1.8.0 // indirect
 	github.com/schollz/progressbar/v3 v3.8.3
-	github.com/segmentio/kafka-go v0.4.22
+	github.com/segmentio/kafka-go v0.4.40
 	github.com/sirupsen/logrus v1.6.0
 	github.com/spf13/cast v1.4.1
 	github.com/spf13/viper v1.9.0
