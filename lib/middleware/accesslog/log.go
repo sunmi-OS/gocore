@@ -107,8 +107,8 @@ func initZap(fileName string) *zap.Logger {
 	// io.Writer 使用 lumberjack
 	infoWriter := &lumberjack.Logger{
 		Filename:   fileName,
-		MaxSize:    1024, // 最大体积，单位M，超过则切割
-		MaxBackups: 5,    // 最大文件保留数，超过则删除最老的日志文件
+		MaxSize:    256,  // 最大体积，单位M，超过则切割
+		MaxBackups: 4,    // 最大文件保留数，超过则删除最老的日志文件
 		MaxAge:     30,   // 最长保存时间30天
 		Compress:   true, // 是否压缩
 	}

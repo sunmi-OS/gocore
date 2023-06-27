@@ -12,6 +12,7 @@ import (
 
 type Context struct {
 	*gin.Context
+	// Deprecated
 	C context.Context
 	R Response
 	T *utils.TraceHeader
