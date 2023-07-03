@@ -12,6 +12,7 @@ import (
 
 type Context struct {
 	*gin.Context
+	// Deprecated
 	C context.Context
 	R Response
 	T *utils.TraceHeader
@@ -22,7 +23,7 @@ var (
 	TraceHeaderKey struct{}
 )
 
-//const TraceHeaderKey = "TraceHeaderKey"
+// const TraceHeaderKey = "TraceHeaderKey"
 
 // NewContext 初始化上下文包含context.Context
 // 对链路信息进行判断并且在Response时返回TraceId信息
@@ -36,19 +37,21 @@ func NewContext(g *gin.Context) Context {
 	if g.GetHeader(utils.XB3TraceId) != "" {
 		g.Header(utils.XB3TraceId, g.GetHeader(utils.XB3TraceId))
 		c.T = utils.SetHttp(g.Request.Header)
-		//g.Set(TraceHeaderKey, c.T)
+		// g.Set(TraceHeaderKey, c.T)
 		c.C = context.WithValue(c.C, TraceHeaderKey, c.T)
 	}
 	return c
 }
 
 // Success 返回正常数据
+// Deprecated: call RetJSON.
 func (c *Context) Success(data interface{}) {
 	c.R.Data = data
 	c.JSON(http.StatusOK, c.R)
 }
 
 // Error 返回异常信息，自动识别Code码
+// Deprecated: call RetJSON.
 func (c *Context) Error(err error) {
 	c.R.Code = ecode.Transform(err)
 	c.R.Msg = err.Error()
