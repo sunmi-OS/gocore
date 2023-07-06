@@ -6,6 +6,7 @@ require (
 	github.com/BurntSushi/toml v0.4.1
 	github.com/aliyun/aliyun-log-go-sdk v0.1.22
 	github.com/apache/rocketmq-client-go/v2 v2.1.0
+	github.com/bytedance/sonic v1.9.1
 	github.com/common-nighthawk/go-figure v0.0.0-20210622060536-734e95fb86be
 	github.com/eclipse/paho.mqtt.golang v1.4.2
 	github.com/fatih/color v1.13.0
@@ -35,6 +36,7 @@ require (
 	github.com/urfave/cli/v2 v2.3.0
 	github.com/zserge/lorca v0.1.10
 	go.mongodb.org/mongo-driver v1.11.4
+	go.opentelemetry.io/otel/trace v1.16.0
 	go.uber.org/zap v1.19.1
 	google.golang.org/genproto v0.0.0-20210828152312-66f60bf46e71
 	google.golang.org/grpc v1.41.0

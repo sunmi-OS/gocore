@@ -89,7 +89,7 @@ func (w *Producer) Send(ctx context.Context, topic string, key string, value []b
 		glog.ErrorF("Kafka WriteMessages unexpected error:%v", err)
 	}
 	metricsResult.WithLabelValues(topic, pub, result).Inc()
-	metricReqDuration.WithLabelValues(topic, pub).Observe(float64(time.Since(startTime) / time.Millisecond))
+	metricReqDuration.WithLabelValues(topic, pub).Observe(float64(time.Since(startTime).Milliseconds()))
 	return err
 }
 
@@ -101,7 +101,7 @@ func (w *Producer) SendBatch(ctx context.Context, msgs ...kafka.Message) error {
 		result = "fail"
 		glog.ErrorF("Kafka WriteMessages unexpected error:%v", err)
 	}
-	cost := float64(time.Since(startTime) / time.Millisecond)
+	cost := float64(time.Since(startTime).Milliseconds())
 	for _, msg := range msgs {
 		metricsResult.WithLabelValues(msg.Topic, pub, result).Inc()
 		metricReqDuration.WithLabelValues(msg.Topic, pub).Observe(cost)

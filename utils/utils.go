@@ -21,7 +21,10 @@ var (
 	runTime     string
 	appName     string
 	zone        string
+	hostname    string
 )
+
+const TimeFormat = "2006-01-02T15:04:05.999999"
 
 // GetDate 返回当前时间
 func GetDate() string {
@@ -62,6 +65,17 @@ func GetZone() string {
 		fmt.Println("No ZONE Set")
 	}
 	return zone
+}
+
+func GetHostname() string {
+	if hostname != "" {
+		return hostname
+	}
+	hostname = os.Getenv("HOSTNAME")
+	if hostname == "" {
+		hostname, _ = os.Hostname()
+	}
+	return hostname
 }
 
 // OnRelease 开启线上环境

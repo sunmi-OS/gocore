@@ -1,6 +1,7 @@
 package zap
 
 import (
+	"context"
 	"log"
 	"os"
 	"path/filepath"
@@ -168,6 +169,10 @@ func (*Zap) InfoF(format string, args ...interface{}) {
 	Sugar.Infof(format, args...)
 }
 
+func (*Zap) InfoW(keysAndValues ...interface{}) {
+	Sugar.Infow("", keysAndValues...)
+}
+
 func (*Zap) Debug(args ...interface{}) {
 	Sugar.Debug(args...)
 }
@@ -176,12 +181,20 @@ func (*Zap) DebugF(format string, args ...interface{}) {
 	Sugar.Debugf(format, args...)
 }
 
+func (*Zap) DebugW(keysAndValues ...interface{}) {
+	Sugar.Debugw("", keysAndValues...)
+}
+
 func (*Zap) Warn(args ...interface{}) {
 	Sugar.Warn(args...)
 }
 
 func (*Zap) WarnF(format string, args ...interface{}) {
 	Sugar.Warnf(format, args...)
+}
+
+func (*Zap) WarnW(keysAndValues ...interface{}) {
+	Sugar.Warnw("", keysAndValues...)
 }
 
 func (*Zap) Error(args ...interface{}) {
@@ -198,4 +211,33 @@ func (*Zap) Fatal(args ...interface{}) {
 
 func (*Zap) FatalF(format string, args ...interface{}) {
 	Sugar.Errorf(format, args...)
+}
+
+func (z *Zap) CommonLog(level logx.Level, ctx context.Context, keyvals ...interface{}) error {
+	if len(keyvals) == 0 {
+		return nil
+	}
+	prefixes := logx.ExtractCtx(ctx, logx.LogTypeZap)
+	kvs := make([]interface{}, 0, len(prefixes)+len(keyvals))
+	kvs = append(kvs, prefixes...)
+
+	if len(keyvals) == 1 {
+		kvs = append(kvs, "content", keyvals[0])
+	} else {
+		kvs = append(kvs, keyvals...)
+	}
+
+	switch level {
+	case logx.LevelDebug:
+		Sugar.Debugw("", kvs...)
+	case logx.LevelInfo:
+		Sugar.Infow("", kvs...)
+	case logx.LevelWarn:
+		Sugar.Warnw("", kvs...)
+	case logx.LevelError:
+		Sugar.Errorw("", kvs...)
+	case logx.LevelFatal:
+		Sugar.Fatalw("", kvs...)
+	}
+	return nil
 }
