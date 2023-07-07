@@ -10,16 +10,16 @@ type Option struct {
 }
 
 // ExecuteSuccess 执行成功返回
-func ExecuteSuccess(msg string) xxl.ExecuteResult {
-	return xxl.ExecuteResult{
+func ExecuteSuccess(msg string) *xxl.ExecuteResult {
+	return &xxl.ExecuteResult{
 		Code: xxl.SuccessCode,
 		Msg:  msg,
 	}
 }
 
 // ExecuteFail 执行失败返回
-func ExecuteFail(msg string) xxl.ExecuteResult {
-	return xxl.ExecuteResult{
+func ExecuteFail(msg string) *xxl.ExecuteResult {
+	return &xxl.ExecuteResult{
 		Code: xxl.FailureCode,
 		Msg:  msg,
 	}
