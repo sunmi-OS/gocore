@@ -2,7 +2,7 @@ package xxljob
 
 import (
 	"github.com/gin-gonic/gin"
-	"github.com/xxl-job/xxl-job-executor-go"
+	"github.com/sunmi-OS/gocore/v2/lib/xxljob/xxl"
 )
 
 func WithGinRoute(e *gin.Engine, exec xxl.Executor) {
