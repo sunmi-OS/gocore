@@ -74,7 +74,7 @@ func (l *logger) Debug(format string, args ...interface{}) {
 	l.once.Do(func() {
 		l.configLogger()
 	})
-	if l.level >= DebugLevel {
+	if l.levelInt >= debugLevel {
 		if &format != nil {
 			_ = l.logger.Output(l.CallDepth, fmt.Sprintf(format, args...))
 			return
@@ -87,7 +87,7 @@ func (l *logger) Info(format string, args ...interface{}) {
 	l.once.Do(func() {
 		l.configLogger()
 	})
-	if l.level >= InfoLevel {
+	if l.levelInt >= infoLevel {
 		if &format != nil {
 			_ = l.logger.Output(l.CallDepth, fmt.Sprintf(format, args...))
 			return
@@ -100,7 +100,7 @@ func (l *logger) Warn(format string, args ...interface{}) {
 	l.once.Do(func() {
 		l.configLogger()
 	})
-	if l.level >= WarnLevel {
+	if l.levelInt >= warnLevel {
 		if &format != nil {
 			_ = l.logger.Output(l.CallDepth, fmt.Sprintf(format, args...))
 			return
@@ -113,7 +113,7 @@ func (l *logger) Error(format string, args ...interface{}) {
 	l.once.Do(func() {
 		l.configLogger()
 	})
-	if l.level >= ErrorLevel {
+	if l.levelInt >= errorLevel {
 		if &format != nil {
 			_ = l.logger.Output(l.CallDepth, fmt.Sprintf(format, args...))
 			return
