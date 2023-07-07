@@ -3,6 +3,7 @@ package accesslog
 import (
 	"bytes"
 	"io"
+	"math"
 	"net/http"
 	"strconv"
 	"strings"
@@ -53,12 +54,6 @@ func ServerLogging(options ...Option) gin.HandlerFunc {
 			body = hideBody
 		}
 
-		params := r.URL.RawQuery
-		scheme := "http"
-		if r.TLS != nil {
-			scheme = "https"
-		}
-
 		hideResp := op.hideRespBodWithPath[path]
 		var writer responseWriter
 		if !hideResp {
@@ -73,14 +68,20 @@ func ServerLogging(options ...Option) gin.HandlerFunc {
 
 		r = c.Request
 		ctx := r.Context()
-		var responseCode int64
+		responseCode := math.MinInt8
 		var responseMsg string
 		var respBytes []byte
 		if !hideResp {
 			respBytes = writer.b.Bytes()
 			if root, err0 := sonic.Get(respBytes); err0 == nil {
-				responseCode, _ = root.Get("code").Int64()
-				responseMsg, _ = root.Get("msg").String()
+				code, err := root.Get("code").Int64()
+				if err == nil {
+					responseCode = int(code)
+				}
+				msg, err := root.Get("msg").String()
+				if err == nil {
+					responseMsg = msg
+				}
 			}
 		} else {
 			respBytes = []byte(hideBody)
@@ -88,43 +89,47 @@ func ServerLogging(options ...Option) gin.HandlerFunc {
 
 		sendBytes := mustPositive(float64(c.Writer.Size()))
 		recvBytes := mustPositive(float64(r.ContentLength))
-		caller := r.Header.Get(utils.XAppName)
+		reqAppname := r.Header.Get(utils.XAppName)
 		statusCode := c.Writer.Status()
-		serverRecvBytes.WithLabelValues(path, caller).Add(recvBytes)
-		serverSendBytes.WithLabelValues(path, caller).Add(sendBytes)
-		serverReqCodeTotal.WithLabelValues(path, caller, strconv.FormatInt(int64(statusCode), 10)).Inc()
+		serverRecvBytes.WithLabelValues(path, reqAppname).Add(recvBytes)
+		serverSendBytes.WithLabelValues(path, reqAppname).Add(sendBytes)
+		serverReqCodeTotal.WithLabelValues(path, reqAppname, strconv.FormatInt(int64(statusCode), 10)).Inc()
 		costms := time.Since(start).Milliseconds()
-		serverReqDur.WithLabelValues(path, caller).Observe(float64(costms))
+		serverReqDur.WithLabelValues(path, reqAppname).Observe(float64(costms))
 
 		if op.hideLogsWithPath[path] {
 			return
 		}
 
 		fields := []interface{}{
-			"logtype", "http_server",
-			"cost", costms,
-			"schema", scheme,
+			"kind", "server",
+			"costms", costms,
 			"traceid", c.GetHeader(utils.XB3TraceId), // 后续待优化
+			"ip", c.ClientIP(),
+			"host", r.Host,
+			"method", r.Method,
+			"path", path,
+			"req", body,
+			"resp", string(respBytes),
+			"status", statusCode, // http状态码
+			"code", responseCode, // 业务错误码
+			"msg", responseMsg,
 
-			"r_ip", c.ClientIP(),
-			"r_f_ip", c.GetHeader("x-forwarded-for"),
-			"r_quota", quota, // 收到请求时，剩余处理时间，默认-1标识没有设置超时时间
-			"r_time", start.Format(utils.TimeFormat),
-			"r_host", r.Host,
-			"r_method", r.Method,
-			"r_path", path,
-			"r_header", filterHeaders(r.Header, op.allowShowHeaders, op.hideShowHeaders),
-			"r_body", body,
-			"r_appname", caller,
-
-			"s_status", statusCode, // http状态码
-			"s_header", c.Writer.Header(),
-			"s_code", responseCode, // 业务错误码
-			"s_msg", responseMsg,
-			"s_body", string(respBytes),
+			"start_time", start.Format(utils.TimeFormat),
+			"req_header", filterHeaders(r.Header, op.allowShowHeaders, op.hideShowHeaders),
+			"resp_header", c.Writer.Header(),
 		}
-		if params != "" {
-			fields = append(fields, "r_params", params)
+		if reqAppname != "" {
+			fields = append(fields, "req_appname", reqAppname)
+		}
+		if r.URL.RawQuery != "" {
+			fields = append(fields, "params", r.URL.RawQuery)
+		}
+		if c.GetHeader("x-forwarded-for") != "" {
+			fields = append(fields, "forward_ip", c.GetHeader("x-forwarded-for"))
+		}
+		if quota != -1 {
+			fields = append(fields, "timeout_quota", quota) // 收到请求时，剩余处理时间
 		}
 
 		logFunc := glog.InfoV

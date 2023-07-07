@@ -5,9 +5,8 @@ go 1.16
 require (
 	github.com/BurntSushi/toml v1.1.0
 	github.com/aliyun/aliyun-log-go-sdk v0.1.22
-	github.com/apache/rocketmq-client-go/v2 v2.1.0
-	github.com/bytedance/sonic v1.9.1
 	github.com/apache/rocketmq-client-go/v2 v2.1.2-0.20230412142645-25003f6f083d
+	github.com/bytedance/sonic v1.9.1
 	github.com/common-nighthawk/go-figure v0.0.0-20210622060536-734e95fb86be
 	github.com/eclipse/paho.mqtt.golang v1.4.2
 	github.com/fatih/color v1.13.0

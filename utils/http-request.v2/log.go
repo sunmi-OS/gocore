@@ -49,24 +49,22 @@ func (h *HttpClient) setLog(options ...Option) *HttpClient {
 		recvBytes := resp.Size()
 
 		fields := []interface{}{
-			"logtype", "http_client",
-			"cost", resp.Time().Milliseconds(),
+			"kind", "client",
+			"costms", resp.Time().Milliseconds(),
 			"traceid", resp.Header().Get(utils.XB3TraceId),
-
-			"r_method", r.Method,
-			"r_host", r.RawRequest.URL.Host,
-			"r_path", path,
-			"r_body", reqBody,
-			"r_header", r.Header,
-			"r_start", r.Time.Format(utils.TimeFormat),
-
-			"s_body", respBody,
-			"s_status", resp.StatusCode(),
-			"s_header", resp.Header(),
+			"method", r.Method,
+			"host", r.RawRequest.URL.Host,
+			"path", path,
+			"req", reqBody,
+			"resp", respBody,
+			"status", resp.StatusCode(),
+			"start_time", r.Time.Format(utils.TimeFormat),
+			"req_header", r.Header,
+			"resp_header", resp.Header(),
 		}
 		param := r.QueryParam.Encode()
 		if param != "" {
-			fields = append(fields, "r_params", param)
+			fields = append(fields, "params", param)
 		}
 		_ = r.RawRequest.RemoteAddr
 

@@ -20,11 +20,11 @@ var zapPrefixKVs = []interface{}{
 }
 
 var slsPrefixKVs = []interface{}{
+	"ts", Timestamp(utils.TimeFormat),
+	"caller", Caller(6),
 	"appname", utils.GetAppName(),
 	"runtime", utils.GetRunTime(),
 	"hostname", utils.GetHostname(),
-	"ts", Timestamp(utils.TimeFormat),
-	"caller", Caller(6),
 }
 
 // AppendKVs 可以进行自定义

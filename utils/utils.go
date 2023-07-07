@@ -24,7 +24,7 @@ var (
 	hostname    string
 )
 
-const TimeFormat = "2006-01-02T15:04:05.999999"
+const TimeFormat = "2006-01-02T15:04:05.000Z0700"
 
 // GetDate 返回当前时间
 func GetDate() string {
