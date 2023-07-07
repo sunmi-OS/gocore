@@ -33,7 +33,7 @@ func newOptions(opts ...Option) Options {
 		opt.LogLevel = WarnLevel // default warn
 	}
 	if opt.depth == 0 {
-		opt.depth = 3 // default 3
+		opt.depth = 2 // default 2
 	}
 	return opt
 }
