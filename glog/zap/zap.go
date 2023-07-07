@@ -36,6 +36,7 @@ func init() {
 	cfg = zap.NewProductionConfig()
 	cfg.Level = zap.NewAtomicLevelAt(zap.DebugLevel)
 	cfg.EncoderConfig.EncodeTime = zapcore.ISO8601TimeEncoder
+	cfg.EncoderConfig.MessageKey = "content"
 	l, err := cfg.Build(zap.AddCallerSkip(4))
 	if err != nil {
 		log.Printf("l.initZap(),err:%+v", err)
@@ -221,23 +222,24 @@ func (z *Zap) CommonLog(level logx.Level, ctx context.Context, keyvals ...interf
 	kvs := make([]interface{}, 0, len(prefixes)+len(keyvals))
 	kvs = append(kvs, prefixes...)
 
+	msg := ""
 	if len(keyvals) == 1 {
-		kvs = append(kvs, "content", keyvals[0])
+		msg = keyvals[0].(string)
 	} else {
 		kvs = append(kvs, keyvals...)
 	}
 
 	switch level {
 	case logx.LevelDebug:
-		Sugar.Debugw("", kvs...)
+		Sugar.Debugw(msg, kvs...)
 	case logx.LevelInfo:
-		Sugar.Infow("", kvs...)
+		Sugar.Infow(msg, kvs...)
 	case logx.LevelWarn:
-		Sugar.Warnw("", kvs...)
+		Sugar.Warnw(msg, kvs...)
 	case logx.LevelError:
-		Sugar.Errorw("", kvs...)
+		Sugar.Errorw(msg, kvs...)
 	case logx.LevelFatal:
-		Sugar.Fatalw("", kvs...)
+		Sugar.Fatalw(msg, kvs...)
 	}
 	return nil
 }

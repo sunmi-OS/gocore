@@ -100,35 +100,35 @@ func FatalF(format string, args ...interface{}) {
 
 func InfoW(keyvals ...interface{}) {
 	Logger.Range(func(k, v interface{}) bool {
-		v.(logx.GLog).CommonLog(logx.LevelInfo, nil, keyvals...)
+		v.(logx.GLog).CommonLog(logx.LevelInfo, context.TODO(), keyvals...)
 		return true
 	})
 }
 
 func DebugW(keyvals ...interface{}) {
 	Logger.Range(func(k, v interface{}) bool {
-		v.(logx.GLog).CommonLog(logx.LevelDebug, nil, keyvals...)
+		v.(logx.GLog).CommonLog(logx.LevelDebug, context.TODO(), keyvals...)
 		return true
 	})
 }
 
 func WarnW(keyvals ...interface{}) {
 	Logger.Range(func(k, v interface{}) bool {
-		v.(logx.GLog).CommonLog(logx.LevelWarn, nil, keyvals...)
+		v.(logx.GLog).CommonLog(logx.LevelWarn, context.TODO(), keyvals...)
 		return true
 	})
 }
 
 func ErrorW(keyvals ...interface{}) {
 	Logger.Range(func(k, v interface{}) bool {
-		v.(logx.GLog).CommonLog(logx.LevelError, nil, keyvals...)
+		v.(logx.GLog).CommonLog(logx.LevelError, context.TODO(), keyvals...)
 		return true
 	})
 }
 
 func FatalW(keyvals ...interface{}) {
 	Logger.Range(func(k, v interface{}) bool {
-		v.(logx.GLog).CommonLog(logx.LevelFatal, nil, keyvals...)
+		v.(logx.GLog).CommonLog(logx.LevelFatal, context.TODO(), keyvals...)
 		return true
 	})
 }

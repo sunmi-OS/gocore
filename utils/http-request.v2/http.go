@@ -14,10 +14,9 @@ type HttpClient struct {
 	Client  *resty.Client
 	Request *resty.Request
 
-	enableMessageCodeMetrics bool // default: false
-	disableMetrics           bool // default: false
-	disableLog               bool // default: false
-	disableBreaker           bool // default: true
+	disableMetrics bool // default: false
+	disableLog     bool // default: false
+	disableBreaker bool // default: true
 }
 
 type option struct {
@@ -28,7 +27,7 @@ type option struct {
 
 type Option func(op *option)
 
-// New 重试3次、间隔2~10s、非2xx状态码抛异常到error里、默认打开统计、日志、bbr限流(待实现)、统计业务错误码
+// New 重试3次、间隔2~5s、非200状态码抛异常到error里、默认打开统计、日志、bbr限流(待实现)、统计业务错误码
 func New(options ...Option) *HttpClient {
 	// Create a Resty Client
 	client := resty.New()
@@ -54,13 +53,12 @@ func New(options ...Option) *HttpClient {
 		SetHeader(utils.XAppName, utils.GetAppName())
 
 	c := &HttpClient{
-		Client:                   client,
-		disableMetrics:           false,
-		disableLog:               false,
-		enableMessageCodeMetrics: false,
-		disableBreaker:           true, // default disable, will open soon
+		Client:         client,
+		disableMetrics: false,
+		disableLog:     false,
+		disableBreaker: true, // default disable, will open soon
 	}
-	c.setLog(options...)
+	c.SetLog(options...)
 	return c
 }
 
@@ -85,15 +83,10 @@ func (h *HttpClient) SetDisableBreaker(disable bool) *HttpClient {
 	return h
 }
 
-func (h *HttpClient) SetEnableMessageCodeMetrics(enable bool) *HttpClient {
-	h.enableMessageCodeMetrics = enable
-	return h
-}
-
 // ErrIncorrectCode 非2xx 状态码
 var ErrIncorrectCode = errors.New("incorrect http status")
 
-// MustCode200 将非200 状态码认为错误的 middleware (注意：设置 SetDoNotParseResponse 后不会触发任何 midware，包括这个)
+// MustCode200 将非200的状态码认为错误的(注意：设置 SetDoNotParseResponse 后不会触发任何middware包括这个)
 func MustCode200(cli *resty.Client, resp *resty.Response) error {
 	if resp.StatusCode() != http.StatusOK {
 		return fmt.Errorf("%w:%d host:%s, url:%s", ErrIncorrectCode, resp.StatusCode(),

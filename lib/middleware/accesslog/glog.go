@@ -24,7 +24,7 @@ func ServerLogging(options ...Option) gin.HandlerFunc {
 	op := option{
 		slowThresholdMs:     1000,
 		hideLogsWithPath:    hideLogsPath,
-		hideReqBodyWithPath: nil,
+		hideReqBodyWithPath: map[string]bool{},
 		hideRespBodWithPath: hidelRespBodyLogsPath,
 		allowShowHeaders:    map[string]bool{},
 		hideShowHeaders:     hideShowHeaders,
@@ -151,10 +151,15 @@ func mustPositive(val float64) float64 {
 	return val
 }
 
+const maxShowHeaderLen = 32
+
 // header白名单过滤
 func filterHeaders(headers http.Header, allowShowHeaders map[string]bool, hideShowHeaders map[string]bool) http.Header {
 	filteredHeaders := http.Header{}
 	for k, v := range headers {
+		if len(filteredHeaders) >= maxShowHeaderLen {
+			break
+		}
 		lower := strings.ToLower(k)
 		// 优先判断白名单
 		if allowShowHeaders[k] {
@@ -225,8 +230,9 @@ var hideLogsPath = map[string]bool{
 }
 
 var hideShowHeaders = map[string]bool{
-	"accept":          true,
-	"accept-encoding": true,
+	"accept":           true,
+	"accept-encoding":  true,
+	"proxy-connection": true,
 }
 
 // WithSlowThreshold 当请求耗时超过slowThreshold时，打印slow log。建议配置1000

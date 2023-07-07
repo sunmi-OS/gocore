@@ -23,7 +23,7 @@ var hidelBodyLogsPath = map[string]bool{
 
 const hideBody = "gocore_body_hide"
 
-func (h *HttpClient) setLog(options ...Option) *HttpClient {
+func (h *HttpClient) SetLog(options ...Option) *HttpClient {
 	op := option{
 		slowThresholdMs:          1000,
 		hideRespBodyLogsWithPath: hidelBodyLogsPath,
@@ -47,6 +47,7 @@ func (h *HttpClient) setLog(options ...Option) *HttpClient {
 		}
 		sendBytes := r.RawRequest.ContentLength
 		recvBytes := resp.Size()
+		statusCode := resp.StatusCode()
 
 		fields := []interface{}{
 			"kind", "client",
@@ -57,31 +58,33 @@ func (h *HttpClient) setLog(options ...Option) *HttpClient {
 			"path", path,
 			"req", reqBody,
 			"resp", respBody,
-			"status", resp.StatusCode(),
-			"start_time", r.Time.Format(utils.TimeFormat),
-			"req_header", r.Header,
-			"resp_header", resp.Header(),
+			"status", statusCode,
 		}
-		param := r.QueryParam.Encode()
-		if param != "" {
-			fields = append(fields, "params", param)
+		if statusCode == http.StatusOK {
+			if root, err0 := sonic.Get(resp.Body()); err0 == nil {
+				respCode, err := root.Get("code").Int64()
+				if err == nil {
+					fields = append(fields, "code", respCode)
+				}
+				respMsg, err := root.Get("msg").String()
+				if err == nil {
+					fields = append(fields, "msg", respMsg)
+				}
+			}
 		}
-		_ = r.RawRequest.RemoteAddr
-
 		clientSendBytes.WithLabelValues(path).Add(mustPositive(sendBytes))
 		clientRecvBytes.WithLabelValues(path).Add(mustPositive(recvBytes))
 		if !h.disableMetrics {
 			clientReqDur.WithLabelValues(path).Observe(float64(time.Since(r.Time).Milliseconds()))
-			statusCode := resp.StatusCode()
 			clientReqCodeTotal.WithLabelValues(path, strconv.FormatInt(int64(statusCode), 10)).Inc()
-			if statusCode == http.StatusOK && h.enableMessageCodeMetrics {
-				if root, err0 := sonic.Get(resp.Body()); err0 == nil {
-					respCode, _ := root.Get("code").Int64()
-					respMsg, _ := root.Get("msg").String()
-					fields = append(fields, "s_code", respCode)
-					fields = append(fields, "s_msg", respMsg)
-				}
-			}
+
+		}
+		fields = append(fields, "start_time", r.Time.Format(utils.TimeFormat))
+		fields = append(fields, "req_header", r.Header)
+		fields = append(fields, "resp_header", resp.Header())
+		param := r.QueryParam.Encode()
+		if param != "" {
+			fields = append(fields, "params", param)
 		}
 
 		if !h.disableLog {
