@@ -34,6 +34,7 @@ require (
 	github.com/stretchr/testify v1.8.3
 	github.com/tidwall/gjson v1.13.0
 	github.com/urfave/cli/v2 v2.3.0
+	github.com/xxl-job/xxl-job-executor-go v1.2.0
 	github.com/zserge/lorca v0.1.10
 	go.mongodb.org/mongo-driver v1.11.4
 	go.uber.org/zap v1.19.1
