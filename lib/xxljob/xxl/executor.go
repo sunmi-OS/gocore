@@ -71,7 +71,7 @@ func (e *executor) Init(opts ...Option) {
 	}
 	if e.opts.l == nil {
 		e.opts.l = &logger{
-			level:     InfoLevel,
+			level:     e.opts.LogLevel,
 			CallDepth: e.opts.depth,
 		}
 	}

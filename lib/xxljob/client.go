@@ -12,12 +12,18 @@ func NewExecutor(op *Option) (xxl.Executor, error) {
 	if err := checkConfig(op); err != nil {
 		return nil, err
 	}
-	executor := xxl.NewExecutor(
+	ops := []xxl.Option{
 		xxl.AccessToken(op.AccessToken), // 请求令牌
 		xxl.ServerAddr(op.ServerAddr),   // xxl-job admin地址
 		xxl.ExecutorPort(op.Port),       // 此处要与gin服务启动port必需一至
 		xxl.RegistryKey(op.AppName),     // 执行器名称
-	)
+		xxl.AppName(op.AppName),         // AppName
+		xxl.SetLogLevel(op.LogLevel),    // 日志级别
+	}
+	if op.LogDepth > 0 {
+		ops = append(ops, xxl.SetLogDepth(op.LogDepth))
+	}
+	executor := xxl.NewExecutor(ops...)
 	return executor, nil
 }
 

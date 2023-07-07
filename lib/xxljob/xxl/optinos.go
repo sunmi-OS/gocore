@@ -29,6 +29,9 @@ func newOptions(opts ...Option) Options {
 	for _, o := range opts {
 		o(&opt)
 	}
+	if opt.LogLevel == "" {
+		opt.LogLevel = InfoLevel // default info
+	}
 	if opt.depth == 0 {
 		opt.depth = 3 // default 3
 	}
