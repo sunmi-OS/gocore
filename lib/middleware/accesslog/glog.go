@@ -64,11 +64,13 @@ func ServerLogging(options ...Option) gin.HandlerFunc {
 			c.Writer = writer
 		}
 		traceid := c.GetHeader(utils.XB3TraceId)
+		ctx := utils.SetMetaData(c.Request.Context(), utils.XB3TraceId, traceid)
+		c.Request = c.Request.WithContext(ctx)
 
 		c.Next()
 
 		r = c.Request
-		ctx := r.Context()
+		ctx = r.Context()
 		responseCode := math.MinInt8
 		var responseMsg string
 		var respBytes []byte
@@ -105,7 +107,6 @@ func ServerLogging(options ...Option) gin.HandlerFunc {
 		fields := []interface{}{
 			"kind", "server",
 			"costms", costms,
-			"traceid", c.GetHeader(traceid), // 后续待优化
 			"ip", c.ClientIP(),
 			"host", r.Host,
 			"method", r.Method,

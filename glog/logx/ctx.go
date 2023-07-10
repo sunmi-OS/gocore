@@ -17,6 +17,7 @@ import (
 type Valuer func(ctx context.Context) interface{}
 
 var zapPrefixKVs = []interface{}{
+	"traceid", GetCtxKey(utils.XB3TraceId),
 	"appname", utils.GetAppName(),
 	"runtime", utils.GetRunTime(),
 	"hostname", utils.GetHostname(),
@@ -25,6 +26,7 @@ var zapPrefixKVs = []interface{}{
 var slsPrefixKVs = []interface{}{
 	"ts", Timestamp(utils.TimeFormat),
 	"caller", Caller(6),
+	"traceid", GetCtxKey(utils.XB3TraceId),
 	"appname", utils.GetAppName(),
 	"runtime", utils.GetRunTime(),
 	"hostname", utils.GetHostname(),
@@ -49,6 +51,10 @@ func ExtractCtx(ctx context.Context, logType LogType) (keyvals []interface{}) {
 		}
 	}
 	return kvs
+}
+
+func SetCtxKV(ctx context.Context, key, val string) context.Context {
+	return SetCtxKVS(ctx, map[string]string{key: val})
 }
 
 func SetCtxKVS(ctx context.Context, kvs map[string]string) context.Context {

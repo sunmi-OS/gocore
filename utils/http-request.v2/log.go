@@ -32,9 +32,18 @@ func (h *HttpClient) SetLog(options ...Option) *HttpClient {
 		apply(&op)
 	}
 
+	h.Client = h.Client.OnBeforeRequest(func(client *resty.Client, r *resty.Request) error {
+		traceid := utils.GetMetaData(r.Context(), utils.XB3TraceId)
+		if traceid != "" {
+			r = r.SetHeader(utils.XB3TraceId, traceid)
+		}
+		return nil
+	})
+
 	h.Client = h.Client.OnAfterResponse(func(client *resty.Client, resp *resty.Response) error {
 		r := resp.Request
 		ctx := resp.Request.Context()
+		ctx = utils.SetMetaData(ctx, utils.XB3TraceId, resp.Header().Get(utils.XB3TraceId))
 		var reqBody interface{}
 		reqBody = hideBody
 		respBody := hideBody
@@ -52,7 +61,6 @@ func (h *HttpClient) SetLog(options ...Option) *HttpClient {
 		fields := []interface{}{
 			"kind", "client",
 			"costms", resp.Time().Milliseconds(),
-			"traceid", resp.Header().Get(utils.XB3TraceId),
 			"method", r.Method,
 			"host", r.RawRequest.URL.Host,
 			"path", path,
