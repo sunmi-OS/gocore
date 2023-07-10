@@ -63,6 +63,7 @@ func ServerLogging(options ...Option) gin.HandlerFunc {
 			}
 			c.Writer = writer
 		}
+		traceid := c.GetHeader(utils.XB3TraceId)
 
 		c.Next()
 
@@ -104,7 +105,7 @@ func ServerLogging(options ...Option) gin.HandlerFunc {
 		fields := []interface{}{
 			"kind", "server",
 			"costms", costms,
-			"traceid", c.GetHeader(utils.XB3TraceId), // 后续待优化
+			"traceid", c.GetHeader(traceid), // 后续待优化
 			"ip", c.ClientIP(),
 			"host", r.Host,
 			"method", r.Method,

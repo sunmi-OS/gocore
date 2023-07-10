@@ -7,7 +7,10 @@ import (
 	"strings"
 	"time"
 
+	"github.com/sunmi-OS/gocore/v2/api"
 	"github.com/sunmi-OS/gocore/v2/utils"
+
+	"github.com/gin-gonic/gin"
 	"go.opentelemetry.io/otel/trace"
 )
 
@@ -46,6 +49,30 @@ func ExtractCtx(ctx context.Context, logType LogType) (keyvals []interface{}) {
 		}
 	}
 	return kvs
+}
+
+func SetCtxKVS(ctx context.Context, kvs map[string]string) context.Context {
+	if apiCtx, ok := ctx.(*api.Context); ok {
+		apiCtx.Request = apiCtx.Request.Clone(utils.SetMetaDataMulti(apiCtx.Request.Context(), kvs))
+		return apiCtx.Request.Context()
+	}
+	if ginCtx, ok := ctx.(*gin.Context); ok {
+		ginCtx.Request = ginCtx.Request.Clone(utils.SetMetaDataMulti(ginCtx.Request.Context(), kvs))
+		return ginCtx.Request.Context()
+	}
+	return utils.SetMetaDataMulti(ctx, kvs)
+}
+
+func GetCtxKey(key string) Valuer {
+	return func(ctx context.Context) interface{} {
+		if apiCtx, ok := ctx.(*api.Context); ok {
+			return utils.GetMetaData(apiCtx.Request.Context(), key)
+		}
+		if ginCtx, ok := ctx.(*gin.Context); ok {
+			return utils.GetMetaData(ginCtx.Request.Context(), key)
+		}
+		return utils.GetMetaData(ctx, key)
+	}
 }
 
 // Timestamp returns a timestamp Valuer with a custom time format.
