@@ -11,6 +11,7 @@ require (
 	github.com/eclipse/paho.mqtt.golang v1.4.2
 	github.com/fatih/color v1.13.0
 	github.com/gin-gonic/gin v1.9.1
+	github.com/go-basic/ipv4 v1.0.0
 	github.com/go-redis/redis/v8 v8.11.5
 	github.com/go-resty/resty/v2 v2.6.0
 	github.com/google/uuid v1.3.0
