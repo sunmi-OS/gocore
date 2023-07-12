@@ -96,6 +96,10 @@ func (kr *Consumer) Handle(ctx context.Context, handle func(msg kafka.Message) e
 				}
 			}
 			metricsResult.WithLabelValues(m.Topic, pub, result).Inc()
+
+			if err != nil {
+				glog.ErrorF("Kafka Consumer.Handle with error:%+v", err)
+			}
 		}
 	}
 }

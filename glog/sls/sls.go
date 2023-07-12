@@ -304,6 +304,10 @@ func (aLog *AliyunLog) CommonLog(level logx.Level, ctx context.Context, keyvals 
 	if len(keyvals) == 0 {
 		return nil
 	}
+	topic := utils.GetMetaData(ctx, logx.SlsTopic)
+	if topic == "" {
+		topic = LogClient.Project
+	}
 	prefixes := logx.ExtractCtx(ctx, logx.LogTypeSls)
 	contents := make([]*sls.LogContent, 0, (len(prefixes)+len(keyvals))/2+1)
 	contents = append(contents, &sls.LogContent{
@@ -340,5 +344,5 @@ func (aLog *AliyunLog) CommonLog(level logx.Level, ctx context.Context, keyvals 
 		Time:     proto.Uint32(uint32(time.Now().Unix())),
 		Contents: contents,
 	}
-	return LogClient.Log.SendLog(LogClient.Project, LogClient.LogStore, "", utils.GetHostname(), logMsg)
+	return LogClient.Log.SendLog(LogClient.Project, LogClient.LogStore, topic, utils.GetHostname(), logMsg)
 }

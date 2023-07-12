@@ -19,6 +19,8 @@ const (
 	LogTypeSls
 )
 
+const SlsTopic = "x-sls-topic"
+
 func (l Level) String() string {
 	switch l {
 	case LevelDebug:
