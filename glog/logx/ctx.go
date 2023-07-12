@@ -59,11 +59,11 @@ func SetCtxKV(ctx context.Context, key, val string) context.Context {
 
 func SetCtxKVS(ctx context.Context, kvs map[string]string) context.Context {
 	if apiCtx, ok := ctx.(*api.Context); ok {
-		apiCtx.Request = apiCtx.Request.Clone(utils.SetMetaDataMulti(apiCtx.Request.Context(), kvs))
+		apiCtx.Request = apiCtx.Request.WithContext(utils.SetMetaDataMulti(apiCtx.Request.Context(), kvs))
 		return apiCtx.Request.Context()
 	}
 	if ginCtx, ok := ctx.(*gin.Context); ok {
-		ginCtx.Request = ginCtx.Request.Clone(utils.SetMetaDataMulti(ginCtx.Request.Context(), kvs))
+		ginCtx.Request = ginCtx.Request.WithContext(utils.SetMetaDataMulti(ginCtx.Request.Context(), kvs))
 		return ginCtx.Request.Context()
 	}
 	return utils.SetMetaDataMulti(ctx, kvs)

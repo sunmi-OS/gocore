@@ -45,15 +45,15 @@ func New() *HttpClient {
 		}).
 		SetHeader(utils.XAppName, utils.GetAppName())
 
-	c := &HttpClient{
+	return &HttpClient{
 		Client:                   client,
+		Request:                  client.R(),
 		disableMetrics:           false,
 		disableLog:               false,
 		disableBreaker:           true, // default disable, will open soon
 		hideReqBodyLogsWithPath:  hidelBodyLogsPath,
 		hideRespBodyLogsWithPath: hidelBodyLogsPath,
 	}
-	return c
 }
 
 func (h *HttpClient) SetTrace(header interface{}) *HttpClient {
