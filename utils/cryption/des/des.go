@@ -4,6 +4,7 @@ import (
 	"bytes"
 	"crypto/cipher"
 	"crypto/des"
+	"errors"
 )
 
 // EncryptCBC DES/CBC/PKCS5Padding   加密
@@ -26,7 +27,6 @@ func EncryptCBC(msg string, key string, iv string) (string, error) {
 
 // DecryptCBC DES/CBC/PKCS5Padding  解密
 func DecryptCBC(msg string, key string, iv string) (string, error) {
-
 	crypted := []byte(msg)
 	block, err := des.NewCipher([]byte(key))
 	if err != nil {
@@ -36,7 +36,10 @@ func DecryptCBC(msg string, key string, iv string) (string, error) {
 	origData := make([]byte, len(crypted))
 	// origData := crypted
 	blockMode.CryptBlocks(origData, crypted)
-	origData = PKCS5UnPadding(origData)
+	origData, err = PKCS5UnPadding(origData)
+	if err != nil {
+		return "", err
+	}
 	// origData = ZeroUnPadding(origData)
 	return string(origData), nil
 }
@@ -86,7 +89,10 @@ func DecryptECB(msg string, key string) (string, error) {
 		crypted = crypted[bs:]
 		dst = dst[bs:]
 	}
-	origData = PKCS5UnPadding(origData)
+	origData, err = PKCS5UnPadding(origData)
+	if err != nil {
+		return "", err
+	}
 	return string(origData), nil
 }
 
@@ -115,7 +121,10 @@ func TripleDecrypt(msg string, key string, iv string) (string, error) {
 	origData := make([]byte, len(crypted))
 	// origData := crypted
 	blockMode.CryptBlocks(origData, crypted)
-	origData = PKCS5UnPadding(origData)
+	origData, err = PKCS5UnPadding(origData)
+	if err != nil {
+		return "", err
+	}
 	return string(origData), nil
 }
 
@@ -125,10 +134,13 @@ func PKCS5Padding(ciphertext []byte, blockSize int) []byte {
 	return append(ciphertext, padtext...)
 }
 
-func PKCS5UnPadding(origData []byte) []byte {
+func PKCS5UnPadding(origData []byte) ([]byte, error) {
 	length := len(origData)
 	unpadding := int(origData[length-1])
-	return origData[:(length - unpadding)]
+	if unpadding > length {
+		return nil, errors.New("decryption failure")
+	}
+	return origData[:(length - unpadding)], nil
 }
 
 func ZeroPadding(ciphertext []byte, blockSize int) []byte {

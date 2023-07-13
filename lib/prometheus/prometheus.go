@@ -14,10 +14,10 @@ import (
 	log "github.com/sirupsen/logrus"
 )
 
-var defaultMetricPath = "/metrics"
+var defaultMetricPath = "/monitor/prometheus"
 
-//	counter, counter_vec, gauge, gauge_vec,
-//	histogram, histogram_vec, summary, summary_vec
+// counter, counter_vec, gauge, gauge_vec,
+// histogram, histogram_vec, summary, summary_vec
 var reqCnt = &Metric{
 	ID:          "reqCnt",
 	Name:        "requests_total",
@@ -57,16 +57,18 @@ RequestCounterURLLabelMappingFn is a function which can be supplied to the middl
 the cardinality of the request counter's "url" label, which might be required in some contexts.
 For instance, if for a "/customer/:name" route you don't want to generate a time series for every
 possible customer name, you could use this function:
-func(c *gin.Context) string {
-	url := c.Request.URL.Path
-	for _, p := range c.Params {
-		if p.Key == "name" {
-			url = strings.Replace(url, p.Value, ":name", 1)
-			break
+
+	func(c *gin.Context) string {
+		url := c.Request.URL.Path
+		for _, p := range c.Params {
+			if p.Key == "name" {
+				url = strings.Replace(url, p.Value, ":name", 1)
+				break
+			}
 		}
+		return url
 	}
-	return url
-}
+
 which would map "/customer/alice" and "/customer/bob" to their template "/customer/:name".
 */
 type RequestCounterURLLabelMappingFn func(c *gin.Context) string
