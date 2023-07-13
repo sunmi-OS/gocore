@@ -1,6 +1,8 @@
 package glog
 
 import (
+	"context"
+	"fmt"
 	"sync"
 
 	"github.com/sunmi-OS/gocore/v2/glog/logx"
@@ -11,7 +13,7 @@ var (
 	Logger sync.Map
 )
 
-//  默认加入zap组件
+// 默认加入zap组件
 func init() {
 	Logger.Store("zap", &zap.Zap{})
 }
@@ -84,14 +86,119 @@ func ErrorF(format string, args ...interface{}) {
 
 func Fatal(args ...interface{}) {
 	Logger.Range(func(k, v interface{}) bool {
-		v.(logx.GLog).Error(args...)
+		v.(logx.GLog).Fatal(args...)
 		return true
 	})
 }
 
 func FatalF(format string, args ...interface{}) {
 	Logger.Range(func(k, v interface{}) bool {
-		v.(logx.GLog).ErrorF(format, args...)
+		v.(logx.GLog).FatalF(format, args...)
+		return true
+	})
+}
+
+func InfoW(keyvals ...interface{}) {
+	Logger.Range(func(k, v interface{}) bool {
+		v.(logx.GLog).CommonLog(logx.LevelInfo, context.TODO(), keyvals...)
+		return true
+	})
+}
+
+func DebugW(keyvals ...interface{}) {
+	Logger.Range(func(k, v interface{}) bool {
+		v.(logx.GLog).CommonLog(logx.LevelDebug, context.TODO(), keyvals...)
+		return true
+	})
+}
+
+func WarnW(keyvals ...interface{}) {
+	Logger.Range(func(k, v interface{}) bool {
+		v.(logx.GLog).CommonLog(logx.LevelWarn, context.TODO(), keyvals...)
+		return true
+	})
+}
+
+func ErrorW(keyvals ...interface{}) {
+	Logger.Range(func(k, v interface{}) bool {
+		v.(logx.GLog).CommonLog(logx.LevelError, context.TODO(), keyvals...)
+		return true
+	})
+}
+
+func FatalW(keyvals ...interface{}) {
+	Logger.Range(func(k, v interface{}) bool {
+		v.(logx.GLog).CommonLog(logx.LevelFatal, context.TODO(), keyvals...)
+		return true
+	})
+}
+
+func InfoC(ctx context.Context, format string, args ...interface{}) {
+	Logger.Range(func(k, v interface{}) bool {
+		v.(logx.GLog).CommonLog(logx.LevelInfo, ctx, fmt.Sprintf(format, args...))
+		return true
+	})
+}
+
+func DebugC(ctx context.Context, format string, args ...interface{}) {
+	Logger.Range(func(k, v interface{}) bool {
+		v.(logx.GLog).CommonLog(logx.LevelDebug, ctx, fmt.Sprintf(format, args...))
+		return true
+	})
+}
+
+func WarnC(ctx context.Context, format string, args ...interface{}) {
+	Logger.Range(func(k, v interface{}) bool {
+		v.(logx.GLog).CommonLog(logx.LevelWarn, ctx, fmt.Sprintf(format, args...))
+		return true
+	})
+}
+
+func ErrorC(ctx context.Context, format string, args ...interface{}) {
+	Logger.Range(func(k, v interface{}) bool {
+		v.(logx.GLog).CommonLog(logx.LevelError, ctx, fmt.Sprintf(format, args...))
+		return true
+	})
+}
+
+func FatalC(ctx context.Context, format string, args ...interface{}) {
+	Logger.Range(func(k, v interface{}) bool {
+		v.(logx.GLog).CommonLog(logx.LevelFatal, ctx, fmt.Sprintf(format, args...))
+		return true
+	})
+}
+
+func InfoV(ctx context.Context, keyvals ...interface{}) {
+	Logger.Range(func(k, v interface{}) bool {
+		v.(logx.GLog).CommonLog(logx.LevelInfo, ctx, keyvals...)
+		return true
+	})
+}
+
+func DebugV(ctx context.Context, keyvals ...interface{}) {
+	Logger.Range(func(k, v interface{}) bool {
+		v.(logx.GLog).CommonLog(logx.LevelDebug, ctx, keyvals...)
+		return true
+	})
+}
+
+func WarnV(ctx context.Context, keyvals ...interface{}) {
+	Logger.Range(func(k, v interface{}) bool {
+		v.(logx.GLog).CommonLog(logx.LevelWarn, ctx, keyvals...)
+		return true
+	})
+}
+
+func ErrorV(ctx context.Context, keyvals ...interface{}) {
+	Logger.Range(func(k, v interface{}) bool {
+		v.(logx.GLog).CommonLog(logx.LevelError, ctx, keyvals...)
+		return true
+	})
+}
+
+func FatalV(ctx context.Context, keyvals ...interface{}) {
+	Logger.Range(func(k, v interface{}) bool {
+		v.(logx.GLog).CommonLog(logx.LevelFatal, ctx, keyvals...)
 		return true
 	})
 }

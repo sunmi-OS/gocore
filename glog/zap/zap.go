@@ -1,6 +1,7 @@
 package zap
 
 import (
+	"context"
 	"log"
 	"os"
 	"path/filepath"
@@ -35,6 +36,7 @@ func init() {
 	cfg = zap.NewProductionConfig()
 	cfg.Level = zap.NewAtomicLevelAt(zap.DebugLevel)
 	cfg.EncoderConfig.EncodeTime = zapcore.ISO8601TimeEncoder
+	cfg.EncoderConfig.MessageKey = "content"
 	l, err := cfg.Build(zap.AddCallerSkip(4))
 	if err != nil {
 		log.Printf("l.initZap(),err:%+v", err)
@@ -168,6 +170,10 @@ func (*Zap) InfoF(format string, args ...interface{}) {
 	Sugar.Infof(format, args...)
 }
 
+func (*Zap) InfoW(keysAndValues ...interface{}) {
+	Sugar.Infow("", keysAndValues...)
+}
+
 func (*Zap) Debug(args ...interface{}) {
 	Sugar.Debug(args...)
 }
@@ -176,12 +182,20 @@ func (*Zap) DebugF(format string, args ...interface{}) {
 	Sugar.Debugf(format, args...)
 }
 
+func (*Zap) DebugW(keysAndValues ...interface{}) {
+	Sugar.Debugw("", keysAndValues...)
+}
+
 func (*Zap) Warn(args ...interface{}) {
 	Sugar.Warn(args...)
 }
 
 func (*Zap) WarnF(format string, args ...interface{}) {
 	Sugar.Warnf(format, args...)
+}
+
+func (*Zap) WarnW(keysAndValues ...interface{}) {
+	Sugar.Warnw("", keysAndValues...)
 }
 
 func (*Zap) Error(args ...interface{}) {
@@ -198,4 +212,34 @@ func (*Zap) Fatal(args ...interface{}) {
 
 func (*Zap) FatalF(format string, args ...interface{}) {
 	Sugar.Errorf(format, args...)
+}
+
+func (z *Zap) CommonLog(level logx.Level, ctx context.Context, keyvals ...interface{}) error {
+	if len(keyvals) == 0 {
+		return nil
+	}
+	prefixes := logx.ExtractCtx(ctx, logx.LogTypeZap)
+	kvs := make([]interface{}, 0, len(prefixes)+len(keyvals))
+	kvs = append(kvs, prefixes...)
+
+	msg := ""
+	if len(keyvals) == 1 {
+		msg = keyvals[0].(string)
+	} else {
+		kvs = append(kvs, keyvals...)
+	}
+
+	switch level {
+	case logx.LevelDebug:
+		Sugar.Debugw(msg, kvs...)
+	case logx.LevelInfo:
+		Sugar.Infow(msg, kvs...)
+	case logx.LevelWarn:
+		Sugar.Warnw(msg, kvs...)
+	case logx.LevelError:
+		Sugar.Errorw(msg, kvs...)
+	case logx.LevelFatal:
+		Sugar.Fatalw(msg, kvs...)
+	}
+	return nil
 }

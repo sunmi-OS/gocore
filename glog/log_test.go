@@ -1,6 +1,7 @@
 package glog
 
 import (
+	"context"
 	"errors"
 	"fmt"
 	"testing"
@@ -23,8 +24,9 @@ func TestLog(t *testing.T) {
 	Error("zap error")
 	ErrorF("s.dao.PartnerById(%d),err:%+v", 10086, errors.New("不存在此id"))
 	ErrorF("s.dao.CreateOrder(%+v),err:%+v", s, errors.New("创建订单失败"))
-	Fatal("zap fatal")
-	FatalF("zap fatal, err:%+v", errors.New("kafka send error"))
+	ErrorW("key", "err value", "key3", "value3")
+	ErrorW("key", "err value", "key3")
+	//Fatal("zap fatal")
 
 	fmt.Println("")
 
@@ -33,7 +35,8 @@ func TestLog(t *testing.T) {
 	Debug("zap debug")
 	Warn("zap warn")
 	Error("zap error")
-	Fatal("zap fatal")
+	ErrorW("zap", "error")
+	//Fatal("zap fatal")
 
 	fmt.Println("")
 
@@ -41,6 +44,14 @@ func TestLog(t *testing.T) {
 	Debug("zap debug")
 	Warn("zap warn")
 	Error("zap error")
-	Fatal("zap fatal")
+	ErrorW("zap", "error")
+	//Fatal("zap fatal")
 
+	//
+	ctx := context.Background()
+	InfoV(ctx, "key", "value")
+	InfoV(ctx, "key", "value", "key2", "value2", "key3")
+	InfoC(ctx, "format: %v", 12345)
+	InfoW("key", "value", "key2", "value2")
+	InfoW("key", "value", "key3")
 }

@@ -1,19 +1,24 @@
 package sls
 
 import (
+	"context"
 	"encoding/json"
 	"errors"
 	"fmt"
 	"os"
+	"strconv"
 	"time"
 
-	sls "github.com/aliyun/aliyun-log-go-sdk"
-	"github.com/aliyun/aliyun-log-go-sdk/producer"
 	"github.com/sunmi-OS/gocore/v2/conf/viper"
 	"github.com/sunmi-OS/gocore/v2/glog"
 	"github.com/sunmi-OS/gocore/v2/glog/logx"
+	"github.com/sunmi-OS/gocore/v2/utils"
 	"github.com/sunmi-OS/gocore/v2/utils/closes"
+
+	sls "github.com/aliyun/aliyun-log-go-sdk"
+	"github.com/aliyun/aliyun-log-go-sdk/producer"
 	"github.com/tidwall/gjson"
+	"google.golang.org/protobuf/proto"
 )
 
 // AliyunLog 阿里云日志配置结构体
@@ -225,7 +230,6 @@ func (aLog *AliyunLog) ErrorF(format string, args ...interface{}) {
 	}
 	logMsg := producer.GenerateLog(uint32(time.Now().Unix()), logs)
 	_ = LogClient.Log.SendLog(LogClient.Project, LogClient.LogStore, LogClient.Project, LogClient.HostName, logMsg)
-
 }
 
 func (aLog *AliyunLog) Fatal(args ...interface{}) {
@@ -245,5 +249,100 @@ func (aLog *AliyunLog) FatalF(format string, args ...interface{}) {
 	}
 	logMsg := producer.GenerateLog(uint32(time.Now().Unix()), logs)
 	_ = LogClient.Log.SendLog(LogClient.Project, LogClient.LogStore, LogClient.Project, LogClient.HostName, logMsg)
+}
 
+func newString(s string) *string {
+	return &s
+}
+
+func toString(v interface{}) string {
+	var key string
+	if v == nil {
+		return key
+	}
+	switch v := v.(type) {
+	case float64:
+		key = strconv.FormatFloat(v, 'f', -1, 64)
+	case float32:
+		key = strconv.FormatFloat(float64(v), 'f', -1, 32)
+	case int:
+		key = strconv.Itoa(v)
+	case uint:
+		key = strconv.FormatUint(uint64(v), 10)
+	case int8:
+		key = strconv.Itoa(int(v))
+	case uint8:
+		key = strconv.FormatUint(uint64(v), 10)
+	case int16:
+		key = strconv.Itoa(int(v))
+	case uint16:
+		key = strconv.FormatUint(uint64(v), 10)
+	case int32:
+		key = strconv.Itoa(int(v))
+	case uint32:
+		key = strconv.FormatUint(uint64(v), 10)
+	case int64:
+		key = strconv.FormatInt(v, 10)
+	case uint64:
+		key = strconv.FormatUint(v, 10)
+	case string:
+		key = v
+	case bool:
+		key = strconv.FormatBool(v)
+	case []byte:
+		key = string(v)
+	case fmt.Stringer:
+		key = v.String()
+	default:
+		newValue, _ := json.Marshal(v)
+		key = string(newValue)
+	}
+	return key
+}
+
+func (aLog *AliyunLog) CommonLog(level logx.Level, ctx context.Context, keyvals ...interface{}) error {
+	if len(keyvals) == 0 {
+		return nil
+	}
+	topic := utils.GetMetaData(ctx, logx.SlsTopic)
+	if topic == "" {
+		topic = LogClient.Project
+	}
+	prefixes := logx.ExtractCtx(ctx, logx.LogTypeSls)
+	contents := make([]*sls.LogContent, 0, (len(prefixes)+len(keyvals))/2+1)
+	contents = append(contents, &sls.LogContent{
+		Key:   newString("level"),
+		Value: newString(level.String()),
+	})
+	if len(prefixes) > 0 {
+		for i := 0; i < len(prefixes); i += 2 {
+			contents = append(contents, &sls.LogContent{
+				Key:   newString(toString(prefixes[i])),
+				Value: newString(toString(prefixes[i+1])),
+			})
+		}
+	}
+
+	if len(keyvals) == 1 {
+		contents = append(contents, &sls.LogContent{
+			Key:   newString("content"),
+			Value: newString(toString(keyvals[0])),
+		})
+	} else {
+		for i := 0; i < len(keyvals); i += 2 {
+			if i == len(keyvals)-1 {
+				break
+			}
+			contents = append(contents, &sls.LogContent{
+				Key:   newString(toString(keyvals[i])),
+				Value: newString(toString(keyvals[i+1])),
+			})
+		}
+	}
+
+	logMsg := &sls.Log{
+		Time:     proto.Uint32(uint32(time.Now().Unix())),
+		Contents: contents,
+	}
+	return LogClient.Log.SendLog(LogClient.Project, LogClient.LogStore, topic, utils.GetHostname(), logMsg)
 }

@@ -1,54 +1,112 @@
 package http_request
 
 import (
-	"encoding/json"
-	"fmt"
+	"context"
 	"net/http"
+	"strconv"
 	"time"
 
-	"github.com/go-resty/resty/v2"
-	"github.com/spf13/cast"
 	"github.com/sunmi-OS/gocore/v2/glog"
+	"github.com/sunmi-OS/gocore/v2/glog/logx"
 	"github.com/sunmi-OS/gocore/v2/glog/sls"
+	"github.com/sunmi-OS/gocore/v2/utils"
+
+	"github.com/bytedance/sonic"
+	"github.com/go-resty/resty/v2"
 )
 
-type Log interface {
-	Info(obj *LogObject) error
-}
+const hideBody = "gocore_body_hide"
 
-type LogObject struct {
-	Url             string        `json:"url"`
-	Method          string        `json:"method"`
-	RequestHders    http.Header   `json:"request_headers"`
-	RequestRawBody  interface{}   `json:"request_raw_body"`
-	ResponseHeaders http.Header   `json:"response_headers"`
-	ResponseBody    string        `json:"response_body"`
-	StartTime       string        `json:"start_time"`
-	Duration        time.Duration `json:"duration"`
-	Status          int           `json:"status"`
+type Log interface {
+	InfoV(ctx context.Context, keyvals ...interface{}) error
+	WarnV(ctx context.Context, keyvals ...interface{}) error
+	ErrorV(ctx context.Context, keyvals ...interface{}) error
 }
 
 func (h *HttpClient) SetLog(log Log) *HttpClient {
-	err := h.Client.OnAfterResponse(func(client *resty.Client, resp *resty.Response) error {
-		r := resp.Request
-		obj := &LogObject{
-			Url:             r.URL,
-			Method:          r.Method,
-			RequestHders:    r.Header,
-			RequestRawBody:  r.Body,
-			ResponseHeaders: resp.Header(),
-			ResponseBody:    string(resp.Body()),
-			StartTime:       r.Time.Format("2006-01-02 15:04:05"),
-			Duration:        resp.Time() / time.Millisecond,
-			Status:          resp.StatusCode(),
+	h.Client = h.Client.OnBeforeRequest(func(client *resty.Client, r *resty.Request) error {
+		traceid := utils.GetMetaData(r.Context(), utils.XB3TraceId)
+		if traceid != "" {
+			r = r.SetHeader(utils.XB3TraceId, traceid)
 		}
-		log.Info(obj)
 		return nil
 	})
-	if err != nil {
-		fmt.Printf("%#v\n", err)
-	}
+
+	h.Client = h.Client.OnAfterResponse(func(client *resty.Client, resp *resty.Response) error {
+		r := resp.Request
+		ctx := resp.Request.Context()
+		ctx = utils.SetMetaData(ctx, utils.XB3TraceId, resp.Header().Get(utils.XB3TraceId))
+		var reqBody interface{}
+		reqBody = hideBody
+		respBody := hideBody
+		path := r.RawRequest.URL.Path
+		if !h.hideRespBodyLogsWithPath[path] {
+			respBody = string(resp.Body())
+		}
+		if !h.hideReqBodyLogsWithPath[path] {
+			reqBody = r.Body
+		}
+		sendBytes := r.RawRequest.ContentLength
+		recvBytes := resp.Size()
+		statusCode := resp.StatusCode()
+
+		if !h.disableMetrics {
+			clientSendBytes.WithLabelValues(path).Add(mustPositive(sendBytes))
+			clientRecvBytes.WithLabelValues(path).Add(mustPositive(recvBytes))
+			clientReqDur.WithLabelValues(path).Observe(float64(time.Since(r.Time).Milliseconds()))
+			clientReqCodeTotal.WithLabelValues(path, strconv.FormatInt(int64(statusCode), 10)).Inc()
+		}
+
+		if h.disableLog {
+			return nil
+		}
+		fields := []interface{}{
+			"kind", "client",
+			"costms", resp.Time().Milliseconds(),
+			"method", r.Method,
+			"host", r.RawRequest.URL.Host,
+			"path", path,
+			"req", reqBody,
+			"resp", respBody,
+			"status", statusCode,
+		}
+		if statusCode == http.StatusOK {
+			if root, err0 := sonic.Get(resp.Body()); err0 == nil {
+				respCode, err := root.Get("code").Int64()
+				if err == nil {
+					fields = append(fields, "code", respCode)
+				}
+				respMsg, err := root.Get("msg").String()
+				if err == nil {
+					fields = append(fields, "msg", respMsg)
+				}
+			}
+		}
+		fields = append(fields, "start_time", r.Time.Format(utils.TimeFormat))
+		fields = append(fields, "req_header", r.Header)
+		fields = append(fields, "resp_header", resp.Header())
+		param := r.QueryParam.Encode()
+		if param != "" {
+			fields = append(fields, "params", param)
+		}
+
+		logFunc := log.InfoV
+		if resp.StatusCode() >= http.StatusInternalServerError {
+			logFunc = log.ErrorV
+		} else if resp.StatusCode() >= http.StatusBadRequest {
+			logFunc = log.WarnV
+		}
+		logFunc(ctx, fields...)
+		return nil
+	})
 	return h
+}
+
+func mustPositive(val int64) float64 {
+	if val < 0 {
+		return 0
+	}
+	return float64(val)
 }
 
 type GocoreLog struct {
@@ -58,9 +116,16 @@ func NewGocoreLog() *GocoreLog {
 	return &GocoreLog{}
 }
 
-func (l *GocoreLog) Info(obj *LogObject) error {
-	data, _ := json.Marshal(obj)
-	glog.InfoF(string(data))
+func (l *GocoreLog) InfoV(ctx context.Context, keyvals ...interface{}) error {
+	glog.InfoV(ctx, keyvals...)
+	return nil
+}
+func (l *GocoreLog) WarnV(ctx context.Context, keyvals ...interface{}) error {
+	glog.WarnV(ctx, keyvals...)
+	return nil
+}
+func (l *GocoreLog) ErrorV(ctx context.Context, keyvals ...interface{}) error {
+	glog.ErrorV(ctx, keyvals...)
 	return nil
 }
 
@@ -72,20 +137,17 @@ type AliyunLog struct {
 	topic string
 }
 
-//  使用阿里云日志需要提前调用sls.InitLog初始化
-func (l *AliyunLog) Info(obj *LogObject) error {
-	requestHeaderBytes, _ := json.Marshal(obj.RequestHders)
-	requestBodyBytes, _ := json.Marshal(obj.RequestRawBody)
-	responseHeaderBytes, _ := json.Marshal(obj.ResponseHeaders)
-	_ = sls.Info(l.topic, map[string]string{
-		"url":              obj.Url,
-		"method":           obj.Method,
-		"request_headers":  string(requestHeaderBytes),
-		"request_raw_body": string(requestBodyBytes),
-		"response_headers": string(responseHeaderBytes),
-		"start_time":       obj.StartTime,
-		"duration":         cast.ToString(obj.Duration),
-		"status":           cast.ToString(obj.Status),
-	})
-	return nil
+func (l *AliyunLog) InfoV(ctx context.Context, keyvals ...interface{}) error {
+	ctx = utils.SetMetaData(ctx, logx.SlsTopic, l.topic)
+	return sls.LogClient.CommonLog(logx.LevelInfo, ctx, keyvals...)
+}
+
+func (l *AliyunLog) WarnV(ctx context.Context, keyvals ...interface{}) error {
+	ctx = utils.SetMetaData(ctx, logx.SlsTopic, l.topic)
+	return sls.LogClient.CommonLog(logx.LevelWarn, ctx, keyvals...)
+}
+
+func (l *AliyunLog) ErrorV(ctx context.Context, keyvals ...interface{}) error {
+	ctx = utils.SetMetaData(ctx, logx.SlsTopic, l.topic)
+	return sls.LogClient.CommonLog(logx.LevelError, ctx, keyvals...)
 }
