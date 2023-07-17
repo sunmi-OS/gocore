@@ -114,11 +114,11 @@ func Close() {
 	})
 }
 
-//----------------------------以下是私有方法--------------------------------
+// ----------------------------以下是私有方法--------------------------------
 
 // openORM 私有方法
 func openORM(dbname string) (*gorm.DB, error) {
-	//默认配置
+	// 默认配置
 	viper.C.SetDefault(dbname, map[string]interface{}{
 		"Host":         "127.0.0.1",
 		"Name":         "gocore",
@@ -153,7 +153,7 @@ func openORM(dbname string) (*gorm.DB, error) {
 	)
 	switch dbType {
 	case "mysql":
-		orm, err := gorm.Open(mysql.Open(dsn), &gorm.Config{Logger: newLogger})
+		orm, err := gorm.Open(mysql.Open(dsn), &gorm.Config{Logger: newLogger, SkipDefaultTransaction: true})
 		if err != nil {
 			return nil, err
 		}
