@@ -77,6 +77,27 @@ func (h *HttpClient) SetDisableBreaker(disable bool) *HttpClient {
 	return h
 }
 
+func (h *HttpClient) SetSlowThresholdMs(threshold int64) *HttpClient {
+	h.slowThresholdMs = threshold
+	return h
+}
+
+func (h *HttpClient) SetRespBodyLogsWithPath(paths []string) *HttpClient {
+	h.hideRespBodyLogsWithPath = make(map[string]bool)
+	for _, path := range paths {
+		h.hideRespBodyLogsWithPath[path] = true
+	}
+	return h
+}
+
+func (h *HttpClient) SetReqBodyLogsWithPath(paths []string) *HttpClient {
+	h.hideReqBodyLogsWithPath = make(map[string]bool)
+	for _, path := range paths {
+		h.hideReqBodyLogsWithPath[path] = true
+	}
+	return h
+}
+
 // ErrIncorrectCode 非2xx 状态码
 var ErrIncorrectCode = errors.New("incorrect http status")
 
