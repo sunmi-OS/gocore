@@ -10,15 +10,14 @@ import (
 
 func TestEcodeWithReason(t *testing.T) {
 	e := FromError(Success)
-	glog.Debug(e.Error())   // error: code = 1 reason = SUCCESS message = success metadata = map[] cause = <nil>
+	glog.Debug(e.Error())   // error: code = 1 message = success metadata = map[] cause = <nil>
 	glog.Debug(e.Code())    // 1
 	glog.Debug(e.Message()) // success
 	glog.Info("============================")
 
 	e2 := FromError(nil)
-	glog.Debug(e2.Error())   // error: code = 1 reason = SUCCESS message = success metadata = map[] cause = <nil>
+	glog.Debug(e2.Error())   // error: code = 1 message = success metadata = map[] cause = <nil>
 	glog.Debug(e2.Code())    // 1
-	glog.Debug(e2.Reason())  // SUCCESS
 	glog.Debug(e2.Message()) // success
 	glog.Info("============================")
 
@@ -26,17 +25,15 @@ func TestEcodeWithReason(t *testing.T) {
 		"name":   "jerry",
 		"reason": "欠话费了",
 	})
-	glog.Debug(sms.Error())   // error: code = 10000 reason = CTCC message = 中国电信 metadata = map[name:jerry reason:我是metadata] cause = <nil>
+	glog.Debug(sms.Error())   // error: code = 10000 message = 中国电信 metadata = map[name:jerry reason:我是metadata] cause = <nil>
 	glog.Debug(sms.Code())    // 10000
-	glog.Debug(sms.Reason())  // CTCC
 	glog.Debug(sms.Message()) // 中国电信
 	glog.Debug(sms.Metadata)  // map[name:jerry reason:欠话费了]
 	glog.Info("============================")
 
 	mms := NewV2(10086, "中国移动").WithCause(errors.New("我是原因"))
-	glog.Debug(mms.Error())   // error: code = 10086 reason = CMCC message = 中国移动 metadata = map[] cause = 我是原因
+	glog.Debug(mms.Error())   // error: code = 10086 message = 中国移动 metadata = map[] cause = 我是原因
 	glog.Debug(mms.Code())    // 10086
-	glog.Debug(mms.Reason())  // CMCC
 	glog.Debug(mms.Message()) // 中国电信
 	glog.Debug(mms.Unwrap())  // 我是原因
 }

@@ -30,22 +30,19 @@ var (
 
 // ErrorV2 struct
 type ErrorV2 struct {
-	Status
+	ErrorStatus
 	cause error
 }
 
 func (e *ErrorV2) Error() string {
-	return fmt.Sprintf("error: code = %d reason = %s message = %s metadata = %v cause = %v", e.Status.Code, e.Status.Reason, e.Status.Message, e.Metadata, e.cause)
+	return fmt.Sprintf("error: code = %d msg = %s metadata = %v cause = %v", e.ErrorStatus.Code, e.ErrorStatus.Msg, e.Metadata, e.cause)
 }
 
 // Code returns the code of the error.
-func (e *ErrorV2) Code() int { return int(e.Status.Code) }
+func (e *ErrorV2) Code() int { return int(e.ErrorStatus.Code) }
 
-// Message returns the message of the error.
-func (e *ErrorV2) Message() string { return e.Status.Message }
-
-// Reason returns the reason of the error.
-func (e *ErrorV2) Reason() string { return e.Status.Reason }
+// Message returns the msg of the error.
+func (e *ErrorV2) Message() string { return e.ErrorStatus.Msg }
 
 // Unwrap provides compatibility for Go 1.13 error chains.
 func (e *ErrorV2) Unwrap() error { return e.cause }
@@ -53,27 +50,23 @@ func (e *ErrorV2) Unwrap() error { return e.cause }
 // Is matches each error in the chain with the target value.
 func (e *ErrorV2) Is(err error) bool {
 	if se := new(ErrorV2); errors.As(err, &se) {
-		return se.Status.Code == e.Status.Code && se.Status.Reason == e.Status.Reason
+		return se.ErrorStatus.Code == e.ErrorStatus.Code
 	}
 	return false
 }
 
 // Equal matches error from code and reason.
-func (e *ErrorV2) Equal(code int, reason ...string) bool {
-	se := &ErrorV2{Status: Status{
-		Code: int32(code),
+func (e *ErrorV2) Equal(code int) bool {
+	se := &ErrorV2{ErrorStatus: ErrorStatus{
+		Code: int64(code),
 	}}
-	if len(reason) == 1 {
-		se.Status.Reason = reason[0]
-		return se.Status.Code == e.Status.Code && se.Status.Reason == e.Status.Reason
-	}
-	return se.Status.Code == e.Status.Code
+	return se.ErrorStatus.Code == e.ErrorStatus.Code
 }
 
 // GRPCStatus returns the Status represented by error.
 func (e *ErrorV2) GRPCStatus() *status.Status {
-	gs, _ := status.New(DefaultConverter.ToGRPCCode(int(e.Status.Code)), e.Status.Message).
-		WithDetails(&errdetails.ErrorInfo{Reason: e.Status.Reason, Metadata: e.Metadata})
+	gs, _ := status.New(DefaultConverter.ToGRPCCode(int(e.ErrorStatus.Code)), e.ErrorStatus.Msg).
+		WithDetails(&errdetails.ErrorInfo{Metadata: e.Metadata})
 	return gs
 }
 
@@ -93,20 +86,11 @@ func (e *ErrorV2) WithMetadata(md map[string]string) *ErrorV2 {
 
 // ============================================================================================================
 
-// NewV2 returns an error object for the code, message.
-func NewV2(code int, message string) *ErrorV2 {
-	return &ErrorV2{Status: Status{
-		Code:    int32(code),
-		Message: message,
-	}}
-}
-
-// NewV2WithReason returns an error object for the code, message.
-func NewV2WithReason(code int, reason string, message string) *ErrorV2 {
-	return &ErrorV2{Status: Status{
-		Code:    int32(code),
-		Reason:  reason,
-		Message: message,
+// NewV2 returns an error object for the code, msg.
+func NewV2(code int, msg string) *ErrorV2 {
+	return &ErrorV2{ErrorStatus: ErrorStatus{
+		Code: int64(code),
+		Msg:  msg,
 	}}
 }
 
@@ -121,10 +105,9 @@ func DeepClone(err *ErrorV2) *ErrorV2 {
 	}
 	return &ErrorV2{
 		cause: err.cause,
-		Status: Status{
-			Code:     err.Status.Code,
-			Reason:   err.Status.Reason,
-			Message:  err.Status.Message,
+		ErrorStatus: ErrorStatus{
+			Code:     err.ErrorStatus.Code,
+			Msg:      err.ErrorStatus.Msg,
 			Metadata: metadata,
 		},
 	}
@@ -147,7 +130,6 @@ func FromError(err error) *ErrorV2 {
 	for _, detail := range gs.Details() {
 		switch d := detail.(type) {
 		case *errdetails.ErrorInfo:
-			ret.Status.Reason = d.Reason
 			return ret.WithMetadata(d.Metadata)
 		}
 	}
