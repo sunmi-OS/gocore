@@ -66,10 +66,10 @@ func (kr *Consumer) Handle(ctx context.Context, handle func(msg kafka.Message) e
 	for {
 		select {
 		case <-ctx.Done():
-			glog.InfoF("Kafka Consumer.Handle ctx done")
+			glog.InfoC(ctx, "Kafka Consumer.Handle ctx done")
 			return ctx.Err()
 		case <-kr.ctx.Done():
-			glog.InfoF("Kafka Consumer.Handle kr.ctx done")
+			glog.InfoC(ctx, "Kafka Consumer.Handle kr.ctx done")
 			return kr.ctx.Err()
 		default:
 			m, err := kr.Reader.FetchMessage(ctx)
@@ -77,11 +77,11 @@ func (kr *Consumer) Handle(ctx context.Context, handle func(msg kafka.Message) e
 			// io.ErrClosedPipe means committing messages on the consumer,
 			// kafka will refire the messages on uncommitted messages, ignore
 			if err == io.EOF || err == io.ErrClosedPipe {
-				glog.InfoF("Kafka Consumer.FetchMessage error:%v(the reader has been closed)", err)
+				glog.InfoC(ctx, "Kafka Consumer.FetchMessage error:%v(the reader has been closed)", err)
 				return nil
 			}
 			if err != nil {
-				glog.ErrorF("Kafka Consumer.FetchMessage error:%+v", err)
+				glog.ErrorC(ctx, "Kafka Consumer.FetchMessage error:%+v", err)
 				continue
 			}
 			startTime := time.Now()
@@ -92,13 +92,13 @@ func (kr *Consumer) Handle(ctx context.Context, handle func(msg kafka.Message) e
 				result = "success"
 				ackErr := kr.Reader.CommitMessages(ctx, m)
 				if ackErr != nil {
-					glog.ErrorF("Kafka Consumer.CommitMessages error:%+v", ackErr)
+					glog.ErrorC(ctx, "Kafka Consumer.CommitMessages error:%+v", ackErr)
 				}
 			}
 			metricsResult.WithLabelValues(m.Topic, pub, result).Inc()
 
 			if err != nil {
-				glog.ErrorF("Kafka Consumer.Handle with error:%+v", err)
+				glog.ErrorC(ctx, "Kafka Consumer.Handle with error:%+v", err)
 			}
 		}
 	}
