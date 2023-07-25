@@ -51,6 +51,7 @@ func GetAppName() string {
 	}
 	appName = os.Getenv("APP_NAME")
 	if appName == "" {
+		fmt.Println("No APP_NAME Set")
 		appName = "UnknownAppName"
 	}
 	return appName
