@@ -4,7 +4,10 @@ import (
 	"fmt"
 	"os"
 	"runtime"
+	"strings"
 	"time"
+
+	"github.com/bytedance/sonic"
 )
 
 const (
@@ -131,4 +134,12 @@ func GetAccesslogPath() string {
 		path = "/data/logs/access.log"
 	}
 	return path
+}
+
+func LogContentUnmarshal(content string) interface{} {
+	var value map[string]interface{}
+	if strings.HasPrefix(content, "{") && sonic.UnmarshalString(content, &value) == nil {
+		return value
+	}
+	return content
 }

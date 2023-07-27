@@ -67,7 +67,7 @@ func (h *HttpClient) SetLog(log Log) *HttpClient {
 			"host", r.RawRequest.URL.Host,
 			"path", path,
 			"req", reqBody,
-			"resp", respBody,
+			"resp", utils.LogContentUnmarshal(respBody),
 			"status", statusCode,
 		}
 		if statusCode == http.StatusOK {
