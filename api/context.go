@@ -33,7 +33,6 @@ func NewContext(g *gin.Context) Context {
 		C:       context.Background(),
 		R:       NewResponse(),
 	}
-
 	if g.GetHeader(utils.XB3TraceId) != "" {
 		g.Header(utils.XB3TraceId, g.GetHeader(utils.XB3TraceId))
 		c.T = utils.SetHttp(g.Request.Header)
@@ -85,6 +84,18 @@ func (c *Context) Response(code int, msg string, data interface{}) {
 // BindValidator 参数绑定结构体，并且按照tag进行校验返回校验结果
 func (c *Context) BindValidator(obj interface{}) error {
 	err := c.ShouldBind(obj)
+	if err != nil {
+		if utils.IsRelease() {
+			return ErrorBind
+		}
+		return err
+	}
+	return nil
+}
+
+// BindJSONValidator 参数绑定结构体，并且按照tag进行校验返回校验结果
+func (c *Context) BindJSONValidator(obj interface{}) error {
+	err := c.ShouldBindJSON(obj)
 	if err != nil {
 		if utils.IsRelease() {
 			return ErrorBind
