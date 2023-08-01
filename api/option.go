@@ -22,30 +22,30 @@ var defaultServerConfig = &Config{
 	openTrace:    false,
 }
 
-// ServerHost 设置host
-func ServerHost(addr string) Option {
+// WithServerHost 设置host
+func WithServerHost(addr string) Option {
 	return func(c *Config) { c.host = addr }
 }
 
-// ServerPort 设置端口
-func ServerPort(port int) Option {
+// WithServerPort 设置端口
+func WithServerPort(port int) Option {
 	return func(c *Config) { c.port = port }
 }
 
-// ServerTimeout 设置超时时间
-func ServerTimeout(dur time.Duration) Option {
+// WithServerTimeout 设置超时时间
+func WithServerTimeout(dur time.Duration) Option {
 	return func(o *Config) {
 		o.readTimeout = dur
 		o.writeTimeout = dur
 	}
 }
 
-// ServerDebug 设置超时时间
-func ServerDebug(debug bool) Option {
+// WithServerDebug 设置超时时间
+func WithServerDebug(debug bool) Option {
 	return func(o *Config) { o.debug = debug }
 }
 
-// OpenTrace 设置超时时间
-func OpenTrace(open bool) Option {
+// WithOpenTrace 设置超时时间
+func WithOpenTrace(open bool) Option {
 	return func(o *Config) { o.openTrace = open }
 }

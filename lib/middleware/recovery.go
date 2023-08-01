@@ -7,14 +7,14 @@ import (
 
 	"github.com/bytedance/sonic"
 	"github.com/gin-gonic/gin"
-	"github.com/golang/glog"
+	"github.com/sunmi-OS/gocore/v2/glog"
 )
 
 type RecoverInfo struct {
-	Time       string `json:"time"`
-	RequestURI string `json:"request_uri"`
-	Err        any    `json:"error"`
-	Stack      string `json:"stack"`
+	Time       string      `json:"time"`
+	RequestURI string      `json:"request_uri"`
+	Err        interface{} `json:"error"`
+	Stack      string      `json:"stack"`
 }
 
 // Recovery gin middleware recovery
@@ -31,7 +31,7 @@ func Recovery() gin.HandlerFunc {
 					Err:        err,
 					Stack:      string(stack),
 				})
-				glog.Errorf("[GinPanic] %s", string(bs))
+				glog.ErrorF("[GinPanic] %s", string(bs))
 				c.JSON(http.StatusOK, struct {
 					Code int         `json:"code"`
 					Data interface{} `json:"data"`

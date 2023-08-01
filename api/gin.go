@@ -4,6 +4,7 @@ import (
 	"context"
 	"fmt"
 	"net/http"
+	"net/http/pprof"
 	"os"
 	"os/signal"
 	"strconv"
@@ -11,8 +12,9 @@ import (
 	"time"
 
 	"github.com/gin-gonic/gin"
-	"github.com/golang/glog"
+	"github.com/sunmi-OS/gocore/v2/glog"
 	"github.com/sunmi-OS/gocore/v2/lib/middleware"
+	"github.com/sunmi-OS/gocore/v2/lib/prometheus"
 	zipkin_opentracing "github.com/sunmi-OS/gocore/v2/lib/tracing/gin/zipkin-opentracing"
 )
 
@@ -49,7 +51,7 @@ func NewGinServer(ops ...Option) *GinEngine {
 		ReadTimeout:  cfg.readTimeout,
 		WriteTimeout: cfg.writeTimeout,
 	}
-	g.Use(engine.Logger(true), middleware.Recovery())
+	g.Use(engine.logger(true), middleware.Recovery())
 	if cfg.openTrace {
 		//引入链路追踪中间件
 		endPointUrl := os.Getenv("ZIPKIN_BASE_URL")
@@ -61,6 +63,21 @@ func NewGinServer(ops ...Option) *GinEngine {
 	}
 	if !cfg.debug {
 		gin.SetMode(gin.ReleaseMode)
+	}
+	// 引入 prometheus 中间件
+	prometheus.NewPrometheus("app").Use(g)
+	// default health check
+	g.GET("/health", func(c *gin.Context) {
+		c.String(http.StatusOK, "ok")
+	})
+	// default pprof
+	pp := g.Group("/debug/pprof")
+	{
+		pp.GET("/index", func(c *gin.Context) { pprof.Index(c.Writer, c.Request) })
+		pp.GET("/cmdline", func(c *gin.Context) { pprof.Cmdline(c.Writer, c.Request) })
+		pp.GET("/profile", func(c *gin.Context) { pprof.Profile(c.Writer, c.Request) })
+		pp.GET("/symbol", func(c *gin.Context) { pprof.Symbol(c.Writer, c.Request) })
+		pp.GET("/trace", func(c *gin.Context) { pprof.Trace(c.Writer, c.Request) })
 	}
 	return engine
 }
@@ -97,10 +114,10 @@ func (g *GinEngine) AddExitHook(hooks ...HookFunc) *GinEngine {
 
 func (g *GinEngine) Start() {
 	go func() {
-		glog.Warningf("Listening and serving HTTP on %s", g.addrPort)
+		glog.WarnF("Listening and serving HTTP on %s", g.addrPort)
 		if err := g.server.ListenAndServe(); err != nil {
 			if err == http.ErrServerClosed {
-				glog.Warning("http: Server closed")
+				glog.Warn("http: Server closed")
 				return
 			}
 			panic(fmt.Sprintf("server.ListenAndServe(), error(%+v).", err))
@@ -120,14 +137,14 @@ func (g *GinEngine) NotifySignal() {
 		si := <-ch
 		switch si {
 		case syscall.SIGQUIT, syscall.SIGTERM, syscall.SIGINT:
-			glog.Warningf("get a signal %s, stop the process", si.String())
+			glog.WarnF("get a signal %s, stop the process", si.String())
 			// close gin http server
 			g.Close()
 			ctx, cancelFunc := context.WithTimeout(context.Background(), g.timeout)
 			// call before close hooks
 			go func() {
 				if a := recover(); a != nil {
-					glog.Errorf("panic: %v", a)
+					glog.ErrorF("panic: %v", a)
 				}
 				for _, fn := range g.hookMaps[_HookClose] {
 					fn(ctx)
@@ -161,8 +178,8 @@ func (g *GinEngine) Close() {
 	}
 }
 
-// Logger
-func (g *GinEngine) Logger(ignoreRelease bool) gin.HandlerFunc {
+// logger
+func (g *GinEngine) logger(ignoreRelease bool) gin.HandlerFunc {
 	g.IgnoreReleaseLog = ignoreRelease
 	return func(c *gin.Context) {
 		// Start time
