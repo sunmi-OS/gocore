@@ -2,6 +2,7 @@ package gokafka
 
 import (
 	"context"
+	"fmt"
 	"sync"
 	"time"
 
@@ -24,6 +25,10 @@ type Producer struct {
 
 // NewProducerConfig 该方法返回值不能复用，每次NewProducer时都需要调用一次
 func NewProducerConfig(brokers []string) *kafka.Writer {
+	if len(brokers) == 0 {
+		glog.Error("Kafka Brokers is empty")
+		return nil
+	}
 	return &kafka.Writer{
 		Addr:  kafka.TCP(brokers...),
 		Async: true,
@@ -32,15 +37,19 @@ func NewProducerConfig(brokers []string) *kafka.Writer {
 
 // NewVipProducerConfig 该方法返回值不能复用，每次NewProducer时都需要调用一次
 func NewVipProducerConfig(configName string) *kafka.Writer {
+	brokers := viper.GetEnvConfig(configName + ".Brokers").SliceString()
+	if len(brokers) == 0 {
+		glog.ErrorF("Kafka configName:%v Brokers is empty", configName)
+		return nil
+	}
 	return &kafka.Writer{
-		Addr:  kafka.TCP(viper.GetEnvConfig(configName + ".Brokers").SliceString()...),
+		Addr:  kafka.TCP(brokers...),
 		Async: true,
 	}
 }
 
 // NewProducer conf每次重新生成
 func NewProducer(configName string, conf *kafka.Writer) *Producer {
-	glog.InfoF("Kafka start one producer, conf:%#v", conf)
 	ctx, cancel := context.WithCancel(context.Background())
 	p := &Producer{
 		ctx:        ctx,
@@ -66,7 +75,12 @@ func NewProducer(configName string, conf *kafka.Writer) *Producer {
 			Func:     Close,
 		})
 	})
+	glog.InfoF("Kafka start one conf= %v", formatWriterConfig(configName, conf))
 	return p
+}
+
+func formatWriterConfig(configName string, conf *kafka.Writer) string {
+	return fmt.Sprintf("configName:%v Addr:%v Async:%v", configName, conf.Addr, conf.Async)
 }
 
 func GetProducer(configName string) (conn *Producer) {
@@ -117,9 +131,9 @@ func Close() {
 			p.cancel()
 			err := p.Writer.Close()
 			if err != nil {
-				glog.ErrorF("Kafka Producer close error:%v, conf:%#v", err, p.Writer)
+				glog.ErrorF("Kafka Producer close error:%v, conf= %v", err, formatWriterConfig(p.configName, p.Writer))
 			} else {
-				glog.InfoF("Kafka Producer close success, conf:%#v", p.Writer)
+				glog.InfoF("Kafka Producer close success, conf= %v", formatWriterConfig(p.configName, p.Writer))
 			}
 		}
 		return true
