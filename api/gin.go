@@ -19,12 +19,12 @@ import (
 	"github.com/sunmi-OS/gocore/v2/lib/middleware"
 	"github.com/sunmi-OS/gocore/v2/lib/prometheus"
 	zipkin_opentracing "github.com/sunmi-OS/gocore/v2/lib/tracing/gin/zipkin-opentracing"
+	"github.com/sunmi-OS/gocore/v2/utils/closes"
 )
 
 const (
-	_HookStart hookType = "server_start"
-	_HookClose hookType = "server_close"
-	_HookExit  hookType = "sys_exit"
+	_HookShutdown hookType = "server_shutdown"
+	_HookExit     hookType = "sys_exit"
 )
 
 type hookType string
@@ -93,14 +93,14 @@ func NewGinServer(ops ...Option) *GinEngine {
 }
 
 func (g *GinEngine) Start() {
-	// call when server start hooks
-	for _, fn := range g.hookMaps[_HookStart] {
-		fn(context.Background())
-	}
+	// add common close hooks
+	g.AddExitHook(func(c context.Context) {
+		closes.Close()
+	})
+
 	// wait for signal
 	go g.goNotifySignal()
 
-	g.wg.Add(1)
 	// start gin http server
 	log.Printf("Listening and serving HTTP on %s\n", g.addrPort)
 	if err := g.server.ListenAndServe(); err != nil {
@@ -116,21 +116,11 @@ func (g *GinEngine) Start() {
 	log.Println("process exit")
 }
 
-// 添加 GinServer 服务启动时的钩子函数
-func (g *GinEngine) AddStartHook(hooks ...HookFunc) *GinEngine {
-	for _, fn := range hooks {
-		if fn != nil {
-			g.hookMaps[_HookStart] = append(g.hookMaps[_HookStart], fn)
-		}
-	}
-	return g
-}
-
 // 添加 GinServer 服务关闭时的钩子函数
-func (g *GinEngine) AddCloseHook(hooks ...HookFunc) *GinEngine {
+func (g *GinEngine) AddShutdownHook(hooks ...HookFunc) *GinEngine {
 	for _, fn := range hooks {
 		if fn != nil {
-			g.hookMaps[_HookClose] = append(g.hookMaps[_HookClose], fn)
+			g.hookMaps[_HookShutdown] = append(g.hookMaps[_HookShutdown], fn)
 		}
 	}
 	return g
@@ -148,6 +138,7 @@ func (g *GinEngine) AddExitHook(hooks ...HookFunc) *GinEngine {
 
 // 监听信号
 func (g *GinEngine) goNotifySignal() {
+	g.wg.Add(1)
 	ch := make(chan os.Signal, 1)
 	signal.Notify(ch, syscall.SIGHUP, syscall.SIGINT, syscall.SIGQUIT, syscall.SIGTERM)
 	for {
@@ -163,7 +154,7 @@ func (g *GinEngine) goNotifySignal() {
 				if a := recover(); a != nil {
 					log.Printf("panic: %v\n", a)
 				}
-				for _, fn := range g.hookMaps[_HookClose] {
+				for _, fn := range g.hookMaps[_HookShutdown] {
 					fn(ctx)
 				}
 			}()
