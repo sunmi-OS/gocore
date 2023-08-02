@@ -1,13 +1,13 @@
 package middleware
 
 import (
+	"log"
 	"net/http"
 	"runtime"
 	"time"
 
 	"github.com/bytedance/sonic"
 	"github.com/gin-gonic/gin"
-	"github.com/sunmi-OS/gocore/v2/glog"
 )
 
 type RecoverInfo struct {
@@ -31,7 +31,7 @@ func Recovery() gin.HandlerFunc {
 					Err:        err,
 					Stack:      string(stack),
 				})
-				glog.ErrorF("[GinPanic] %s", string(bs))
+				log.Printf("[GinPanic] %s\n", string(bs))
 				c.JSON(http.StatusOK, struct {
 					Code int         `json:"code"`
 					Data interface{} `json:"data"`

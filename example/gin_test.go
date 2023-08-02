@@ -13,7 +13,7 @@ func ExampleNewGinServer() {
 		//api.WithServerHost(""),
 		api.WithServerPort(2233),
 		api.WithServerDebug(true),
-		api.WithServerTimeout(time.Second*60),
+		api.WithServerTimeout(time.Second*30),
 		api.WithOpenTrace(false),
 	)
 	// init route
@@ -27,8 +27,8 @@ func ExampleNewGinServer() {
 	hs.AddExitHook(func(c context.Context) {
 		// do something when process exit
 	})
-	// start and notify
-	hs.StartAndNotify()
+	// start server
+	hs.Start()
 }
 
 func initRoute(g *gin.Engine) {

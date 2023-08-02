@@ -2,17 +2,20 @@ package api
 
 import (
 	"context"
+	"errors"
 	"fmt"
+	"log"
 	"net/http"
 	"net/http/pprof"
 	"os"
 	"os/signal"
+	"runtime"
 	"strconv"
+	"sync"
 	"syscall"
 	"time"
 
 	"github.com/gin-gonic/gin"
-	"github.com/sunmi-OS/gocore/v2/glog"
 	"github.com/sunmi-OS/gocore/v2/lib/middleware"
 	"github.com/sunmi-OS/gocore/v2/lib/prometheus"
 	zipkin_opentracing "github.com/sunmi-OS/gocore/v2/lib/tracing/gin/zipkin-opentracing"
@@ -32,6 +35,7 @@ type GinEngine struct {
 	Gin              *gin.Engine
 	server           *http.Server
 	timeout          time.Duration
+	wg               sync.WaitGroup
 	addrPort         string
 	IgnoreReleaseLog bool
 	hookMaps         map[hookType][]func(c context.Context)
@@ -42,15 +46,21 @@ func NewGinServer(ops ...Option) *GinEngine {
 	for _, o := range ops {
 		o(cfg)
 	}
+
 	g := gin.New()
-	engine := &GinEngine{Gin: g, addrPort: cfg.host + ":" + strconv.Itoa(cfg.port), hookMaps: make(map[hookType][]func(c context.Context))}
-	engine.timeout = cfg.readTimeout
-	engine.server = &http.Server{
-		Addr:         engine.addrPort,
-		Handler:      g,
-		ReadTimeout:  cfg.readTimeout,
-		WriteTimeout: cfg.writeTimeout,
+	engine := &GinEngine{Gin: g,
+		addrPort: cfg.host + ":" + strconv.Itoa(cfg.port),
+		server: &http.Server{
+			Addr:         cfg.host + ":" + strconv.Itoa(cfg.port),
+			Handler:      g,
+			ReadTimeout:  cfg.readTimeout,
+			WriteTimeout: cfg.writeTimeout,
+		},
+		timeout:  cfg.readTimeout,
+		wg:       sync.WaitGroup{},
+		hookMaps: make(map[hookType][]func(c context.Context)),
 	}
+
 	g.Use(engine.logger(true), middleware.Recovery())
 	if cfg.openTrace {
 		//引入链路追踪中间件
@@ -80,6 +90,30 @@ func NewGinServer(ops ...Option) *GinEngine {
 		pp.GET("/trace", func(c *gin.Context) { pprof.Trace(c.Writer, c.Request) })
 	}
 	return engine
+}
+
+func (g *GinEngine) Start() {
+	// call when server start hooks
+	for _, fn := range g.hookMaps[_HookStart] {
+		fn(context.Background())
+	}
+	// wait for signal
+	go g.goNotifySignal()
+
+	g.wg.Add(1)
+	// start gin http server
+	log.Printf("Listening and serving HTTP on %s\n", g.addrPort)
+	if err := g.server.ListenAndServe(); err != nil {
+		if errors.Is(err, http.ErrServerClosed) {
+			log.Println("http: Server closed")
+		} else {
+			panic(fmt.Sprintf("server.ListenAndServe(), error(%+v).", err))
+		}
+	}
+	log.Println("wait for process finished")
+	// wait for process finished
+	g.wg.Wait()
+	log.Println("process exit")
 }
 
 // 添加 GinServer 服务启动时的钩子函数
@@ -112,62 +146,44 @@ func (g *GinEngine) AddExitHook(hooks ...HookFunc) *GinEngine {
 	return g
 }
 
-func (g *GinEngine) Start() {
-	go func() {
-		glog.WarnF("Listening and serving HTTP on %s", g.addrPort)
-		if err := g.server.ListenAndServe(); err != nil {
-			if err == http.ErrServerClosed {
-				glog.Warn("http: Server closed")
-				return
-			}
-			panic(fmt.Sprintf("server.ListenAndServe(), error(%+v).", err))
-		}
-	}()
-	// call when server start hooks
-	for _, fn := range g.hookMaps[_HookStart] {
-		fn(context.Background())
-	}
-}
-
 // 监听信号
-func (g *GinEngine) NotifySignal() {
+func (g *GinEngine) goNotifySignal() {
 	ch := make(chan os.Signal, 1)
 	signal.Notify(ch, syscall.SIGHUP, syscall.SIGINT, syscall.SIGQUIT, syscall.SIGTERM)
 	for {
 		si := <-ch
 		switch si {
 		case syscall.SIGQUIT, syscall.SIGTERM, syscall.SIGINT:
-			glog.WarnF("get a signal %s, stop the process", si.String())
+			log.Printf("get a signal %s, stop the process\n", si.String())
 			// close gin http server
 			g.Close()
 			ctx, cancelFunc := context.WithTimeout(context.Background(), g.timeout)
 			// call before close hooks
 			go func() {
 				if a := recover(); a != nil {
-					glog.ErrorF("panic: %v", a)
+					log.Printf("panic: %v\n", a)
 				}
 				for _, fn := range g.hookMaps[_HookClose] {
 					fn(ctx)
 				}
 			}()
-			// wait for a second to finish processing
+			// wait for program to finish processing
 			time.Sleep(g.timeout)
 			cancelFunc()
 			// call after close hooks
 			for _, fn := range g.hookMaps[_HookExit] {
 				fn(context.Background())
 			}
+			// notify process exit
+			g.wg.Done()
+			runtime.Gosched()
 			return
 		case syscall.SIGHUP:
+			log.Printf("get a signal %s\n", si.String())
 		default:
 			return
 		}
 	}
-}
-
-func (g *GinEngine) StartAndNotify() {
-	g.Start()
-	g.NotifySignal()
 }
 
 func (g *GinEngine) Close() {
