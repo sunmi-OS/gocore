@@ -87,19 +87,15 @@ func (kr *Consumer) Handle(ctx context.Context, handle func(msg kafka.Message) e
 			startTime := time.Now()
 			err = handle(m)
 			metricReqDuration.WithLabelValues(m.Topic, sub).Observe(float64(time.Since(startTime).Milliseconds()))
-			result := "fail"
-			if err == nil {
-				result = "success"
-				ackErr := kr.Reader.CommitMessages(ctx, m)
-				if ackErr != nil {
-					glog.ErrorC(ctx, "Kafka Consumer.CommitMessages error:%+v", ackErr)
-				}
+			ackErr := kr.Reader.CommitMessages(ctx, m)
+			if ackErr != nil {
+				glog.ErrorC(ctx, "Kafka Consumer.CommitMessages error:%+v", ackErr)
+			}
+			result := "success"
+			if err != nil {
+				result = "fail"
 			}
 			metricsResult.WithLabelValues(m.Topic, pub, result).Inc()
-
-			if err != nil {
-				glog.ErrorC(ctx, "Kafka Consumer.Handle with error:%+v", err)
-			}
 		}
 	}
 }
