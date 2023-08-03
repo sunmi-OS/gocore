@@ -1,31 +1,38 @@
-package example
+package main
 
 import (
 	"context"
+	"log"
 	"time"
 
 	"github.com/gin-gonic/gin"
 	"github.com/sunmi-OS/gocore/v2/api"
+	"github.com/sunmi-OS/gocore/v2/utils/closes"
 )
 
-func ExampleNewGinServer() {
+func main() {
+	closes.AddShutdown(closes.ModuleClose{
+		Name:     "aaa",
+		Priority: 0,
+		Func: func() {
+			// do something
+			log.Println("aaa close")
+		},
+	})
+
 	hs := api.NewGinServer(
 		//api.WithServerHost(""),
 		api.WithServerPort(2233),
 		api.WithServerDebug(true),
-		api.WithServerTimeout(time.Second*30),
+		api.WithServerTimeout(time.Second*10),
 		api.WithOpenTrace(false),
 	)
 	// init route
 	initRoute(hs.Gin)
 
 	// add close hook
-	hs.AddCloseHook(func(c context.Context) {
-		// do something when server close
-	})
-	// add exit hook
-	hs.AddExitHook(func(c context.Context) {
-		// do something when process exit
+	hs.AddShutdownHook(func(c context.Context) {
+		// do something when http server showdown
 	})
 	// start server
 	hs.Start()
