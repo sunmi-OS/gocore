@@ -15,11 +15,11 @@ type Option func(o *Config)
 
 var defaultServerConfig = &Config{
 	host:         "",
-	port:         2233,
+	port:         8080,
 	readTimeout:  60,
 	writeTimeout: 60,
 	debug:        false,
-	openTrace:    false,
+	openTrace:    true,
 }
 
 // WithServerHost 设置host

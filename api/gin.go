@@ -63,11 +63,11 @@ func NewGinServer(ops ...Option) *GinEngine {
 
 	g.Use(engine.logger(true), middleware.Recovery())
 	if cfg.openTrace {
-		//引入链路追踪中间件
+		// 引入链路追踪中间件
 		endPointUrl := os.Getenv("ZIPKIN_BASE_URL")
 		appName := os.Getenv("APP_NAME")
 		if endPointUrl == "" || appName == "" {
-			panic("请配置环境变量 ZIPKIN_BASE_URL 和 APP_NAME")
+			panic("开启链路追踪需要配置环境变量 ZIPKIN_BASE_URL 和 APP_NAME")
 		}
 		g.Use(zipkin_opentracing.ZipKinOpentracing(appName, 1, endPointUrl))
 	}
