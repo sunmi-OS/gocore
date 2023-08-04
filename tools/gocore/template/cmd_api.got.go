@@ -17,11 +17,10 @@ import (
 	buffer.WriteString(projectName)
 	buffer.WriteString(`/route"
 
-	"github.com/fvbock/endless"
-	"github.com/gin-gonic/gin"
 	"github.com/sunmi-OS/gocore/v2/conf/viper"
 	"github.com/sunmi-OS/gocore/v2/utils"
-	"github.com/sunmi-OS/gocore/v2/utils/closes"
+	"github.com/sunmi-OS/gocore/v2/api"
+
 	"github.com/urfave/cli/v2"
 )
 
@@ -41,25 +40,23 @@ var Api = &cli.Command{
 func RunApi(c *cli.Context) error {
     // 初始化配置
     initConf()
-
-	defer closes.Close()
 	initDB()
 	initCache()
-	
+
+    isReleaseMode := false
 	if utils.IsRelease() {
-		gin.SetMode(gin.ReleaseMode)
+		isReleaseMode = true
 	}
 
-	r := gin.New()
-	r.Use(gin.Logger())
-	r.Use(gin.Recovery())
-	// 注册路由
-	routes.Routes(r)
+	gs := api.NewGinServer(
+	    api.WithServerDebug(isReleaseMode),
+	    api.WithServerHost(viper.C.GetString("network.ApiServiceHost")),
+	    api.WithServerHost(viper.C.GetString("network.ApiServicePort")),
+    )
+    // init route
+    route.Routes(gs.Gin)
+    gs.Start()
 
-	err := endless.ListenAndServe(viper.C.GetString("network.ApiServiceHost")+":"+viper.C.GetString("network.ApiServicePort"), r)
-	if err != nil {
-		return err
-	}
 	return nil
 }`)
 
