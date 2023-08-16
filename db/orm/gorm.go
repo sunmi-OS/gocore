@@ -54,9 +54,9 @@ func NewOrUpdateDB(dbname string) error {
 	if _Gorm == nil {
 		_Gorm = &Client{defaultDbName: defaultName}
 	}
-	// second: load gorm client
+	// load gorm client
 	oldGorm, _ := _Gorm.gormMaps.Load(dbname)
-	// first: open new gorm client
+	// open new gorm client
 	err = utils.Retry(func() error {
 		orm, err = openORM(dbname)
 		if err != nil {
@@ -72,10 +72,8 @@ func NewOrUpdateDB(dbname string) error {
 		}
 		return err
 	}
-	// third: delete old gorm client and store the new gorm client
-	_Gorm.gormMaps.Delete(dbname)
 	_Gorm.gormMaps.Store(dbname, orm)
-	// fourth: if old client is not nil, delete and close connection
+	// if old client is not nil, delete and close connection
 	if oldGorm != nil {
 		db, _ := oldGorm.(*gorm.DB).DB()
 		if db != nil {

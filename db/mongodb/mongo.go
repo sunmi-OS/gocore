@@ -37,7 +37,6 @@ func NewDB(dbname string) {
 	if err != nil {
 		panic(err)
 	}
-	dbMap.Delete(dbname)
 	dbMap.Store(dbname, orm)
 	if oldConn != nil {
 		db, _ := oldConn.(*mongo.Database)
