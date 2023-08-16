@@ -18,13 +18,13 @@ require (
 	github.com/k0kubun/go-ansi v0.0.0-20180517002512-3bf9e2903213
 	github.com/kr/pretty v0.3.0 // indirect
 	github.com/maxence-charriere/go-app/v8 v8.1.0
-	github.com/nacos-group/nacos-sdk-go v1.0.9
+	github.com/nacos-group/nacos-sdk-go/v2 v2.2.2
 	github.com/opentracing-contrib/go-gin v0.0.0-20201220185307-1dd2273433a4
 	github.com/opentracing/opentracing-go v1.2.0
 	github.com/openzipkin-contrib/zipkin-go-opentracing v0.4.5
 	github.com/openzipkin/zipkin-go v0.2.2
-	github.com/panjf2000/ants/v2 v2.8.0
-	github.com/prometheus/client_golang v1.11.1
+	github.com/panjf2000/ants/v2 v2.8.1
+	github.com/prometheus/client_golang v1.12.2
 	github.com/rakyll/statik v0.1.7
 	github.com/rogpeppe/go-internal v1.8.0 // indirect
 	github.com/schollz/progressbar/v3 v3.8.3
@@ -39,7 +39,7 @@ require (
 	github.com/zserge/lorca v0.1.10
 	go.mongodb.org/mongo-driver v1.11.4
 	go.opentelemetry.io/otel/trace v1.16.0
-	go.uber.org/zap v1.19.1
+	go.uber.org/zap v1.21.0
 	google.golang.org/genproto v0.0.0-20230110181048-76db0878b65f
 	google.golang.org/grpc v1.53.0
 	google.golang.org/protobuf v1.30.0
