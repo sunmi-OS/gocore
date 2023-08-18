@@ -74,7 +74,6 @@ func NewOrUpdateRedis(dbName string) error {
 	}
 
 	v, _ := Map.Load(dbName)
-	Map.Delete(dbName)
 	Map.Store(dbName, rc)
 
 	if v != nil {
