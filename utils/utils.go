@@ -124,13 +124,14 @@ func Either(list ...string) string {
 // GetAccesslogPath accesslog路径
 func GetAccesslogPath() string {
 	var path string
+	appName = GetAppName()
 	switch runtime.GOOS {
 	case "windows":
-		path = "./logs/access.log"
+		path = "./logs/" + appName + ".log"
 	case "darwin":
-		path = "./logs/access.log"
+		path = "./logs/" + appName + ".log"
 	default: // "linux", "freebsd", "openbsd", "netbsd"
-		path = "/data/logs/access.log"
+		path = "/data/logs/" + appName + ".log"
 	}
 	return path
 }
