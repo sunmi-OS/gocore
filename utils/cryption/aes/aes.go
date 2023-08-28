@@ -14,7 +14,7 @@ import (
 // Never panic, only possible to return an error
 func EncryptUseCBCWithDefaultProtocol(plainText, key []byte) ([]byte, error) {
 	iv := make([]byte, 16)
-	//random iv param
+	// random iv param
 	_, err := rand.Read(iv)
 	if err != nil {
 		return nil, err
@@ -24,7 +24,7 @@ func EncryptUseCBCWithDefaultProtocol(plainText, key []byte) ([]byte, error) {
 		return nil, err
 	}
 
-	//Put the iv parameter in the head of the cipher text
+	// Put the iv parameter in the head of the cipher text
 	result := append(iv, cipherText...)
 	return result, err
 }
@@ -62,7 +62,11 @@ func DecryptUseCBC(cipherText, key []byte, iv []byte) ([]byte, error) {
 	decryptTool := cipher.NewCBCDecrypter(blockKey, iv)
 	// CryptBlocks can work in-place if the two arguments are the same.
 	decryptTool.CryptBlocks(cipherText, cipherText)
-	return PKCS5UnPadding(cipherText), nil
+	origData, err := PKCS5UnPadding(cipherText)
+	if err != nil {
+		return nil, err
+	}
+	return origData, nil
 }
 
 // DecryptUseCBCWithDefaultProtocol Decrypt using given iv parameter and cbc mode
@@ -85,14 +89,14 @@ func getKey(key string) []byte {
 	}
 	arrKey := []byte(key)
 	if keyLen >= 32 {
-		//取前32个字节
+		// 取前32个字节
 		return arrKey[:32]
 	}
 	if keyLen >= 24 {
-		//取前24个字节
+		// 取前24个字节
 		return arrKey[:24]
 	}
-	//取前16个字节
+	// 取前16个字节
 	return arrKey[:16]
 }
 
@@ -106,11 +110,8 @@ func Base64UrlSafeEncode(source []byte) string {
 }
 
 func AesDecrypt(msg, k string) (string, error) {
-
 	key := getKey(k)
-
 	crypted, _ := base64.StdEncoding.DecodeString(msg)
-
 	block, err := aes.NewCipher([]byte(key))
 	if err != nil {
 		return "", err
@@ -118,8 +119,10 @@ func AesDecrypt(msg, k string) (string, error) {
 	blockMode := NewECBDecrypter(block)
 	origData := make([]byte, len(crypted))
 	blockMode.CryptBlocks(origData, crypted)
-	origData = PKCS5UnPadding(origData)
-	//fmt.Println("source is :", origData, string(origData))
+	origData, err = PKCS5UnPadding(origData)
+	if err != nil {
+		return "", err
+	}
 	return string(origData), nil
 }
 
@@ -149,11 +152,16 @@ func PKCS5Padding(ciphertext []byte, blockSize int) []byte {
 	return append(ciphertext, padtext...)
 }
 
-func PKCS5UnPadding(origData []byte) []byte {
+func PKCS5UnPadding(origData []byte) ([]byte, error) {
 	length := len(origData)
-	// 去掉最后一个字节 unpadding 次
+	if length == 0 {
+		return nil, errors.New("decryption failure")
+	}
 	unpadding := int(origData[length-1])
-	return origData[:(length - unpadding)]
+	if unpadding > length {
+		return nil, errors.New("decryption failure")
+	}
+	return origData[:(length - unpadding)], nil
 }
 
 type ecb struct {
@@ -222,7 +230,7 @@ func EncryptUseCTRNoPadding(plainText, key, iv []byte) ([]byte, error) {
 	// mode
 	blockMode := cipher.NewCTR(block, iv)
 	cipherText := make([]byte, len(fixedPlainText))
-	//do final
+	// do final
 	blockMode.XORKeyStream(cipherText, fixedPlainText)
 	return cipherText, nil
 }
