@@ -39,7 +39,7 @@ func RunApi(c *cli.Context) error {
 	gs := api.NewGinServer(
 	    api.WithServerDebug(isReleaseMode),
 	    api.WithServerHost(viper.C.GetString("network.ApiServiceHost")),
-	    api.WithServerHost(viper.C.GetString("network.ApiServicePort")),
+	    api.WithServerPort(viper.C.GetInt("network.ApiServicePort")),
     )
     // init route
     route.Routes(gs.Gin)

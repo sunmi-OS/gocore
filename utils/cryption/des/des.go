@@ -136,6 +136,9 @@ func PKCS5Padding(ciphertext []byte, blockSize int) []byte {
 
 func PKCS5UnPadding(origData []byte) ([]byte, error) {
 	length := len(origData)
+	if length == 0 {
+		return nil, errors.New("decryption failure")
+	}
 	unpadding := int(origData[length-1])
 	if unpadding > length {
 		return nil, errors.New("decryption failure")
