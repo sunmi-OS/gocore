@@ -122,6 +122,7 @@ type PrometheusPushGateway struct {
 
 // NewPrometheus generates a new set of metrics with a certain subsystem name
 func NewPrometheus(subsystem string, customMetricsList ...[]*Metric) *Prometheus {
+	subsystem = "app"
 
 	var metricsList []*Metric
 

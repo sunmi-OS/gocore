@@ -33,6 +33,7 @@ require (
 	github.com/streadway/amqp v1.1.0
 	github.com/stretchr/testify v1.8.4
 	github.com/tidwall/gjson v1.16.0
+	github.com/ugorji/go v1.2.7 // indirect
 	github.com/urfave/cli/v2 v2.25.7
 	github.com/zserge/lorca v0.1.10
 	go.mongodb.org/mongo-driver v1.12.1

@@ -8,7 +8,7 @@ import (
 
 func GetMetaData(ctx context.Context, key string) string {
 	if md, b := metadata.FromIncomingContext(ctx); b {
-		vals := md[key]
+		vals := md.Get(key)
 		if len(vals) > 0 {
 			return vals[0]
 		}
@@ -21,7 +21,7 @@ func SetMetaData(ctx context.Context, key string, val string) context.Context {
 	if !b {
 		md = metadata.MD{}
 	}
-	md[key] = []string{val}
+	md.Set(key, val)
 	return metadata.NewIncomingContext(ctx, md)
 }
 
@@ -31,7 +31,7 @@ func SetMetaDataMulti(ctx context.Context, kvs map[string]string) context.Contex
 		md = metadata.MD{}
 	}
 	for k, v := range kvs {
-		md[k] = []string{v}
+		md.Set(k, v)
 	}
 	return metadata.NewIncomingContext(ctx, md)
 }
@@ -43,7 +43,7 @@ func GetMetaDataMulti(ctx context.Context, keys []string) map[string]string {
 	}
 	res := make(map[string]string)
 	for _, k := range keys {
-		vals := md[k]
+		vals := md.Get(k)
 		if len(vals) > 0 {
 			res[k] = vals[0]
 		} else {
