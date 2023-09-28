@@ -31,13 +31,13 @@ func RunApi(c *cli.Context) error {
 	initDB()
 	initCache()
 
-    isReleaseMode := false
+    isDebugMode := true
 	if utils.IsRelease() {
-		isReleaseMode = true
+		isDebugMode = false
 	}
 
 	gs := api.NewGinServer(
-	    api.WithServerDebug(isReleaseMode),
+	    api.WithServerDebug(isDebugMode),
 	    api.WithServerHost(viper.C.GetString("network.ApiServiceHost")),
 	    api.WithServerPort(viper.C.GetInt("network.ApiServicePort")),
     )
