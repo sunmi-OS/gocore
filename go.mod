@@ -38,6 +38,7 @@ require (
 	github.com/zserge/lorca v0.1.10
 	go.mongodb.org/mongo-driver v1.12.1
 	go.opentelemetry.io/contrib/instrumentation/github.com/gin-gonic/gin/otelgin v0.44.0
+	go.opentelemetry.io/contrib/propagators/b3 v1.19.0
 	go.opentelemetry.io/otel v1.18.0
 	go.opentelemetry.io/otel/exporters/zipkin v1.18.0
 	go.opentelemetry.io/otel/sdk v1.18.0
