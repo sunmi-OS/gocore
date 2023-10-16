@@ -16,8 +16,8 @@ type Option func(o *Config)
 var defaultServerConfig = &Config{
 	host:         "",
 	port:         8080,
-	readTimeout:  60,
-	writeTimeout: 60,
+	readTimeout:  60 * time.Second,
+	writeTimeout: 60 * time.Second,
 	debug:        false,
 	openTrace:    true,
 }

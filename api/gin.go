@@ -48,20 +48,7 @@ func NewGinServer(ops ...Option) *GinEngine {
 	}
 
 	g := gin.New()
-	engine := &GinEngine{Gin: g,
-		addrPort: cfg.host + ":" + strconv.Itoa(cfg.port),
-		server: &http.Server{
-			Addr:         cfg.host + ":" + strconv.Itoa(cfg.port),
-			Handler:      g,
-			ReadTimeout:  cfg.readTimeout,
-			WriteTimeout: cfg.writeTimeout,
-		},
-		timeout:  cfg.readTimeout,
-		wg:       sync.WaitGroup{},
-		hookMaps: make(map[hookType][]func(c context.Context)),
-	}
-
-	g.Use(engine.logger(true), middleware.Recovery())
+	g.Use(logger(true), middleware.Recovery())
 	if cfg.openTrace {
 		// 引入链路追踪中间件
 		endPointUrl := os.Getenv("ZIPKIN_BASE_URL")
@@ -89,6 +76,19 @@ func NewGinServer(ops ...Option) *GinEngine {
 		pp.GET("/symbol", func(c *gin.Context) { pprof.Symbol(c.Writer, c.Request) })
 		pp.GET("/trace", func(c *gin.Context) { pprof.Trace(c.Writer, c.Request) })
 	}
+	engine := &GinEngine{
+		Gin:      g,
+		addrPort: cfg.host + ":" + strconv.Itoa(cfg.port),
+		server: &http.Server{
+			Addr:         cfg.host + ":" + strconv.Itoa(cfg.port),
+			Handler:      g.Handler(),
+			ReadTimeout:  cfg.readTimeout,
+			WriteTimeout: cfg.writeTimeout,
+		},
+		timeout:  cfg.readTimeout,
+		wg:       sync.WaitGroup{},
+		hookMaps: make(map[hookType][]func(c context.Context)),
+	}
 	return engine
 }
 
@@ -109,13 +109,13 @@ func (g *GinEngine) Start() {
 		}
 		log.Println("http: Server closed")
 	}
-	log.Println("wait for process finished")
+	log.Println("waiting for process finished")
 	// wait for process finished
 	g.wg.Wait()
 	log.Println("process exit")
 }
 
-// 添加 GinServer 服务关闭时的钩子函数
+// AddShutdownHook Add a hook function for when the GinServer service is shut down
 func (g *GinEngine) AddShutdownHook(hooks ...HookFunc) *GinEngine {
 	for _, fn := range hooks {
 		if fn != nil {
@@ -125,7 +125,7 @@ func (g *GinEngine) AddShutdownHook(hooks ...HookFunc) *GinEngine {
 	return g
 }
 
-// 添加 GinServer 进程退出时钩子函数
+// AddExitHook Add a hook function when the GinServer process exits
 func (g *GinEngine) AddExitHook(hooks ...HookFunc) *GinEngine {
 	for _, fn := range hooks {
 		if fn != nil {
@@ -135,7 +135,6 @@ func (g *GinEngine) AddExitHook(hooks ...HookFunc) *GinEngine {
 	return g
 }
 
-// 监听信号
 func (g *GinEngine) goNotifySignal() {
 	g.wg.Add(1)
 	ch := make(chan os.Signal, 1)
@@ -185,8 +184,7 @@ func (g *GinEngine) Close() {
 }
 
 // logger
-func (g *GinEngine) logger(ignoreRelease bool) gin.HandlerFunc {
-	g.IgnoreReleaseLog = ignoreRelease
+func logger(ignoreRelease bool) gin.HandlerFunc {
 	return func(c *gin.Context) {
 		// Start time
 		start := time.Now()
@@ -200,7 +198,7 @@ func (g *GinEngine) logger(ignoreRelease bool) gin.HandlerFunc {
 		}
 
 		// ignore logger output
-		if gin.Mode() == gin.ReleaseMode && g.IgnoreReleaseLog {
+		if gin.Mode() == gin.ReleaseMode && ignoreRelease {
 			return
 		}
 
