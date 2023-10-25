@@ -16,9 +16,10 @@ import (
 	"time"
 
 	"github.com/gin-gonic/gin"
+	"github.com/spf13/cast"
 	"github.com/sunmi-OS/gocore/v2/lib/middleware"
 	"github.com/sunmi-OS/gocore/v2/lib/prometheus"
-	zipkin_opentracing "github.com/sunmi-OS/gocore/v2/lib/tracing/gin/zipkin-opentracing"
+	tracing "github.com/sunmi-OS/gocore/v2/lib/tracing/gin/otel"
 	"github.com/sunmi-OS/gocore/v2/utils/closes"
 )
 
@@ -56,7 +57,12 @@ func NewGinServer(ops ...Option) *GinEngine {
 		if endPointUrl == "" || appName == "" {
 			panic("开启链路追踪需要配置环境变量 ZIPKIN_BASE_URL 和 APP_NAME")
 		}
-		g.Use(zipkin_opentracing.ZipKinOpentracing(appName, 1, endPointUrl))
+		traceSampleRatio := os.Getenv("TRACE_SAMPLE_RATIO")
+		sampleRatio := 1.0
+		if traceSampleRatio != "" {
+			sampleRatio = cast.ToFloat64(sampleRatio)
+		}
+		g.Use(tracing.ZipkinOtel(appName, endPointUrl, sampleRatio))
 	}
 	if !cfg.debug {
 		gin.SetMode(gin.ReleaseMode)
