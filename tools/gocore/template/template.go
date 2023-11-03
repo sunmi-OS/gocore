@@ -102,7 +102,7 @@ func createDockerfile(root string) {
 }
 
 func createGitignore(root string) {
-	FromGitingore(fileBuffer)
+	FromGitignore(fileBuffer)
 	fileForceWriter(fileBuffer, root+"/.gitignore")
 }
 

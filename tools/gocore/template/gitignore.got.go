@@ -4,7 +4,7 @@ package template
 
 import "bytes"
 
-func FromGitingore(buffer *bytes.Buffer) {
+func FromGitignore(buffer *bytes.Buffer) {
 	buffer.WriteString(`.idea
 nacos
 runtime

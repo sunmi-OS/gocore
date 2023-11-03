@@ -1,4 +1,4 @@
-<%: func FromGitingore(buffer *bytes.Buffer) %>
+<%: func FromGitignore(buffer *bytes.Buffer) %>
 .idea
 nacos
 runtime
