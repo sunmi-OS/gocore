@@ -1,0 +1,7 @@
+<%: func FromGitignore(buffer *bytes.Buffer) %>
+.idea
+nacos
+runtime
+main
+*.exe
+/nacos/

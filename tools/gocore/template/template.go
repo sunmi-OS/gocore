@@ -29,7 +29,7 @@ var goCoreConfig *conf.GoCore
 // 模板引擎生成语句 hero -source=./tools/gocore/template -extensions=.got,.md,.docker
 func CreateCode(root, sourceCodeRoot, name string, config *conf.GoCore) {
 	goCoreConfig = config
-	newProgress(11, "start preparing...")
+	newProgress(12, "start preparing...")
 	time.Sleep(time.Second)
 	progressNext("Initialize the directory structure...")
 	mkdir(sourceCodeRoot)
@@ -39,6 +39,8 @@ func CreateCode(root, sourceCodeRoot, name string, config *conf.GoCore) {
 	createMain(sourceCodeRoot, name)
 	progressNext("Initialize the Dockerfile file...")
 	createDockerfile(root)
+	progressNext("Initialize the .gitignore file...")
+	createGitignore(root)
 	progressNext("Initialize the Readme file...")
 	createReadme(root)
 	progressNext("Initialize the errcode folder...")
@@ -97,6 +99,11 @@ func createConf(root string, name string) {
 func createDockerfile(root string) {
 	FromDockerfile(fileBuffer)
 	fileForceWriter(fileBuffer, root+"/Dockerfile")
+}
+
+func createGitignore(root string) {
+	FromGitignore(fileBuffer)
+	fileForceWriter(fileBuffer, root+"/.gitignore")
 }
 
 func createReadme(root string) {
