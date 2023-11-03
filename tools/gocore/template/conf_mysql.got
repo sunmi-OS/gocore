@@ -5,3 +5,5 @@ Name = "<%== dbName %>"           #数据库名称
 User = ""           #数据库用户名
 Passwd = ""         #数据库密码
 Port = "3306"       #数据库端口号
+MaxIdleConns = 20
+MaxOpenConns = 20
