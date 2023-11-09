@@ -36,6 +36,7 @@ func init() {
 	cfg = zap.NewProductionConfig()
 	cfg.Level = zap.NewAtomicLevelAt(zap.DebugLevel)
 	cfg.EncoderConfig.EncodeTime = zapcore.ISO8601TimeEncoder
+	cfg.EncoderConfig.StacktraceKey = ""
 	cfg.EncoderConfig.MessageKey = "content"
 	l, err := cfg.Build(zap.AddCallerSkip(4))
 	if err != nil {
