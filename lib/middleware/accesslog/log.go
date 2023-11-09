@@ -4,6 +4,8 @@ import (
 	"bytes"
 	"encoding/json"
 	"io"
+	"net"
+	"strings"
 	"time"
 
 	"github.com/gin-gonic/gin"
@@ -61,7 +63,10 @@ func AccessLog() gin.HandlerFunc {
 			bytes.NewBuffer([]byte{}),
 		}
 		c.Writer = writer
-
+		_, clientPort, err := net.SplitHostPort(strings.TrimSpace(c.Request.RemoteAddr))
+		if err != nil {
+			clientPort = ""
+		}
 		defer func() {
 			var responseCode interface{}
 			var responseMsg interface{}
@@ -75,6 +80,7 @@ func AccessLog() gin.HandlerFunc {
 				zap.String("r_time", requestDate),
 				zap.Int64("cost", time.Since(start).Milliseconds()),
 				zap.String("c_ip", c.ClientIP()),
+				zap.String("c_port", clientPort),
 				zap.String("c_f_ip", c.GetHeader("x-forwarded-for")),
 				zap.String("schema", scheme),
 				zap.String("r_host", c.Request.Host),

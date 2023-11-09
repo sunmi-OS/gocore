@@ -4,6 +4,7 @@ import (
 	"context"
 	"fmt"
 	"net"
+	"strconv"
 	"strings"
 	"time"
 
@@ -33,11 +34,12 @@ func UnaryAccessLog() grpc.UnaryServerInterceptor {
 		defer func() {
 			md, _ := metadata.FromIncomingContext(ctx)
 			_, clientForwardedIp, _, host := extractFromMD(md)
-			clientIp := getPeerAddr(ctx)
+			clientIP, clientPort := getPeerAddr(ctx)
 			fields := []zapcore.Field{
 				zap.String("r_time", requestDate),
 				zap.Int64("cost", time.Since(start).Milliseconds()),
-				zap.String("c_ip", clientIp),
+				zap.String("c_ip", clientIP),
+				zap.String("c_port", clientPort),
 				zap.String("c_f_ip", clientForwardedIp),
 				zap.String("schema", "gRPC"),
 				zap.String("r_host", host),
@@ -75,11 +77,12 @@ func StreamAccessLog() grpc.StreamServerInterceptor {
 			md, _ := metadata.FromIncomingContext(ctx)
 			_, clientForwardedIp, _, host := extractFromMD(md)
 			fmt.Println(host)
-			clientIp := getPeerAddr(ctx)
+			clientIP, clientPort := getPeerAddr(ctx)
 			fields := []zapcore.Field{
 				zap.String("r_time", requestDate),
 				zap.Int64("cost", time.Since(start).Milliseconds()),
-				zap.String("c_ip", clientIp),
+				zap.String("c_ip", clientIP),
+				zap.String("c_port", clientPort),
 				zap.String("c_f_ip", clientForwardedIp),
 				zap.String("schema", "gRPC"),
 				zap.String("r_host", host),
@@ -123,16 +126,16 @@ func extractFromMD(md metadata.MD) (ua string, ip string, traceId, host string) 
 	return ua, ip, traceId, host
 }
 
-func getPeerAddr(ctx context.Context) string {
-	var addr string
+func getPeerAddr(ctx context.Context) (ip string, port string) {
 	if pr, ok := peer.FromContext(ctx); ok {
 		if tcpAddr, ok := pr.Addr.(*net.TCPAddr); ok {
-			addr = tcpAddr.IP.String()
+			ip = tcpAddr.IP.String()
+			port = strconv.Itoa(tcpAddr.Port)
 		} else {
-			addr = pr.Addr.String()
+			ip = pr.Addr.String()
 		}
 	}
-	return addr
+	return
 }
 
 // init zap
