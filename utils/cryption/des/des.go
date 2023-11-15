@@ -9,7 +9,6 @@ import (
 
 // EncryptCBC DES/CBC/PKCS5Padding   加密
 func EncryptCBC(msg string, key string, iv string) (string, error) {
-
 	origData := []byte(msg)
 	block, err := des.NewCipher([]byte(key))
 	if err != nil {
@@ -44,11 +43,9 @@ func DecryptCBC(msg string, key string, iv string) (string, error) {
 	return string(origData), nil
 }
 
-// EncryptECB DES/ECB/PKCS5Padding   加密
+// EncryptECB DES/ECB/PKCS5Padding
 func EncryptECB(msg string, key string) (string, error) {
-
 	origData := []byte(msg)
-
 	block, err := des.NewCipher([]byte(key))
 	if err != nil {
 		return "", err
@@ -56,7 +53,7 @@ func EncryptECB(msg string, key string) (string, error) {
 	bs := block.BlockSize()
 	origData = PKCS5Padding(origData, bs)
 	if len(origData)%bs != 0 {
-		return "", err
+		return "", errors.New("invalid key size")
 	}
 	crypted := make([]byte, len(origData))
 	dst := crypted
@@ -65,22 +62,19 @@ func EncryptECB(msg string, key string) (string, error) {
 		origData = origData[bs:]
 		dst = dst[bs:]
 	}
-
 	return string(crypted), nil
 }
 
-// DecryptECB DES/ECB/PKCS5Padding   解密
+// DecryptECB DES/ECB/PKCS5Padding
 func DecryptECB(msg string, key string) (string, error) {
-
 	crypted := []byte(msg)
-
 	block, err := des.NewCipher([]byte(key))
 	if err != nil {
 		return "", err
 	}
 	bs := block.BlockSize()
 	if len(crypted)%bs != 0 {
-		return "", err
+		return "", errors.New("invalid key size or data size")
 	}
 	origData := make([]byte, len(crypted))
 	dst := origData
