@@ -23,7 +23,6 @@ func EncryptUseCBCWithDefaultProtocol(plainText, key []byte) ([]byte, error) {
 	if err != nil {
 		return nil, err
 	}
-
 	// Put the iv parameter in the head of the cipher text
 	result := append(iv, cipherText...)
 	return result, err
@@ -127,22 +126,19 @@ func AesDecrypt(msg, k string) (string, error) {
 }
 
 func AesEncrypt(src, k string) (string, error) {
-
 	key := getKey(k)
-
 	block, err := aes.NewCipher([]byte(key))
 	if err != nil {
 		return "", err
 	}
 	if src == "" {
-		return "", errors.New("Encrypt Msg Is nul")
+		return "", errors.New("encrypt data is empty")
 	}
 	ecb := NewECBEncrypter(block)
 	content := []byte(src)
 	content = PKCS5Padding(content, block.BlockSize())
 	crypted := make([]byte, len(content))
 	ecb.CryptBlocks(crypted, content)
-
 	return base64.StdEncoding.EncodeToString(crypted), nil
 }
 

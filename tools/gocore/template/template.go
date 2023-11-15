@@ -336,8 +336,7 @@ func createApi(root, name string) {
 		fileForceWriter(fileBuffer, apiPath)
 	}
 	FromApiRoutes(name, routesStr, fileBuffer)
-	fileForceWriter(fileBuffer, root+"/route/routers.go")
-
+	fileForceWriter(fileBuffer, root+"/route/router.go")
 }
 
 // create rpc directory
