@@ -39,7 +39,7 @@ func AddShutdown(c ...ModuleClose) {
 // SignalClose 监听信号阻塞关闭
 func SignalClose() {
 	c := make(chan os.Signal, 1)
-	signal.Notify(c, syscall.SIGINT, syscall.SIGTERM, syscall.SIGQUIT, syscall.SIGTSTP)
+	signal.Notify(c, syscall.SIGINT, syscall.SIGTERM, syscall.SIGQUIT)
 	sig := <-c
 	fmt.Printf("Got %s signal. Aborting...\n", sig)
 	Close()
