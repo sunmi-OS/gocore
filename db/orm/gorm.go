@@ -1,6 +1,7 @@
 package orm
 
 import (
+	"errors"
 	"fmt"
 	"log"
 	"os"
@@ -24,7 +25,7 @@ type Client struct {
 var _Gorm *Client
 var closeOnce sync.Once
 
-// 初始化Gorm
+// NewDB initialize db session
 func NewDB(dbname string) (g *Client) {
 	err := NewOrUpdateDB(dbname)
 	if err != nil {
@@ -40,12 +41,11 @@ func NewDB(dbname string) (g *Client) {
 	return _Gorm
 }
 
-// SetDefaultName 设置默认DB Name
 func SetDefaultName(dbName string) {
 	_Gorm.defaultDbName = dbName
 }
 
-// NewOrUpdateDB 初始化或更新Gorm
+// NewOrUpdateDB initialize or update db session
 func NewOrUpdateDB(dbname string) error {
 	var (
 		orm *gorm.DB
@@ -65,7 +65,6 @@ func NewOrUpdateDB(dbname string) error {
 		}
 		return nil
 	}, 5, 3*time.Second)
-	// 如果NEW异常直接panic如果是Update返回error
 	if err != nil {
 		if oldGorm == nil {
 			panic(err)
@@ -112,16 +111,10 @@ func Close() {
 	})
 }
 
-// ----------------------------以下是私有方法--------------------------------
-
-// openORM 私有方法
+// openORM initialize db session
 func openORM(dbname string) (*gorm.DB, error) {
-	// 默认配置
+	// default setting
 	viper.C.SetDefault(dbname, map[string]interface{}{
-		"Host":         "127.0.0.1",
-		"Name":         "gocore",
-		"User":         "root",
-		"Passwd":       "",
 		"Port":         3306,
 		"MaxIdleConns": 20,
 		"MaxOpenConns": 20,
@@ -129,9 +122,21 @@ func openORM(dbname string) (*gorm.DB, error) {
 		"Debug":        false,
 	})
 	dbHost := viper.GetEnvConfig(dbname + ".Host").String()
+	if dbHost == "" {
+		return nil, errors.New(fmt.Sprintf("the Host in the %s database configuration file is empty", dbname))
+	}
 	dbName := viper.GetEnvConfig(dbname + ".Name").String()
+	if dbName == "" {
+		return nil, errors.New(fmt.Sprintf("the Name in the %s database configuration file is empty", dbname))
+	}
 	dbUser := viper.GetEnvConfig(dbname + ".User").String()
+	if dbUser == "" {
+		return nil, errors.New(fmt.Sprintf("the User in the %s database configuration file is empty", dbname))
+	}
 	dbPasswd := viper.GetEnvConfig(dbname + ".Passwd").String()
+	if dbPasswd == "" {
+		return nil, errors.New(fmt.Sprintf("the Passwd in the %s database configuration file is empty", dbname))
+	}
 	dbPort := viper.GetEnvConfig(dbname + ".Port").String()
 	dbType := viper.GetEnvConfig(dbname + ".Type").String()
 	dbDebug := viper.GetEnvConfig(dbname + ".Debug").Bool()
