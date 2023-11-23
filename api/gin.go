@@ -67,20 +67,26 @@ func NewGinServer(ops ...Option) *GinEngine {
 	if !cfg.debug {
 		gin.SetMode(gin.ReleaseMode)
 	}
-	// 引入 prometheus 中间件
+	// prometheus
 	prometheus.NewPrometheus("app").Use(g)
 	// default health check
 	g.GET("/health", func(c *gin.Context) {
 		c.String(http.StatusOK, "ok")
 	})
-	// default pprof
+	// pprof
 	pp := g.Group("/debug/pprof")
 	{
-		pp.GET("/index", func(c *gin.Context) { pprof.Index(c.Writer, c.Request) })
-		pp.GET("/cmdline", func(c *gin.Context) { pprof.Cmdline(c.Writer, c.Request) })
-		pp.GET("/profile", func(c *gin.Context) { pprof.Profile(c.Writer, c.Request) })
-		pp.GET("/symbol", func(c *gin.Context) { pprof.Symbol(c.Writer, c.Request) })
-		pp.GET("/trace", func(c *gin.Context) { pprof.Trace(c.Writer, c.Request) })
+		pp.GET("/", gin.WrapF(pprof.Index))
+		pp.GET("/cmdline", gin.WrapF(pprof.Cmdline))
+		pp.GET("/profile", gin.WrapF(pprof.Profile))
+		pp.GET("/symbol", gin.WrapF(pprof.Symbol))
+		pp.GET("/trace", gin.WrapF(pprof.Trace))
+		pp.GET("/allocs", gin.WrapH(pprof.Handler("allocs")))
+		pp.GET("/block", gin.WrapH(pprof.Handler("block")))
+		pp.GET("/goroutine", gin.WrapH(pprof.Handler("goroutine")))
+		pp.GET("/heap", gin.WrapH(pprof.Handler("heap")))
+		pp.GET("/mutex", gin.WrapH(pprof.Handler("mutex")))
+		pp.GET("/threadcreate", gin.WrapH(pprof.Handler("threadcreate")))
 	}
 	engine := &GinEngine{
 		Gin:      g,
@@ -152,19 +158,10 @@ func (g *GinEngine) goNotifySignal() {
 			log.Printf("get a signal %s, stop the process\n", si.String())
 			// close gin http server
 			g.Close()
-			ctx, cancelFunc := context.WithTimeout(context.Background(), g.timeout)
 			// call before close hooks
-			go func() {
-				if a := recover(); a != nil {
-					log.Printf("panic: %v\n", a)
-				}
-				for _, fn := range g.hookMaps[_HookShutdown] {
-					fn(ctx)
-				}
-			}()
-			// wait for program to finish processing
-			time.Sleep(g.timeout)
-			cancelFunc()
+			for _, fn := range g.hookMaps[_HookShutdown] {
+				fn(context.Background())
+			}
 			// call after close hooks
 			for _, fn := range g.hookMaps[_HookExit] {
 				fn(context.Background())
