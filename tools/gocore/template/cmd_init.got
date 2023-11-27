@@ -6,9 +6,11 @@ import (
 	"<%== name %>/conf"
 
 	"github.com/sunmi-OS/gocore/v2/conf/nacos"
+	"github.com/sunmi-OS/gocore/v2/conf/viper"
 	"github.com/sunmi-OS/gocore/v2/db/orm"
 	"github.com/sunmi-OS/gocore/v2/db/redis"
 	"github.com/sunmi-OS/gocore/v2/glog"
+	"github.com/sunmi-OS/gocore/v2/glog/zap"
 	"github.com/sunmi-OS/gocore/v2/utils"
 )
 
@@ -25,6 +27,10 @@ func initConf() {
 		vt.SetBaseConfig(conf.BaseConfig)
 		vt.SetDataIds(conf.ProjectName, "config" <% if len(goCoreConfig.Config.CMysql) > 0 {%>, "mysql" <% }%><% if len(goCoreConfig.Config.CRedis) > 0 {%>, "redis"<% } %><%if goCoreConfig.Config.CRocketMQConfig {%>, "rocketmq"<% } %>)
 		// 注册配置更新回调
+		vt.SetCallBackFunc(conf.ProjectName, "config", func(namespace, group, dataId, data string) {
+        	initLog()
+        })
+
 		<% if len(goCoreConfig.Config.CMysql) > 0 {%>
 		vt.SetCallBackFunc(conf.ProjectName, "mysql", func(namespace, group, dataId, data string) {
 			<%== dbUpdate %>
@@ -61,4 +67,9 @@ func initDB() {
 // initCache 初始化redis服务 （内部方法）
 func initCache() {
 	<%== initCache %>
+}
+
+// initLog init log
+func initLog() {
+	zap.SetLogLevel(viper.GetEnvConfig("base.logLevel").String())
 }
