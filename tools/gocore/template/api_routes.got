@@ -2,11 +2,9 @@
 package route
 
 import (
-	"github.com/gin-gonic/gin"
-	"net/http"
-	_ "net/http/pprof"
-
 	"<%== name %>/api"
+
+	"github.com/gin-gonic/gin"
 )
 
 func Routes(router *gin.Engine) {

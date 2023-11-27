@@ -21,6 +21,7 @@ var fileBuffer = new(bytes.Buffer)
 var localConf = `
 [base]
 debug = true
+logLevel = "info" #线上环境需要设置为 error
 `
 
 var goCoreConfig *conf.GoCore
