@@ -41,11 +41,7 @@ func GetRunTime() string {
 	if runTime != "" {
 		return runTime
 	}
-	runTime = os.Getenv("RUN_TIME")
-	if runTime == "" {
-		fmt.Println("No RUN_TIME Can't start")
-	}
-	return runTime
+	return os.Getenv("RUN_TIME")
 }
 
 func GetAppName() string {
