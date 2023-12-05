@@ -117,6 +117,10 @@ func AesDecrypt(msg, k string) (string, error) {
 	}
 	blockMode := NewECBDecrypter(block)
 	origData := make([]byte, len(crypted))
+	err = checkBlock(block, origData, crypted)
+	if err != nil {
+		return "", err
+	}
 	blockMode.CryptBlocks(origData, crypted)
 	origData, err = PKCS5UnPadding(origData)
 	if err != nil {
@@ -138,8 +142,22 @@ func AesEncrypt(src, k string) (string, error) {
 	content := []byte(src)
 	content = PKCS5Padding(content, block.BlockSize())
 	crypted := make([]byte, len(content))
+	err = checkBlock(block, crypted, content)
+	if err != nil {
+		return "", err
+	}
 	ecb.CryptBlocks(crypted, content)
 	return base64.StdEncoding.EncodeToString(crypted), nil
+}
+
+func checkBlock(b cipher.Block, dst, src []byte) error {
+	if len(src)%b.BlockSize() != 0 {
+		return errors.New("input data is incomplete")
+	}
+	if len(dst) < len(src) {
+		return errors.New("crypto/cipher: output smaller than input")
+	}
+	return nil
 }
 
 func PKCS5Padding(ciphertext []byte, blockSize int) []byte {
