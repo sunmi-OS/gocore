@@ -117,9 +117,13 @@ func Either(list ...string) string {
 	return ""
 }
 
-// GetAccesslogPath accesslog路径
+// GetAccesslogPath accesslog path
 func GetAccesslogPath() string {
 	var path string
+	path = os.Getenv("ACCESS_LOG_PATH")
+	if path != "" {
+		return path
+	}
 	appName = GetAppName()
 	switch runtime.GOOS {
 	case "windows":
