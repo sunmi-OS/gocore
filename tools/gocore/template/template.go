@@ -171,13 +171,16 @@ func createDal(root, name string) {
 		localConf += buff.String()
 
 		for _, v1 := range goCoreConfig.Config.CRedis {
-			for k2 := range v1.Index {
+			for k2, v2 := range v1.Index {
 				localConf += `
 [` + v1.Name + `]
 host = "" 
 port = ":6379"
 auth = ""
 prefix = ""
+
+[` + v1.Name + `.redisDB]
+` + k2 + ` = ` + cast.ToString(v2) + `
 `
 
 				baseConf += `[` + v1.Name + `.redisDB]
