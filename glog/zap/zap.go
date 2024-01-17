@@ -240,7 +240,7 @@ func (z *Zap) CommonLog(level logx.Level, ctx context.Context, keyvals ...interf
 	case logx.LevelError:
 		Sugar.Errorw(msg, kvs...)
 	case logx.LevelFatal:
-		Sugar.Fatalw(msg, kvs...)
+		Sugar.DPanicw(msg, kvs...)
 	}
 	return nil
 }
