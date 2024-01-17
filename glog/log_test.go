@@ -26,7 +26,7 @@ func TestLog(t *testing.T) {
 	ErrorF("s.dao.CreateOrder(%+v),err:%+v", s, errors.New("创建订单失败"))
 	ErrorW("key", "err value", "key3", "value3")
 	ErrorW("key", "err value", "key3")
-	//Fatal("zap fatal")
+	FatalW("key", "fatal", "key4")
 
 	fmt.Println("")
 
@@ -36,7 +36,7 @@ func TestLog(t *testing.T) {
 	Warn("zap warn")
 	Error("zap error")
 	ErrorW("zap", "error")
-	//Fatal("zap fatal")
+	FatalW("zap", "fatal")
 
 	fmt.Println("")
 
@@ -45,13 +45,15 @@ func TestLog(t *testing.T) {
 	Warn("zap warn")
 	Error("zap error")
 	ErrorW("zap", "error")
-	//Fatal("zap fatal")
+	FatalW("zap", "fatal")
 
-	//
 	ctx := context.Background()
 	InfoV(ctx, "key", "value")
 	InfoV(ctx, "key", "value", "key2", "value2", "key3")
 	InfoC(ctx, "format: %v", 12345)
 	InfoW("key", "value", "key2", "value2")
 	InfoW("key", "value", "key3")
+	FatalC(ctx, "key v1:%v v2:%v", "val1", "val2")
+	FatalV(ctx, "key", "value", "key1", "val1")
+
 }
