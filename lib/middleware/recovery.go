@@ -39,7 +39,7 @@ func Recovery() gin.HandlerFunc {
 				}{
 					Code: -1,
 					Data: nil,
-					Msg:  "gin panic",
+					Msg:  "server panic",
 				})
 				c.Abort()
 			}
