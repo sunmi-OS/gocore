@@ -39,6 +39,7 @@ func RunApi(c *cli.Context) error {
     initConf()
 	initDB()
 	initCache()
+	initLog()
 
     isDebugMode := true
 	if utils.IsRelease() {
