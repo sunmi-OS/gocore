@@ -6,7 +6,8 @@ import (
 
 	"go.opentelemetry.io/contrib/propagators/b3"
 	"go.opentelemetry.io/otel"
-	"go.opentelemetry.io/otel/exporters/zipkin"
+	// "go.opentelemetry.io/otel/exporters/zipkin"
+	"github.com/sunmi-OS/gocore/v2/lib/tracing/client/otel/exporter/zipkin"
 	"go.opentelemetry.io/otel/sdk/resource"
 	sdktrace "go.opentelemetry.io/otel/sdk/trace"
 	semconv "go.opentelemetry.io/otel/semconv/v1.17.0"
