@@ -4,7 +4,7 @@ import "bytes"
 
 func FromDockerfile(buffer *bytes.Buffer) {
 	buffer.WriteString(`
-FROM sunmi-docker-images-registry.cn-hangzhou.cr.aliyuncs.com/public/golang As builder
+FROM sunmi-docker-images-registry.cn-hangzhou.cr.aliyuncs.com/public/golang:1.18.10 As builder
 
 ENV GOPROXY https://goproxy.cn,direct
 ENV GO111MODULE on
@@ -21,7 +21,7 @@ ADD ./app/ .
 RUN ls
 RUN go build main.go
 
-FROM sunmi-docker-images-registry.cn-hangzhou.cr.aliyuncs.com/public/centos:7.8.2003
+FROM sunmi-docker-images-registry.cn-hangzhou.cr.aliyuncs.com/public/debian:stable-slim
 #run binary project
 WORKDIR /app
 COPY --from=builder /project/main .

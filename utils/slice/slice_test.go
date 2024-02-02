@@ -35,3 +35,49 @@ func TestIntersect(t *testing.T) {
 		assert.Equal(t, tt.s3, Intersect(tt.s1, tt.s2))
 	}
 }
+
+var compactTests = []struct {
+	name string
+	s    []int
+	want []int
+}{
+	{
+		"nil",
+		nil,
+		nil,
+	},
+	{
+		"one",
+		[]int{1},
+		[]int{1},
+	},
+	{
+		"sorted",
+		[]int{1, 2, 3},
+		[]int{1, 2, 3},
+	},
+	{
+		"1 item",
+		[]int{1, 1, 2},
+		[]int{1, 2},
+	},
+	{
+		"unsorted",
+		[]int{1, 2, 1},
+		[]int{1, 2, 1},
+	},
+	{
+		"many",
+		[]int{1, 2, 2, 3, 3, 4},
+		[]int{1, 2, 3, 4},
+	},
+}
+
+func TestCompact(t *testing.T) {
+	for _, test := range compactTests {
+		copy := Clone(test.s)
+		if got := Compact(copy); !Equal(got, test.want) {
+			t.Errorf("Compact(%v) = %v, want %v", test.s, got, test.want)
+		}
+	}
+}
