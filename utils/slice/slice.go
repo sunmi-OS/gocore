@@ -90,3 +90,43 @@ func Intersect[S ~[]E, E comparable](s1, s2 S) S {
 
 	return intersection
 }
+
+// Compact replaces consecutive runs of equal elements with a single copy.
+// This is like the uniq command found on Unix.
+// Compact modifies the contents of the slice s and returns the modified slice,
+// which may have a smaller length.
+// When Compact discards m elements in total, it might not modify the elements
+// s[len(s)-m:len(s)]. If those elements contain pointers you might consider
+// zeroing those elements so that objects they reference can be garbage collected.
+func Compact[S ~[]E, E comparable](s S) S {
+	if len(s) < 2 {
+		return s
+	}
+	i := 1
+	for k := 1; k < len(s); k++ {
+		if s[k] != s[k-1] {
+			if i != k {
+				s[i] = s[k]
+			}
+			i++
+		}
+	}
+	return s[:i]
+}
+
+// Equal reports whether two slices are equal: the same length and all
+// elements equal. If the lengths are different, Equal returns false.
+// Otherwise, the elements are compared in increasing index order, and the
+// comparison stops at the first unequal pair.
+// Floating point NaNs are not considered equal.
+func Equal[S ~[]E, E comparable](s1, s2 S) bool {
+	if len(s1) != len(s2) {
+		return false
+	}
+	for i := range s1 {
+		if s1[i] != s2[i] {
+			return false
+		}
+	}
+	return true
+}
