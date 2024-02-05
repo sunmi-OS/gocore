@@ -24,9 +24,18 @@ var (
 			Name:      "process_result",
 			Help:      "kafka pub/sub result",
 		}, []string{"topic", "command", "result"})
+	metricsDelay = prometheus.NewHistogramVec(
+		prometheus.HistogramOpts{
+			Namespace: namespace,
+			Subsystem: "delay",
+			Name:      "duration_ms",
+			Help:      "kafka client delay time(ms).",
+			Buckets:   []float64{10, 50, 200, 1000, 5000, 20000, 100000},
+		}, []string{"topic"})
 )
 
 func init() {
 	prometheus.MustRegister(metricReqDuration)
 	prometheus.MustRegister(metricsResult)
+	prometheus.MustRegister(metricsDelay)
 }

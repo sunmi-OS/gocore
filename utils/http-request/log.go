@@ -40,15 +40,15 @@ func (h *HttpClient) SetLog(log Log) *HttpClient {
 		reqBody = hideBody
 		respBody := hideBody
 		path := r.RawRequest.URL.Path
-		if !h.hideRespBodyLogsWithPath[path] {
-			respBody = string(resp.Body())
-		}
-		if !h.hideReqBodyLogsWithPath[path] {
-			reqBody = r.Body
-		}
 		sendBytes := r.RawRequest.ContentLength
 		recvBytes := resp.Size()
 		statusCode := resp.StatusCode()
+		if !h.hideRespBodyLogsWithPath[path] && recvBytes < maxShowBodySize {
+			respBody = string(resp.Body())
+		}
+		if !h.hideReqBodyLogsWithPath[path] && sendBytes < maxShowBodySize {
+			reqBody = r.Body
+		}
 
 		if !h.disableMetrics {
 			clientSendBytes.WithLabelValues(path).Add(mustPositive(sendBytes))

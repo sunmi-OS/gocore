@@ -100,7 +100,7 @@ func (w *Producer) Send(ctx context.Context, topic string, key string, value []b
 	result := "success"
 	if err != nil {
 		result = "fail"
-		glog.ErrorC(ctx, "Kafka WriteMessages unexpected error:%v", err)
+		glog.ErrorC(ctx, "Kafka WriteMessages unexpected error:%v topic:%v key:%s value:%s", err, topic, key, value)
 	}
 	metricsResult.WithLabelValues(topic, pub, result).Inc()
 	metricReqDuration.WithLabelValues(topic, pub).Observe(float64(time.Since(startTime).Milliseconds()))
@@ -113,7 +113,7 @@ func (w *Producer) SendBatch(ctx context.Context, msgs ...kafka.Message) error {
 	result := "success"
 	if err != nil {
 		result = "fail"
-		glog.ErrorC(ctx, "Kafka WriteMessages unexpected error:%v", err)
+		glog.ErrorC(ctx, "Kafka WriteMessages unexpected error:%v len(msgs)=%v", err, len(msgs))
 	}
 	cost := float64(time.Since(startTime).Milliseconds())
 	for _, msg := range msgs {
