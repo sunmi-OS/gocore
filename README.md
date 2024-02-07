@@ -1,45 +1,61 @@
+<div align="center">
+
 ![logo](https://file.cdn.sunmi.com/logo.png?x-oss-process=image/resize,h_200)
 
-介绍
+</div>
+
+Gocore Web Framework
 ---
+English | [中文](README_ZH_CN.md)
 
 [![Go Report Card](https://goreportcard.com/badge/github.com/sunmi-OS/gocore)](https://goreportcard.com/report/github.com/sunmi-OS/gocore)
 [![GoDoc](https://godoc.org/github.com/sunmi-OS/gocore/v2?status.svg)](https://pkg.go.dev/github.com/sunmi-OS/gocore/v2)
 [![Release](https://img.shields.io/github/v/release/sunmi-OS/gocore.svg?style=flat-square)](https://github.com/sunmi-OS/gocore/releases)
 
-gocore是一款高度集成的开发框架和脚手架，支持api、rpc、job、task等开发方式，并集成各类主流开源库和中间件融入最佳实践，简化研发流程、提高效率、统一规范。
+gocore is a highly integrated development framework and provides scaffolding for generating project structure, supports api, rpc, job and other development methods, and integrates various mainstream open source libraries into best practices, and ultimately realizes simplified processes, improved efficiency, and unified specifications.
 
 ![cli](https://file.cdn.sunmi.com/gocore_cli.svg)
 
-## 特性
+## Features
 
-- 底层基于主流框架gin、gorm、viper、zap等进行封装整合
-- 提供脚手架gocore工具快速初始化项目结构、接口参数路由、数据库模型（包含逆向生成status）
-- 支持多环境多套配置文件并且和nacos配置中心打通，支持热更新等特性
-- 提供签名、加密、文件、邮件、随机数、链路追踪、时间、日志等基础工具
-- 无侵入式理念让开发精力集中在业务层
-- 通过Docker、K8S、istio等体系下建立的研发流程环境管理策略
-- 封装常规阿里云中间件SLS、RocketMQ、nacos
-- 开箱即用
+- integrated widely-used libraries including gin, gorm, viper, zap, offering a robust and efficient foundation for low-level operations.
+- gocore scaffolding is designed to expedite project setup by automating the creation of API routes, parameter bindings, and database schemas.
+- support for multiple environment-specific configuration files and is compatible with the Nacos configuration center, enabling dynamic configuration loading and hot-swapping capabilities.
+- Integrated with a range of essential utilities, including signature, encryption, file processing, mail delivery, random number generation, tracing and logging.
+- adopt a non-intrusive design philosophy, enabling developers to concentrate on crafting business logic without the distraction of underlying system complexities.
+- integrated standard Alibaba Cloud middleware such as SLS, RocketMQ, and Nacos, simplifying the utilization of cloud services.
+- out-of-the-box, greatly simplifying the project startup and development workflow.
 
-## 安装
+## Getting started
 
-- 环境要求
-    - Golang > 1.16
-    - [Go module](https://github.com/golang/go/wiki/Modules)
+### Prerequisites
+
+- **[Go](https://go.dev/)** >= 1.18
+- **[Go module](https://github.com/golang/go/wiki/Modules)**
 
 
-### 获取项目包
+### Getting Gocore
 
-```shell
-> go get -u github.com/sunmi-OS/gocore/v2
+With [Go module](https://github.com/golang/go/wiki/Modules) support, simply add the following import
+
+```
+import "github.com/sunmi-OS/gocore/v2"
 ```
 
-* 脚手架安装
-```shell
-> go install github.com/sunmi-OS/gocore/v2/tools/gocore@latest
+to your code, and then `go [build|run|test]` will automatically fetch the necessary dependencies.
 
-> gocore --version
+Otherwise, run the following Go command to install the `gocore` package:
+
+```sh
+$ go get -u github.com/sunmi-OS/gocore/v2
+```
+
+### Getting Gocore scaffolding
+
+```sh
+$ go install github.com/sunmi-OS/gocore/v2/tools/gocore@latest
+
+$ gocore --version
 
    __ _    ___     ___    ___    _ __    ___
   / _` |  / _ \   / __|  / _ \  | '__|  / _ \
@@ -47,175 +63,147 @@ gocore是一款高度集成的开发框架和脚手架，支持api、rpc、job�
   \__, |  \___/   \___|  \___/  |_|     \___|
   |___/
 
-gocore version v1.0.0
+gocore version v2.0.1
 ```
 
+## Quick Start
 
-## 快速开始
+### Create project directory
 
-创建一个示例项目
-```shell
-# 创建工程文件夹
-> mkdir test
-> cd test
+```sh
+$ mkdir test
+$ cd test
+````
 
-# 创建yaml配置文件模板gocore.yaml
-> gocore yaml create 
-...
-Welcome to GoCore, Configuration file has been generated.
+### Create the gocore.yaml file to generate the project structure
 
-# 修改gocore.yaml模板之后,根据yaml文件创建工程项目
-> gocore service create 
-
-   __ _    ___     ___    ___    _ __    ___
-  / _` |  / _ \   / __|  / _ \  | '__|  / _ \
- | (_| | | (_) | | (__  | (_) | | |    |  __/
-  \__, |  \___/   \___|  \___/  |_|     \___|
-  |___/
-
-Run go mod init.
-[11/11] Initialize the Request return parameters... 100% [========================================]   
-Run go mod tidy .
-Run go fmt .
-goimports -l -w .
-Welcome to GoCore, the project has been initialized.
-
-# 下次迭代增加新的接口或数据表更新代码
-> gocore service create 
-
+```sh
+$ gocore yaml create 
 ```
 
-工程创建时导入已有数据库
-```shell
-# 创建工程文件夹
-> mkdir test 
-> cd test
+### Create the project structure after modifying the gocore.yaml file as required
 
-# 创建yaml配置文件模板gocore.yaml
-> gocore yaml create 
-
-# 创建连接数据库的配置文件模板mysql.yaml
-> gocore mysql create_yaml 
-
-# 修改mysql.yaml之后,连接数据库将字段合并到gocore.yaml
-> gocore mysql add 
-
-# 修改gocore.yaml模板之后,根据yaml文件创建工程项目
-> gocore service create 
+```sh
+$ gocore service create 
 ```
 
+## Configuration file description
 
-## 配置文件
 
 ```yaml
 service:
-  projectName: demo #项目名称
-  version: v1.0.0 #项目版本号
+  projectName: demo # Project name
+  version: v1.0.0 # Project version
 config:
-  cNacos: true #是否使用nacos
-  cRocketMQConfig: true #是否使用rocketMQ
-  cMysql: #mysql配置
-    - name: app #数据库名称
-      hotUpdate: false #是否热更新
-      models: #model文件
-        - name: user #表名称
-          auto: false #是否自动建表
-          fields: #表字段,gorm规则,一行一个自动
+  cNacos: true # Whether nacos is used
+  cRocketMQConfig: true # Whether rocketMQ is used
+  cMysql: # MySQL configuration
+    - name: app # Database name
+      hotUpdate: false # Hot update or not
+      models: # model file
+        - name: user # Table name
+          auto: false # Whether to automatically create the table
+          fields: # Table fields, gorm rules, one in a row
             - column:id;primary_key;type:int AUTO_INCREMENT
-            - column:name;type:varchar(100) NOT NULL;default:'';comment:'用户名';unique_index
-          comment: 用户表 #表备注
-  cRedis: #redis配置
-    - name: default #redis名称
-      hotUpdate: false #是否热更新
+            - column:name;type:varchar(100) NOT NULL;default:'';comment:'User name';unique_index
+          comment: User information table # Table remark
+  cRedis: # Redis configuration
+    - name: default # Redis name
+      hotUpdate: false # Hot update or not
       index:
-        db0: 0 #选择第几个db
-rpcEnable: false #是否生成rpc服务层
-httpApiEnable: true #是否生成接口程序
-jobEnable: true #是否生成常驻任务
+        db0: 0 # db index
+rpcEnable: false # Whether to generate the rpc service layer
+httpApiEnable: true # Whether to generate interface programs
+jobEnable: true # Whether to generate a resident task
 httpApis:
-  host: 0.0.0.0 #api接口监听ip地址
-  port: "80" #api接口监听ip端口
+  host: 0.0.0.0 # Listening ip address
+  port: "80" # Listening port
   apis:
-    - prefix: /app/user #api接口前缀
-      moduleName: user #模块名称
-      handle: #api接口
-        - name: GetUserInfo #api接口方法名称,完整路由是/app/user/GetUserInfo
+    - prefix: /app/user # API interface prefix
+      moduleName: user # Module name
+      handle: # API interface
+        - name: GetUserInfo # API handler name, full path is /app/user/GetUserInfo
           method: Any
-          requestParams: #api接口请求参数
-            - name: uid #字段名称
-              type: int #字段类型
-              comment: 用户ID #字段备注
-              validate: required,min=1,max=100000 #validate校验规则
-          responseParams: #api响应参数
-            - name: detail  #字段名称
-              type: '*User'  #字段类型,非基础字段类型,表示嵌套结构体,引用params中的结构体
-              comment: 用户详情 #字段备注
+          requestParams: # Request parameters
+            - name: uid # Field name
+              type: int # Field type
+              comment: UserID # Field remark
+              validate: required,min=1,max=100000 # Validate rules
+          responseParams: # Response parameters
+            - name: detail  # Field name
+              type: '*User'  # Field type
+              comment: User detail # Field remark
               validate: ""
             - name: list
               type: '[]*User'
-              comment: 用户列表
+              comment: User list
               validate: ""
-          comment: 获取用户信息
+          comment: Get user information
   params:
     User:
       - name: uid
         type: int
-        comment: 用户ID
+        comment: UserID
         validate: ""
       - name: name
         type: string
-        comment: 用户名
+        comment: Username
         validate: ""
 jobs:
-  - name: InitUser #一次性任务,常驻任务方法名称
-    comment: 初始化默认用户 #一次性任务,常驻任务备注
+  - name: InitUser # One-time task or resident task method names
+    comment: Initialize user information # One-time task and resident task remark
 ```
 
-## 生成的工程目录结构
-使用三层架构(http服务: api->biz->dal,rpc服务: rpc->biz->dal)：
+## Project structure
 
-- api(rpc) 接口表示层 Application Programming Interface
-  - 定义接口名称，校验入参，调用biz层方法处理业务逻辑并返回响应数据
-  - 只能调用biz层方法，禁止调用dal层方法
-- biz 业务逻辑层 Business Logic Layer
-  - 业务逻辑处理层，接收api层传入的参数结合调用dal层方法完成业务逻辑处理并返回必要数据
-  - 禁止调用api层方法
-- dal 数据访问层 Data Access Layer
-  - 负责对DB的访问，本层禁止相互的方法调用
-  - 禁止调用api和biz层方法
+Using the three-tier architecture (HTTP service: api->biz->dal, RPC service: rpc->biz->dal)：
+
+- api(rpc): Application Programming Interface
+  - Defines interface names, validates request parameters, invokes methods in the business logic layer (biz) to process business operations, and returns response data.
+  - Can only call methods in the business logic layer (biz), and is prohibited from calling methods in the data access layer (dal).
+- biz: Business Logic Layer
+  - The layer responsible for processing business logic, it receives parameters from the API layer, utilizes methods from the DAL layer to complete business logic processing, and returns the necessary data.
+  - Prohibited from calling methods in the API layer.
+- dal: Data Access Layer
+  - In charge of database access; inter-method calls within this layer are prohibited.
+  - Prohibited from calling methods from both the API and Biz layers.
 
 目录结构说明：
 ```
-├── app                  // 源代码
-│  ├── api               // 接口表示层，无http服务的话删除此文件夹
-│  ├── rpc               // rpc服务表示层，无rpc服务删除此文件夹
-│  ├── biz               // 业务逻辑层
-│  ├── dal               // 数据访问层
-│  ├── middleware        // 中间件
-│  ├── cmd               // 任务启动入口和定义各组件初始化方法
+├── app                  // Source code
+│  ├── api               // API layer, Delete this folder if no HTTP service
+│  ├── rpc               // RPC layer, Delete this folder if no RPC service
+│  ├── biz               // Business Logic Layer
+│  ├── dal               // Data Access Layer
+│  ├── middleware        // Middleware
+│  ├── cmd               // Task launch entry, defining the initialization methods for each component
 │  │  ├── api.go
 │  │  ├── init.go
 │  │  └── job.go
-│  ├── conf              // 配置文件
-│  │  ├── base.go        // 基本配置
-│  │  └── local.go       // 用于本地调试配置文件，本地环境变量需要设置RUN_TIME=local
-│  ├── errcode           // 错误和错误码定义
+│  ├── conf              // Configuration files
+│  │  ├── base.go        // Basic configuration
+│  │  └── local.go       // Configuration file for local debugging, the local environment variable needs to be set to RUN_TIME=local
+│  ├── errcode           // Define error code
 │  │  └── errcode.go
-│  ├── job               // 任务定义入口，定时任务、一次性任务、消费队列任务
-│  ├── param             // 入参和出参结构体定义
+│  ├── job               // Task definition entry, scheduled tasks, one-time tasks, consumer queue tasks
+│  ├── param             // Definition of request and response parameter structures.
 │  │  └── user.go
-│  ├── pkg               // 依赖包和三方包
-│  │  ├── locationtools  // 三方包封装示例
+│  ├── pkg               // Contains your dependencies
+│  │  ├── locationtools  
 │  │  │  └── country.go
-│  │  └── util           // 实现的常用方法
+│  │  └── util          
 │  │      └── util.go
-│  ├── route             // 路由定义
+│  ├── route             // The Routes Directory
 │  │   └── routers
 │  ├── go.mod
 │  ├── go.mod
-│  └── main.go           // 入口文件
+│  └── main.go           // main
 ├── .gitignore
-├── CODEOWNERS           // 用来定义谁负责仓库中的特定文件或目录
+├── CODEOWNERS       
 ├── Dockerfile
 └── README.md
 ```
+
+## Contributing
+
+Gocore is the work of hundreds of contributors. We appreciate your help!
