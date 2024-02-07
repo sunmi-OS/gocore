@@ -1,5 +1,5 @@
 <%: func FromDomainHandler(handlers []string, buffer *bytes.Buffer) %>
-package domain
+package biz
 <% for _, v1 := range handlers { %>
     var <%== v1%>Handler = &<%== v1%>{}
     type <%== v1%> struct{}

@@ -16,6 +16,7 @@ const (
 	XB3Flags        = "x-b3-flags"
 	B3              = "b3"
 	XOtSpanContext  = "x-ot-span-context"
+	XAppName        = "x-app-name"
 )
 
 type TraceHeader struct {

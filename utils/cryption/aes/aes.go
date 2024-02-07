@@ -14,7 +14,7 @@ import (
 // Never panic, only possible to return an error
 func EncryptUseCBCWithDefaultProtocol(plainText, key []byte) ([]byte, error) {
 	iv := make([]byte, 16)
-	//random iv param
+	// random iv param
 	_, err := rand.Read(iv)
 	if err != nil {
 		return nil, err
@@ -23,8 +23,7 @@ func EncryptUseCBCWithDefaultProtocol(plainText, key []byte) ([]byte, error) {
 	if err != nil {
 		return nil, err
 	}
-
-	//Put the iv parameter in the head of the cipher text
+	// Put the iv parameter in the head of the cipher text
 	result := append(iv, cipherText...)
 	return result, err
 }
@@ -42,6 +41,10 @@ func EncryptUseCBC(plainText, key, iv []byte) ([]byte, error) {
 	encryptTool := cipher.NewCBCEncrypter(blockKey, iv)
 	cipherText := make([]byte, len(fixedPlainText))
 	// do final
+	err = checkBlock(blockKey, cipherText, fixedPlainText)
+	if err != nil {
+		return nil, err
+	}
 	encryptTool.CryptBlocks(cipherText, fixedPlainText)
 	return cipherText, nil
 }
@@ -50,7 +53,7 @@ func EncryptUseCBC(plainText, key, iv []byte) ([]byte, error) {
 // There are two kinds of panic that may occur:
 // 1. When iv length do not equal block size
 // 2. When key does not match the cipher text, and it always happens when do unpadding
-func DecryptUseCBC(cipherText, key []byte, iv []byte) ([]byte, error) {
+func DecryptUseCBC(cipherText, key, iv []byte) ([]byte, error) {
 	blockKey, err := aes.NewCipher(key)
 	if err != nil {
 		return nil, err
@@ -61,8 +64,16 @@ func DecryptUseCBC(cipherText, key []byte, iv []byte) ([]byte, error) {
 	}
 	decryptTool := cipher.NewCBCDecrypter(blockKey, iv)
 	// CryptBlocks can work in-place if the two arguments are the same.
+	err = checkBlock(blockKey, cipherText, cipherText)
+	if err != nil {
+		return nil, err
+	}
 	decryptTool.CryptBlocks(cipherText, cipherText)
-	return PKCS5UnPadding(cipherText), nil
+	origData, err := PKCS5UnPadding(cipherText)
+	if err != nil {
+		return nil, err
+	}
+	return origData, nil
 }
 
 // DecryptUseCBCWithDefaultProtocol Decrypt using given iv parameter and cbc mode
@@ -78,22 +89,22 @@ func DecryptUseCBCWithDefaultProtocol(cipherText, key []byte) ([]byte, error) {
 	return plainText, nil
 }
 
-func getKey(key string) []byte {
+func getKey(key string) ([]byte, error) {
 	keyLen := len(key)
 	if keyLen < 16 {
-		panic("res key 长度不能小于16")
+		return nil, errors.New("the key cannot be less than 16 characters")
 	}
 	arrKey := []byte(key)
 	if keyLen >= 32 {
-		//取前32个字节
-		return arrKey[:32]
+		// 取前32个字节
+		return arrKey[:32], nil
 	}
 	if keyLen >= 24 {
-		//取前24个字节
-		return arrKey[:24]
+		// 取前24个字节
+		return arrKey[:24], nil
 	}
-	//取前16个字节
-	return arrKey[:16]
+	// 取前16个字节
+	return arrKey[:16], nil
 }
 
 // Base64UrlSafeEncode Base64 Url Safe is the same as Base64 but does not contain '/' and '+' (replaced by '_' and '-') and trailing '=' are removed.
@@ -105,42 +116,71 @@ func Base64UrlSafeEncode(source []byte) string {
 	return safeUrl
 }
 
-func AesDecrypt(msg, k string) (string, error) {
-
-	key := getKey(k)
-
+// AesDecrypt decrypt/ecb
+// The key argument should be the AES key,
+// either 16, 24, or 32 bytes to select
+// AES-128, AES-192, or AES-256.
+func AesDecrypt(msg, key string) (string, error) {
+	k, err := getKey(key)
+	if err != nil {
+		return "", err
+	}
 	crypted, _ := base64.StdEncoding.DecodeString(msg)
-
-	block, err := aes.NewCipher([]byte(key))
+	block, err := aes.NewCipher([]byte(k))
 	if err != nil {
 		return "", err
 	}
 	blockMode := NewECBDecrypter(block)
 	origData := make([]byte, len(crypted))
+	// pre-verification to prevent panic
+	err = checkBlock(block, origData, crypted)
+	if err != nil {
+		return "", err
+	}
 	blockMode.CryptBlocks(origData, crypted)
-	origData = PKCS5UnPadding(origData)
-	//fmt.Println("source is :", origData, string(origData))
+	origData, err = PKCS5UnPadding(origData)
+	if err != nil {
+		return "", err
+	}
 	return string(origData), nil
 }
 
-func AesEncrypt(src, k string) (string, error) {
-
-	key := getKey(k)
-
-	block, err := aes.NewCipher([]byte(key))
+// AesEncrypt encrypt/ecb
+// The key argument should be the AES key,
+// either 16, 24, or 32 bytes to select
+// AES-128, AES-192, or AES-256.
+func AesEncrypt(src, key string) (string, error) {
+	k, err := getKey(key)
+	if err != nil {
+		return "", err
+	}
+	block, err := aes.NewCipher([]byte(k))
 	if err != nil {
 		return "", err
 	}
 	if src == "" {
-		return "", errors.New("Encrypt Msg Is nul")
+		return "", errors.New("encrypt data is empty")
 	}
 	ecb := NewECBEncrypter(block)
 	content := []byte(src)
 	content = PKCS5Padding(content, block.BlockSize())
 	crypted := make([]byte, len(content))
+	err = checkBlock(block, crypted, content)
+	if err != nil {
+		return "", err
+	}
 	ecb.CryptBlocks(crypted, content)
-
 	return base64.StdEncoding.EncodeToString(crypted), nil
+}
+
+func checkBlock(b cipher.Block, dst, src []byte) error {
+	if len(src)%b.BlockSize() != 0 {
+		return errors.New("input not full blocks")
+	}
+	if len(dst) < len(src) {
+		return errors.New("output smaller than input")
+	}
+	return nil
 }
 
 func PKCS5Padding(ciphertext []byte, blockSize int) []byte {
@@ -149,11 +189,16 @@ func PKCS5Padding(ciphertext []byte, blockSize int) []byte {
 	return append(ciphertext, padtext...)
 }
 
-func PKCS5UnPadding(origData []byte) []byte {
+func PKCS5UnPadding(origData []byte) ([]byte, error) {
 	length := len(origData)
-	// 去掉最后一个字节 unpadding 次
+	if length == 0 {
+		return nil, errors.New("decryption failure")
+	}
 	unpadding := int(origData[length-1])
-	return origData[:(length - unpadding)]
+	if unpadding > length {
+		return nil, errors.New("decryption failure")
+	}
+	return origData[:(length - unpadding)], nil
 }
 
 type ecb struct {
@@ -177,6 +222,7 @@ func NewECBEncrypter(b cipher.Block) cipher.BlockMode {
 }
 func (x *ecbEncrypter) BlockSize() int { return x.blockSize }
 func (x *ecbEncrypter) CryptBlocks(dst, src []byte) {
+	// the check has been prepended and does not trigger panic here
 	if len(src)%x.blockSize != 0 {
 		panic("crypto/cipher: input not full blocks")
 	}
@@ -199,6 +245,7 @@ func NewECBDecrypter(b cipher.Block) cipher.BlockMode {
 }
 func (x *ecbDecrypter) BlockSize() int { return x.blockSize }
 func (x *ecbDecrypter) CryptBlocks(dst, src []byte) {
+	// the check has been prepended and does not trigger panic here
 	if len(src)%x.blockSize != 0 {
 		panic("crypto/cipher: input not full blocks")
 	}
@@ -222,7 +269,7 @@ func EncryptUseCTRNoPadding(plainText, key, iv []byte) ([]byte, error) {
 	// mode
 	blockMode := cipher.NewCTR(block, iv)
 	cipherText := make([]byte, len(fixedPlainText))
-	//do final
+	// do final
 	blockMode.XORKeyStream(cipherText, fixedPlainText)
 	return cipherText, nil
 }

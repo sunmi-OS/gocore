@@ -8,9 +8,11 @@ import (
 
 // NewConsumer 初始化消费者
 func NewConsumer(configName, groupID string, option ...consumer.Option) rocketmq.PushConsumer {
-
 	conf := initConfig(configName)
-
+	access := primitive.Cloud
+	if conf.IsLocal {
+		access = primitive.Local
+	}
 	consumerOption := []consumer.Option{
 		consumer.WithGroupName(groupID),
 		consumer.WithNsResolver(primitive.NewPassthroughResolver([]string{conf.NameServer})),
@@ -22,7 +24,7 @@ func NewConsumer(configName, groupID string, option ...consumer.Option) rocketmq
 		consumer.WithNamespace(conf.Namespace),
 		consumer.WithTrace(&primitive.TraceConfig{
 			GroupName:   groupID,
-			Access:      primitive.Cloud,
+			Access:      access,
 			Resolver:    primitive.NewPassthroughResolver(primitive.NamesrvAddr{conf.NameServer}),
 			Credentials: primitive.Credentials{AccessKey: conf.AccessKey, SecretKey: conf.SecretKey},
 		}),
@@ -35,11 +37,6 @@ func NewConsumer(configName, groupID string, option ...consumer.Option) rocketmq
 
 	conn, err := rocketmq.NewPushConsumer(consumerOption...)
 
-	if err != nil {
-		panic(err)
-	}
-
-	err = conn.Start()
 	if err != nil {
 		panic(err)
 	}

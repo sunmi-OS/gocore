@@ -1,10 +1,12 @@
 package zap
 
 import (
+	"context"
 	"log"
 	"os"
 	"path/filepath"
 	"strings"
+	"sync"
 	"time"
 
 	"github.com/sunmi-OS/gocore/v2/conf/viper"
@@ -19,12 +21,14 @@ const (
 	LogLevelDebug = "debug"
 	LogLevelWarn  = "warn"
 	LogLevelError = "error"
+	LogLevelFatal = "fatal"
 )
 
 var (
 	Sugar   *zap.SugaredLogger
 	logfile *os.File
 	cfg     zap.Config
+	once    sync.Once
 )
 
 func init() {
@@ -32,7 +36,9 @@ func init() {
 	cfg = zap.NewProductionConfig()
 	cfg.Level = zap.NewAtomicLevelAt(zap.DebugLevel)
 	cfg.EncoderConfig.EncodeTime = zapcore.ISO8601TimeEncoder
-	l, err := cfg.Build(zap.AddCallerSkip(1))
+	cfg.EncoderConfig.StacktraceKey = ""
+	cfg.EncoderConfig.MessageKey = "content"
+	l, err := cfg.Build(zap.AddCallerSkip(4))
 	if err != nil {
 		log.Printf("l.initZap(),err:%+v", err)
 		return
@@ -50,11 +56,13 @@ func SetLogLevel(logLevel string) {
 		cfg.Level = zap.NewAtomicLevelAt(zap.WarnLevel)
 	case LogLevelError:
 		cfg.Level = zap.NewAtomicLevelAt(zap.ErrorLevel)
+	case LogLevelFatal:
+		cfg.Level = zap.NewAtomicLevelAt(zap.FatalLevel)
 	default:
 		cfg.Level = zap.NewAtomicLevelAt(zap.DebugLevel)
 	}
 
-	Logger, err := cfg.Build(zap.AddCallerSkip(1))
+	Logger, err := cfg.Build(zap.AddCallerSkip(4))
 	if err != nil {
 		log.Printf("l.initZap(),err:%+v.\n", err)
 		return
@@ -88,7 +96,9 @@ func InitFileLog(logPath ...string) {
 	cfg.OutputPaths = []string{filename, "stdout"}
 	cfg.ErrorOutputPaths = []string{filename, "stderr"}
 	SetLogLevel(viper.GetEnvConfig("log.level").String())
-	go updateLogFile(path)
+	once.Do(func() {
+		go updateLogFile(path)
+	})
 }
 
 // updateLogFile 检测是否跨天了,把记录记录到新的文件目录中
@@ -106,7 +116,7 @@ func updateLogFile(logPath string) {
 		next = time.Date(next.Year(), next.Month(), next.Day(), 0, 0, 0, 0, next.Location())
 		t := time.NewTimer(next.Sub(now))
 		<-t.C
-		//以下为定时执行的操作
+		// 以下为定时执行的操作
 		logfile.Close()
 		go deleteLog(logPath, saveDays)
 		filename := logPath + time.Now().Format("2006-01-02") + ".log"
@@ -161,12 +171,20 @@ func (*Zap) InfoF(format string, args ...interface{}) {
 	Sugar.Infof(format, args...)
 }
 
+func (*Zap) InfoW(keysAndValues ...interface{}) {
+	Sugar.Infow("", keysAndValues...)
+}
+
 func (*Zap) Debug(args ...interface{}) {
 	Sugar.Debug(args...)
 }
 
 func (*Zap) DebugF(format string, args ...interface{}) {
 	Sugar.Debugf(format, args...)
+}
+
+func (*Zap) DebugW(keysAndValues ...interface{}) {
+	Sugar.Debugw("", keysAndValues...)
 }
 
 func (*Zap) Warn(args ...interface{}) {
@@ -177,10 +195,52 @@ func (*Zap) WarnF(format string, args ...interface{}) {
 	Sugar.Warnf(format, args...)
 }
 
+func (*Zap) WarnW(keysAndValues ...interface{}) {
+	Sugar.Warnw("", keysAndValues...)
+}
+
 func (*Zap) Error(args ...interface{}) {
 	Sugar.Error(args...)
 }
 
 func (*Zap) ErrorF(format string, args ...interface{}) {
 	Sugar.Errorf(format, args...)
+}
+
+func (*Zap) Fatal(args ...interface{}) {
+	Sugar.Error(args...)
+}
+
+func (*Zap) FatalF(format string, args ...interface{}) {
+	Sugar.Errorf(format, args...)
+}
+
+func (z *Zap) CommonLog(level logx.Level, ctx context.Context, keyvals ...interface{}) error {
+	if len(keyvals) == 0 {
+		return nil
+	}
+	prefixes := logx.ExtractCtx(ctx, logx.LogTypeZap)
+	kvs := make([]interface{}, 0, len(prefixes)+len(keyvals))
+	kvs = append(kvs, prefixes...)
+
+	msg := ""
+	if len(keyvals) == 1 {
+		msg = keyvals[0].(string)
+	} else {
+		kvs = append(kvs, keyvals...)
+	}
+
+	switch level {
+	case logx.LevelDebug:
+		Sugar.Debugw(msg, kvs...)
+	case logx.LevelInfo:
+		Sugar.Infow(msg, kvs...)
+	case logx.LevelWarn:
+		Sugar.Warnw(msg, kvs...)
+	case logx.LevelError:
+		Sugar.Errorw(msg, kvs...)
+	case logx.LevelFatal:
+		Sugar.DPanicw(msg, kvs...)
+	}
+	return nil
 }

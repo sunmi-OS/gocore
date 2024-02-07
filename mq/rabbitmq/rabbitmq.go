@@ -13,7 +13,6 @@ var ch *amqp.Channel
 
 // connRabbitmq 连接rabbitmq
 func connRabbitmq() error {
-
 	host := viper.GetEnvConfig("rabbitmq.host").String()
 	port := viper.GetEnvConfig("rabbitmq.port").String()
 	vhost := viper.GetEnvConfig("rabbitmq.vhost").String()
@@ -35,21 +34,27 @@ func connRabbitmq() error {
 	return err
 }
 
+// Connect 初始化连接rabbitmq
+func Connect() {
+	err := connRabbitmq()
+	if err != nil {
+		panic(err)
+	}
+}
+
 // UpdateRabbitmq 配置发生变动后调用更新实例
 func UpdateRabbitmq() error {
-
-	r1 := ch
+	r := ch
 	err := connRabbitmq()
-
 	if err != nil {
 		return err
-	} else {
-		err := r1.Close()
+	}
+	if r != nil {
+		err = r.Close()
 		if err != nil {
 			return err
 		}
 	}
-
 	return nil
 }
 

@@ -22,7 +22,8 @@ var closeHandler closes
 const (
 	MQPriority     = 100
 	GormPriority   = 500
-	RedisPriority  = 500
+	MongoPriority  = 501
+	RedisPriority  = 510
 	AliLogPriority = 2000
 )
 
@@ -38,7 +39,7 @@ func AddShutdown(c ...ModuleClose) {
 // SignalClose 监听信号阻塞关闭
 func SignalClose() {
 	c := make(chan os.Signal, 1)
-	signal.Notify(c, syscall.SIGINT, syscall.SIGTERM, syscall.SIGQUIT, syscall.SIGTSTP)
+	signal.Notify(c, syscall.SIGINT, syscall.SIGTERM, syscall.SIGQUIT)
 	sig := <-c
 	fmt.Printf("Got %s signal. Aborting...\n", sig)
 	Close()
@@ -53,5 +54,4 @@ func Close() {
 			f.Func()
 		}
 	}
-	os.Exit(0)
 }

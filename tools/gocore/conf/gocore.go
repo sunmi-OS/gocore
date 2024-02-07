@@ -1,20 +1,18 @@
 package conf
 
 import (
+	"os"
 	"strings"
-
-	"github.com/sunmi-OS/gocore/v2/utils/file"
 )
 
 type GoCore struct {
-	Service       Service   `yaml:"service"`
-	Config        Config    `yaml:"config"`
-	HttpApiEnable bool      `yaml:"httpApiEnable"` // 是否开启HttpApi
-	CronJobEnable bool      `yaml:"cronJobEnable"` // 是否开启 CronJob 默认不开启
-	JobEnable     bool      `yaml:"jobEnable"`     // 是否开启 Job 任务
-	HttpApis      HttpApi   `yaml:"httpApis"`
-	CronJobs      []CronJob `yaml:"cronJobs"`
-	Jobs          []Job     `yaml:"jobs"`
+	Service       Service `yaml:"service"`
+	Config        Config  `yaml:"config"`
+	HttpApiEnable bool    `yaml:"httpApiEnable"` // 是否开启HttpApi，开启后生成接口表示层
+	RPCEnable     bool    `yaml:"rpcEnable"`     // 是否开启 rpc server,开启后生成rpc服务器表示层
+	JobEnable     bool    `yaml:"jobEnable"`     // 是否开启 Job 任务
+	HttpApis      HttpApi `yaml:"httpApis"`
+	Jobs          []Job   `yaml:"jobs"`
 }
 
 type Service struct {
@@ -52,11 +50,6 @@ type Param struct {
 	Validate string `yaml:"validate"`
 }
 
-type CronJob struct {
-	Spec string `yaml:"spec"` // 定时规则
-	Job  Job    `yaml:"job"`
-}
-
 type Job struct {
 	Name    string `yaml:"name"` // 任务名称
 	Comment string `yaml:"comment"`
@@ -89,10 +82,13 @@ type Redis struct {
 }
 
 func GetGocoreConfig() *GoCore {
-
 	projectName := "demo"
 	// 获取当前目录名称
-	path := file.GetPath()
+	pwd, err := os.Getwd()
+	if err != nil {
+		panic("failed to get the rooted path name corresponding to the current directory")
+	}
+	path := strings.Replace(pwd, "\\", "/", -1)
 	arr := strings.Split(path, "/")
 	if len(arr) > 1 {
 		projectName = arr[len(arr)-1]
@@ -107,7 +103,7 @@ func GetGocoreConfig() *GoCore {
 			CRocketMQConfig: true,
 			CMysql: []Mysql{
 				{
-					Name: "app",
+					Name: "demo",
 					Models: []Model{
 						{
 							Name: "user",
@@ -123,73 +119,64 @@ func GetGocoreConfig() *GoCore {
 			},
 			CRedis: []Redis{
 				{
-					Name: "default",
+					Name: "demo",
 					Index: map[string]int{
 						"db0": 0,
 					},
 				},
 			},
 		},
+		RPCEnable:     false,
 		HttpApiEnable: true,
-		CronJobEnable: true,
 		JobEnable:     true,
 		HttpApis: HttpApi{
 			Host: "0.0.0.0",
 			Port: "80",
-			Params: map[string][]Param{
-				"User": {
-					{
-						Name:    "uid",
-						Type:    "int",
-						Comment: "用户ID",
-					},
-					{
-						Name:    "name",
-						Type:    "string",
-						Comment: "用户名",
-					},
-				},
-			},
+			//Params: map[string][]Param{
+			//	"User": {
+			//		{
+			//			Name:    "id",
+			//			Type:    "int64",
+			//			Comment: "用户ID",
+			//		},
+			//		{
+			//			Name:    "name",
+			//			Type:    "string",
+			//			Comment: "用户名",
+			//		},
+			//	},
+			//},
 			Apis: []Api{
 				{
 					ModuleName: "user",
 					Prefix:     "/app/user",
 					Handle: []Handle{
 						{
-							Name:    "GetUserInfo",
+							Name:    "getUserInfo",
 							Method:  "POST",
 							Comment: "获取用户信息",
 							RequestParams: []Param{
 								{
-									Name:     "uid",
-									Type:     "int",
+									Name:     "id",
+									Type:     "int64",
 									Comment:  "用户ID",
 									Validate: "required,min=1,max=100000",
 								},
 							},
 							ResponseParams: []Param{
 								{
-									Name:    "detail",
-									Type:    "*User",
-									Comment: "用户详情",
+									Name:    "id",
+									Type:    "int64",
+									Comment: "用户ID",
 								},
 								{
-									Name:    "list",
-									Type:    "[]*User",
-									Comment: "用户列表",
+									Name:    "name",
+									Type:    "string",
+									Comment: "用户名",
 								},
 							},
 						},
 					},
-				},
-			},
-		},
-		CronJobs: []CronJob{
-			{
-				Spec: "@every 30m",
-				Job: Job{
-					Name:    "SyncUser",
-					Comment: "同步用户",
 				},
 			},
 		},

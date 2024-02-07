@@ -6,18 +6,20 @@ import (
 	"sync"
 	"time"
 
-	"github.com/eclipse/paho.mqtt.golang"
+	mqtt "github.com/eclipse/paho.mqtt.golang"
 	"github.com/google/uuid"
 	"github.com/sunmi-OS/gocore/v2/glog"
 	"github.com/sunmi-OS/gocore/v2/utils"
 )
+
+const Sep = "@"
 
 type Client struct {
 	c        *Config
 	mu       sync.Mutex
 	Ops      *mqtt.ClientOptions
 	Mqtt     mqtt.Client
-	SubFuncs map[string]mqtt.MessageHandler // key:topic#qos, value: callback func
+	SubFuncs map[string]mqtt.MessageHandler // key:topic@qos, value: callback func
 }
 
 // New 1、New()
@@ -141,7 +143,7 @@ func (c *Client) Publish(topic string, qos QosType, payload interface{}) error {
 }
 
 func subCallbackKey(topic string, qos QosType) string {
-	return fmt.Sprintf("%s#%v", topic, qos)
+	return fmt.Sprintf("%s%s%v", topic, Sep, qos)
 }
 
 func (c *Client) DefaultOnConnectFunc(cli mqtt.Client) {
@@ -152,7 +154,7 @@ func (c *Client) DefaultOnConnectFunc(cli mqtt.Client) {
 	for key, handler := range c.SubFuncs {
 		// 协程
 		go func(k string, cb mqtt.MessageHandler) {
-			split := strings.Split(k, "#")
+			split := strings.Split(k, Sep)
 			if len(split) == 2 {
 				var qos QosType
 				switch split[1] {
