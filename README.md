@@ -168,7 +168,8 @@ Using the three-tier architecture (HTTP service: api->biz->dal, RPC service: rpc
   - In charge of database access; inter-method calls within this layer are prohibited.
   - Prohibited from calling methods from both the API and Biz layers.
 
-目录结构说明：
+Directory structure：
+
 ```
 ├── app                  // Source code
 │  ├── api               // API layer, Delete this folder if no HTTP service
