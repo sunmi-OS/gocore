@@ -47,7 +47,7 @@ import (
 )
 
 // 如果需要追踪 biz 层链路，需要传递 context
-func (m *User) Login(ctx context.Context, username, password string) (token string, err error) {{
+func (m *User) Login(ctx context.Context, username, password string) (token string, err error) {
 	//...
 	
 }
