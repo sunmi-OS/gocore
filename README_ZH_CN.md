@@ -178,14 +178,14 @@ jobs:
 使用三层架构(http服务: api->biz->dal,rpc服务: rpc->biz->dal)：
 
 - api(rpc) 接口表示层 Application Programming Interface
-  - 定义接口名称，校验入参，调用biz层方法处理业务逻辑并返回响应数据
-  - 只能调用biz层方法，禁止调用dal层方法
+    - 定义接口名称，校验入参，调用biz层方法处理业务逻辑并返回响应数据
+    - 只能调用biz层方法，禁止调用dal层方法
 - biz 业务逻辑层 Business Logic Layer
-  - 业务逻辑处理层，接收api层传入的参数结合调用dal层方法完成业务逻辑处理并返回必要数据
-  - 禁止调用api层方法
+    - 业务逻辑处理层，接收api层传入的参数结合调用dal层方法完成业务逻辑处理并返回必要数据
+    - 禁止调用api层方法
 - dal 数据访问层 Data Access Layer
-  - 负责对DB的访问，本层禁止相互的方法调用
-  - 禁止调用api和biz层方法
+    - 负责对DB的访问，本层禁止相互的方法调用
+    - 禁止调用api和biz层方法
 
 目录结构说明：
 
