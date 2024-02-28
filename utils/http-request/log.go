@@ -43,10 +43,10 @@ func (h *HttpClient) SetLog(log Log) *HttpClient {
 		sendBytes := r.RawRequest.ContentLength
 		recvBytes := resp.Size()
 		statusCode := resp.StatusCode()
-		if !h.hideRespBodyLogsWithPath[path] && recvBytes < maxShowBodySize {
+		if !h.hideRespBodyLogsWithPath[path] && recvBytes < h.maxShowBodySize {
 			respBody = string(resp.Body())
 		}
-		if !h.hideReqBodyLogsWithPath[path] && sendBytes < maxShowBodySize {
+		if !h.hideReqBodyLogsWithPath[path] && sendBytes < h.maxShowBodySize {
 			reqBody = r.Body
 		}
 

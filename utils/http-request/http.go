@@ -16,12 +16,12 @@ type HttpClient struct {
 	Client  *resty.Client
 	Request *resty.Request
 
-	disableLog               bool  // default: false 默认打印日志(配置SetLog后)
-	disableMetrics           bool  // default: false 默认开启统计
-	disableBreaker           bool  // default: true 默认关闭熔断
-	slowThresholdMs          int64 // default: 0 默认关闭慢请求打印
-	hideRespBodyLogsWithPath map[string]bool
-	hideReqBodyLogsWithPath  map[string]bool
+	disableLog               bool            // default: false 默认打印日志(配置SetLog后)
+	disableMetrics           bool            // default: false 默认开启统计
+	disableBreaker           bool            // default: true 默认关闭熔断
+	slowThresholdMs          int64           // default: 0 默认关闭慢请求打印
+	hideRespBodyLogsWithPath map[string]bool // 不打印path在map里的返回体
+	hideReqBodyLogsWithPath  map[string]bool // 不打印path在map里的请求体
 	maxShowBodySize          int64
 }
 
