@@ -10,16 +10,19 @@ import (
 	"github.com/sunmi-OS/gocore/v2/utils"
 )
 
+const maxShowBodySize = 1024 * 100
+
 type HttpClient struct {
 	Client  *resty.Client
 	Request *resty.Request
 
-	disableLog               bool  // default: false 默认打印日志(配置SetLog后)
-	disableMetrics           bool  // default: false 默认开启统计
-	disableBreaker           bool  // default: true 默认关闭熔断
-	slowThresholdMs          int64 // default: 0 默认关闭慢请求打印
-	hideRespBodyLogsWithPath map[string]bool
-	hideReqBodyLogsWithPath  map[string]bool
+	disableLog               bool            // default: false 默认打印日志(配置SetLog后)
+	disableMetrics           bool            // default: false 默认开启统计
+	disableBreaker           bool            // default: true 默认关闭熔断
+	slowThresholdMs          int64           // default: 0 默认关闭慢请求打印
+	hideRespBodyLogsWithPath map[string]bool // 不打印path在map里的返回体
+	hideReqBodyLogsWithPath  map[string]bool // 不打印path在map里的请求体
+	maxShowBodySize          int64
 }
 
 func New() *HttpClient {
@@ -53,6 +56,7 @@ func New() *HttpClient {
 		disableBreaker:           true, // default disable, will open soon
 		hideReqBodyLogsWithPath:  hidelBodyLogsPath,
 		hideRespBodyLogsWithPath: hidelBodyLogsPath,
+		maxShowBodySize:          maxShowBodySize,
 	}
 }
 
@@ -77,8 +81,8 @@ func (h *HttpClient) SetDisableBreaker(disable bool) *HttpClient {
 	return h
 }
 
-func (h *HttpClient) SetSlowThresholdMs(threshold int64) *HttpClient {
-	h.slowThresholdMs = threshold
+func (h *HttpClient) SetMaxShowBodySize(bodySize int64) *HttpClient {
+	h.maxShowBodySize = bodySize
 	return h
 }
 
@@ -95,6 +99,11 @@ func (h *HttpClient) SetReqBodyLogsWithPath(paths []string) *HttpClient {
 	for _, path := range paths {
 		h.hideReqBodyLogsWithPath[path] = true
 	}
+	return h
+}
+
+func (h *HttpClient) SetSlowThresholdMs(threshold int64) *HttpClient {
+	h.slowThresholdMs = threshold
 	return h
 }
 

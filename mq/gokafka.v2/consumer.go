@@ -87,6 +87,7 @@ func (kr *Consumer) Handle(ctx context.Context, handle func(msg kafka.Message) e
 			startTime := time.Now()
 			err = handle(m)
 			metricReqDuration.WithLabelValues(m.Topic, sub).Observe(float64(time.Since(startTime).Milliseconds()))
+			metricsDelay.WithLabelValues(m.Topic).Observe(float64(time.Since(m.Time).Milliseconds()))
 			ackErr := kr.Reader.CommitMessages(ctx, m)
 			if ackErr != nil {
 				glog.ErrorC(ctx, "Kafka Consumer.CommitMessages error:%+v", ackErr)
