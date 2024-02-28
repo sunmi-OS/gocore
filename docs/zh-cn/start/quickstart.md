@@ -1,28 +1,26 @@
 快速开始
 ---
 
-通过gocore工具可以快速生成开发骨架，框架会提供一个gocore.yaml文件来管理动态生成配置，开发者可以通过对yaml文件进行修改来定义cmd、api、job、cron、model、config以及中间件等 。
+通过 gocore 工具可以快速生成开发骨架，框架会提供一个 gocore.yaml 文件来管理动态生成配置，开发者可以通过对 yaml 文件进行修改来定义 cmd、api、job、cron、model、config 以及中间件等。
 
 特性：
-- 当创建项目同时会执行mod init、mod tidy、fmt、goimports来保障项目符合Golang标准
-- 在数据表结构创建支持连接mysql反向生成model结构
-- @TODO 未来将支持从swagger导入和导出swagger功能
+- 当创建项目同时会执行 mod init、mod tidy、fmt、goimports 来保障项目符合 Golang 标准
+- 在数据表结构创建支持连接 mysql 反向生成 model 结构
 
 创建一个示例项目
 
-```bash
+```sh
 # 创建工程文件夹
-> export PROJECT_NAME=demo
-> mkdir PROJECT_NAME
-> cd PROJECT_NAME
+$ mkdir test-project
+$ cd test-project
 
-# 创建yaml配置文件模板gocore.yaml
-> gocore yaml create 
+# 创建yaml配置文件模板 gocore.yaml
+$ gocore yaml create 
 ...
 Welcome to GoCore, Configuration file has been generated.
 
 # 修改gocore.yaml模板之后,根据yaml文件创建工程项目
-> gocore service create 
+$ gocore service create 
 
    __ _    ___     ___    ___    _ __    ___
   / _` |  / _ \   / __|  / _ \  | '__|  / _ \
@@ -39,31 +37,29 @@ Welcome to GoCore, the project has been initialized.
 
 
 # 下次迭代增加新的接口或数据表更新代码
-> gocore service create 
+$ gocore service create 
 ```
 
-
-
 对数据表创建有两种普遍的方式：
-- 使用orm特性同步status生成表结构
-- 先创建数据表，在创建statuss
+- 使用 orm 特性同步 status 生成表结构
+- 先创建数据表，在创建 statuss
 
-对于两类情况gocore都进行了支持，程序启动时默认会执行gorm的同步操作，或者使用以下当时同步当前数据库中已经定义的数据结构
+对于两类情况gocore都进行了支持，程序启动时默认会执行 gorm 的同步操作，或者使用以下当时同步当前数据库中已经定义的数据结构
 
-```bash
+```sh
 # 创建工程文件夹
-> mkdir test 
-> cd test
+$ mkdir test 
+$ cd test
 
 # 创建yaml配置文件模板gocore.yaml
-> gocore yaml create 
+$ gocore yaml create 
 
 # 创建连接数据库的配置文件模板mysql.yaml
-> gocore mysql create_yaml 
+$ gocore mysql create_yaml 
 
 # 修改mysql.yaml之后,连接数据库将字段合并到gocore.yaml
-> gocore mysql add 
+$ gocore mysql add 
 
 # 修改gocore.yaml模板之后,根据yaml文件创建工程项目
-> gocore service create 
+$ gocore service create 
 ```

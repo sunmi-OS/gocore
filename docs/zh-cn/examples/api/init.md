@@ -1,61 +1,32 @@
-# HTTP初始化&路由注册
+# HTTP 初始化&路由注册
 
-在HTTP接口开发过程中，考虑实际场景初始化默认开启：
-- Gzip压缩：[gin-contrib/gzip](https://github.com/gin-contrib/gzip)
-- 优雅重启&关闭：[fvbock/endless](https://github.com/fvbock/endless)
-- 默认开启Recovery、Logger
-- 根据utils.IsRelease设置终端输出
-- 程序结束Close中间件连接
+在 HTTP 接口开发过程中，考虑实际场景初始化默认开启：
+- 优雅重启&关闭
+- 默认开启 Recovery、Logger、Tracing
+- 默认集成 Prometheus、健康检查接口、Pprof
+- 根据 utils.IsRelease 设置终端输出
+- 程序结束 Close 中间件连接
 
 ```go
 func RunApi(c *cli.Context) error {
-	defer closes.Close()
-
-	initConf()
-	initDB()
-	initCache()
-
-	if utils.IsRelease() {
-		gin.SetMode(gin.ReleaseMode)
-	}
-
-	r := gin.New()
-	r.Use(gin.Logger())
-	r.Use(gin.Recovery())
-	r.Use(gzip.Gzip(gzip.DefaultCompression))
-	// 注册路由
-	routes.Routes(r)
-
-	err := endless.ListenAndServe(viper.C.GetString("network.ApiServiceHost")+":"+viper.C.GetString("network.ApiServicePort"), r)
-	if err != nil {
-		return err
-	}
-	return nil
+    initConf()
+    initDB()
+    
+    isDebugMode := true
+    if utils.IsRelease() {
+    isDebugMode = false
+    }
+    
+    gs := api.NewGinServer(
+    api.WithServerDebug(isDebugMode),
+    api.WithServerHost(viper.C.GetString("network.ApiServiceHost")),
+    api.WithServerPort(viper.C.GetInt("network.ApiServicePort")),
+    api.WithOpenTrace(true),
+    )
+    // init route
+    route.Routes(gs.Gin)
+    gs.Start()
+    
+    return nil
 }
 ```
-
-默认路由
-- /项目名/模块名/接口名
-    - /app/user/get_user_info
-
-考虑多入口和版本控制推荐使用方式
-- /入口名称/版本号/项目名/模块名/接口名
-    - /applet/v1/app/user/get_user_info
-
-> 增加根路由监听防止被扫异常以及启动监控检查
-
-```go
-func Routes(router *gin.Engine) {
-
-	// 根目录健康检查
-	router.Any("/", func(c *gin.Context) {
-		c.String(http.StatusOK, "Welcome GoCore Service")
-	})
-
-	user := router.Group("/app/user")
-	user.Post("/get_user_info", api.GetUserInfo) //获取用户信息
-
-}
-```
-
-
