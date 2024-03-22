@@ -24,13 +24,13 @@ func connRbbitmq() error {
 		scheme = "amqps"
 	}
 
-	amqpcoinf := amqp.Config{
+	amqpConfig := amqp.Config{
 		Vhost:     vhost,
 		Heartbeat: 10 * time.Second,
 		Locale:    "en_US",
 	}
 
-	conn, err := amqp.DialConfig(fmt.Sprintf("%s://%s:%s@%s:%s/", scheme, user, password, host, port), amqpcoinf)
+	conn, err := amqp.DialConfig(fmt.Sprintf("%s://%s:%s@%s:%s/", scheme, user, password, host, port), amqpConfig)
 	if err != nil {
 		return err
 	}
