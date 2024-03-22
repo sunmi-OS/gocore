@@ -18,6 +18,11 @@ func connRbbitmq() error {
 	vhost := viper.GetEnvConfig("rabbitmq.vhost")
 	user := url.QueryEscape(viper.GetEnvConfig("rabbitmq.user"))
 	password := url.QueryEscape(viper.GetEnvConfig("rabbitmq.password"))
+	scheme := "amqp"
+	enableTLS := viper.GetEnvConfigBool("rabbitmq.enableTLS")
+	if enableTLS {
+		scheme = "amqps"
+	}
 
 	amqpcoinf := amqp.Config{
 		Vhost:     vhost,
@@ -25,7 +30,7 @@ func connRbbitmq() error {
 		Locale:    "en_US",
 	}
 
-	conn, err := amqp.DialConfig(fmt.Sprintf("amqp://%s:%s@%s:%s/", user, password, host, port), amqpcoinf)
+	conn, err := amqp.DialConfig(fmt.Sprintf("%s://%s:%s@%s:%s/", scheme, user, password, host, port), amqpcoinf)
 	if err != nil {
 		return err
 	}
