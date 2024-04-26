@@ -5,7 +5,7 @@ import (
 	"sync"
 	"time"
 
-	"github.com/nacos-group/nacos-sdk-go/vo"
+	"github.com/nacos-group/nacos-sdk-go/v2/vo"
 	"github.com/spf13/cast"
 	"github.com/sunmi-OS/gocore/viper"
 )
@@ -117,7 +117,6 @@ func (vt *ViperToml) NacosToViper() {
 	viper.MerageConfigToToml(s)
 }
 
-//
 func (vt *ViperToml) SetviperBase(configs string) {
 
 	viper.MerageConfigToToml(configs)

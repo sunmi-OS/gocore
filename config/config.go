@@ -7,9 +7,9 @@ import (
 	"time"
 
 	"github.com/BurntSushi/toml"
-	"github.com/nacos-group/nacos-sdk-go/clients"
-	"github.com/nacos-group/nacos-sdk-go/common/constant"
-	"github.com/nacos-group/nacos-sdk-go/vo"
+	"github.com/nacos-group/nacos-sdk-go/v2/clients"
+	"github.com/nacos-group/nacos-sdk-go/v2/common/constant"
+	"github.com/nacos-group/nacos-sdk-go/v2/vo"
 	"github.com/sunmi-OS/gocore/retry"
 )
 
@@ -26,6 +26,7 @@ const (
 )
 
 // 解析 acm 或本地 toml 配置到结构体
+//
 //	confPtr： 结构体指针
 func ParseToml(group, dataId, localConfig string, confPtr interface{}) (err error) {
 	beanValue := reflect.ValueOf(confPtr)
@@ -83,6 +84,7 @@ func ParseToml(group, dataId, localConfig string, confPtr interface{}) (err erro
 }
 
 // 解析 acm 或本地 yaml 配置到结构体
+//
 //	confPtr： 结构体指针
 func ParseYaml(group, dataId, localConfig string, confPtr interface{}) (err error) {
 	beanValue := reflect.ValueOf(confPtr)
