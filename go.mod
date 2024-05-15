@@ -14,6 +14,7 @@ require (
 	github.com/go-basic/ipv4 v1.0.0
 	github.com/go-logr/logr v1.4.1
 	github.com/go-logr/stdr v1.2.2
+	github.com/go-pay/bm v0.0.2
 	github.com/go-resty/resty/v2 v2.11.0
 	github.com/google/uuid v1.6.0
 	github.com/k0kubun/go-ansi v0.0.0-20180517002512-3bf9e2903213
