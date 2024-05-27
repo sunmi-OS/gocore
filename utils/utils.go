@@ -1,7 +1,6 @@
 package utils
 
 import (
-	"fmt"
 	"os"
 	"runtime"
 	"strings"
@@ -25,6 +24,7 @@ var (
 	appName     string
 	zone        string
 	hostname    string
+	dcName      string
 )
 
 const TimeFormat = "2006-01-02T15:04:05.000Z0700"
@@ -41,7 +41,16 @@ func GetRunTime() string {
 	if runTime != "" {
 		return runTime
 	}
-	return os.Getenv("RUN_TIME")
+	runTime = os.Getenv("RUN_TIME")
+	return runTime
+}
+
+func GetDcName() string {
+	if dcName != "" {
+		return dcName
+	}
+	dcName = os.Getenv("DC_NAME")
+	return runTime
 }
 
 func GetAppName() string {
@@ -60,9 +69,6 @@ func GetZone() string {
 		return zone
 	}
 	zone = os.Getenv("ZONE")
-	if zone == "" {
-		fmt.Println("No ZONE Set")
-	}
 	return zone
 }
 
