@@ -115,11 +115,12 @@ func Close() {
 func openORM(dbname string) (*gorm.DB, error) {
 	// default setting
 	viper.C.SetDefault(dbname, map[string]interface{}{
-		"Port":         3306,
-		"MaxIdleConns": 20,
-		"MaxOpenConns": 20,
-		"Type":         "mysql",
-		"Debug":        false,
+		"Port":            3306,
+		"MaxIdleConns":    20,
+		"MaxOpenConns":    20,
+		"Type":            "mysql",
+		"Debug":           false,
+		"MultiStatements": false,
 	})
 	dbHost := viper.GetEnvConfig(dbname + ".Host").String()
 	if dbHost == "" {
@@ -140,8 +141,12 @@ func openORM(dbname string) (*gorm.DB, error) {
 	dbPort := viper.GetEnvConfig(dbname + ".Port").String()
 	dbType := viper.GetEnvConfig(dbname + ".Type").String()
 	dbDebug := viper.GetEnvConfig(dbname + ".Debug").Bool()
+	dbMulti := viper.GetEnvConfig(dbname + ".MultiStatements").Bool()
 
 	dsn := dbUser + ":" + dbPasswd + "@tcp(" + dbHost + ":" + dbPort + ")/" + dbName + "?charset=utf8mb4&parseTime=true&loc=Local"
+	if dbMulti {
+		dsn += "&multiStatements=true"
+	}
 	lc := logger.Config{
 		SlowThreshold: 200 * time.Millisecond, // 慢 SQL 阈值
 		LogLevel:      logger.Warn,            // Log level
