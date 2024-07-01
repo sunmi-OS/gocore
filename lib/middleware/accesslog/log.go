@@ -15,17 +15,16 @@ import (
 	"gopkg.in/natefinch/lumberjack.v2"
 )
 
-// 自定义一个结构体，实现 gin.ResponseWriter interface
+// Define a custom struct that implements the gin.ResponseWriter interface
 type responseWriter struct {
 	gin.ResponseWriter
 	b *bytes.Buffer
 }
 
-// 重写 Write([]byte) (int, error) 方法
+// Override the Write([]byte) (int, error) method
 func (w responseWriter) Write(b []byte) (int, error) {
-	// 向一个bytes.buffer中写一份数据来为获取body使用
+	// Write a copy of the data to a bytes.buffer to use for getting the body
 	w.b.Write(b)
-	// 完成gin.Context.Writer.Write()原有功能
 	return w.ResponseWriter.Write(b)
 }
 
@@ -41,12 +40,16 @@ func AccessLog() gin.HandlerFunc {
 		start := time.Now()
 		requestDate := start.Format(time.RFC3339)
 		body := ""
-		b, err := c.GetRawData()
-		if err != nil {
-			body = "failed to get request body"
-		} else {
-			c.Request.Body = io.NopCloser(bytes.NewBuffer(b))
-			body = string(b)
+		// The body is not recorded in the file upload scenario
+		contentType := c.GetHeader("content-type")
+		if !strings.Contains(contentType, "multipart/form-data") {
+			b, err := c.GetRawData()
+			if err != nil {
+				body = "failed to get request body"
+			} else {
+				c.Request.Body = io.NopCloser(bytes.NewBuffer(b))
+				body = string(b)
+			}
 		}
 		path := c.Request.URL.Path
 		rawQuery := c.Request.URL.RawQuery
@@ -113,13 +116,13 @@ func initZap(fileName string) *zap.Logger {
 	// io.Writer 使用 lumberjack
 	infoWriter := &lumberjack.Logger{
 		Filename:   fileName,
-		MaxSize:    256,  // 最大体积，单位M，超过则切割
-		MaxBackups: 4,    // 最大文件保留数，超过则删除最老的日志文件
-		MaxAge:     30,   // 最长保存时间30天
-		Compress:   true, // 是否压缩
+		MaxSize:    256, // 最大体积，单位M，超过则切割
+		MaxBackups: 4,   // 最大文件保留数，超过则删除最老的日志文件
+		MaxAge:     30,  // 最长保存时间30天
+		Compress:   true,
 	}
 	core := zapcore.NewTee(
-		zapcore.NewCore(zapcore.NewConsoleEncoder(config), zapcore.AddSync(infoWriter), zap.InfoLevel), // 将info及以下写入logPath，NewConsoleEncoder 是非结构化输出
+		zapcore.NewCore(zapcore.NewConsoleEncoder(config), zapcore.AddSync(infoWriter), zap.InfoLevel),
 	)
 	return zap.New(core, zap.AddCaller(), zap.AddStacktrace(zap.InfoLevel))
 }
