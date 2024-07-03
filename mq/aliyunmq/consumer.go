@@ -9,10 +9,10 @@ import (
 // NewConsumer 初始化消费者
 func NewConsumer(configName, groupID string, option ...consumer.Option) rocketmq.PushConsumer {
 	conf := initConfig(configName)
-	access := primitive.Cloud
-	if conf.IsLocal {
-		access = primitive.Local
-	}
+	//access := primitive.Cloud
+	//if conf.IsLocal {
+	//	access = primitive.Local
+	//}
 	consumerOption := []consumer.Option{
 		consumer.WithGroupName(groupID),
 		consumer.WithNsResolver(primitive.NewPassthroughResolver([]string{conf.NameServer})),
@@ -22,12 +22,12 @@ func NewConsumer(configName, groupID string, option ...consumer.Option) rocketmq
 		}),
 		consumer.WithConsumeMessageBatchMaxSize(1), // 批量获取数量 默认每次获取一条处理一条
 		consumer.WithNamespace(conf.Namespace),
-		consumer.WithTrace(&primitive.TraceConfig{
-			GroupName:   groupID,
-			Access:      access,
-			Resolver:    primitive.NewPassthroughResolver(primitive.NamesrvAddr{conf.NameServer}),
-			Credentials: primitive.Credentials{AccessKey: conf.AccessKey, SecretKey: conf.SecretKey},
-		}),
+		//consumer.WithTrace(&primitive.TraceConfig{
+		//	GroupName:   groupID,
+		//	Access:      access,
+		//	Resolver:    primitive.NewPassthroughResolver(primitive.NamesrvAddr{conf.NameServer}),
+		//	Credentials: primitive.Credentials{AccessKey: conf.AccessKey, SecretKey: conf.SecretKey},
+		//}),
 	}
 
 	// 支持自定义配置
