@@ -50,7 +50,7 @@ func GetDcName() string {
 		return dcName
 	}
 	dcName = os.Getenv("DC_NAME")
-	return runTime
+	return dcName
 }
 
 func GetAppName() string {
