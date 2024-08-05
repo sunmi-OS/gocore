@@ -83,6 +83,15 @@ func GetHostname() string {
 	return hostname
 }
 
+// IsGlocal Check whether it is glocal
+func IsGlocal() bool {
+	dc := GetDcName()
+	if dc == "CN" || dc == "" {
+		return false
+	}
+	return true
+}
+
 // OnRelease 开启线上环境
 func OnRelease() {
 	releaseFlag = true

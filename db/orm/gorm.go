@@ -148,9 +148,10 @@ func openORM(dbname string) (*gorm.DB, error) {
 		dsn += "&multiStatements=true"
 	}
 	lc := logger.Config{
-		SlowThreshold: 200 * time.Millisecond, // 慢 SQL 阈值
-		LogLevel:      logger.Warn,            // Log level
-		Colorful:      false,                  // 禁用彩色打印，日志平台会打印出颜色码，影响日志观察
+		SlowThreshold:             200 * time.Millisecond, // 慢 SQL 阈值
+		LogLevel:                  logger.Warn,            // Log level
+		Colorful:                  false,                  // 禁用彩色打印，日志平台会打印出颜色码，影响日志观察
+		IgnoreRecordNotFoundError: true,
 	}
 	if dbDebug {
 		lc.LogLevel = logger.Info
