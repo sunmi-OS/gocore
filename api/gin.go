@@ -166,20 +166,10 @@ func (g *GinEngine) goNotifySignal() {
 			log.Printf("get a signal %s, stop the process\n", si.String())
 			// close gin http server
 			g.Close()
-			ctx, cancelFunc := context.WithTimeout(context.Background(), g.timeout)
 			// call before close hooks
-			go func() {
-				if a := recover(); a != nil {
-					log.Printf("panic: %v\n", a)
-				}
-				for _, fn := range g.hookMaps[_HookShutdown] {
-					fn(ctx)
-				}
-			}()
-			// wait for program finish processing
-			log.Printf("waiting for the process to finish %v\n", g.timeout)
-			time.Sleep(g.timeout)
-			cancelFunc()
+			for _, fn := range g.hookMaps[_HookShutdown] {
+				fn(context.Background())
+			}
 			// call after close hooks
 			for _, fn := range g.hookMaps[_HookExit] {
 				fn(context.Background())
