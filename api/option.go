@@ -55,9 +55,15 @@ func SetIgnoreRecordLog(ignore bool) {
 	ignoreRecordLog = ignore
 }
 
-// SetIgnoreRecordLogMap 设置忽略HTTP请求记录日志的URL
-func SetIgnoreRecordLogMap(pathList []string) {
+// SetIgnoreRecordLogPath 设置忽略HTTP请求记录日志的路径
+func SetIgnoreRecordLogPath(pathList []string, ignore bool) {
+	if ignore {
+		for _, v := range pathList {
+			ignoreRecordPathMap[v] = true
+		}
+		return
+	}
 	for _, v := range pathList {
-		ignoreRecordPathMap[v] = true
+		delete(ignoreRecordPathMap, v)
 	}
 }
