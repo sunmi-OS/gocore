@@ -28,18 +28,26 @@ const (
 	_HookExit     hookType = "sys_exit"
 )
 
+var (
+	ignoreRecordLog     bool
+	ignoreRecordPathMap = map[string]bool{
+		"/":                   true,
+		"/health":             true,
+		"/monitor/prometheus": true,
+	}
+)
+
 type hookType string
 
 type HookFunc func(c context.Context)
 
 type GinEngine struct {
-	Gin              *gin.Engine
-	server           *http.Server
-	timeout          time.Duration
-	wg               sync.WaitGroup
-	addrPort         string
-	IgnoreReleaseLog bool
-	hookMaps         map[hookType][]func(c context.Context)
+	Gin      *gin.Engine
+	server   *http.Server
+	timeout  time.Duration
+	wg       sync.WaitGroup
+	addrPort string
+	hookMaps map[hookType][]func(c context.Context)
 }
 
 func NewGinServer(ops ...Option) *GinEngine {
@@ -47,9 +55,21 @@ func NewGinServer(ops ...Option) *GinEngine {
 	for _, o := range ops {
 		o(cfg)
 	}
-
 	g := gin.New()
-	g.Use(logger(true), middleware.Recovery())
+	engine := &GinEngine{
+		Gin:      g,
+		addrPort: cfg.host + ":" + strconv.Itoa(cfg.port),
+		server: &http.Server{
+			Addr:         cfg.host + ":" + strconv.Itoa(cfg.port),
+			Handler:      g.Handler(),
+			ReadTimeout:  cfg.readTimeout,
+			WriteTimeout: cfg.writeTimeout,
+		},
+		timeout:  cfg.readTimeout,
+		wg:       sync.WaitGroup{},
+		hookMaps: make(map[hookType][]func(c context.Context)),
+	}
+	g.Use(logger(), middleware.Recovery())
 	if cfg.openTrace {
 		// 引入链路追踪中间件
 		endPointUrl := os.Getenv("ZIPKIN_BASE_URL")
@@ -67,6 +87,7 @@ func NewGinServer(ops ...Option) *GinEngine {
 	if !cfg.debug {
 		gin.SetMode(gin.ReleaseMode)
 	}
+
 	// prometheus
 	prometheus.NewPrometheus("app").Use(g)
 	// default health check
@@ -87,19 +108,6 @@ func NewGinServer(ops ...Option) *GinEngine {
 		pp.GET("/heap", gin.WrapH(pprof.Handler("heap")))
 		pp.GET("/mutex", gin.WrapH(pprof.Handler("mutex")))
 		pp.GET("/threadcreate", gin.WrapH(pprof.Handler("threadcreate")))
-	}
-	engine := &GinEngine{
-		Gin:      g,
-		addrPort: cfg.host + ":" + strconv.Itoa(cfg.port),
-		server: &http.Server{
-			Addr:         cfg.host + ":" + strconv.Itoa(cfg.port),
-			Handler:      g.Handler(),
-			ReadTimeout:  cfg.readTimeout,
-			WriteTimeout: cfg.writeTimeout,
-		},
-		timeout:  cfg.readTimeout,
-		wg:       sync.WaitGroup{},
-		hookMaps: make(map[hookType][]func(c context.Context)),
 	}
 	return engine
 }
@@ -158,10 +166,20 @@ func (g *GinEngine) goNotifySignal() {
 			log.Printf("get a signal %s, stop the process\n", si.String())
 			// close gin http server
 			g.Close()
+			ctx, cancelFunc := context.WithTimeout(context.Background(), g.timeout)
 			// call before close hooks
-			for _, fn := range g.hookMaps[_HookShutdown] {
-				fn(context.Background())
-			}
+			go func() {
+				if a := recover(); a != nil {
+					log.Printf("panic: %v\n", a)
+				}
+				for _, fn := range g.hookMaps[_HookShutdown] {
+					fn(ctx)
+				}
+			}()
+			// wait for program finish processing
+			log.Printf("waiting for the process to finish %v\n", g.timeout)
+			time.Sleep(g.timeout)
+			cancelFunc()
 			// call after close hooks
 			for _, fn := range g.hookMaps[_HookExit] {
 				fn(context.Background())
@@ -187,7 +205,7 @@ func (g *GinEngine) Close() {
 }
 
 // logger
-func logger(ignoreRelease bool) gin.HandlerFunc {
+func logger() gin.HandlerFunc {
 	return func(c *gin.Context) {
 		// Start time
 		start := time.Now()
@@ -199,10 +217,10 @@ func logger(ignoreRelease bool) gin.HandlerFunc {
 			path = path + "?" + raw
 		}
 		// ignore logger output
-		if gin.Mode() == gin.ReleaseMode && ignoreRelease {
+		if ignoreRecordLog {
 			return
 		}
-		if path == "/health" || path == "/monitor/prometheus" {
+		if ignoreRecordPathMap[path] {
 			return
 		}
 		// End time
