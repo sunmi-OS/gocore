@@ -31,7 +31,7 @@ func Recovery() gin.HandlerFunc {
 					Err:        err,
 					Stack:      string(stack),
 				})
-				log.Printf("[GinPanic] %s\n", string(bs))
+				log.Printf("[server panic recovered] %s\n", string(bs))
 				c.JSON(http.StatusOK, struct {
 					Code int         `json:"code"`
 					Data interface{} `json:"data"`

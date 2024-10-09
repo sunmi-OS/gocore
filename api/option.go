@@ -40,12 +40,30 @@ func WithServerTimeout(dur time.Duration) Option {
 	}
 }
 
-// WithServerDebug 设置超时时间
+// WithServerDebug 是否开启debug
 func WithServerDebug(debug bool) Option {
 	return func(o *Config) { o.debug = debug }
 }
 
-// WithOpenTrace 设置超时时间
+// WithOpenTrace 是否开启OpenTrace
 func WithOpenTrace(open bool) Option {
 	return func(o *Config) { o.openTrace = open }
+}
+
+// SetIgnoreRecordLog 是否忽略HTTP请求记录日志
+func SetIgnoreRecordLog(ignore bool) {
+	ignoreRecordLog = ignore
+}
+
+// SetIgnoreRecordLogPath 设置忽略HTTP请求记录日志的路径
+func SetIgnoreRecordLogPath(pathList []string, ignore bool) {
+	if ignore {
+		for _, v := range pathList {
+			ignoreRecordPathMap[v] = true
+		}
+		return
+	}
+	for _, v := range pathList {
+		delete(ignoreRecordPathMap, v)
+	}
 }
