@@ -29,8 +29,8 @@ const (
 )
 
 var (
-	ignoreRecordLog     bool
-	ignoreRecordPathMap = map[string]bool{
+	ignoreRecordLog     bool = true
+	ignoreRecordPathMap      = map[string]bool{
 		"/":                   true,
 		"/health":             true,
 		"/monitor/prometheus": true,
