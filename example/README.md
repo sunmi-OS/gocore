@@ -646,3 +646,40 @@ viper.NewConfig("config", "conf")
 fmt.Println("port : ", viper.C.Get("system.port"))
 fmt.Println("ENV RUN_TIME : ", viper.GetEnvConfig("run.time"))
 ```
+
+### Reboot
+
+A utility that automatically restarts the function when it crashes
+
+```go
+
+package main
+
+import (
+	"context"
+
+	"github.com/sunmi-OS/gocore/v2/utils/closes"
+)
+
+
+func main() {
+	ctx, canel := context.WithCancel(context.Background())
+
+	// add into closes
+	closes.AddShutdown(closes.ModuleClose{
+		Name:     "startAutoUpdate",
+		Priority: closes.MQPriority,
+		Func: func() {
+			cancel()
+		},
+	})
+
+	go reboot.AutoRestart(ctx, func() error {
+		// do something, will never crash
+		return nil
+	}
+	
+	// wait for the program to exit
+}
+
+```
