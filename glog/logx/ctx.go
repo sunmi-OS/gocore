@@ -8,9 +8,10 @@ import (
 	"time"
 
 	"github.com/gin-gonic/gin"
+	"go.opentelemetry.io/otel/trace"
+
 	"github.com/sunmi-OS/gocore/v2/api"
 	"github.com/sunmi-OS/gocore/v2/utils"
-	"go.opentelemetry.io/otel/trace"
 )
 
 type Valuer func(ctx context.Context) interface{}
@@ -70,13 +71,16 @@ func SetCtxKVS(ctx context.Context, kvs map[string]string) context.Context {
 
 func GetCtxKey(key string) Valuer {
 	return func(ctx context.Context) interface{} {
-		if apiCtx, ok := ctx.(*api.Context); ok {
-			return utils.GetMetaData(apiCtx.Request.Context(), key)
+		switch c := ctx.(type) {
+		case api.Context:
+			return utils.GetMetaData(c.Request.Context(), key)
+		case *api.Context:
+			return utils.GetMetaData(c.Request.Context(), key)
+		case *gin.Context:
+			return utils.GetMetaData(c.Request.Context(), key)
+		default:
+			return utils.GetMetaData(ctx, key)
 		}
-		if ginCtx, ok := ctx.(*gin.Context); ok {
-			return utils.GetMetaData(ginCtx.Request.Context(), key)
-		}
-		return utils.GetMetaData(ctx, key)
 	}
 }
 
