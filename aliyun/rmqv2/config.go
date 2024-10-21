@@ -1,6 +1,6 @@
 /*
-	消息并发多条推送，但commit回复一次性回复，无法对单条消息进行commit回复，暂时不推荐使用
-	阿里云官方推荐使用 v1.2.4 版本
+消息并发多条推送，但commit回复一次性回复，无法对单条消息进行commit回复，暂时不推荐使用
+阿里云官方推荐使用 v1.2.4 版本
 */
 package rmqv2
 
@@ -46,13 +46,13 @@ func defaultConsumerOps(conf *RocketMQConfig) (ops []consumer.Option) {
 		consumer.WithCredentials(primitive.Credentials{AccessKey: conf.AccessKey, SecretKey: conf.SecretKey}),
 		consumer.WithConsumerModel(consumer.Clustering),
 		consumer.WithRetry(2),
-		consumer.WithTrace(&primitive.TraceConfig{
-			//TraceTopic:  conf.TraceTopic, // 此处不能设置，否则消息消费commit会失效
-			GroupName:   conf.GroupName,
-			Access:      primitive.Cloud,
-			Resolver:    primitive.NewPassthroughResolver(primitive.NamesrvAddr{conf.EndPoint}),
-			Credentials: primitive.Credentials{AccessKey: conf.AccessKey, SecretKey: conf.SecretKey},
-		}),
+		// consumer.WithTrace(&primitive.TraceConfig{
+		// 	//TraceTopic:  conf.TraceTopic, // 此处不能设置，否则消息消费commit会失效
+		// 	GroupName:   conf.GroupName,
+		// 	Access:      primitive.Cloud,
+		// 	Resolver:    primitive.NewPassthroughResolver(primitive.NamesrvAddr{conf.EndPoint}),
+		// 	Credentials: primitive.Credentials{AccessKey: conf.AccessKey, SecretKey: conf.SecretKey},
+		// }),
 	}
 	return ops
 }
