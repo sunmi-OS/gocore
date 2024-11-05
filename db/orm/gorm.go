@@ -3,18 +3,16 @@ package orm
 import (
 	"errors"
 	"fmt"
-	"log"
-	"os"
 	"sync"
 	"time"
+
+	"gorm.io/driver/mysql"
+	"gorm.io/gorm"
 
 	"github.com/sunmi-OS/gocore/v2/conf/viper"
 	"github.com/sunmi-OS/gocore/v2/glog"
 	"github.com/sunmi-OS/gocore/v2/utils"
 	"github.com/sunmi-OS/gocore/v2/utils/closes"
-	"gorm.io/driver/mysql"
-	"gorm.io/gorm"
-	"gorm.io/gorm/logger"
 )
 
 type Client struct {
@@ -147,22 +145,9 @@ func openORM(dbname string) (*gorm.DB, error) {
 	if dbMulti {
 		dsn += "&multiStatements=true"
 	}
-	lc := logger.Config{
-		SlowThreshold:             200 * time.Millisecond, // 慢 SQL 阈值
-		LogLevel:                  logger.Warn,            // Log level
-		Colorful:                  false,                  // 禁用彩色打印，日志平台会打印出颜色码，影响日志观察
-		IgnoreRecordNotFoundError: true,
-	}
-	if dbDebug {
-		lc.LogLevel = logger.Info
-	}
-	newLogger := logger.New(
-		log.New(os.Stdout, "[GORM] >> ", 64|log.Ldate|log.Lmicroseconds), // io writer
-		lc,
-	)
 	switch dbType {
 	case "mysql":
-		orm, err := gorm.Open(mysql.Open(dsn), &gorm.Config{Logger: newLogger, SkipDefaultTransaction: true})
+		orm, err := gorm.Open(mysql.Open(dsn), &gorm.Config{Logger: glog.NewDBLogger(dbDebug), SkipDefaultTransaction: true})
 		if err != nil {
 			return nil, err
 		}
