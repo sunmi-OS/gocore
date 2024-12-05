@@ -1,7 +1,6 @@
 package orm
 
 import (
-	"errors"
 	"fmt"
 	"sync"
 	"time"
@@ -20,8 +19,10 @@ type Client struct {
 	defaultDbName string
 }
 
-var _Gorm *Client
-var closeOnce sync.Once
+var (
+	_Gorm     *Client
+	closeOnce sync.Once
+)
 
 // NewDB initialize db session
 func NewDB(dbname string) (g *Client) {
@@ -122,19 +123,19 @@ func openORM(dbname string) (*gorm.DB, error) {
 	})
 	dbHost := viper.GetEnvConfig(dbname + ".Host").String()
 	if dbHost == "" {
-		return nil, errors.New(fmt.Sprintf("the Host in the %s database configuration file is empty", dbname))
+		return nil, fmt.Errorf("the Host in the %s database configuration file is empty", dbname)
 	}
 	dbName := viper.GetEnvConfig(dbname + ".Name").String()
 	if dbName == "" {
-		return nil, errors.New(fmt.Sprintf("the Name in the %s database configuration file is empty", dbname))
+		return nil, fmt.Errorf("the Name in the %s database configuration file is empty", dbname)
 	}
 	dbUser := viper.GetEnvConfig(dbname + ".User").String()
 	if dbUser == "" {
-		return nil, errors.New(fmt.Sprintf("the User in the %s database configuration file is empty", dbname))
+		return nil, fmt.Errorf("the User in the %s database configuration file is empty", dbname)
 	}
 	dbPasswd := viper.GetEnvConfig(dbname + ".Passwd").String()
 	if dbPasswd == "" {
-		return nil, errors.New(fmt.Sprintf("the Passwd in the %s database configuration file is empty", dbname))
+		return nil, fmt.Errorf("the Passwd in the %s database configuration file is empty", dbname)
 	}
 	dbPort := viper.GetEnvConfig(dbname + ".Port").String()
 	dbType := viper.GetEnvConfig(dbname + ".Type").String()
@@ -145,9 +146,13 @@ func openORM(dbname string) (*gorm.DB, error) {
 	if dbMulti {
 		dsn += "&multiStatements=true"
 	}
+
+	// 日志
+	dbLogger := glog.NewDBLogger(dbDebug, time.Second)
+
 	switch dbType {
 	case "mysql":
-		orm, err := gorm.Open(mysql.Open(dsn), &gorm.Config{Logger: glog.NewDBLogger(dbDebug), SkipDefaultTransaction: true})
+		orm, err := gorm.Open(mysql.Open(dsn), &gorm.Config{Logger: dbLogger, SkipDefaultTransaction: true})
 		if err != nil {
 			return nil, err
 		}

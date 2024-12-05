@@ -4,6 +4,7 @@ import (
 	"context"
 	"errors"
 	"fmt"
+	"strconv"
 	"time"
 
 	"gorm.io/gorm/logger"
@@ -11,23 +12,23 @@ import (
 )
 
 type dbLogger struct {
-	SlowThreshold                       time.Duration // 慢 SQL 阈值
-	IgnoreNotFoundError                 bool
-	ParameterizedQueries                bool
-	LogLevel                            logger.LogLevel
-	traceStr, traceErrStr, traceWarnStr string
+	SlowThreshold                           time.Duration // 慢 SQL 阈值
+	IgnoreNotFoundError                     bool
+	ParameterizedQueries                    bool
+	LogLevel                                logger.LogLevel
+	traceInfoStr, traceErrStr, traceWarnStr string
 }
 
 // NewDBLogger initialize db logger
-func NewDBLogger(debug bool) logger.Interface {
+func NewDBLogger(debug bool, slowThreshold time.Duration) logger.Interface {
 	l := &dbLogger{
-		SlowThreshold:        200 * time.Millisecond,
+		SlowThreshold:        slowThreshold,
 		IgnoreNotFoundError:  true,
 		ParameterizedQueries: false,
 		LogLevel:             logger.Warn,
-		traceStr:             "[%.3fms] [rows:%v] %s",
-		traceErrStr:          "[err=%+v] [%.3fms] [rows:%v] %s",
-		traceWarnStr:         "[SLOW SQL >= %v] [%.3fms] [rows:%v] %s",
+		traceInfoStr:         "[%.3fms] [rows:%s] %s",
+		traceErrStr:          "[err=%+v] [%.3fms] [rows:%s] %s",
+		traceWarnStr:         "[slow_sql >= %v] [%.3fms] [rows:%s] %s",
 	}
 	if debug {
 		l.LogLevel = logger.Info
@@ -82,53 +83,44 @@ func (l *dbLogger) Trace(ctx context.Context, begin time.Time, fc func() (string
 	}
 	// trace log
 	elapsed := time.Since(begin)
+	sql, rows := fc()
 	switch {
 	case err != nil && l.LogLevel >= logger.Error && (!errors.Is(err, logger.ErrRecordNotFound) || !l.IgnoreNotFoundError):
-		sql, rows := fc()
-		if rows == -1 {
-			ErrorV(ctx,
-				"kind", "SQL",
-				"file_line", utils.FileWithLineNum(),
-				"content", fmt.Sprintf(l.traceErrStr, err, float64(elapsed.Nanoseconds())/1e6, "-", sql),
-			)
-		} else {
-			ErrorV(ctx,
-				"kind", "SQL",
-				"file_line", utils.FileWithLineNum(),
-				"content", fmt.Sprintf(l.traceErrStr, err, float64(elapsed.Nanoseconds())/1e6, rows, sql),
-			)
-		}
+		l.logTrace(ctx, logger.Error, elapsed, rows, sql, err)
 	case elapsed > l.SlowThreshold && l.SlowThreshold != 0 && l.LogLevel >= logger.Warn:
-		sql, rows := fc()
-		if rows == -1 {
-			WarnV(ctx,
-				"kind", "SQL",
-				"file_line", utils.FileWithLineNum(),
-				"content", fmt.Sprintf(l.traceWarnStr, l.SlowThreshold, float64(elapsed.Nanoseconds())/1e6, "-", sql),
-			)
-		} else {
-			WarnV(ctx,
-				"kind", "SQL",
-				"file_line", utils.FileWithLineNum(),
-				"content", fmt.Sprintf(l.traceWarnStr, l.SlowThreshold, float64(elapsed.Nanoseconds())/1e6, rows, sql),
-			)
-		}
+		l.logTrace(ctx, logger.Warn, elapsed, rows, sql, nil)
 	case l.LogLevel == logger.Info:
-		sql, rows := fc()
-		if rows == -1 {
-			InfoV(ctx,
-				"kind", "SQL",
-				"file_line", utils.FileWithLineNum(),
-				"content", fmt.Sprintf(l.traceStr, float64(elapsed.Nanoseconds())/1e6, "-", sql),
-			)
-		} else {
-			InfoV(ctx,
-				"kind", "SQL",
-				"file_line", utils.FileWithLineNum(),
-				"content", fmt.Sprintf(l.traceStr, float64(elapsed.Nanoseconds())/1e6, rows, sql),
-			)
-		}
+		l.logTrace(ctx, logger.Info, elapsed, rows, sql, nil)
 	}
+}
+
+func (l *dbLogger) logTrace(ctx context.Context, level logger.LogLevel, elapsed time.Duration, rows int64, sql string, err error) {
+	rowStr := "-"
+	if rows >= 0 {
+		rowStr = strconv.FormatInt(rows, 10)
+	}
+	var (
+		logFn   func(ctx context.Context, keyvals ...interface{})
+		content string
+	)
+	switch level {
+	case logger.Info:
+		logFn = InfoV
+		content = fmt.Sprintf(l.traceInfoStr, float64(elapsed.Nanoseconds())/1e6, rowStr, sql)
+	case logger.Warn:
+		logFn = WarnV
+		content = fmt.Sprintf(l.traceWarnStr, l.SlowThreshold, float64(elapsed.Nanoseconds())/1e6, rowStr, sql)
+	case logger.Error:
+		logFn = ErrorV
+		content = fmt.Sprintf(l.traceErrStr, err, float64(elapsed.Nanoseconds())/1e6, rowStr, sql)
+	default:
+		return
+	}
+	logFn(ctx,
+		"kind", "SQL",
+		"file_line", utils.FileWithLineNum(),
+		"content", content,
+	)
 }
 
 // ParamsFilter filter params
