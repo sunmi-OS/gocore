@@ -1,20 +1,17 @@
 package orm
 
 import (
-	"errors"
 	"fmt"
-	"log"
-	"os"
 	"sync"
 	"time"
+
+	"gorm.io/driver/mysql"
+	"gorm.io/gorm"
 
 	"github.com/sunmi-OS/gocore/v2/conf/viper"
 	"github.com/sunmi-OS/gocore/v2/glog"
 	"github.com/sunmi-OS/gocore/v2/utils"
 	"github.com/sunmi-OS/gocore/v2/utils/closes"
-	"gorm.io/driver/mysql"
-	"gorm.io/gorm"
-	"gorm.io/gorm/logger"
 )
 
 type Client struct {
@@ -22,8 +19,10 @@ type Client struct {
 	defaultDbName string
 }
 
-var _Gorm *Client
-var closeOnce sync.Once
+var (
+	_Gorm     *Client
+	closeOnce sync.Once
+)
 
 // NewDB initialize db session
 func NewDB(dbname string) (g *Client) {
@@ -124,19 +123,19 @@ func openORM(dbname string) (*gorm.DB, error) {
 	})
 	dbHost := viper.GetEnvConfig(dbname + ".Host").String()
 	if dbHost == "" {
-		return nil, errors.New(fmt.Sprintf("the Host in the %s database configuration file is empty", dbname))
+		return nil, fmt.Errorf("the Host in the %s database configuration file is empty", dbname)
 	}
 	dbName := viper.GetEnvConfig(dbname + ".Name").String()
 	if dbName == "" {
-		return nil, errors.New(fmt.Sprintf("the Name in the %s database configuration file is empty", dbname))
+		return nil, fmt.Errorf("the Name in the %s database configuration file is empty", dbname)
 	}
 	dbUser := viper.GetEnvConfig(dbname + ".User").String()
 	if dbUser == "" {
-		return nil, errors.New(fmt.Sprintf("the User in the %s database configuration file is empty", dbname))
+		return nil, fmt.Errorf("the User in the %s database configuration file is empty", dbname)
 	}
 	dbPasswd := viper.GetEnvConfig(dbname + ".Passwd").String()
 	if dbPasswd == "" {
-		return nil, errors.New(fmt.Sprintf("the Passwd in the %s database configuration file is empty", dbname))
+		return nil, fmt.Errorf("the Passwd in the %s database configuration file is empty", dbname)
 	}
 	dbPort := viper.GetEnvConfig(dbname + ".Port").String()
 	dbType := viper.GetEnvConfig(dbname + ".Type").String()
@@ -147,22 +146,13 @@ func openORM(dbname string) (*gorm.DB, error) {
 	if dbMulti {
 		dsn += "&multiStatements=true"
 	}
-	lc := logger.Config{
-		SlowThreshold:             200 * time.Millisecond, // 慢 SQL 阈值
-		LogLevel:                  logger.Warn,            // Log level
-		Colorful:                  false,                  // 禁用彩色打印，日志平台会打印出颜色码，影响日志观察
-		IgnoreRecordNotFoundError: true,
-	}
-	if dbDebug {
-		lc.LogLevel = logger.Info
-	}
-	newLogger := logger.New(
-		log.New(os.Stdout, "[GORM] >> ", 64|log.Ldate|log.Lmicroseconds), // io writer
-		lc,
-	)
+
+	// 日志
+	dbLogger := glog.NewDBLogger(dbDebug, time.Second)
+
 	switch dbType {
 	case "mysql":
-		orm, err := gorm.Open(mysql.Open(dsn), &gorm.Config{Logger: newLogger, SkipDefaultTransaction: true})
+		orm, err := gorm.Open(mysql.Open(dsn), &gorm.Config{Logger: dbLogger, SkipDefaultTransaction: true})
 		if err != nil {
 			return nil, err
 		}
