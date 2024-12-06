@@ -14,14 +14,14 @@ func TraceId() gin.HandlerFunc {
 			md = metadata.Pairs()
 		}
 		// traceId已存在，则复用
-		if len(md.Get(utils.XB3TraceId)) != 0 {
+		if len(md.Get(utils.XB3TraceId)) > 0 {
 			c.Next()
 			return
 		}
 		// 去header取traceId
 		traceId := c.GetHeader(utils.XB3TraceId)
 		// 找不到x-b3-traceid，用x-request-id
-		if traceId != "" {
+		if traceId == "" {
 			traceId = c.GetHeader(utils.XRequestId)
 		}
 		// 设置traceId
