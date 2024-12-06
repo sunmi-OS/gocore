@@ -21,7 +21,7 @@ func TraceId() gin.HandlerFunc {
 		// 去header取traceId
 		traceId := c.GetHeader(utils.XB3TraceId)
 		// 找不到x-b3-traceid，用x-request-id
-		if len(traceId) == 0 {
+		if traceId != "" {
 			traceId = c.GetHeader(utils.XRequestId)
 		}
 		// 设置traceId
