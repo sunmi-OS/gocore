@@ -7,19 +7,19 @@ import (
 	"time"
 
 	"github.com/sunmi-OS/gocore/v2/utils"
-	http_request "github.com/sunmi-OS/gocore/v2/utils/http-request"
+	httpRequest "github.com/sunmi-OS/gocore/v2/utils/http-request"
 )
 
 type Robot struct {
-	client *http_request.HttpClient
+	client *httpRequest.HttpClient
 }
 
 // NewWithUrl 使用url初始化
 func NewWithUrl(webhookUrl string) *Robot {
-	c := http_request.New()
+	c := httpRequest.New()
 	c.Client.SetBaseURL(webhookUrl)
-	c.Client.OnAfterResponse(http_request.MustCode200)
-	c.SetLog(http_request.NewGocoreLog())
+	c.Client.OnAfterResponse(httpRequest.MustCode200)
+	c.SetLog(httpRequest.NewGocoreLog())
 
 	return &Robot{
 		client: c,
@@ -27,7 +27,7 @@ func NewWithUrl(webhookUrl string) *Robot {
 }
 
 // NewWithClient 使用已有的client初始化
-func NewWithClient(client *http_request.HttpClient) *Robot {
+func NewWithClient(client *httpRequest.HttpClient) *Robot {
 	return &Robot{
 		client: client,
 	}
