@@ -26,7 +26,7 @@ cpu: Intel(R) Core(TM) i5-1038NG7 CPU @ 2.00GHz
 
 ### 场景-1
 
-#### 👉 nightfall
+#### 👉 worker
 
 ```go
 func main() {
@@ -82,7 +82,7 @@ func main() {
 
 ### 场景-2
 
-#### 👉 nightfall
+#### 👉 worker
 
 ```go
 func main() {
