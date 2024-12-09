@@ -12,7 +12,7 @@ import (
 	"github.com/sunmi-OS/gocore/v2/worker"
 )
 
-func TestPoolNormal(t *testing.T) {
+func TestWorkerNormal(t *testing.T) {
 	m := make(map[int]int)
 	for i := 0; i < 4; i++ {
 		m[i] = i
@@ -32,7 +32,7 @@ func TestPoolNormal(t *testing.T) {
 	t.Log(m)
 }
 
-func TestPoolRecover(t *testing.T) {
+func TestWorkerRecover(t *testing.T) {
 	eg := WithWorkerContext(context.Background(), worker.P())
 	eg.Go(func(context.Context) (err error) {
 		panic("oh my god!")
@@ -47,7 +47,7 @@ func TestPoolRecover(t *testing.T) {
 // JustErrors illustrates the use of a Group in place of a sync.WaitGroup to
 // simplify goroutine counting and error handling. This example is derived from
 // the sync.WaitGroup example at https://golang.org/pkg/sync/#example_WaitGroup.
-func ExamplePoolGroup_justErrors() {
+func ExampleWorkerGroup_justErrors() {
 	eg := WithWorkerContext(context.Background(), worker.P())
 	urls := []string{
 		"http://www.golang.org/",
@@ -76,7 +76,7 @@ func ExamplePoolGroup_justErrors() {
 // task: the "Google Search 2.0" function from
 // https://talks.golang.org/2012/concurrency.slide#46, augmented with a Context
 // and error-handling.
-func ExamplePoolGroup_parallel() {
+func ExampleWorkerGroup_parallel() {
 	Google := func(ctx context.Context, query string) ([]Result, error) {
 		eg := WithWorkerContext(ctx, worker.P())
 
@@ -113,7 +113,7 @@ func ExamplePoolGroup_parallel() {
 	// video result for "golang"
 }
 
-func TestPoolZeroGroup(t *testing.T) {
+func TestWorkerZeroGroup(t *testing.T) {
 	err1 := errors.New("errgroup_test: 1")
 	err2 := errors.New("errgroup_test: 2")
 
@@ -147,7 +147,7 @@ func TestPoolZeroGroup(t *testing.T) {
 	}
 }
 
-func TestPoolWithCancel(t *testing.T) {
+func TestWorkerWithCancel(t *testing.T) {
 	eg := WithWorkerContext(context.Background(), worker.P())
 	eg.Go(func(ctx context.Context) error {
 		time.Sleep(100 * time.Millisecond)
