@@ -17,7 +17,7 @@ func TestPoolNormal(t *testing.T) {
 	for i := 0; i < 4; i++ {
 		m[i] = i
 	}
-	eg := WithPoolContext(context.Background(), worker.P())
+	eg := WithWorkerContext(context.Background(), worker.P())
 	eg.Go(func(context.Context) (err error) {
 		m[1]++
 		return
@@ -33,7 +33,7 @@ func TestPoolNormal(t *testing.T) {
 }
 
 func TestPoolRecover(t *testing.T) {
-	eg := WithPoolContext(context.Background(), worker.P())
+	eg := WithWorkerContext(context.Background(), worker.P())
 	eg.Go(func(context.Context) (err error) {
 		panic("oh my god!")
 	})
@@ -48,7 +48,7 @@ func TestPoolRecover(t *testing.T) {
 // simplify goroutine counting and error handling. This example is derived from
 // the sync.WaitGroup example at https://golang.org/pkg/sync/#example_WaitGroup.
 func ExamplePoolGroup_justErrors() {
-	eg := WithPoolContext(context.Background(), worker.P())
+	eg := WithWorkerContext(context.Background(), worker.P())
 	urls := []string{
 		"http://www.golang.org/",
 		"http://www.google.com/",
@@ -78,7 +78,7 @@ func ExamplePoolGroup_justErrors() {
 // and error-handling.
 func ExamplePoolGroup_parallel() {
 	Google := func(ctx context.Context, query string) ([]Result, error) {
-		eg := WithPoolContext(ctx, worker.P())
+		eg := WithWorkerContext(ctx, worker.P())
 
 		searches := []Search{Web, Image, Video}
 		results := make([]Result, len(searches))
@@ -128,7 +128,7 @@ func TestPoolZeroGroup(t *testing.T) {
 	}
 
 	for _, tc := range cases {
-		eg := WithPoolContext(context.Background(), worker.P())
+		eg := WithWorkerContext(context.Background(), worker.P())
 
 		var firstErr error
 		for i, err := range tc.errs {
@@ -148,7 +148,7 @@ func TestPoolZeroGroup(t *testing.T) {
 }
 
 func TestPoolWithCancel(t *testing.T) {
-	eg := WithPoolContext(context.Background(), worker.P())
+	eg := WithWorkerContext(context.Background(), worker.P())
 	eg.Go(func(ctx context.Context) error {
 		time.Sleep(100 * time.Millisecond)
 		return fmt.Errorf("boom")
