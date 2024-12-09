@@ -1,6 +1,7 @@
 package utils
 
 import (
+	"math"
 	"os"
 	"runtime"
 	"strings"
@@ -8,6 +9,8 @@ import (
 
 	"github.com/bytedance/sonic"
 )
+
+type X map[string]any
 
 const (
 	LocalEnv   = "local"
@@ -157,4 +160,49 @@ func LogContentUnmarshal(content string) interface{} {
 		return value
 	}
 	return content
+}
+
+type Step struct {
+	Head int
+	Tail int
+}
+
+// Steps calculates the steps.
+// example:
+//
+//	arr := []int{1,2,3,4,5,6,7,8,9,10,11,12,13,14,15,16,17,18,19,20}
+//	for _, step := range golib.Steps(len(arr), 10) {
+//		cur := arr[step.Head:step.Tail]
+//		// todo: do something
+//	}
+func Steps(total, step int) (steps []Step) {
+	steps = make([]Step, 0, int(math.Ceil(float64(total)/float64(step))))
+	for i := 0; i < total; i++ {
+		if i%step == 0 {
+			head := i
+			tail := head + step
+			if tail > total {
+				tail = total
+			}
+			steps = append(steps, Step{Head: head, Tail: tail})
+		}
+	}
+	return steps
+}
+
+// IsUniqueDuplicateError 判断是否「唯一索引冲突」错误
+func IsUniqueDuplicateError(err error) bool {
+	if err == nil {
+		return false
+	}
+	for _, s := range []string{
+		"Duplicate entry",            // MySQL
+		"violates unique constraint", // Postgres
+		"UNIQUE constraint failed",   // SQLite
+	} {
+		if strings.Contains(err.Error(), s) {
+			return true
+		}
+	}
+	return false
 }
