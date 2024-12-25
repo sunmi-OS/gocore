@@ -18,15 +18,15 @@ type Span struct {
 }
 
 func (s *Span) Finish() {
-	glog.InfoC(s.c, "[%s %d] [%s] time consume: %s\n", s.f, s.l, s.n, time.Since(s.t).String())
+	glog.InfoC(s.c, "[time consume] function=%s, duration=%s, file=%s:%d", s.n, time.Since(s.t).String(), s.f, s.l)
 }
 
 // New returns a span to log the time consume.
 //
 // example:
 //
-//	span := span.New(ctx)
-//	defer span.Finish()
+//	sp := span.New(ctx)
+//	defer sp.Finish()
 func New(ctx context.Context) *Span {
 	sp := &Span{c: ctx, t: time.Now()}
 	// Skip level 1 to get the caller function
