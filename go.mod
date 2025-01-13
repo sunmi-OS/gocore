@@ -1,11 +1,13 @@
 module github.com/sunmi-OS/gocore/v2
 
-go 1.18
+go 1.22
+
+toolchain go1.23.1
 
 require (
 	github.com/BurntSushi/toml v1.3.2
 	github.com/aliyun/aliyun-log-go-sdk v0.1.71
-	github.com/apache/rocketmq-client-go/v2 v2.1.2
+	github.com/apache/rocketmq-client-go/v2 v2.1.3-0.20241220030431-bd8861cb04b4
 	github.com/bytedance/sonic v1.12.2
 	github.com/common-nighthawk/go-figure v0.0.0-20210622060536-734e95fb86be
 	github.com/eclipse/paho.mqtt.golang v1.4.3
