@@ -164,6 +164,11 @@ func openORM(dbname string) (*gorm.DB, error) {
 		db.SetMaxIdleConns(viper.C.GetInt(dbname + ".MaxIdleConns"))
 		// 最大打开连接数
 		db.SetMaxOpenConns(viper.C.GetInt(dbname + ".MaxOpenConns"))
+		// Set connMaxIdleTime
+		connMaxIdleTime := viper.GetEnvConfig(dbname + ".ConnMaxIdleTime").Int64()
+		if connMaxIdleTime > 0 {
+			db.SetConnMaxIdleTime(time.Duration(connMaxIdleTime) * time.Second)
+		}
 		return orm, nil
 	default:
 		return nil, fmt.Errorf("not support sql driver [%s]", dbType)
