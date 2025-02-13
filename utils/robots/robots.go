@@ -86,6 +86,7 @@ func GeneralHeader() []MarkdownKV {
 	return []MarkdownKV{
 		{Key: "时间", Value: time.Now().Format(utils.TimeFormat)},
 		{Key: "环境", Value: utils.GetRunTime()},
+		{Key: "数据中心", Value: utils.GetDcName()},
 		{Key: "机器", Value: utils.GetHostname()},
 	}
 }
