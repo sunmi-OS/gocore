@@ -16,7 +16,7 @@ var (
 	// statistic log err count
 	metricErrCount = prometheus.NewCounterVec(
 		prometheus.CounterOpts{
-			Namespace: "gocore",
+			Namespace: "gocore_1_5",
 			Name:      "log_error_total",
 			Help:      "statistic log err count",
 		}, []string{"source"})
