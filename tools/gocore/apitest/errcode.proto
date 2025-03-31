@@ -1,0 +1,48 @@
+syntax = "proto3";
+
+option go_package = "apitest/common";
+
+/*
+成功返回的统一code码 ： 1
+*/
+
+enum CommonError {
+  ERR_COMMON_UNKNOWN = 0;
+
+  // 对错误码进行切分
+  // https://developer.mozilla.org/en-US/docs/Web/HTTP/Status
+  // https://www.runoob.com/http/http-status-codes.html
+  // 400 Unauthorized
+  ERR_BAD_REQUEST = 400; // Bad request || 无效的请求
+  // 401 Unauthorized
+  ERR_NOT_AUTHENTICATED = 401; // Not authorized || 未授权
+  // 403 Forbidden
+  ERR_FORBIDDEN = 403; // Forbidden || 被禁止
+  // 404 Not Found
+  ERR_NOT_FOUND = 404; // Not found || 找不到资源
+  // 405 Method Not Allowed
+  ERR_METHOD_NOT_ALLOWED = 405; // Method not allowed || 方法被禁止
+  // 408 Request Time-out
+  ERR_REQUEST_TIMEOUT = 408; // Request timeout || 请求超时
+  // 409 Conflict (e.g. already existing)
+  ERR_CONFLICT = 409; // Conflict || 状态冲突
+  // 410 Gone
+  ERR_GONE = 410; // Resource gone || 资源不存在
+  // 413 Request Entity Too Large
+  ERR_REQUEST_ENTITY_TOO_LARGE = 413; // Request entity too large || 客户端请求的实体过大
+  // 416 Range Not Satisfiable
+  ERR_RANGE_NOT_SATISFIABLE = 416; // Range not satisfiable || 客户端请求的范围无效
+  // 429 Too Many Requests
+  ERR_TOO_MANY_REQUESTS = 429; // Too many requests || 发送了太多请求
+
+  // 500 Internal Server Error
+  ERR_INTERNAL_SERVER_ERROR = 500; // Internal server error || 服务端内部错误
+  // 501 Not Implemented
+  ERR_NOT_IMPLEMENTED = 501; // Server not implemented this function || 服务器不支持请求的功能
+  // 502 Bad Gateway
+  ERR_BAD_GATEWAY = 502; // Bad gateway || 网关错误
+  // 503 Service Unavailable
+  ERR_SERVICE_UNAVAILABLE = 503; // Service unavailable || 服务器暂时不可用
+  // 504 Gateway Timeout
+  ERR_GATEWAY_TIMEOUT = 504;	// Gateway timeout || 网关超时
+}

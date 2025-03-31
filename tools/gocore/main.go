@@ -26,6 +26,8 @@ func main() {
 		cmd.CreatYaml,
 		cmd.AddMysql,
 		cmd.Ui,
+		cmd.Proto,
+		cmd.Upgrade,
 	}
 	// 启动cli
 	if err := app.Run(os.Args); err != nil {

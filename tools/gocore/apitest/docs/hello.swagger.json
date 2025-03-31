@@ -1,0 +1,308 @@
+{
+  "openapi": "3.0.3",
+  "info": {
+    "title": "Hello API",
+    "version": "0.0.1"
+  },
+  "paths": {
+    "/v3/createHello": {
+      "post": {
+        "tags": [
+          "Hello"
+        ],
+        "operationId": "Hello_CreateHello",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/.CreateHelloReq"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/.TCreateHelloResp"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/v3/deleteHello": {
+      "post": {
+        "tags": [
+          "Hello"
+        ],
+        "operationId": "Hello_DeleteHello",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/.DeleteHelloReq"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/.TDeleteHelloResp"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/v3/getHello": {
+      "post": {
+        "tags": [
+          "Hello"
+        ],
+        "operationId": "Hello_GetHello",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/.GetHelloReq"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/.TGetHelloResp"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/v3/listHello": {
+      "post": {
+        "tags": [
+          "Hello"
+        ],
+        "operationId": "Hello_ListHello",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/.ListHelloReq"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/.TListHelloResp"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/v3/updateHello": {
+      "post": {
+        "tags": [
+          "Hello"
+        ],
+        "operationId": "Hello_UpdateHello",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/.UpdateHelloReq"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/.TUpdateHelloResp"
+                }
+              }
+            }
+          }
+        }
+      }
+    }
+  },
+  "components": {
+    "schemas": {
+      ".CreateHelloReq": {
+        "type": "object",
+        "properties": {}
+      },
+      ".CreateHelloResp": {
+        "type": "object",
+        "properties": {}
+      },
+      ".DeleteHelloReq": {
+        "type": "object",
+        "properties": {}
+      },
+      ".DeleteHelloResp": {
+        "type": "object",
+        "properties": {}
+      },
+      ".GetHelloReq": {
+        "type": "object",
+        "properties": {}
+      },
+      ".GetHelloResp": {
+        "type": "object",
+        "properties": {}
+      },
+      ".ListHelloReq": {
+        "type": "object",
+        "properties": {}
+      },
+      ".ListHelloResp": {
+        "type": "object",
+        "properties": {}
+      },
+      ".TCreateHelloResp": {
+        "required": [
+          "code",
+          "msg",
+          "data"
+        ],
+        "type": "object",
+        "properties": {
+          "code": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "msg": {
+            "type": "string"
+          },
+          "data": {
+            "$ref": "#/components/schemas/.CreateHelloResp"
+          }
+        }
+      },
+      ".TDeleteHelloResp": {
+        "required": [
+          "code",
+          "msg",
+          "data"
+        ],
+        "type": "object",
+        "properties": {
+          "code": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "msg": {
+            "type": "string"
+          },
+          "data": {
+            "$ref": "#/components/schemas/.DeleteHelloResp"
+          }
+        }
+      },
+      ".TGetHelloResp": {
+        "required": [
+          "code",
+          "msg",
+          "data"
+        ],
+        "type": "object",
+        "properties": {
+          "code": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "msg": {
+            "type": "string"
+          },
+          "data": {
+            "$ref": "#/components/schemas/.GetHelloResp"
+          }
+        }
+      },
+      ".TListHelloResp": {
+        "required": [
+          "code",
+          "msg",
+          "data"
+        ],
+        "type": "object",
+        "properties": {
+          "code": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "msg": {
+            "type": "string"
+          },
+          "data": {
+            "$ref": "#/components/schemas/.ListHelloResp"
+          }
+        }
+      },
+      ".TUpdateHelloResp": {
+        "required": [
+          "code",
+          "msg",
+          "data"
+        ],
+        "type": "object",
+        "properties": {
+          "code": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "msg": {
+            "type": "string"
+          },
+          "data": {
+            "$ref": "#/components/schemas/.UpdateHelloResp"
+          }
+        }
+      },
+      ".UpdateHelloReq": {
+        "type": "object",
+        "properties": {}
+      },
+      ".UpdateHelloResp": {
+        "type": "object",
+        "properties": {}
+      }
+    }
+  },
+  "tags": [
+    {
+      "name": "Hello"
+    }
+  ]
+}

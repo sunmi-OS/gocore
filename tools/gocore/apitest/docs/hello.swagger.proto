@@ -1,0 +1,84 @@
+
+syntax = "proto3";
+
+option go_package = "/apitest;apitest";
+
+import "google/api/annotations.proto";
+
+service Hello {
+	rpc CreateHello (CreateHelloReq) returns (TCreateHelloResp) {
+	  option (google.api.http) = {
+	    post: "/v3/createHello"
+	    body: "*"
+	  };
+	}
+
+	rpc UpdateHello (UpdateHelloReq) returns (TUpdateHelloResp) {
+	  option (google.api.http) = {
+	    post: "/v3/updateHello"
+	    body: "*"
+	  };
+	}
+
+	rpc DeleteHello (DeleteHelloReq) returns (TDeleteHelloResp) {
+	  option (google.api.http) = {
+	    post: "/v3/deleteHello"
+	    body: "*"
+	  };
+	}
+
+	rpc GetHello (GetHelloReq) returns (TGetHelloResp) {
+	  option (google.api.http) = {
+	    post: "/v3/getHello"
+	    body: "*"
+	  };
+	}
+
+	rpc ListHello (ListHelloReq) returns (TListHelloResp) {
+	  option (google.api.http) = {
+	    post: "/v3/listHello"
+	    body: "*"
+	  };
+	}
+}
+
+message CreateHelloReq {}
+message CreateHelloResp {}
+
+message UpdateHelloReq {}
+message UpdateHelloResp {}
+
+message DeleteHelloReq {}
+message DeleteHelloResp {}
+
+message GetHelloReq {}
+message GetHelloResp {}
+
+message ListHelloReq {}
+message ListHelloResp {}
+
+message TCreateHelloResp {
+   int32 code = 1; // binding:"required"
+   string msg = 2; // binding:"required"
+   CreateHelloResp data = 3; // binding:"required"
+}
+message TUpdateHelloResp {
+   int32 code = 1; // binding:"required"
+   string msg = 2; // binding:"required"
+   UpdateHelloResp data = 3; // binding:"required"
+}
+message TDeleteHelloResp {
+   int32 code = 1; // binding:"required"
+   string msg = 2; // binding:"required"
+   DeleteHelloResp data = 3; // binding:"required"
+}
+message TGetHelloResp {
+   int32 code = 1; // binding:"required"
+   string msg = 2; // binding:"required"
+   GetHelloResp data = 3; // binding:"required"
+}
+message TListHelloResp {
+   int32 code = 1; // binding:"required"
+   string msg = 2; // binding:"required"
+   ListHelloResp data = 3; // binding:"required"
+}

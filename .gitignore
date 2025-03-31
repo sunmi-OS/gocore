@@ -16,3 +16,8 @@ go.mod
 go.sum
 .vscode/
 tools/gocore/main
+
+# Mac
+.DS_Store
+
+old
