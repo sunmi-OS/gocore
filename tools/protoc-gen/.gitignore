@@ -1,0 +1,24 @@
+protoc-gen-go-gin
+cmd/protoc-gen-sm-go-errors/protoc-gen-sm-go-errors
+cmd/protoc-gen-openapi/protoc-gen-sm-openapi
+cmd/protoc-gen-sm-go-gin/protoc-sm-gen-go-gin
+
+.DS_Store
+
+# Binaries for programs and plugins
+*.exe
+*.exe~
+*.dll
+*.so
+*.dylib
+
+# Test binary, built with `go test -c`
+*.test
+
+# Output of the go coverage tool, specifically when used with LiteIDE
+*.out
+
+# Dependency directories (remove the comment below to include it)
+# vendor/
+/cmd/protoc-gen-sm-go-gin/protoc-gen-sm-go-gin
+/cmd/protoc-gen-sm-openapi/protoc-gen-sm-openapi

@@ -1,0 +1,58 @@
+
+syntax = "proto3";
+
+option go_package = "/apitest;apitest";
+
+import "google/api/annotations.proto";
+
+service Hello {
+	rpc CreateHello (CreateHelloReq) returns (CreateHelloResp) {
+	  option (google.api.http) = {
+	    post: "/v3/createHello"
+	    body: "*"
+	  };
+	}
+
+	rpc UpdateHello (UpdateHelloReq) returns (UpdateHelloResp) {
+	  option (google.api.http) = {
+	    post: "/v3/updateHello"
+	    body: "*"
+	  };
+	}
+
+	rpc DeleteHello (DeleteHelloReq) returns (DeleteHelloResp) {
+	  option (google.api.http) = {
+	    post: "/v3/deleteHello"
+	    body: "*"
+	  };
+	}
+
+	rpc GetHello (GetHelloReq) returns (GetHelloResp) {
+	  option (google.api.http) = {
+	    post: "/v3/getHello"
+	    body: "*"
+	  };
+	}
+
+	rpc ListHello (ListHelloReq) returns (ListHelloResp) {
+	  option (google.api.http) = {
+	    post: "/v3/listHello"
+	    body: "*"
+	  };
+	}
+}
+
+message CreateHelloReq {}
+message CreateHelloResp {}
+
+message UpdateHelloReq {}
+message UpdateHelloResp {}
+
+message DeleteHelloReq {}
+message DeleteHelloResp {}
+
+message GetHelloReq {}
+message GetHelloResp {}
+
+message ListHelloReq {}
+message ListHelloResp {}

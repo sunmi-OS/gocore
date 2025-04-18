@@ -1,0 +1,19 @@
+{
+  "error.0": "common unknown",
+  "error.400": "Bad request",
+  "error.401": "Not authorized",
+  "error.403": "Forbidden",
+  "error.404": "Not found",
+  "error.405": "Method not allowed",
+  "error.408": "Request timeout",
+  "error.409": "Conflict",
+  "error.410": "Resource gone",
+  "error.413": "Request entity too large",
+  "error.416": "Range not satisfiable",
+  "error.429": "Too many requests",
+  "error.500": "Internal server error",
+  "error.501": "Server not implemented this function",
+  "error.502": "Bad gateway",
+  "error.503": "Service unavailable",
+  "error.504": "Gateway timeout"
+}
