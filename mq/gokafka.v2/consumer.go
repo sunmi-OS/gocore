@@ -96,7 +96,7 @@ func (kr *Consumer) Handle(ctx context.Context, handle func(msg kafka.Message) e
 			if err != nil {
 				result = "fail"
 			}
-			metricsResult.WithLabelValues(m.Topic, pub, result).Inc()
+			metricsResult.WithLabelValues(m.Topic, sub, result).Inc()
 		}
 	}
 }
