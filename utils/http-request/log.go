@@ -35,7 +35,6 @@ func (h *HttpClient) SetLog(log Log) *HttpClient {
 	h.Client = h.Client.OnAfterResponse(func(client *resty.Client, resp *resty.Response) error {
 		r := resp.Request
 		ctx := resp.Request.Context()
-		ctx = utils.SetMetaData(ctx, utils.XB3TraceId, resp.Header().Get(utils.XB3TraceId))
 		var reqBody interface{}
 		reqBody = hideBody
 		respBody := hideBody
@@ -70,6 +69,7 @@ func (h *HttpClient) SetLog(log Log) *HttpClient {
 			"resp", utils.LogContentUnmarshal(respBody),
 			"status", statusCode,
 		}
+
 		if statusCode == http.StatusOK {
 			if root, err0 := sonic.Get(resp.Body()); err0 == nil {
 				respCode, err := root.Get("code").Int64()
