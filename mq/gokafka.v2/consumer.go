@@ -23,10 +23,24 @@ func NewConsumerConfig(brokers []string, groupID string, topic string) kafka.Rea
 		Brokers:        brokers,
 		Topic:          topic,
 		GroupID:        groupID,
-		MinBytes:       10e3, //10K
-		MaxBytes:       10e6, //10MB
+		MinBytes:       10e3, // 10K
+		MaxBytes:       10e6, // 10MB
 		MaxWait:        time.Second,
 		CommitInterval: time.Second,
+		StartOffset:    kafka.LastOffset,
+	}
+}
+
+// NewConsumerConfigV2 创建kafka消费者配置: 不自动提交offset
+func NewConsumerConfigV2(brokers []string, groupID string, topic string) kafka.ReaderConfig {
+	return kafka.ReaderConfig{
+		Brokers:        brokers,
+		Topic:          topic,
+		GroupID:        groupID,
+		MinBytes:       10e3, // 10K
+		MaxBytes:       10e6, // 10MB
+		MaxWait:        time.Second,
+		CommitInterval: 0, // 不自动提交
 		StartOffset:    kafka.LastOffset,
 	}
 }
@@ -36,8 +50,8 @@ func NewVipConsumerConfig(brokername string, groupID string, topic string) kafka
 		Brokers:        viper.GetEnvConfig(brokername + ".Brokers").SliceString(),
 		GroupID:        groupID,
 		Topic:          topic,
-		MinBytes:       10e3, //10K
-		MaxBytes:       10e6, //10MB
+		MinBytes:       10e3, // 10K
+		MaxBytes:       10e6, // 10MB
 		MaxWait:        time.Second,
 		CommitInterval: time.Second,
 		StartOffset:    kafka.LastOffset,
@@ -97,6 +111,53 @@ func (kr *Consumer) Handle(ctx context.Context, handle func(msg kafka.Message) e
 				result = "fail"
 			}
 			metricsResult.WithLabelValues(m.Topic, sub, result).Inc()
+		}
+	}
+}
+
+// HandleV2 处理kafka消息: 当handle返回error则不提交offset
+func (kr *Consumer) HandleV2(ctx context.Context, handle func(msg kafka.Message) error) error {
+	for {
+		select {
+		case <-ctx.Done():
+			glog.WarnC(ctx, "Kafka Consumer.HandleV2 ctx done")
+			return ctx.Err()
+		case <-kr.ctx.Done():
+			glog.WarnC(ctx, "Kafka Consumer.HandleV2 kr.ctx done")
+			return kr.ctx.Err()
+		default:
+			msg, err := kr.Reader.FetchMessage(ctx)
+
+			// io.EOF means consumer closed
+			// io.ErrClosedPipe means committing messages on the consumer,
+			// kafka will refire the messages on uncommitted messages, ignore
+			if err == io.EOF || err == io.ErrClosedPipe {
+				glog.WarnC(ctx, "Kafka Consumer.FetchMessage failed, err=%+v(the reader has been closed)", err)
+				return nil
+			}
+			if err != nil {
+				glog.ErrorC(ctx, "Kafka Consumer.FetchMessage failed, err=%+v", err)
+				continue
+			}
+
+			startTime := time.Now()
+
+			err = handle(msg)
+
+			metricReqDuration.WithLabelValues(msg.Topic, sub).Observe(float64(time.Since(startTime).Milliseconds()))
+			metricsDelay.WithLabelValues(msg.Topic).Observe(float64(time.Since(msg.Time).Milliseconds()))
+
+			if err != nil {
+				metricsResult.WithLabelValues(msg.Topic, sub, "fail").Inc()
+				glog.ErrorC(ctx, "Kafka Consumer.HandleV2 error:%+v", err)
+				continue
+			}
+
+			metricsResult.WithLabelValues(msg.Topic, sub, "success").Inc()
+
+			if ackErr := kr.Reader.CommitMessages(ctx, msg); ackErr != nil {
+				glog.ErrorC(ctx, "Kafka Consumer.CommitMessages error:%+v", ackErr)
+			}
 		}
 	}
 }

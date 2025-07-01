@@ -4,38 +4,36 @@ import (
 	"errors"
 	"net/http"
 	"testing"
-
-	"github.com/sunmi-OS/gocore/v2/glog"
 )
 
 func TestEcodeWithReason(t *testing.T) {
 	e := FromError(Success)
-	glog.Debug(e.Error())   // error: code = 1 message = success metadata = map[] cause = <nil>
-	glog.Debug(e.Code())    // 1
-	glog.Debug(e.Message()) // success
-	glog.Info("============================")
+	t.Log(e.Error())   // error: code = 1 message = success metadata = map[] cause = <nil>
+	t.Log(e.Code())    // 1
+	t.Log(e.Message()) // success
+	t.Log("============================")
 
 	e2 := FromError(nil)
-	glog.Debug(e2.Error())   // error: code = 1 message = success metadata = map[] cause = <nil>
-	glog.Debug(e2.Code())    // 1
-	glog.Debug(e2.Message()) // success
-	glog.Info("============================")
+	t.Log(e2.Error())   // error: code = 1 message = success metadata = map[] cause = <nil>
+	t.Log(e2.Code())    // 1
+	t.Log(e2.Message()) // success
+	t.Log("============================")
 
 	sms := NewV2(10000, "中国电信").WithMetadata(map[string]string{
 		"name":   "jerry",
 		"reason": "欠话费了",
 	})
-	glog.Debug(sms.Error())   // error: code = 10000 message = 中国电信 metadata = map[name:jerry reason:我是metadata] cause = <nil>
-	glog.Debug(sms.Code())    // 10000
-	glog.Debug(sms.Message()) // 中国电信
-	glog.Debug(sms.Metadata)  // map[name:jerry reason:欠话费了]
-	glog.Info("============================")
+	t.Log(sms.Error())   // error: code = 10000 message = 中国电信 metadata = map[name:jerry reason:我是metadata] cause = <nil>
+	t.Log(sms.Code())    // 10000
+	t.Log(sms.Message()) // 中国电信
+	t.Log(sms.Metadata)  // map[name:jerry reason:欠话费了]
+	t.Log("============================")
 
 	mms := NewV2(10086, "中国移动").WithCause(errors.New("我是原因"))
-	glog.Debug(mms.Error())   // error: code = 10086 message = 中国移动 metadata = map[] cause = 我是原因
-	glog.Debug(mms.Code())    // 10086
-	glog.Debug(mms.Message()) // 中国电信
-	glog.Debug(mms.Unwrap())  // 我是原因
+	t.Log(mms.Error())   // error: code = 10086 message = 中国移动 metadata = map[] cause = 我是原因
+	t.Log(mms.Code())    // 10086
+	t.Log(mms.Message()) // 中国电信
+	t.Log(mms.Unwrap())  // 我是原因
 }
 
 func TestIs(t *testing.T) {
