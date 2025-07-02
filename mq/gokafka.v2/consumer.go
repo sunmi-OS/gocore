@@ -14,8 +14,19 @@ import (
 
 type Consumer struct {
 	Reader *kafka.Reader
+
+	disableAutoCommit bool // 是否禁用自动提交offset
+
 	ctx    context.Context
 	cancel context.CancelFunc
+}
+
+type Option func(*Consumer)
+
+func DisableAutoCommit() Option {
+	return func(c *Consumer) {
+		c.disableAutoCommit = true
+	}
 }
 
 func NewConsumerConfig(brokers []string, groupID string, topic string) kafka.ReaderConfig {
@@ -23,8 +34,8 @@ func NewConsumerConfig(brokers []string, groupID string, topic string) kafka.Rea
 		Brokers:        brokers,
 		Topic:          topic,
 		GroupID:        groupID,
-		MinBytes:       10e3, //10K
-		MaxBytes:       10e6, //10MB
+		MinBytes:       10e3, // 10K
+		MaxBytes:       10e6, // 10MB
 		MaxWait:        time.Second,
 		CommitInterval: time.Second,
 		StartOffset:    kafka.LastOffset,
@@ -36,8 +47,8 @@ func NewVipConsumerConfig(brokername string, groupID string, topic string) kafka
 		Brokers:        viper.GetEnvConfig(brokername + ".Brokers").SliceString(),
 		GroupID:        groupID,
 		Topic:          topic,
-		MinBytes:       10e3, //10K
-		MaxBytes:       10e6, //10MB
+		MinBytes:       10e3, // 10K
+		MaxBytes:       10e6, // 10MB
 		MaxWait:        time.Second,
 		CommitInterval: time.Second,
 		StartOffset:    kafka.LastOffset,
@@ -45,13 +56,22 @@ func NewVipConsumerConfig(brokername string, groupID string, topic string) kafka
 }
 
 // NewConsumer conf每次重新生成
-func NewConsumer(conf kafka.ReaderConfig) *Consumer {
+func NewConsumer(conf kafka.ReaderConfig, opts ...Option) *Consumer {
 	ctx, cancel := context.WithCancel(context.Background())
+
 	c := &Consumer{
 		ctx:    ctx,
 		cancel: cancel,
-		Reader: kafka.NewReader(conf),
 	}
+
+	for _, opt := range opts {
+		opt(c)
+	}
+	if c.disableAutoCommit {
+		conf.CommitInterval = 0 // 禁用自动提交offset
+	}
+	c.Reader = kafka.NewReader(conf)
+
 	closes.AddShutdown(closes.ModuleClose{
 		Name:     "Kafka Consumer Close",
 		Priority: closes.MQPriority,
@@ -59,44 +79,96 @@ func NewConsumer(conf kafka.ReaderConfig) *Consumer {
 			_ = c.Close()
 		},
 	})
+
 	return c
 }
 
 func (kr *Consumer) Handle(ctx context.Context, handle func(msg kafka.Message) error) error {
+	if kr.disableAutoCommit {
+		return kr.handleWithManualCommit(ctx, handle)
+	}
+	return kr.handleWithAutoCommit(ctx, handle)
+}
+
+func (kr *Consumer) handleWithAutoCommit(ctx context.Context, handle func(msg kafka.Message) error) error {
 	for {
 		select {
 		case <-ctx.Done():
-			glog.InfoC(ctx, "Kafka Consumer.Handle ctx done")
+			glog.WarnC(ctx, "Kafka Consumer(AutoCommit) ctx done, err=%+v", ctx.Err())
 			return ctx.Err()
 		case <-kr.ctx.Done():
-			glog.InfoC(ctx, "Kafka Consumer.Handle kr.ctx done")
+			glog.WarnC(ctx, "Kafka Consumer(AutoCommit) kr.ctx done, err=%+v", kr.ctx.Err())
 			return kr.ctx.Err()
 		default:
-			m, err := kr.Reader.FetchMessage(ctx)
+			msg, err := kr.Reader.FetchMessage(ctx)
+
 			// io.EOF means consumer closed
 			// io.ErrClosedPipe means committing messages on the consumer,
 			// kafka will refire the messages on uncommitted messages, ignore
 			if err == io.EOF || err == io.ErrClosedPipe {
-				glog.InfoC(ctx, "Kafka Consumer.FetchMessage error:%v(the reader has been closed)", err)
+				glog.WarnC(ctx, "Kafka Consumer(AutoCommit) FetchMessage failed, err=%+v(the reader has been closed)", err)
 				return nil
 			}
 			if err != nil {
-				glog.ErrorC(ctx, "Kafka Consumer.FetchMessage error:%+v", err)
+				glog.ErrorC(ctx, "Kafka Consumer(AutoCommit) FetchMessage failed, err=%+v", err)
 				continue
 			}
+
 			startTime := time.Now()
-			err = handle(m)
-			metricReqDuration.WithLabelValues(m.Topic, sub).Observe(float64(time.Since(startTime).Milliseconds()))
-			metricsDelay.WithLabelValues(m.Topic).Observe(float64(time.Since(m.Time).Milliseconds()))
-			ackErr := kr.Reader.CommitMessages(ctx, m)
-			if ackErr != nil {
-				glog.ErrorC(ctx, "Kafka Consumer.CommitMessages error:%+v", ackErr)
-			}
+
 			result := "success"
-			if err != nil {
+			if err = handle(msg); err != nil {
 				result = "fail"
 			}
-			metricsResult.WithLabelValues(m.Topic, sub, result).Inc()
+			metricsResult.WithLabelValues(msg.Topic, sub, result).Inc()
+
+			metricReqDuration.WithLabelValues(msg.Topic, sub).Observe(float64(time.Since(startTime).Milliseconds()))
+			metricsDelay.WithLabelValues(msg.Topic).Observe(float64(time.Since(msg.Time).Milliseconds()))
+		}
+	}
+}
+
+func (kr *Consumer) handleWithManualCommit(ctx context.Context, handle func(msg kafka.Message) error) error {
+	for {
+		select {
+		case <-ctx.Done():
+			glog.WarnC(ctx, "Kafka Consumer(ManualCommit) ctx done, err=%+v", ctx.Err())
+			return ctx.Err()
+		case <-kr.ctx.Done():
+			glog.WarnC(ctx, "Kafka Consumer(ManualCommit) kr.ctx done, err=%+v", kr.ctx.Err())
+			return kr.ctx.Err()
+		default:
+			msg, err := kr.Reader.FetchMessage(ctx)
+
+			// io.EOF means consumer closed
+			// io.ErrClosedPipe means committing messages on the consumer,
+			// kafka will refire the messages on uncommitted messages, ignore
+			if err == io.EOF || err == io.ErrClosedPipe {
+				glog.WarnC(ctx, "Kafka Consumer(ManualCommit) FetchMessage failed, err=%+v(the reader has been closed)", err)
+				return nil
+			}
+			if err != nil {
+				glog.ErrorC(ctx, "Kafka Consumer(ManualCommit) FetchMessage failed, err=%+v", err)
+				continue
+			}
+
+			startTime := time.Now()
+
+			err = handle(msg)
+
+			metricReqDuration.WithLabelValues(msg.Topic, sub).Observe(float64(time.Since(startTime).Milliseconds()))
+			metricsDelay.WithLabelValues(msg.Topic).Observe(float64(time.Since(msg.Time).Milliseconds()))
+
+			if err != nil {
+				metricsResult.WithLabelValues(msg.Topic, sub, "fail").Inc()
+				continue
+			}
+
+			metricsResult.WithLabelValues(msg.Topic, sub, "success").Inc()
+
+			if ackErr := kr.Reader.CommitMessages(ctx, msg); ackErr != nil {
+				glog.ErrorC(ctx, "Kafka Consumer(ManualCommit) CommitMessages failed, err=%+v", ackErr)
+			}
 		}
 	}
 }
