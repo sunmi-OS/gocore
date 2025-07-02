@@ -94,48 +94,10 @@ func (kr *Consumer) handleWithAutoCommit(ctx context.Context, handle func(msg ka
 	for {
 		select {
 		case <-ctx.Done():
-			glog.WarnC(ctx, "Kafka Consumer(AutoCommit) ctx done")
+			glog.WarnC(ctx, "Kafka Consumer(AutoCommit) ctx done, err=%+v", ctx.Err())
 			return ctx.Err()
 		case <-kr.ctx.Done():
-			glog.WarnC(ctx, "Kafka Consumer(AutoCommit) kr.ctx done")
-			return kr.ctx.Err()
-		default:
-			m, err := kr.Reader.FetchMessage(ctx)
-
-			// io.EOF means consumer closed
-			// io.ErrClosedPipe means committing messages on the consumer,
-			// kafka will refire the messages on uncommitted messages, ignore
-			if err == io.EOF || err == io.ErrClosedPipe {
-				glog.WarnC(ctx, "Kafka Consumer.FetchMessage error:%v(the reader has been closed)", err)
-				return nil
-			}
-			if err != nil {
-				glog.ErrorC(ctx, "Kafka Consumer.FetchMessage error:%+v", err)
-				continue
-			}
-
-			startTime := time.Now()
-
-			result := "success"
-			if err = handle(m); err != nil {
-				result = "fail"
-			}
-			metricsResult.WithLabelValues(m.Topic, sub, result).Inc()
-
-			metricReqDuration.WithLabelValues(m.Topic, sub).Observe(float64(time.Since(startTime).Milliseconds()))
-			metricsDelay.WithLabelValues(m.Topic).Observe(float64(time.Since(m.Time).Milliseconds()))
-		}
-	}
-}
-
-func (kr *Consumer) handleWithManualCommit(ctx context.Context, handle func(msg kafka.Message) error) error {
-	for {
-		select {
-		case <-ctx.Done():
-			glog.WarnC(ctx, "Kafka Consumer(ManualCommit) ctx done")
-			return ctx.Err()
-		case <-kr.ctx.Done():
-			glog.WarnC(ctx, "Kafka Consumer(ManualCommit) kr.ctx done")
+			glog.WarnC(ctx, "Kafka Consumer(AutoCommit) kr.ctx done, err=%+v", kr.ctx.Err())
 			return kr.ctx.Err()
 		default:
 			msg, err := kr.Reader.FetchMessage(ctx)
@@ -144,11 +106,49 @@ func (kr *Consumer) handleWithManualCommit(ctx context.Context, handle func(msg 
 			// io.ErrClosedPipe means committing messages on the consumer,
 			// kafka will refire the messages on uncommitted messages, ignore
 			if err == io.EOF || err == io.ErrClosedPipe {
-				glog.WarnC(ctx, "Kafka Consumer.FetchMessage failed, err=%+v(the reader has been closed)", err)
+				glog.WarnC(ctx, "Kafka Consumer(AutoCommit) FetchMessage failed, err=%+v(the reader has been closed)", err)
 				return nil
 			}
 			if err != nil {
-				glog.ErrorC(ctx, "Kafka Consumer.FetchMessage failed, err=%+v", err)
+				glog.ErrorC(ctx, "Kafka Consumer(AutoCommit) FetchMessage failed, err=%+v", err)
+				continue
+			}
+
+			startTime := time.Now()
+
+			result := "success"
+			if err = handle(msg); err != nil {
+				result = "fail"
+			}
+			metricsResult.WithLabelValues(msg.Topic, sub, result).Inc()
+
+			metricReqDuration.WithLabelValues(msg.Topic, sub).Observe(float64(time.Since(startTime).Milliseconds()))
+			metricsDelay.WithLabelValues(msg.Topic).Observe(float64(time.Since(msg.Time).Milliseconds()))
+		}
+	}
+}
+
+func (kr *Consumer) handleWithManualCommit(ctx context.Context, handle func(msg kafka.Message) error) error {
+	for {
+		select {
+		case <-ctx.Done():
+			glog.WarnC(ctx, "Kafka Consumer(ManualCommit) ctx done, err=%+v", ctx.Err())
+			return ctx.Err()
+		case <-kr.ctx.Done():
+			glog.WarnC(ctx, "Kafka Consumer(ManualCommit) kr.ctx done, err=%+v", kr.ctx.Err())
+			return kr.ctx.Err()
+		default:
+			msg, err := kr.Reader.FetchMessage(ctx)
+
+			// io.EOF means consumer closed
+			// io.ErrClosedPipe means committing messages on the consumer,
+			// kafka will refire the messages on uncommitted messages, ignore
+			if err == io.EOF || err == io.ErrClosedPipe {
+				glog.WarnC(ctx, "Kafka Consumer(ManualCommit) FetchMessage failed, err=%+v(the reader has been closed)", err)
+				return nil
+			}
+			if err != nil {
+				glog.ErrorC(ctx, "Kafka Consumer(ManualCommit) FetchMessage failed, err=%+v", err)
 				continue
 			}
 
@@ -167,7 +167,7 @@ func (kr *Consumer) handleWithManualCommit(ctx context.Context, handle func(msg 
 			metricsResult.WithLabelValues(msg.Topic, sub, "success").Inc()
 
 			if ackErr := kr.Reader.CommitMessages(ctx, msg); ackErr != nil {
-				glog.ErrorC(ctx, "Kafka Consumer.CommitMessages failed, err=%+v", ackErr)
+				glog.ErrorC(ctx, "Kafka Consumer(ManualCommit) CommitMessages failed, err=%+v", ackErr)
 			}
 		}
 	}
