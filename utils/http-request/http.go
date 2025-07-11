@@ -13,9 +13,7 @@ import (
 const maxShowBodySize = 1024 * 100
 
 type HttpClient struct {
-	Client  *resty.Client
-	Request *resty.Request
-
+	Client                   *resty.Client
 	disableLog               bool            // default: false 默认打印日志(配置SetLog后)
 	disableMetrics           bool            // default: false 默认开启统计
 	disableBreaker           bool            // default: true 默认关闭熔断
@@ -50,7 +48,6 @@ func New() *HttpClient {
 
 	return &HttpClient{
 		Client:                   client,
-		Request:                  client.R(),
 		disableMetrics:           false,
 		disableLog:               false,
 		disableBreaker:           true, // default disable, will open soon
@@ -58,12 +55,6 @@ func New() *HttpClient {
 		hideRespBodyLogsWithPath: hidelBodyLogsPath,
 		maxShowBodySize:          maxShowBodySize,
 	}
-}
-
-func (h *HttpClient) SetTrace(header interface{}) *HttpClient {
-	trace := utils.SetHeader(header)
-	h.Request.Header = trace.HttpHeader
-	return h
 }
 
 func (h *HttpClient) SetDisableMetrics(disable bool) *HttpClient {
