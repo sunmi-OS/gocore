@@ -13,7 +13,7 @@
 ## 安装
 
 ```bash
-go get github.com/your-repo/gm-gocore2/ratelimiter
+go get github.com/sunmi-OS/gocore/v2/lib/ratelimiter
 ```
 
 ## 快速开始
@@ -23,7 +23,7 @@ go get github.com/your-repo/gm-gocore2/ratelimiter
 ```go
 import (
     "github.com/redis/go-redis/v9"
-    "github.com/your-repo/gm-gocore2/ratelimiter"
+    "github.com/sunmi-OS/gocore/v2/lib/ratelimiter"
 )
 
 // 创建Redis客户端
@@ -179,7 +179,7 @@ import (
     "time"
     
     "github.com/redis/go-redis/v9"
-    "github.com/your-repo/gm-gocore2/ratelimiter"
+    "github.com/sunmi-OS/gocore/v2/lib/ratelimiter"
 )
 
 func main() {
