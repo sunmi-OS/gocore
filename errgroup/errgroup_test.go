@@ -12,7 +12,7 @@ import (
 
 func TestNormal(t *testing.T) {
 	m := make(map[int]int)
-	for i := range 4 {
+	for i := 0; i < 4; i++ {
 		m[i] = i
 	}
 	eg := WithContext(context.Background())
@@ -77,7 +77,7 @@ func TestGOMAXPROCS(t *testing.T) {
 		time.Sleep(time.Second)
 		select {
 		case <-ctx.Done():
-			t.Log("caused by", context.Cause(ctx))
+			t.Log("caused by", ctx.Err())
 		default:
 		}
 		return nil
