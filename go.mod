@@ -3,6 +3,7 @@ module github.com/sunmi-OS/gocore/v2
 go 1.18
 
 require (
+	github.com/ulule/limiter/v3 v3.11.2
 	github.com/BurntSushi/toml v1.3.2
 	github.com/aliyun/aliyun-log-go-sdk v0.1.71
 	github.com/apache/rocketmq-client-go/v2 v2.1.2
