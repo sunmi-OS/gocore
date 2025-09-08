@@ -109,10 +109,11 @@ func (c *Consumer) Handle(ctx context.Context, handle func(msg kafka.Message) er
 func (c *Consumer) Close() error {
 	c.cancel()
 
-	if err := c.Reader.Close(); err != nil {
+	err := c.Reader.Close()
+	if err != nil {
 		glog.ErrorF("Kafka Consumer close error:%v, conf:%#v", err, c.Reader.Config())
-		return err
+	} else {
+		glog.InfoF("Kafka Consumer close success, conf:%#v", c.Reader.Config())
 	}
-	glog.InfoF("Kafka Consumer close success, conf:%#v", c.Reader.Config())
-	return nil
+	return err
 }
