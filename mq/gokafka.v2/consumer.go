@@ -93,6 +93,8 @@ func (c *Consumer) Handle(ctx context.Context, handle func(msg kafka.Message) er
 
 			startTime := time.Now()
 
+			metricsDelay.WithLabelValues(msg.Topic).Observe(float64(time.Since(msg.Time).Milliseconds()))
+
 			result := "success"
 			if err = handle(msg); err != nil {
 				result = "fail"
@@ -100,7 +102,6 @@ func (c *Consumer) Handle(ctx context.Context, handle func(msg kafka.Message) er
 			metricsResult.WithLabelValues(msg.Topic, sub, result).Inc()
 
 			metricReqDuration.WithLabelValues(msg.Topic, sub).Observe(float64(time.Since(startTime).Milliseconds()))
-			metricsDelay.WithLabelValues(msg.Topic).Observe(float64(time.Since(msg.Time).Milliseconds()))
 		}
 	}
 }
