@@ -1,7 +1,10 @@
 package middleware
 
 import (
+	"strings"
+
 	"github.com/gin-gonic/gin"
+	"github.com/google/uuid"
 	"github.com/sunmi-OS/gocore/v2/utils"
 	"google.golang.org/grpc/metadata"
 )
@@ -22,8 +25,13 @@ func TraceId() gin.HandlerFunc {
 		traceId := c.GetHeader(utils.XB3TraceId)
 		// 找不到x-b3-traceid，用x-request-id
 		if traceId == "" {
-			traceId = c.GetHeader(utils.XRequestId)
+			if c.GetHeader(utils.XRequestId) != "" {
+				traceId = c.GetHeader(utils.XRequestId)
+			} else {
+				traceId = strings.ReplaceAll(uuid.New().String(), "-", "")
+			}
 		}
+
 		// 设置traceId
 		md.Set(utils.XB3TraceId, traceId)
 		ctx := metadata.NewIncomingContext(c.Request.Context(), md)
