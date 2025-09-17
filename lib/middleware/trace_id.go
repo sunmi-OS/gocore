@@ -25,12 +25,11 @@ func TraceId() gin.HandlerFunc {
 		traceId := c.GetHeader(utils.XB3TraceId)
 		// 找不到x-b3-traceid，用x-request-id
 		if traceId == "" {
-			traceId = c.GetHeader(utils.XRequestId)
-		}
-
-		// if traceId is absent, then generate it with uuid
-		if traceId == "" {
-			traceId = strings.ReplaceAll(uuid.New().String(), "-", "")
+			if c.GetHeader(utils.XRequestId) != "" {
+				traceId = c.GetHeader(utils.XRequestId)
+			} else {
+				traceId = strings.ReplaceAll(uuid.New().String(), "-", "")
+			}
 		}
 
 		// 设置traceId
