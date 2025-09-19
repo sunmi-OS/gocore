@@ -1,6 +1,7 @@
 package http_request
 
 import (
+	"context"
 	"errors"
 	"fmt"
 	"net/http"
@@ -8,6 +9,7 @@ import (
 
 	"github.com/go-resty/resty/v2"
 	"github.com/sunmi-OS/gocore/v2/utils"
+	"google.golang.org/grpc/metadata"
 )
 
 const maxShowBodySize = 1024 * 100
@@ -23,7 +25,10 @@ type HttpClient struct {
 	maxShowBodySize          int64
 }
 
-func New() *HttpClient {
+// Option support set var to resty.Client
+type Option func(client *resty.Client)
+
+func New(opts ...Option) *HttpClient {
 	// Create a Resty Client
 	client := resty.New()
 
@@ -46,6 +51,10 @@ func New() *HttpClient {
 		}).
 		SetHeader(utils.XAppName, utils.GetAppName())
 
+	for _, opt := range opts {
+		opt(client)
+	}
+
 	return &HttpClient{
 		Client:                   client,
 		disableMetrics:           false,
@@ -54,6 +63,51 @@ func New() *HttpClient {
 		hideReqBodyLogsWithPath:  hidelBodyLogsPath,
 		hideRespBodyLogsWithPath: hidelBodyLogsPath,
 		maxShowBodySize:          maxShowBodySize,
+	}
+}
+
+// R call Client.R() , and set the context value to headers
+func (h *HttpClient) R(ctx context.Context) *resty.Request {
+	req := h.Client.R()
+	md, ok := metadata.FromIncomingContext(ctx)
+	if !ok {
+		// if mdIncomingKey is absent, return resty Client
+		return req
+	}
+
+	req.SetHeaderMultiValues(md)
+
+	// when call downstream service, set current app name as client app
+	req.SetHeader(utils.XClientApp, utils.GetAppName())
+
+	return req
+}
+
+// WithRetryWaitTime set retry wait time
+func WithRetryWaitTime(retry int) Option {
+	return func(hc *resty.Client) {
+		hc.SetRetryWaitTime(time.Duration(retry) * time.Second)
+	}
+}
+
+// WithRetryMaxWaitTime set retry max wait time
+func WithRetryMaxWaitTime(retry int) Option {
+	return func(hc *resty.Client) {
+		hc.SetRetryMaxWaitTime(time.Duration(retry) * time.Second)
+	}
+}
+
+// WithRetryCount set retry times
+func WithRetryCount(retry int) Option {
+	return func(hc *resty.Client) {
+		hc.SetRetryCount(retry)
+	}
+}
+
+// WithTimeout set request timeout, unit is second
+func WithTimeout(timeout int64) Option {
+	return func(hc *resty.Client) {
+		hc.SetTimeout(time.Duration(timeout) * time.Second)
 	}
 }
 

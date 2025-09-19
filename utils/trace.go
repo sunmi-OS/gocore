@@ -17,6 +17,7 @@ const (
 	B3              = "b3"
 	XOtSpanContext  = "x-ot-span-context"
 	XAppName        = "x-app-name"
+	XClientApp      = "x-client-app"
 )
 
 type TraceHeader struct {
