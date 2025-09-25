@@ -20,6 +20,7 @@ import (
 	"github.com/sunmi-OS/gocore/v2/lib/middleware"
 	"github.com/sunmi-OS/gocore/v2/lib/prometheus"
 	tracing "github.com/sunmi-OS/gocore/v2/lib/tracing/gin/otel"
+	"github.com/sunmi-OS/gocore/v2/utils"
 	"github.com/sunmi-OS/gocore/v2/utils/closes"
 )
 
@@ -34,6 +35,7 @@ var (
 		"/":                   true,
 		"/health":             true,
 		"/monitor/prometheus": true,
+		"/routes":             true,
 	}
 )
 
@@ -90,6 +92,19 @@ func NewGinServer(ops ...Option) *GinEngine {
 
 	// prometheus
 	prometheus.NewPrometheus("app").Use(g)
+	// apiradar
+	g.GET("/routes", func(c *gin.Context) {
+		routes := g.Routes()
+		var routeList []string
+		for _, route := range routes {
+			routeList = append(routeList, route.Path)
+		}
+		c.JSON(http.StatusOK, gin.H{
+			"project_name": utils.GetAppName(),
+			"language":     "Go",
+			"route_list":   routeList,
+		})
+	})
 	// default health check
 	g.GET("/health", func(c *gin.Context) {
 		c.String(http.StatusOK, "ok")
