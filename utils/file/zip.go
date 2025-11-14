@@ -66,15 +66,34 @@ func Unzip(zipFile, destDir string) error {
 	}
 	defer zipReader.Close()
 
+	destDirAbs, err := filepath.Abs(destDir)
+	if err != nil {
+		return err
+	}
+	// Ensure destDirAbs ends with a path separator
+	if !strings.HasSuffix(destDirAbs, string(os.PathSeparator)) {
+		destDirAbs += string(os.PathSeparator)
+	}
+
 	for _, f := range zipReader.File {
 		fpath := filepath.Join(destDir, f.Name)
+		// Clean and get absolute path
+		fpathAbs, err := filepath.Abs(filepath.Clean(fpath))
+		if err != nil {
+			return err
+		}
+		// Check for Zip Slip (directory traversal)
+		if !strings.HasPrefix(fpathAbs, destDirAbs) {
+			return 	// or: return fmt.Errorf("illegal file path: %s", fpathAbs)
+		}
+
 		if f.FileInfo().IsDir() {
-			err := os.MkdirAll(fpath, os.ModePerm)
+			err := os.MkdirAll(fpathAbs, os.ModePerm)
 			if err != nil {
 				return err
 			}
 		} else {
-			if err = os.MkdirAll(filepath.Dir(fpath), os.ModePerm); err != nil {
+			if err = os.MkdirAll(filepath.Dir(fpathAbs), os.ModePerm); err != nil {
 				return err
 			}
 
@@ -84,7 +103,7 @@ func Unzip(zipFile, destDir string) error {
 			}
 			defer inFile.Close()
 
-			outFile, err := os.OpenFile(fpath, os.O_WRONLY|os.O_CREATE|os.O_TRUNC, f.Mode())
+			outFile, err := os.OpenFile(fpathAbs, os.O_WRONLY|os.O_CREATE|os.O_TRUNC, f.Mode())
 			if err != nil {
 				return err
 			}
