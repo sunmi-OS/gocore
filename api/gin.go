@@ -32,10 +32,21 @@ const (
 var (
 	ignoreRecordLog     bool = true
 	ignoreRecordPathMap      = map[string]bool{
-		"/":                   true,
-		"/health":             true,
-		"/monitor/prometheus": true,
-		"/routes":             true,
+		"/":                         true,
+		"/health":                   true,
+		"/monitor/prometheus":       true,
+		"/routes":                   true,
+		"/debug/pprof/":             true,
+		"/debug/pprof/trace":        true,
+		"/debug/pprof/threadcreate": true,
+		"/debug/pprof/cmdline":      true,
+		"/debug/pprof/profile":      true,
+		"/debug/pprof/symbol":       true,
+		"/debug/pprof/allocs":       true,
+		"/debug/pprof/block":        true,
+		"/debug/pprof/goroutine":    true,
+		"/debug/pprof/heap":         true,
+		"/debug/pprof/mutex":        true,
 	}
 )
 
