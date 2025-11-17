@@ -2,6 +2,7 @@ package file
 
 import (
 	"archive/zip"
+	"fmt"
 	"io"
 	"os"
 	"path/filepath"
@@ -84,7 +85,7 @@ func Unzip(zipFile, destDir string) error {
 		}
 		// Check for Zip Slip (directory traversal)
 		if !strings.HasPrefix(fpathAbs, destDirAbs) {
-			return 	// or: return fmt.Errorf("illegal file path: %s", fpathAbs)
+			return fmt.Errorf("illegal file path: %s", fpathAbs)
 		}
 
 		if f.FileInfo().IsDir() {
