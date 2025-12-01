@@ -38,7 +38,7 @@ func init() {
 	cfg.EncoderConfig.EncodeTime = zapcore.ISO8601TimeEncoder
 	cfg.EncoderConfig.StacktraceKey = ""
 	cfg.EncoderConfig.MessageKey = "content"
-	l, err := cfg.Build(zap.AddCallerSkip(4))
+	l, err := cfg.Build(zap.AddCallerSkip(6))
 	if err != nil {
 		log.Printf("l.initZap(),err:%+v", err)
 		return
@@ -62,7 +62,7 @@ func SetLogLevel(logLevel string) {
 		cfg.Level = zap.NewAtomicLevelAt(zap.DebugLevel)
 	}
 
-	Logger, err := cfg.Build(zap.AddCallerSkip(4))
+	Logger, err := cfg.Build(zap.AddCallerSkip(6))
 	if err != nil {
 		log.Printf("l.initZap(),err:%+v.\n", err)
 		return
@@ -142,7 +142,7 @@ func updateLogFile(logPath string) {
 		}
 		cfg.ErrorOutputPaths = []string{filename, "stderr"}
 		cfg.OutputPaths = []string{filename, "stdout"}
-		l, err := cfg.Build()
+		l, err := cfg.Build(zap.AddCallerSkip(6))
 		if err != nil {
 			log.Println(err)
 			continue
