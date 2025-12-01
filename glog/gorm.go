@@ -4,7 +4,9 @@ import (
 	"context"
 	"errors"
 	"fmt"
+	"runtime"
 	"strconv"
+	"strings"
 	"time"
 
 	"gorm.io/gorm/logger"
@@ -48,7 +50,7 @@ func (l *dbLogger) Info(ctx context.Context, msg string, data ...interface{}) {
 	if l.LogLevel >= logger.Info {
 		InfoV(ctx,
 			"kind", "SQL",
-			"file_line", utils.FileWithLineNum(),
+			"file_line", getCallerFileWithLineNum(),
 			"content", fmt.Sprintf(msg, data...),
 		)
 	}
@@ -59,7 +61,7 @@ func (l *dbLogger) Warn(ctx context.Context, msg string, data ...interface{}) {
 	if l.LogLevel >= logger.Warn {
 		WarnV(ctx,
 			"kind", "SQL",
-			"file_line", utils.FileWithLineNum(),
+			"file_line", getCallerFileWithLineNum(),
 			"content", fmt.Sprintf(msg, data...),
 		)
 	}
@@ -70,7 +72,7 @@ func (l *dbLogger) Error(ctx context.Context, msg string, data ...interface{}) {
 	if l.LogLevel >= logger.Error {
 		ErrorV(ctx,
 			"kind", "SQL",
-			"file_line", utils.FileWithLineNum(),
+			"file_line", getCallerFileWithLineNum(),
 			"content", fmt.Sprintf(msg, data...),
 		)
 	}
@@ -118,7 +120,7 @@ func (l *dbLogger) logTrace(ctx context.Context, level logger.LogLevel, elapsed 
 	}
 	logFn(ctx,
 		"kind", "SQL",
-		"file_line", utils.FileWithLineNum(),
+		"file_line", getCallerFileWithLineNum(),
 		"content", content,
 	)
 }
@@ -129,4 +131,22 @@ func (l *dbLogger) ParamsFilter(ctx context.Context, sql string, params ...inter
 		return sql, nil
 	}
 	return sql, params
+}
+
+// getCallerFileWithLineNum 获取调用者的文件名和行号，跳过 gorm 和 glog 内部调用
+func getCallerFileWithLineNum() string {
+	// 从调用栈中查找第一个不是 gorm 和 glog 包的调用位置
+	for i := 2; i < 15; i++ {
+		_, file, line, ok := runtime.Caller(i)
+		if ok {
+			// 跳过 gorm 和 glog 包
+			if !strings.Contains(file, "gorm.io/gorm") &&
+				!strings.Contains(file, "/glog/") &&
+				!strings.HasSuffix(file, "/glog/gorm.go") {
+				return fmt.Sprintf("%s:%d", file, line)
+			}
+		}
+	}
+	// 如果找不到，使用 gorm 的默认方法
+	return utils.FileWithLineNum()
 }
