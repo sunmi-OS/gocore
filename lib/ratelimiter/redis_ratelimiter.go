@@ -108,3 +108,8 @@ func NewRedisRateLimiter(redisClient *goRedis.Client, config RedisConfig) (*Redi
 func (r *RedisRateLimiter) Get(ctx context.Context, key string) (limiter.Context, error) {
 	return r.limiter.Get(ctx, key)
 }
+
+// Reset 重置限流
+func (r *RedisRateLimiter) Reset(ctx context.Context, key string) (limiter.Context, error) {
+	return r.limiter.Reset(ctx, key)
+}
