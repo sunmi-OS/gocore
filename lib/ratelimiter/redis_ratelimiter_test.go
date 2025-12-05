@@ -267,3 +267,48 @@ func TestRedisRateLimiter_DifferentKeys(t *testing.T) {
 		t.Errorf("Expected remaining to be 1, got %d", context.Remaining)
 	}
 }
+
+func TestRedisRateLimiter_Reset(t *testing.T) {
+	client := setupTestRedis(t)
+	defer client.Close()
+
+	// 创建限流器：每秒2次请求
+	config := RedisConfig{
+		Rate:   "2-S",
+		Prefix: "test",
+	}
+	limiter, err := NewRedisRateLimiter(client, config)
+	if err != nil {
+		t.Fatalf("Failed to create rate limiter: %v", err)
+	}
+	if limiter == nil {
+		t.Fatal("Expected limiter to be non-nil")
+	}
+
+	ctx := context.Background()
+	key := "test-key"
+
+	// 触发限流
+	_, _ = limiter.Get(ctx, key)
+	_, _ = limiter.Get(ctx, key)
+	_, _ = limiter.Get(ctx, key) // 这次应该被限流
+
+	// 重置限流
+	if _, err := limiter.Reset(ctx, key); err != nil {
+		t.Errorf("Unexpected error on reset: %v", err)
+		return
+	}
+
+	// 测试重置后的请求
+	context, err := limiter.Get(ctx, key)
+	if err != nil {
+		t.Errorf("Unexpected error after reset: %v", err)
+		return
+	}
+	if context.Reached {
+		t.Error("Expected request after reset to not be reached")
+	}
+	if context.Remaining != 1 {
+		t.Errorf("Expected remaining to be 1, got %d", context.Remaining)
+	}
+}
